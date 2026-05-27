@@ -5,7 +5,7 @@
 | Файл | Что |
 |---|---|
 | `smoke_qwen.py` | Smoke-test Qwen3.5-2B-Base: загрузка, проверка token IDs для A/B/C, forward + hidden states, log-prob ratio. Запуск: `python3 src/smoke_qwen.py`. |
-| `prepare_factorial.py` | Адаптер: v2 CSV от Никиты → JSONL для inference. Собирает prompt с "Answer:" в конце. 1350 items. Запуск: `python3 src/prepare_factorial.py data/factorial_v2_with_gender.csv`. |
+| `prepare_factorial.py` | Адаптер: v2 CSV → JSONL для inference. Собирает prompt с "Answer:" в конце. 1350 items. Запуск: `python3 src/prepare_factorial.py data/factorial_v2_with_gender.csv`. |
 | `inference.py` | Полный inference: constrained log-prob над A/B/C + HS snapshot всех слоёв на last-token. Сохраняет `hidden_states.npz` + `per_item.jsonl` + `meta.json` в `$RESULTS_DIR/run_*/` (default `/workspace/results`). Поддерживает variable abstain. Запуск: `python3 src/inference.py --items_file data/factorial_v2_with_gender.prepared.jsonl`. |
 | `upload_to_hf.py` | Заливка results folder в приватный HF Dataset repo `bias-subspaces-group/qwen-bias-experiments`. Запуск: `python3 src/upload_to_hf.py results/run_*/`. |
 

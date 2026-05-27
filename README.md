@@ -1,10 +1,7 @@
 # Bias subspaces in LLM
 
 Исследование локализации gender bias в скрытых состояниях `Qwen3.5-2B-Base`.
-4-недельный AI safety project, mentor — Sabrina Sadiekh.
-
-**Команда:** Olga Masaeva (этот репо — inference + HS extraction + probing pipeline),
-Никита (factorial dataset + probing), Руслан (методология + статистика).
+4-недельный AI safety research project.
 
 **Текущий статус (W1, 2026-05-27):** factorial v2 dataset (1350 items) прогнан на
 Qwen3.5-2B-Base, hidden states собраны на всех 25 слоях, результаты в HF
@@ -16,7 +13,7 @@ Qwen3.5-2B-Base, hidden states собраны на всех 25 слоях, ре�
 
 ```
 .
-├── data/                            # Никитин factorial dataset
+├── data/                            # factorial dataset (от teammate)
 │   ├── factorial_v1_from_nikita.csv     # X/Y placeholders (legacy)
 │   └── factorial_v2_with_gender.csv     # man/woman подставлены — каноничный input
 ├── src/
@@ -47,12 +44,12 @@ diff'а между runs.
 - Python 3.10+
 - HuggingFace account с access token (write scope для upload). Получить:
   https://huggingface.co/settings/tokens
-- Доступ в org `bias-subspaces-group` (приватный) — попросить инвайт у Olga.
+- Доступ в org `bias-subspaces-group` (приватный) — попросить инвайт у мейнтейнера.
 
 ### 1. Clone + установка зависимостей
 
 ```bash
-git clone https://github.com/olyamasaeva/Bias--subspaces-in-LLM.git
+git clone <repo-url>
 cd Bias--subspaces-in-LLM
 git checkout qwen_2b_experiments
 
@@ -90,7 +87,7 @@ python3 src/prepare_factorial.py data/factorial_v2_with_gender.csv
 # → data/factorial_v2_with_gender.prepared.jsonl (1350 items, ~930 KB)
 ```
 
-Скрипт читает Никитин CSV (man/woman уже подставлены), собирает поле `prompt` со
+Скрипт читает CSV (man/woman уже подставлены), собирает поле `prompt` со
 структурой BBQ:
 
 ```
@@ -151,6 +148,5 @@ python3 src/upload_to_hf.py results/run_*/
 
 ## License / citation
 
-Внутренний research project (AI safety mentorship). Датасет — Никитин,
-inference + reproducibility pipeline — Olga. Использование/repost — спросить
-сначала.
+Внутренний research project (AI safety mentorship). Использование/repost —
+спросить сначала у мейнтейнера.
