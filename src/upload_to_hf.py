@@ -1,21 +1,23 @@
 """
-Helper для заливки results folder в приватный HuggingFace Dataset repo.
+Helper для заливки results folder в приватный HuggingFace Dataset repo
+организации bias-subspaces-group.
 
 Использование:
     # На локальной машине после scp с Vast:
-    python3 src/upload_to_hf.py results/run_2026-05-28_qwen3.5-2b/
+    python3 src/upload_to_hf.py results/run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2/
 
     # Кастомный repo / sub-path:
     python3 src/upload_to_hf.py results/run_X/ \\
-        --repo-id olyamasaeva/qwen-bias-experiments \\
-        --path-in-repo run_2026-05-28_qwen3.5-2b
+        --repo-id bias-subspaces-group/qwen-bias-experiments \\
+        --path-in-repo run_X
 
     # На Vast напрямую (HF token из env):
-    python3 src/upload_to_hf.py /workspace/results/run_2026-05-28_qwen3.5-2b/
+    python3 src/upload_to_hf.py /workspace/results/run_*/
 
-Токен берётся:
-    1. из --token аргумента (если задан)
+Токен берётся (в порядке приоритета):
+    1. из --token аргумента
     2. иначе из env: HF_TOKEN / HUGGING_FACE_HUB_TOKEN
+       (автоматически читается из .env через python-dotenv)
     3. иначе из ~/.cache/huggingface/token (после huggingface-cli login)
 
 Repo создаётся автоматически (private=True по умолчанию).
@@ -27,8 +29,14 @@ from pathlib import Path
 
 from huggingface_hub import HfApi
 
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass   # python-dotenv не установлен — env vars подхватятся напрямую если экспортированы
 
-DEFAULT_REPO = "olyamasaeva/qwen-bias-experiments"
+
+DEFAULT_REPO = "bias-subspaces-group/qwen-bias-experiments"
 
 
 def main():

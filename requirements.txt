@@ -1,0 +1,21 @@
+# Установка торча отдельно — версия CUDA должна совпадать с драйвером хоста!
+# На Vast (драйвер CUDA 12.8):
+#     pip install torch --index-url https://download.pytorch.org/whl/cu128
+# Локально с CPU:
+#     pip install torch --index-url https://download.pytorch.org/whl/cpu
+# Проверка: python3 -c "import torch; print(torch.__version__, torch.cuda.is_available())"
+
+# Pinned to конкретные minor — voiced на текущем prod-runtime (Vast 2026-05-27).
+transformers==5.9.0
+accelerate==1.13.0
+huggingface_hub==1.16.4
+numpy==2.4.3
+pandas==2.3.3
+tqdm==4.67.3
+
+# Загрузка .env
+python-dotenv==1.0.1
+
+# Для metrics.py / probe_pipeline.py (W2)
+scikit-learn==1.6.1
+matplotlib==3.9.4

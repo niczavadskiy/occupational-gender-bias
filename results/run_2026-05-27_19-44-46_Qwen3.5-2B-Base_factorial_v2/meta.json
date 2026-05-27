@@ -1,0 +1,21 @@
+{
+  "run_id": "2026-05-27_19-44-46",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "datetime": "2026-05-27T19:52:22.664111",
+  "n_items": 1350,
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "model_load_time_s": 13.8,
+  "inference_time_s": 426.8,
+  "items_file": "factorial_v2_with_gender.prepared.jsonl",
+  "run_tag": "factorial_v2",
+  "torch_version": "2.11.0+cu128",
+  "cuda_available": true,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "total_runtime_s": 456.4,
+  "tok_ids": {
+    "A": 357,
+    "B": 417,
+    "C": 351
+  }
+}

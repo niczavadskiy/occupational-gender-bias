@@ -229,3 +229,19 @@ __marimo__/
 # === HF / model caches ===
 .hf_home/
 .cache/
+
+# === Experiment outputs ===
+# results/ — НЕ игнорим целиком, чтобы per_item.jsonl + meta.json трекать в git
+# (они маленькие, ~1.4 MB, удобно diff'ить между runs).
+# Большие артефакты (hidden_states.npz и др.) уже отрезаны выше через *.npz.
+inference_*.log
+*.log
+
+# === Generated derived data ===
+# Исходные CSV от Никиты (data/factorial_*.csv) — коммитим (~500 KB каждый).
+# Prepared JSONL — генерится из CSV через prepare_factorial.py, не коммитим.
+data/*.prepared.jsonl
+
+# === Secrets ===
+.env
+.env.local
