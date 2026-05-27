@@ -24,15 +24,18 @@ Qwen3.5-2B-Base, hidden states собраны на всех 25 слоях, ре�
 │   ├── inference.py                 # constrained log-prob A/B/C + HS на 25 слоях
 │   ├── smoke_qwen.py                # smoke-test модели
 │   └── upload_to_hf.py              # заливка results в bias-subspaces-group/...
-├── results/                         # gitignored — артефакты заливаются в HF
+├── results/                         # per_item.jsonl + meta.json трекаются в git;
+│                                    # hidden_states.npz — только в HF Dataset
 ├── requirements.txt
 ├── .env.example                     # шаблон для HF_TOKEN
 └── .gitignore
 ```
 
-Большие артефакты (`*.npz`, `results/`, `*.prepared.jsonl`) **не коммитим** — они
-живут в [HF Dataset](https://huggingface.co/datasets/bias-subspaces-group/qwen-bias-experiments)
-(private repo внутри org `bias-subspaces-group`).
+Большие артефакты (`*.npz`, `*.prepared.jsonl`) **не коммитим** — они живут
+в [HF Dataset](https://huggingface.co/datasets/bias-subspaces-group/qwen-bias-experiments)
+(private repo внутри org `bias-subspaces-group`). Маленькая metadata
+(`per_item.jsonl` ~1.4 MB, `meta.json` ~0.5 KB) трекается в git для удобного
+diff'а между runs.
 
 ---
 
