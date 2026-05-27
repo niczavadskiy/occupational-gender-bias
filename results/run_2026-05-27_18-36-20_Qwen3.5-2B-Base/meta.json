@@ -1,0 +1,14 @@
+{
+  "run_id": "2026-05-27_18-36-20",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "datetime": "2026-05-27T18:36:35.638587",
+  "n_items": 5,
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "model_load_time_s": 12.2,
+  "items_file": "BUILTIN_DEMO",
+  "torch_version": "2.11.0+cu128",
+  "cuda_available": true,
+  "gpu": "NVIDIA GeForce RTX 3090",
+  "total_runtime_s": 15.0
+}
