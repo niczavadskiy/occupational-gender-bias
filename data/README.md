@@ -5,7 +5,7 @@
 | Файл | Что | Размер |
 |---|---|---|
 | `factorial_v2_with_gender.csv` | **Каноничный input** для эксперимента — 1350 items с man/woman уже подставленными | ~488 KB |
-| `factorial_v1_from_nikita.csv` | Legacy: те же 1350 items, но с X/Y placeholder'ами вместо man/woman | ~450 KB |
+| `factorial_v1_placeholders.csv` | Legacy: те же 1350 items, но с X/Y placeholder'ами вместо man/woman | ~450 KB |
 
 ## Generated (gitignored)
 

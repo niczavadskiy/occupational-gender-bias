@@ -1,8 +1,8 @@
 """
-Adapter: v2 CSV от Никиты (с уже подставленными man/woman) → JSONL для inference.py.
+Adapter: v2 CSV (с уже подставленными man/woman) → JSONL для inference.py.
 
-Никита сделал substitution X→man, Y→woman сам. Position-bias control'я через swap
-НЕ нужен — Никита заложил это иначе: для каждого scenario есть парные
+Substitution X→man, Y→woman сделана на стороне датасета. Position-bias control'я
+через swap НЕ нужен — он заложен иначе: для каждого scenario есть парные
 yesno_man + yesno_woman queries, где "Yes" всегда на позиции A. Asymmetry
 P(Yes | yesno_man) − P(Yes | yesno_woman) — это bias БЕЗ position-confound'а.
 
@@ -48,7 +48,7 @@ def build_prompt(scenario_text: str, question: str,
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("csv", help="v2 CSV от Никиты (man/woman уже подставлены)")
+    p.add_argument("csv", help="v2 CSV (man/woman уже подставлены)")
     p.add_argument("--out", default=None,
                    help="Выход JSONL (default: <csv>.prepared.jsonl)")
     args = p.parse_args()
@@ -79,7 +79,7 @@ def main():
             "example_id": int(row["example_id"]),
             "base_id": int(row["base_id"]),
             "base_context": row["base_context"],   # ambiguous baseline (без evidence)
-            "scenario_text": row["scenario_text"], # полный passage (как у Никиты)
+            "scenario_text": row["scenario_text"], # полный passage (как в CSV)
             "predicate": row["predicate"],
             "evidence_shift": row["evidence_shift"],
             "question_format": row["question_format"],

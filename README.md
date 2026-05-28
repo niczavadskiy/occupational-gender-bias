@@ -14,7 +14,7 @@ Qwen3.5-2B-Base, hidden states собраны на всех 25 слоях, ре�
 ```
 .
 ├── data/                            # factorial dataset (от teammate)
-│   ├── factorial_v1_from_nikita.csv     # X/Y placeholders (legacy)
+│   ├── factorial_v1_placeholders.csv    # X/Y placeholders (legacy)
 │   └── factorial_v2_with_gender.csv     # man/woman подставлены — каноничный input
 ├── src/
 │   ├── prepare_factorial.py         # v2 CSV → JSONL (prompt + has_abstain)
