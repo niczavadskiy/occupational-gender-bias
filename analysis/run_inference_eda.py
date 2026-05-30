@@ -1,0 +1,494 @@
+"""
+EDA для inference-прогона factorial_v2 на Qwen3.5-2B-Base → самодостаточный HTML.
+
+Descriptive-анализ per_item.jsonl: распределения choice / probs по всем факторам
+(question_format, evidence_shift, abstain_variant, predicate), с разрезами,
+релевантными нашим гипотезам H1-H5:
+  H1 prior bias        — no_evidence × choice
+  H2 yesno-asymmetry   — P(Yes|man) − P(Yes|woman), position-confound-free
+  H3 counterfactual    — двигается ли P(man) за evidence_shift
+  H4 abstain effect    — как часто берётся "Cannot determine"
+  H5 cross-format       — choice-lean vs yesno-asymmetry per predicate
+
+Источник данных (в порядке приоритета):
+  1. --input <path> к локальному per_item.jsonl
+  2. локальный results/<RUN>/per_item.jsonl
+  3. скачать из HF Dataset bias-subspaces-group/qwen-bias-experiments (нужен HF_TOKEN)
+
+Запуск:  python3 analysis/run_inference_eda.py
+Выход:   analysis/inference_eda.html  (открыть в браузере)
+"""
+import argparse
+import html
+import json
+import os
+import statistics as stt
+from collections import Counter, defaultdict
+from pathlib import Path
+
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+HERE = Path(__file__).parent
+REPO_ROOT = HERE.parent
+RUN = "run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2"
+HF_REPO = "bias-subspaces-group/qwen-bias-experiments"
+OUT = HERE / "inference_eda.html"
+
+# Эвристическая группировка предикатов по оси стереотипа.
+# (Pending формальной аннотации — пока ручная классификация по agentic/communal/neutral.)
+AGENTIC = {  # male-coded (agentic / leadership / technical)
+    "was a stronger leader", "was better at making decisions",
+    "was more confident during the task", "was better at solving the problem",
+    "was more technically skilled",
+}
+COMMUNAL = {  # female-coded (communal / emotional)
+    "was more empathetic", "was more supportive", "was more patient with others",
+    "was better at calming the group", "was better at resolving the disagreement",
+}
+# Остальные 5 — нейтральный control (spatial / arbitrary).
+
+
+def predicate_group(pred: str) -> str:
+    if pred in AGENTIC:
+        return "agentic (male-coded)"
+    if pred in COMMUNAL:
+        return "communal (female-coded)"
+    return "neutral control"
+
+
+def safe(x):
+    return html.escape(str(x), quote=True)
+
+
+def mean(xs):
+    return sum(xs) / len(xs) if xs else float("nan")
+
+
+# ---------------------------------------------------------------------------
+# Загрузка per_item.jsonl
+# ---------------------------------------------------------------------------
+def resolve_input(arg_input: str | None) -> Path:
+    candidates = []
+    if arg_input:
+        candidates.append(Path(arg_input))
+    candidates.append(REPO_ROOT / "results" / RUN / "per_item.jsonl")
+
+    for c in candidates:
+        if c.is_file():
+            print(f"[data] локальный файл: {c}")
+            return c
+
+    # Fallback: HF
+    print(f"[data] локально не найдено — качаю из HF {HF_REPO} ...")
+    from huggingface_hub import hf_hub_download
+    p = hf_hub_download(
+        HF_REPO, filename=f"{RUN}/per_item.jsonl",
+        repo_type="dataset", local_dir=str(REPO_ROOT / ".hf_cache"),
+    )
+    print(f"[data] скачан: {p}")
+    return Path(p)
+
+
+def load_items(path: Path):
+    return [json.loads(line) for line in open(path, encoding="utf-8") if line.strip()]
+
+
+# ---------------------------------------------------------------------------
+# Plotly helpers
+# ---------------------------------------------------------------------------
+def bar_div(div_id, x, y, title, color="#2c5f8d", horizontal=False, yrange=None):
+    if horizontal:
+        trace = f"{{x:{json.dumps(y)},y:{json.dumps(x)},type:'bar',orientation:'h',marker:{{color:'{color}'}}}}"
+    else:
+        trace = f"{{x:{json.dumps(x)},y:{json.dumps(y)},type:'bar',marker:{{color:'{color}'}}}}"
+    yax = f", yaxis:{{range:{json.dumps(yrange)}}}" if yrange else ""
+    return f"""<div id="{div_id}" class="chart"></div>
+<script>Plotly.newPlot('{div_id}',[{trace}],{{title:'{title}',margin:{{t:50}},xaxis:{{tickangle:-25}}{yax}}});</script>"""
+
+
+def grouped_bar_div(div_id, categories, series, title, yrange=None):
+    """series: dict name -> list[values] aligned with categories."""
+    traces = []
+    for name, vals in series.items():
+        traces.append(f"{{x:{json.dumps(categories)},y:{json.dumps(vals)},name:'{name}',type:'bar'}}")
+    yax = f", yaxis:{{range:{json.dumps(yrange)}}}" if yrange else ""
+    return f"""<div id="{div_id}" class="chart"></div>
+<script>Plotly.newPlot('{div_id}',[{','.join(traces)}],{{title:'{title}',barmode:'group',margin:{{t:50}},xaxis:{{tickangle:-25}}{yax}}});</script>"""
+
+
+def pie_div(div_id, labels, values, title):
+    return f"""<div id="{div_id}" class="chart"></div>
+<script>Plotly.newPlot('{div_id}',[{{values:{json.dumps(values)},labels:{json.dumps(labels)},type:'pie',hole:0.4,textinfo:'label+percent+value'}}],{{title:'{title}',margin:{{t:50}}}});</script>"""
+
+
+def hist_div(div_id, values, title, color="#2c5f8d", vline=None):
+    shapes = ""
+    if vline is not None:
+        shapes = (f",shapes:[{{type:'line',x0:{vline},x1:{vline},y0:0,y1:1,yref:'paper',"
+                  f"line:{{color:'#c0392b',width:2,dash:'dash'}}}}]")
+    return f"""<div id="{div_id}" class="chart"></div>
+<script>Plotly.newPlot('{div_id}',[{{x:{json.dumps(values)},type:'histogram',marker:{{color:'{color}'}},nbinsx:30}}],{{title:'{title}',margin:{{t:50}}{shapes}}});</script>"""
+
+
+# ---------------------------------------------------------------------------
+# main
+# ---------------------------------------------------------------------------
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--input", default=None, help="path к per_item.jsonl (иначе local→HF)")
+    args = ap.parse_args()
+
+    path = resolve_input(args.input)
+    items = load_items(path)
+    N = len(items)
+    print(f"[data] загружено {N} items")
+
+    # meta (если рядом)
+    meta = {}
+    meta_path = path.parent / "meta.json"
+    if meta_path.is_file():
+        meta = json.loads(meta_path.read_text())
+
+    # === Факторы ===
+    fmt_counts = Counter(i["question_format"] for i in items)
+    ev_counts = Counter(i["evidence_shift"] for i in items)
+    ab_counts = Counter(i["abstain_variant"] for i in items)
+    overall_choice = Counter(i["choice"] for i in items)
+
+    # Choice by question_format (для grouped bar A/B/C)
+    fmts = ["choice", "yesno_man", "yesno_woman"]
+    choice_by_fmt = {lbl: [] for lbl in ("A", "B", "C")}
+    for f in fmts:
+        sub = [i for i in items if i["question_format"] == f]
+        c = Counter(i["choice"] for i in sub)
+        for lbl in ("A", "B", "C"):
+            choice_by_fmt[lbl].append(round(100 * c.get(lbl, 0) / len(sub), 1))
+
+    # === H1: prior bias (no_evidence × choice × without_abstain) ===
+    prior = [i for i in items if i["evidence_shift"] == "no_evidence"
+             and i["question_format"] == "choice" and not i["has_abstain"]]
+    h1_pman = mean([i["prob_constrained_A"] for i in prior])     # A=man
+    h1_choose_man = sum(1 for i in prior if i["choice"] == "A")
+
+    # === H3: counterfactual — mean P(man=A) by evidence_shift (choice, without_abstain) ===
+    h3 = {}
+    for ev in ("no_evidence", "evidence_supports_man", "evidence_supports_woman"):
+        sub = [i for i in items if i["question_format"] == "choice"
+               and i["evidence_shift"] == ev and not i["has_abstain"]]
+        h3[ev] = round(mean([i["prob_constrained_A"] for i in sub]), 3)
+
+    # === H2: yesno asymmetry P(Yes|man) − P(Yes|woman) ===
+    yn = defaultdict(dict)
+    for i in items:
+        if i["question_format"] in ("yesno_man", "yesno_woman"):
+            key = (i["base_id"], i["predicate"], i["evidence_shift"], i["abstain_variant"])
+            yn[key][i["question_format"]] = i["prob_constrained_A"]   # P(Yes)
+    asym = [v["yesno_man"] - v["yesno_woman"] for v in yn.values()
+            if "yesno_man" in v and "yesno_woman" in v]
+    h2_mean = mean(asym)
+    h2_proman = sum(1 for a in asym if a > 0)
+
+    # Per-predicate mean asymmetry (для bar + H5)
+    pred_asym = defaultdict(list)
+    for (bid, pred, ev, ab), v in yn.items():
+        if "yesno_man" in v and "yesno_woman" in v:
+            pred_asym[pred].append(v["yesno_man"] - v["yesno_woman"])
+    pred_asym_mean = {p: mean(xs) for p, xs in pred_asym.items()}
+    pred_sorted = sorted(pred_asym_mean.items(), key=lambda kv: kv[1], reverse=True)
+
+    # === H4: abstain — C-rate by question_format (only with_abstain items) ===
+    h4 = {}
+    for f in fmts:
+        sub = [i for i in items if i["question_format"] == f and i["has_abstain"]]
+        h4[f] = round(100 * sum(1 for i in sub if i["choice"] == "C") / len(sub), 1)
+    h4_overall = round(100 * sum(1 for i in items if i["has_abstain"] and i["choice"] == "C")
+                       / sum(1 for i in items if i["has_abstain"]), 1)
+
+    # === Per-predicate-group lean (choice, no_evidence, без abstain): mean P(man) ===
+    grp_pman = defaultdict(list)
+    for i in items:
+        if i["question_format"] == "choice" and i["evidence_shift"] == "no_evidence" and not i["has_abstain"]:
+            grp_pman[predicate_group(i["predicate"])].append(i["prob_constrained_A"])
+    grp_order = ["agentic (male-coded)", "communal (female-coded)", "neutral control"]
+    grp_means = {g: round(mean(grp_pman.get(g, [float("nan")])), 3) for g in grp_order}
+
+    # === Probability distribution: P(man) в choice no_evidence (для гистограммы) ===
+    pman_dist = [i["prob_constrained_A"] for i in items
+                 if i["question_format"] == "choice" and i["evidence_shift"] == "no_evidence"
+                 and not i["has_abstain"]]
+
+    # === Sample items ===
+    import random
+    random.seed(42)
+    samples = random.sample(items, 4)
+
+    # Пример промпта для вводного блока (choice, no_evidence, with_abstain)
+    intro_ex = next((i for i in items if i["question_format"] == "choice"
+                     and i["evidence_shift"] == "no_evidence" and i["has_abstain"]), items[0])
+
+    # Направление group-lean для текста вывода
+    agentic_m = grp_means["agentic (male-coded)"]
+    communal_m = grp_means["communal (female-coded)"]
+
+    # -------------------------------------------------------------------
+    # HTML
+    # -------------------------------------------------------------------
+    gpu = meta.get("gpu", "?")
+    model = meta.get("model_id", "Qwen/Qwen3.5-2B-Base")
+    inf_t = meta.get("inference_time_s", "?")
+
+    def sample_card(it):
+        def pfmt(k):
+            v = it.get(f"prob_constrained_{k}")
+            return f"{v:.3f}" if isinstance(v, (int, float)) else "—"
+        opts = "".join(
+            f'<li class="{"chosen" if k==it["choice"] else ""}">'
+            f'<b>{k}.</b> {safe(it["labels"].get(k,"—"))} '
+            f'<span class="tag">P_constr={pfmt(k)}</span>'
+            f'{" ← choice" if k==it["choice"] else ""}</li>'
+            for k in ("A", "B", "C") if k in it["labels"]
+        )
+        return f"""<div class="item-card">
+  <div class="meta">{safe(it['id'])} · fmt=<code>{safe(it['question_format'])}</code> ·
+   evidence=<code>{safe(it['evidence_shift'])}</code> ·
+   abstain=<code>{safe(it['abstain_variant'])}</code></div>
+  <p><b>Scenario:</b> {safe(it['scenario_text'])}</p>
+  <p><b>Question:</b> {safe(it['question'])}</p>
+  <ul>{opts}</ul></div>"""
+
+    doc = f"""<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8">
+<title>EDA: inference factorial_v2 (Qwen3.5-2B-Base)</title>
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+<style>
+ body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+   max-width:1100px;margin:2em auto;padding:0 1em;line-height:1.55;color:#1a1a1a;background:#fafafa;}}
+ h1{{color:#2c5f8d;border-bottom:3px solid #2c5f8d;padding-bottom:.3em;}}
+ h2{{color:#2c5f8d;margin-top:2em;border-bottom:1px solid #ddd;padding-bottom:.2em;}}
+ h3{{color:#4a7ba4;}}
+ .tldr{{background:#e8f4f8;padding:1.5em;border-left:5px solid #2c5f8d;margin:1.5em 0;
+   display:flex;gap:2em;flex-wrap:wrap;}}
+ .tldr-item{{flex:1;min-width:180px;}}
+ .tldr-num{{font-size:2.6em;font-weight:bold;color:#2c5f8d;line-height:1;}}
+ .tldr-label{{color:#555;margin-top:.3em;font-size:.95em;}}
+ table{{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em;background:white;}}
+ th,td{{padding:.5em .7em;border:1px solid #ddd;text-align:left;vertical-align:top;}}
+ th{{background:#f0f4f8;color:#2c5f8d;}}
+ .chart{{margin:1.5em 0;background:white;padding:1em;border:1px solid #eee;}}
+ pre,code{{background:#f6f8fa;padding:1px 4px;border-radius:2px;font-family:'SF Mono',Monaco,monospace;}}
+ .item-card{{background:white;border:1px solid #ddd;padding:1em;margin:.7em 0;border-radius:4px;}}
+ .item-card .meta{{color:#666;font-size:.85em;margin-bottom:.5em;}}
+ .item-card ul{{list-style:none;padding-left:0;}}
+ .item-card li{{padding:4px 6px;margin:3px 0;}}
+ .item-card li.chosen{{background:#d4ed91;font-weight:600;border-radius:3px;}}
+ .item-card li .tag{{color:#888;font-size:.85em;}}
+ .info{{background:#fdf3e7;padding:1em;border-left:5px solid #e67e22;margin:1em 0;border-radius:4px;}}
+ .intro{{background:#eef4fb;padding:1.3em 1.5em;border-left:5px solid #2c5f8d;margin:1.5em 0;border-radius:4px;}}
+ .intro p{{margin:.6em 0;}}
+ .verdict{{background:#eef9ef;padding:1.3em 1.5em;border-left:5px solid #27ae60;margin:1.5em 0;border-radius:4px;}}
+ .plain{{background:#f7f7f7;padding:.6em .9em;border-radius:4px;margin:.4em 0 1em;color:#333;}}
+ .plain b{{color:#2c5f8d;}}
+ .note{{color:#c0392b;font-weight:600;}} .ok{{color:#27ae60;font-weight:600;}}
+ .toc{{background:white;padding:1em;border:1px solid #ddd;margin:1em 0;border-radius:4px;}}
+ .toc a{{color:#2c5f8d;text-decoration:none;}} .toc a:hover{{text-decoration:underline;}}
+</style></head><body>
+
+<h1>EDA: inference factorial_v2</h1>
+<p style="color:#666;font-size:.95em">
+ Прогон <code>{safe(RUN)}</code> · model <code>{safe(model)}</code> · GPU {safe(gpu)} ·
+ inference {safe(inf_t)}s · {N:,} items. Descriptive-анализ behavioral-выходов
+ (constrained probs, choice) по всем факторам factorial-дизайна.
+ Источник: HF <code>{safe(HF_REPO)}</code> (private) с локальным fallback.
+</p>
+
+<div class="intro">
+ <h3 style="margin-top:0">О чём этот эксперимент (для читателя без контекста)</h3>
+ <p><b>Вопрос:</b> есть ли у языковой модели <code>{safe(model)}</code> гендерные
+  стереотипы — и можно ли их измерить? Мы даём модели короткие сценарии, где
+  участвуют мужчина и женщина, и спрашиваем, кто из них проявил то или иное
+  качество. Сравниваем, насколько модель «по умолчанию» склоняется к мужчине
+  или женщине.</p>
+ <p><b>Что именно видит модель</b> (один из 1350 вопросов):</p>
+ <pre>{safe(intro_ex['prompt'])}</pre>
+ <p>Модель не генерирует текст — мы берём её <b>вероятности</b> для вариантов
+  ответа (A / B / C). Например здесь: P(A=man)={intro_ex['prob_constrained_A']:.2f},
+  P(B=woman)={intro_ex['prob_constrained_B']:.2f},
+  P(C=Cannot determine)={intro_ex['prob_constrained_C']:.2f}.</p>
+ <p><b>Дизайн.</b> Каждый базовый сценарий варьируется по 5 осям — отсюда 1350
+  вопросов:</p>
+ <ul style="margin:.3em 0">
+  <li>5 контекстов (workshop, meeting, …) × 15 качеств (лидер, эмпатичный, …);</li>
+  <li><b>форма вопроса</b>: «Кто?» (выбор man/woman) либо «Это был мужчина? / женщина?» (Да/Нет);</li>
+  <li><b>подсказка (evidence)</b>: нет подсказки / намёк на мужчину / намёк на женщину — проверяем, слушает ли модель факты;</li>
+  <li><b>можно ли уклониться</b>: есть вариант «Cannot determine» или нет.</li>
+ </ul>
+ <p><b>Главная методическая загвоздка:</b> в форме «Кто?» вариант «man» всегда стоит
+  первым (позиция A). Поэтому «модель чаще выбирает man» может быть как
+  гендерным предпочтением, так и просто <b>любовью к первому варианту</b>. Чтобы
+  это развести, используется форма Да/Нет (метрика H2 ниже) — там «Yes» всегда
+  на позиции A в обоих вопросах, и позиционный эффект сокращается.</p>
+</div>
+
+<div class="toc"><b>Содержание:</b><ul>
+ <li><a href="#tldr">TL;DR — что нашли в трёх цифрах</a></li>
+ <li><a href="#dist">Распределения choice по факторам</a></li>
+ <li><a href="#h1">H1 — prior bias (no_evidence)</a></li>
+ <li><a href="#h3">H3 — counterfactual: двигается ли ответ за evidence</a></li>
+ <li><a href="#h2">H2 — yesno-asymmetry (position-confound-free)</a></li>
+ <li><a href="#h4">H4 — abstain effect</a></li>
+ <li><a href="#h5">H5 — per-predicate lean (cross-format)</a></li>
+ <li><a href="#verdict">🏁 Главный вывод простыми словами</a></li>
+ <li><a href="#samples">Случайные items</a></li>
+</ul></div>
+
+<h2 id="tldr">📊 TL;DR</h2>
+<div class="tldr">
+ <div class="tldr-item"><div class="tldr-num">{h2_mean:+.3f}</div>
+  <div class="tldr-label">средняя yesno-asymmetry P(Yes|man)−P(Yes|woman) — bias без position-confound</div></div>
+ <div class="tldr-item"><div class="tldr-num">{h2_proman}/{len(asym)}</div>
+  <div class="tldr-label">пар, где модель сильнее соглашается на мужчину</div></div>
+ <div class="tldr-item"><div class="tldr-num">{h3['evidence_supports_man']:.2f}→{h3['evidence_supports_woman']:.2f}</div>
+  <div class="tldr-label">P(man) при evidence→man vs evidence→woman (counterfactual работает)</div></div>
+ <div class="tldr-item"><div class="tldr-num">{h4_overall:.0f}%</div>
+  <div class="tldr-label">берёт «Cannot determine» когда опция доступна</div></div>
+</div>
+
+<h2 id="dist">📈 Распределения choice по факторам</h2>
+<div class="plain"><b>Простыми словами:</b> как часто модель выбирала каждый вариант
+ (A / B / C) — сначала по всем вопросам, потом отдельно для каждой формы вопроса.</div>
+
+{pie_div("c_overall", list(overall_choice.keys()), list(overall_choice.values()),
+         "Overall choice (A/B/C) по всем 1350 items")}
+
+{grouped_bar_div("c_byfmt", fmts, choice_by_fmt,
+                 "Choice-распределение по question_format (% внутри формата)", yrange=[0,100])}
+
+<div class="info">
+ <b>Как читать:</b> в <code>choice</code> формате A=man, B=woman, C=Cannot determine.
+ В <code>yesno_*</code> формате A=Yes, B=No, C=Cannot determine. Доминирование
+ опции <b>A</b> во всех форматах — это <b>смесь</b> position-preference (A — первая
+ опция) и content-preference. Разделить их позволяет именно yesno-asymmetry (см. H2).
+</div>
+
+<h2 id="h1">🎯 H1 — склонность «по умолчанию» (нет подсказки, форма «Кто?»)</h2>
+<div class="plain"><b>Простыми словами:</b> когда в сценарии нет никаких фактов,
+ кого модель называет — мужчину или женщину? Идеально непредвзятая модель должна
+ колебаться около 50/50 (или уклоняться).</div>
+<table>
+ <tr><th>Метрика</th><th>Значение</th></tr>
+ <tr><td>N items</td><td>{len(prior)}</td></tr>
+ <tr><td>mean P(man=A)</td><td><b>{h1_pman:.3f}</b></td></tr>
+ <tr><td>выбрали man (choice=A)</td><td class="note">{h1_choose_man}/{len(prior)}</td></tr>
+</table>
+<div class="info">
+ <span class="note">⚠️ position-confound:</span> в <code>choice</code> формате man всегда
+ на позиции A, поэтому «100% выбрали A» нельзя интерпретировать как чистый gender-bias —
+ это <b>верхняя граница</b>, смешанная с предпочтением первой опции. Чистую оценку даёт H2.
+</div>
+
+<h2 id="h3">🔬 H3 — слушает ли модель факты (counterfactual)</h2>
+<div class="plain"><b>Простыми словами:</b> если в сценарий добавить намёк на конкретного
+ человека («мужчина задавал точные вопросы…»), сдвигается ли ответ в его сторону?
+ Если да — модель реагирует на факты, а не только на стереотип. Это базовая проверка
+ вменяемости метрики.</div>
+<p>Средняя вероятность P(man) в форме «Кто?» в зависимости от подсказки:</p>
+{bar_div("h3_bar", list(h3.keys()), list(h3.values()),
+         "mean P(man=A) по evidence_shift", color="#4a7ba4", yrange=[0,1])}
+<p style="color:#555"><b>Интерпретация:</b> P(man) растёт при evidence→man
+({h3['evidence_supports_man']:.3f}) и падает при evidence→woman
+({h3['evidence_supports_woman']:.3f}). Модель <span class="ok">следует за evidence</span> —
+counterfactual sensitivity присутствует, базовое требование для валидной bias-метрики.</p>
+
+<h2 id="h2">⚖️ H2 — честная мера bias (форма Да/Нет)</h2>
+<div class="plain"><b>Простыми словами:</b> на один и тот же сценарий задаём два
+ вопроса — «Это был мужчина?» и «Это была женщина?» — и смотрим, на какой из них
+ модель охотнее отвечает «Да». Разница = чистый перекос, <b>не зависящий</b> от
+ порядка вариантов (в обоих вопросах «Yes» стоит первым). Это — главная метрика bias.</div>
+<p>Формула: <code>P(Yes | "Was man …?") − P(Yes | "Was woman …?")</code>.
+ Значение &gt;0 ⇒ модель склоняется к мужчине.</p>
+{hist_div("h2_hist", [round(a,4) for a in asym],
+          f"Распределение asymmetry (N={len(asym)} пар, mean={h2_mean:+.3f})", vline=0)}
+<table>
+ <tr><th>Метрика</th><th>Значение</th></tr>
+ <tr><td>mean asymmetry</td><td><b>{h2_mean:+.3f}</b></td></tr>
+ <tr><td>пар pro-man (asym&gt;0)</td><td>{h2_proman}/{len(asym)} ({100*h2_proman/len(asym):.0f}%)</td></tr>
+</table>
+
+<h2 id="h5">🧩 H5 — какие именно качества тянут перекос</h2>
+<div class="plain"><b>Простыми словами:</b> та же честная мера (H2), но разбитая по
+ каждому из 15 качеств. Видно, на каких качествах модель сильнее приписывает их
+ мужчине, а на каких — женщине.</div>
+<p>Средняя асимметрия Да/Нет по каждому качеству:</p>
+{bar_div("h5_bar", [p for p,_ in pred_sorted], [round(v,3) for _,v in pred_sorted],
+         "mean yesno-asymmetry по предикату (>0 pro-man)", color="#7ba4c4", horizontal=True)}
+
+<h3>Lean по группам предикатов (эвристика)</h3>
+<p>mean P(man=A) в no_evidence × choice, сгруппировано по оси стереотипа:</p>
+{bar_div("grp_bar", grp_order, [grp_means[g] for g in grp_order],
+         "mean P(man=A) по группе предиката", color="#2c5f8d", yrange=[0,1])}
+<div class="info">
+ Группировка agentic/communal/neutral — <b>ручная эвристика</b>, не формальная
+ аннотация. Если bias направленный, ожидаем P(man) выше в agentic-предикатах.
+ Наблюдаем: agentic={grp_means['agentic (male-coded)']:.3f},
+ communal={grp_means['communal (female-coded)']:.3f},
+ neutral={grp_means['neutral control']:.3f}.
+</div>
+
+<h2 id="h4">🚪 H4 — охотно ли модель уклоняется</h2>
+<div class="plain"><b>Простыми словами:</b> когда есть честный вариант «Cannot determine»
+ (невозможно определить) — как часто модель его берёт вместо того, чтобы угадывать пол?</div>
+<p>Доля ответов C=«Cannot determine» (только вопросы, где этот вариант был доступен):</p>
+{bar_div("h4_bar", list(h4.keys()), list(h4.values()),
+         "C-rate (%) по question_format", color="#e67e22", yrange=[0,100])}
+<p style="color:#555">Overall <b>{h4_overall:.0f}%</b> abstain-rate. Высокий abstain
+ означает, что наличие «Cannot determine» <b>заметно перетягивает</b> ответы из
+ A/B — важный контекст при сравнении bias-метрик with/without abstain.</p>
+
+<h2 id="verdict">🏁 Главный вывод простыми словами</h2>
+<div class="verdict">
+ <p>На модели <code>{safe(model)}</code> по {N:,} вопросам:</p>
+ <ol>
+  <li><b>Перекос есть, но умеренный.</b> По честной мере (форма Да/Нет, без влияния
+   порядка вариантов) модель в среднем чуть охотнее приписывает качества мужчине:
+   асимметрия <b>{h2_mean:+.3f}</b>, и в <b>{h2_proman} из {len(asym)}</b> случаев
+   ({100*h2_proman/len(asym):.0f}%) перекос в сторону мужчины.</li>
+  <li><b>Модель реагирует на факты.</b> Когда в сценарий добавлен намёк на конкретного
+   человека, ответ сдвигается за подсказкой: P(man) {h3['evidence_supports_man']:.2f}
+   при намёке на мужчину vs {h3['evidence_supports_woman']:.2f} при намёке на женщину.
+   Значит метрика измеряет именно предвзятость, а не случайный шум.</li>
+  <li><b>Когда можно — модель часто уклоняется.</b> Вариант «Cannot determine» берётся
+   в <b>{h4_overall:.0f}%</b> случаев. То есть наличие/отсутствие этой опции сильно
+   меняет картину — это важно учитывать при сравнении чисел.</li>
+  <li><b>Осторожно с «100% выбрали мужчину».</b> В форме «Кто?» это завышено
+   из-за позиционного эффекта (man всегда первый). Поэтому опираемся на честную меру (п.1),
+   а не на сырой процент выбора.</li>
+ </ol>
+ <p style="margin-bottom:0"><b>Что дальше:</b> этот отчёт — про <i>поведение</i> модели
+  (что она отвечает). Следующий шаг проекта — заглянуть <i>внутрь</i>: можно ли найти
+  в скрытых состояниях направление, кодирующее этот перекос (linear probing по 25 слоям,
+  данные уже собраны в <code>hidden_states.npz</code>).</p>
+</div>
+
+<h2 id="samples">🎲 Случайные items (seed=42)</h2>
+<div class="plain"><b>Простыми словами:</b> четыре случайных вопроса целиком — чтобы
+ руками пощупать, что именно показывали модели и что она ответила.</div>
+{''.join(sample_card(it) for it in samples)}
+
+<p style="color:#666;font-size:.85em;margin-top:3em;">
+ Сгенерировано <code>{safe(os.path.basename(__file__))}</code> · run <code>{safe(RUN)}</code> ·
+ данные: HF <code>{safe(HF_REPO)}</code> (private).
+</p>
+</body></html>"""
+
+    OUT.write_text(doc, encoding="utf-8")
+    print(f"✓ HTML отчёт: {OUT}")
+    print(f"  размер: {OUT.stat().st_size/1024:.1f} KB")
+    print(f"  открыть: file://{OUT.absolute()}")
+
+
+if __name__ == "__main__":
+    main()
