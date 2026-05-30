@@ -14,7 +14,7 @@
 | Файл | Что |
 |---|---|
 | `metrics.py` | H1-H9 behavioral метрики: rate, asymmetry, McNemar, two-prop z-test, FDR correction. |
-| `probe_pipeline.py` | H10-H13 linear probe: layer-scan, control task (Hewitt-Liang), silhouette score, direction extraction. |
+| `../probes/` | Linear probing H10–H13 (сейчас H11: `h11_run`, HF download). См. [probes/README.md](../probes/README.md). |
 | `cross_form_eval.py` | Cross-form transferability test для localization claim. |
 
 ## Зависимости и quick start

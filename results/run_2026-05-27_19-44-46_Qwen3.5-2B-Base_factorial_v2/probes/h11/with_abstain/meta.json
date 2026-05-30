@@ -1,0 +1,134 @@
+{
+  "probe_script": "h11_pipeline",
+  "pipeline_run_id": "2026-05-30_12-26-28",
+  "datetime": "2026-05-30T12:26:40.985857",
+  "pipeline_runtime_s": 13.61,
+  "abstain_variant": "with_abstain",
+  "parent_run_id": "2026-05-27_19-44-46",
+  "parent_run_dir": "run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "probe_device": "cpu",
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "sklearn_version": "1.6.1",
+  "hypothesis": "H11",
+  "target": "log_odds",
+  "evidence_mode": "no_evidence",
+  "evidence_modes": [
+    "no_evidence"
+  ],
+  "n_samples": 75,
+  "n_scenario_families": 75,
+  "rows_per_family": 1,
+  "split": {
+    "group_key": "scenario_family_id (base_id = context×predicate)",
+    "n_scenario_families": 75,
+    "families_per_split": {
+      "train": 45,
+      "val": 15,
+      "test": 15
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "question_format": "choice",
+    "abstain_variant": "with_abstain",
+    "evidence_shift_levels": [
+      "no_evidence"
+    ]
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 2.15,
+      "summary": {
+        "summary_by_mode": {
+          "no_evidence": {
+            "target": "log_odds",
+            "best_layer": 8,
+            "val_r2": 0.5629133806414934
+          }
+        }
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 2.67,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 8,
+        "best_main_metric": 0.5629133806414934,
+        "control_within_scenario_family_at_best_layer": 0.5629133806414934,
+        "control_global_at_best_layer": -1.2413592156454718,
+        "control_permuted_alignment_at_best_layer": -1.2093605186004126
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 2.44,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 3,
+        "val_silhouette": 0.03815404325723648
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 1.68,
+      "summary": {
+        "metrics": {
+          "layer": 8,
+          "train_r2": 0.9999636828119837,
+          "train_pearson_r": 0.9999837213228446,
+          "train_mse": 8.39554942211295e-07,
+          "val_r2": 0.5629133806414934,
+          "val_pearson_r": 0.8200115004675874,
+          "val_mse": 0.011109284685944439,
+          "test_r2": 0.5534405520454996,
+          "test_pearson_r": 0.8095457052977516,
+          "test_mse": 0.008372989056180639
+        },
+        "projection_log_odds_r": 0.9240615697657952
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 1.63,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.18888850930632972,
+          "min_cosine_w_off_diagonal": -0.032781649387555914,
+          "max_cosine_w_off_diagonal": 0.8885219632325686,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_no_evidence_log_odds.csv": "layer_scan_no_evidence_log_odds.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_no_evidence_log_odds.csv": "control_no_evidence_log_odds.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_no_evidence_median_train.csv": "silhouette_no_evidence_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_no_evidence_log_odds_L8.npz": "direction_no_evidence_log_odds_L8.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_no_evidence_log_odds_cos_w_pairs.csv": "compare_directions_no_evidence_log_odds_cos_w_pairs.csv",
+    "compare_directions/compare_directions_no_evidence_log_odds_cos_w_matrix.csv": "compare_directions_no_evidence_log_odds_cos_w_matrix.csv",
+    "compare_directions/compare_directions_no_evidence_log_odds_weights.npz": "compare_directions_no_evidence_log_odds_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}

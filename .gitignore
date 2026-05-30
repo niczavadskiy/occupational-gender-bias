@@ -237,6 +237,24 @@ __marimo__/
 inference_*.log
 *.log
 
+# === Probe outputs (results/<run>/probes/) ===
+# В git: h11/**/*.json, h11/**/*.md. Остальные каталоги probes/ — локально.
+results/*/probes/**
+!results/*/probes/**/
+!results/*/probes/**/*.json
+!results/*/probes/**/*.md
+results/*/probes/inspect_h11/
+results/*/probes/_shared/
+results/*/probes/layer_scan/
+results/*/probes/control_task/
+results/*/probes/silhouette/
+results/*/probes/extract_direction/
+results/*/probes/compare_directions/
+
+# Технический скрипт (не user-facing)
+probes/download_hf.py
+
+
 # === Generated derived data ===
 # Исходные CSV от Никиты (data/factorial_*.csv) — коммитим (~500 KB каждый).
 # Prepared JSONL — генерится из CSV через prepare_factorial.py, не коммитим.
