@@ -68,6 +68,17 @@ def mean(xs):
     return sum(xs) / len(xs) if xs else float("nan")
 
 
+def hyp_box(hid, hypothesis, conditions, result):
+    """Структурный блок гипотезы: что предсказывали → на чём мерили → что вышло."""
+    return (f'<div class="hyp">'
+            f'<div class="hyp-row"><span class="hyp-k">Гипотеза {hid}</span>'
+            f'<span class="hyp-v">{hypothesis}</span></div>'
+            f'<div class="hyp-row"><span class="hyp-k">Условия</span>'
+            f'<span class="hyp-v">{conditions}</span></div>'
+            f'<div class="hyp-row"><span class="hyp-k">Результат</span>'
+            f'<span class="hyp-v">{result}</span></div></div>')
+
+
 # ---------------------------------------------------------------------------
 # Загрузка per_item.jsonl
 # ---------------------------------------------------------------------------
@@ -235,6 +246,84 @@ def main():
     communal_m = grp_means["communal (female-coded)"]
 
     # -------------------------------------------------------------------
+    # Структурные блоки «Гипотеза → Условия → Результат» по каждой H.
+    # Вердикт выводится из посчитанных чисел, не зашит руками.
+    # -------------------------------------------------------------------
+    h4_n = sum(1 for i in items if i["has_abstain"])
+    n_pred = len(pred_asym_mean)
+
+    def mag(x):
+        a = abs(x)
+        return ("практически нулевой" if a < 0.03 else "слабый" if a < 0.10
+                else "умеренный" if a < 0.20 else "выраженный")
+
+    h3_ok = h3["evidence_supports_man"] > h3["no_evidence"] > h3["evidence_supports_woman"]
+
+    h1_box = hyp_box(
+        "H1 — prior bias",
+        "Без подсказок модель не нейтральна: в форме «кто?» она систематически чаще "
+        "называет мужчину (mean P(man) заметно выше 0.5).",
+        f"{len(prior)} items: <code>evidence_shift=no_evidence</code>, "
+        f"<code>question_format=choice</code>, без «Cannot determine». "
+        f"Метрика — mean P(man=A) и доля choice=A.",
+        f"mean P(man)=<b>{h1_pman:.3f}</b>, choice=man в <b>{h1_choose_man}/{len(prior)}</b>. "
+        f"Склонность к мужчине есть, но это <span class='note'>верхняя граница</span> — "
+        f"смешана с position-effect (man всегда опция A). Чистую оценку даёт H2.")
+
+    h3_box = hyp_box(
+        "H3 — counterfactual",
+        "Модель чувствительна к фактам: намёк на конкретного человека сдвигает "
+        "P(man) в его сторону (evidence→man поднимает, evidence→woman опускает).",
+        "<code>question_format=choice</code> × without_abstain, 3 уровня "
+        "<code>evidence_shift</code> (no_evidence / supports_man / supports_woman). "
+        "Метрика — mean P(man=A) на каждом уровне.",
+        f"P(man): <b>{h3['evidence_supports_man']:.3f}</b> (→man) &gt; "
+        f"{h3['no_evidence']:.3f} (нейтр.) &gt; <b>{h3['evidence_supports_woman']:.3f}</b> (→woman). "
+        + ("Монотонный сдвиг — <span class='ok'>гипотеза подтверждена</span>: "
+           "counterfactual sensitivity есть, метрика вменяема."
+           if h3_ok else
+           "Ожидаемого монотонного сдвига нет — <span class='note'>требует разбора</span>."))
+
+    h2_box = hyp_box(
+        "H2 — yesno-asymmetry",
+        "При контроле позиционного эффекта остаётся направленный перекос: модель "
+        "охотнее соглашается «Yes» на мужчину, чем на женщину (asymmetry &gt; 0).",
+        f"{len(asym)} парных сопоставлений yesno_man vs yesno_woman на один сценарий "
+        f"(base_id × predicate × evidence × abstain). Метрика — "
+        f"mean[P(Yes|man) − P(Yes|woman)]; «Yes» в обоих вопросах на позиции A, "
+        f"позиционный эффект сокращается.",
+        f"mean asymmetry=<b>{h2_mean:+.3f}</b> ({mag(h2_mean)}), pro-man в "
+        f"<b>{h2_proman}/{len(asym)}</b> ({100*h2_proman/len(asym):.0f}%). "
+        + ("<span class='ok'>Перекос в сторону мужчины подтверждён.</span>"
+           if h2_mean > 0 else
+           "<span class='note'>Перекос в сторону мужчины не подтверждён</span> (asymmetry ≤ 0)."))
+
+    h4_box = hyp_box(
+        "H4 — abstain effect",
+        "Наличие явного «Cannot determine» заметно меняет поведение: модель часто "
+        "уклоняется вместо угадывания пола.",
+        f"{h4_n} items с доступным «Cannot determine» (<code>has_abstain=True</code>), "
+        f"разбивка по question_format. Метрика — доля choice=C (abstain-rate).",
+        f"overall abstain-rate=<b>{h4_overall:.0f}%</b>. Опция уклонения "
+        f"{'сильно' if h4_overall >= 30 else 'заметно'} перетягивает ответы из A/B — "
+        f"при сравнении bias-метрик with/without abstain это надо учитывать.")
+
+    h5_box = hyp_box(
+        "H5 — directional lean",
+        "Перекос направленный по оси стереотипа: «агентные» качества (лидер, "
+        "решительность) приписываются мужчине сильнее, чем «общинные» (эмпатия, поддержка).",
+        f"per-predicate mean yesno-asymmetry по {n_pred} качествам + group-lean "
+        f"mean P(man) в no_evidence×choice по группам agentic/communal/neutral. "
+        f"<span class='note'>Группировка — ручная эвристика, не формальная аннотация.</span>",
+        f"agentic=<b>{agentic_m:.3f}</b>, communal=<b>{communal_m:.3f}</b>, "
+        f"neutral={grp_means['neutral control']:.3f}. "
+        + ("Направление совпадает с гипотезой (agentic &gt; communal)"
+           if agentic_m > communal_m else
+           "Направление НЕ совпадает (agentic ≤ communal)")
+        + " — но на эвристической группировке вывод <span class='note'>предварительный</span>, "
+          "нужна формальная аннотация предикатов.")
+
+    # -------------------------------------------------------------------
     # HTML
     # -------------------------------------------------------------------
     gpu = meta.get("gpu", "?")
@@ -290,6 +379,11 @@ def main():
  .intro{{background:#eef4fb;padding:1.3em 1.5em;border-left:5px solid #2c5f8d;margin:1.5em 0;border-radius:4px;}}
  .intro p{{margin:.6em 0;}}
  .verdict{{background:#eef9ef;padding:1.3em 1.5em;border-left:5px solid #27ae60;margin:1.5em 0;border-radius:4px;}}
+ .hyp{{background:white;border:1px solid #cfe0ee;border-left:5px solid #4a7ba4;border-radius:4px;margin:1em 0;padding:.3em .9em;}}
+ .hyp-row{{display:flex;gap:.9em;padding:.5em 0;border-bottom:1px solid #eef2f6;}}
+ .hyp-row:last-child{{border-bottom:none;}}
+ .hyp-k{{flex:0 0 130px;font-weight:700;color:#2c5f8d;font-size:.82em;text-transform:uppercase;letter-spacing:.02em;padding-top:.1em;}}
+ .hyp-v{{flex:1;}}
  .plain{{background:#f7f7f7;padding:.6em .9em;border-radius:4px;margin:.4em 0 1em;color:#333;}}
  .plain b{{color:#2c5f8d;}}
  .note{{color:#c0392b;font-weight:600;}} .ok{{color:#27ae60;font-weight:600;}}
@@ -378,6 +472,7 @@ def main():
 <div class="plain"><b>Простыми словами:</b> когда в сценарии нет никаких фактов,
  кого модель называет — мужчину или женщину? Идеально непредвзятая модель должна
  колебаться около 50/50 (или уклоняться).</div>
+{h1_box}
 <table>
  <tr><th>Метрика</th><th>Значение</th></tr>
  <tr><td>N items</td><td>{len(prior)}</td></tr>
@@ -395,6 +490,7 @@ def main():
  человека («мужчина задавал точные вопросы…»), сдвигается ли ответ в его сторону?
  Если да — модель реагирует на факты, а не только на стереотип. Это базовая проверка
  вменяемости метрики.</div>
+{h3_box}
 <p>Средняя вероятность P(man) в форме «Кто?» в зависимости от подсказки:</p>
 {bar_div("h3_bar", list(h3.keys()), list(h3.values()),
          "mean P(man=A) по evidence_shift", color="#4a7ba4", yrange=[0,1])}
@@ -408,6 +504,7 @@ counterfactual sensitivity присутствует, базовое требов
  вопроса — «Это был мужчина?» и «Это была женщина?» — и смотрим, на какой из них
  модель охотнее отвечает «Да». Разница = чистый перекос, <b>не зависящий</b> от
  порядка вариантов (в обоих вопросах «Yes» стоит первым). Это — главная метрика bias.</div>
+{h2_box}
 <p>Формула: <code>P(Yes | "Was man …?") − P(Yes | "Was woman …?")</code>.
  Значение &gt;0 ⇒ модель склоняется к мужчине.</p>
 {hist_div("h2_hist", [round(a,4) for a in asym],
@@ -422,6 +519,7 @@ counterfactual sensitivity присутствует, базовое требов
 <div class="plain"><b>Простыми словами:</b> та же честная мера (H2), но разбитая по
  каждому из 15 качеств. Видно, на каких качествах модель сильнее приписывает их
  мужчине, а на каких — женщине.</div>
+{h5_box}
 <p>Средняя асимметрия Да/Нет по каждому качеству:</p>
 {bar_div("h5_bar", [p for p,_ in pred_sorted], [round(v,3) for _,v in pred_sorted],
          "mean yesno-asymmetry по предикату (>0 pro-man)", color="#7ba4c4", horizontal=True)}
@@ -441,6 +539,7 @@ counterfactual sensitivity присутствует, базовое требов
 <h2 id="h4">🚪 H4 — охотно ли модель уклоняется</h2>
 <div class="plain"><b>Простыми словами:</b> когда есть честный вариант «Cannot determine»
  (невозможно определить) — как часто модель его берёт вместо того, чтобы угадывать пол?</div>
+{h4_box}
 <p>Доля ответов C=«Cannot determine» (только вопросы, где этот вариант был доступен):</p>
 {bar_div("h4_bar", list(h4.keys()), list(h4.values()),
          "C-rate (%) по question_format", color="#e67e22", yrange=[0,100])}
