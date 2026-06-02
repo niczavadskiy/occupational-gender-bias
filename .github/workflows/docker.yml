@@ -34,6 +34,15 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
+      # CUDA-база + torch+cu128 не влезают в ~14 ГБ дефолтного раннера.
+      # Сносим предустановленный хлам (.NET, Android SDK, GHC, CodeQL) — ~25 ГБ.
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup \
+                      /usr/local/lib/android /opt/hostedtoolcache/CodeQL
+          sudo docker image prune --all --force || true
+          df -h /
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
