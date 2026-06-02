@@ -2,9 +2,16 @@
 Inference runner для Qwen3.5-2B-Base + hidden-states extraction.
 
 На каждом item датасета:
-  - constrained inference → log-prob над valid options (A/B либо A/B/C в зависимости
-    от has_abstain в item)
+  - constrained inference → log-prob над valid options:
+      answer_type=abc   → A/B/(C) в зависимости от has_abstain
+      answer_type=yesno → Yes/No (для answerability-companion items)
   - snapshot residual stream HS на ВСЕХ слоях × last-token (after "Answer:")
+
+Кэш (--cache_from <prev_run_dir>):
+  Для item'ов, у которых prompt-строка точно совпадает с уже посчитанной под
+  тем же model_id, переиспользуются logits/HS из прошлого run'а — пропуск
+  forward'а. Match по prompt (не по id), model_id из meta.json проверяется.
+  В per_item.jsonl новой row пишется поле `from_cache: true/false`.
 
 Что сохраняется per item (в per_item.jsonl):
   - все поля из исходного item (id, predicate, evidence_shift, question_format,
@@ -79,6 +86,76 @@ def load_items(path: str | None):
     return items
 
 
+def load_cache(cache_dir: str | None, expected_model_id: str):
+    """Возвращает dict: prompt-string -> (per_item_row, hs_row или None).
+
+    Кэш считывается из <cache_dir>/per_item.jsonl и hidden_states.npz прошлого run'а.
+    Match'ится по точной строке prompt'а — это инвариантный ключ:
+    same prompt + same model_id → identical model output (детерминированно).
+
+    Если meta.json в cache_dir не совпадает по model_id с текущим — кэш игнорим:
+    разные модели дают разные logits.
+    """
+    if not cache_dir:
+        return {}
+    cdir = Path(cache_dir)
+    pi_path = cdir / "per_item.jsonl"
+    hs_path = cdir / "hidden_states.npz"
+    meta_path = cdir / "meta.json"
+    if not pi_path.is_file():
+        print(f"[cache] {pi_path} нет — кэш пустой")
+        return {}
+
+    # Проверка model_id
+    if meta_path.is_file():
+        try:
+            cached_model = json.loads(meta_path.read_text()).get("model_id")
+            if cached_model and cached_model != expected_model_id:
+                print(f"[cache] WARN: model_id в кэше ({cached_model}) ≠ запрашиваемый "
+                      f"({expected_model_id}). Кэш игнорится.")
+                return {}
+        except Exception as e:
+            print(f"[cache] meta.json не читается ({e}), но prompt-match всё равно используем")
+
+    # HS array (опционально — может не быть)
+    id_to_hs = {}
+    if hs_path.is_file():
+        try:
+            npz = np.load(hs_path, allow_pickle=False)
+            hs = npz["hs"]
+            cached_ids = [str(x) for x in npz["item_ids"]]
+            id_to_hs = {iid: hs[i] for i, iid in enumerate(cached_ids)}
+            print(f"[cache] HS array shape {hs.shape} ({len(id_to_hs)} ids)")
+        except Exception as e:
+            print(f"[cache] WARN: hidden_states.npz не читается ({e}), кэшируем только logits")
+
+    cache = {}
+    with open(pi_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            row = json.loads(line)
+            prompt = row.get("prompt")
+            if not prompt:
+                continue
+            hs_row = id_to_hs.get(row.get("id"))
+            cache[prompt] = (row, hs_row)
+    print(f"[cache] загружено {len(cache)} prompt'ов из {cdir.name}")
+    return cache
+
+
+def cache_has_required_logits(cached_row: dict, answer_type: str) -> bool:
+    """Проверка, что в кэшированной строке есть все нужные logit'ы для этого answer_type."""
+    if answer_type == "abc":
+        keys = ("logit_A", "logit_B", "logit_C")
+    elif answer_type == "yesno":
+        keys = ("logit_Yes", "logit_No")
+    else:
+        return False
+    return all(cached_row.get(k) is not None for k in keys)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--items_file", default=None,
@@ -90,6 +167,11 @@ def main():
     parser.add_argument("--run_tag", default=None,
                         help="Тег для имени папки run'а (например 'factorial_v2'). "
                              "Default: имя файла items_file без расширения.")
+    parser.add_argument("--cache_from", default=None,
+                        help="Папка прошлого run'а (с per_item.jsonl + hidden_states.npz). "
+                             "Для item'ов, у которых prompt совпадает с уже посчитанным под "
+                             "ТЕМ ЖЕ model_id, переиспользуется кэшированный forward — пропуск "
+                             "GPU-проходов. Идентификация по prompt-строке.")
     args = parser.parse_args()
 
     # === Run ID + папка ===
@@ -119,16 +201,22 @@ def main():
     t_load = time.time() - t0
     print(f"  Load time: {t_load:.1f}s")
 
-    # Token IDs для constrained answers — " A" / " B" / " C" (с пробелом, т.к. после "Answer:")
+    # Token IDs для constrained answers — " A"/" B"/" C" (main) и " Yes"/" No" (answerability)
     TOK_A = tokenizer(" A", add_special_tokens=False).input_ids[0]
     TOK_B = tokenizer(" B", add_special_tokens=False).input_ids[0]
     TOK_C = tokenizer(" C", add_special_tokens=False).input_ids[0]
-    print(f"  TOK_A={TOK_A}, TOK_B={TOK_B}, TOK_C={TOK_C}")
+    TOK_YES = tokenizer(" Yes", add_special_tokens=False).input_ids[0]
+    TOK_NO = tokenizer(" No", add_special_tokens=False).input_ids[0]
+    print(f"  TOK_A={TOK_A}, TOK_B={TOK_B}, TOK_C={TOK_C}, "
+          f"TOK_YES={TOK_YES}, TOK_NO={TOK_NO}")
 
     # === Загрузка items ===
     items = load_items(args.items_file)
     N = len(items)
     print(f"\n[2] Loaded {N} items from {args.items_file or 'BUILTIN_DEMO'}")
+
+    # === Загрузка кэша (опционально) ===
+    cache = load_cache(args.cache_from, args.model_id)
 
     # === Allocate HS storage ===
     n_layers_plus_emb = model.config.num_hidden_layers + 1   # +1 за embedding
@@ -140,75 +228,128 @@ def main():
     # === Inference + extraction loop ===
     print(f"\n[3] Inference...")
     per_item_results = []
+    n_cache_hits = 0
+    n_cache_hits_with_hs = 0
     t_inf_start = time.time()
 
     for i, item in enumerate(items):
         prompt = item["prompt"]
-        inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+        answer_type = item.get("answer_type", "abc")
 
-        with torch.no_grad():
-            out = model(**inputs, output_hidden_states=True)
+        # ---- Cache hit? ----
+        cached = cache.get(prompt)
+        cache_hit = False
+        if cached is not None:
+            cached_row, cached_hs = cached
+            if cache_has_required_logits(cached_row, answer_type):
+                # Берём logits + lp_vocab из кэша
+                if answer_type == "abc":
+                    logit_A = cached_row["logit_A"]
+                    logit_B = cached_row["logit_B"]
+                    logit_C = cached_row["logit_C"]
+                    lp_vocab_A = cached_row.get("logprob_vocab_A")
+                    lp_vocab_B = cached_row.get("logprob_vocab_B")
+                    lp_vocab_C = cached_row.get("logprob_vocab_C")
+                    logit_Yes = cached_row.get("logit_Yes")
+                    logit_No = cached_row.get("logit_No")
+                    lp_vocab_Yes = cached_row.get("logprob_vocab_Yes")
+                    lp_vocab_No = cached_row.get("logprob_vocab_No")
+                else:  # yesno
+                    logit_Yes = cached_row["logit_Yes"]
+                    logit_No = cached_row["logit_No"]
+                    lp_vocab_Yes = cached_row.get("logprob_vocab_Yes")
+                    lp_vocab_No = cached_row.get("logprob_vocab_No")
+                    logit_A = cached_row.get("logit_A")
+                    logit_B = cached_row.get("logit_B")
+                    logit_C = cached_row.get("logit_C")
+                    lp_vocab_A = cached_row.get("logprob_vocab_A")
+                    lp_vocab_B = cached_row.get("logprob_vocab_B")
+                    lp_vocab_C = cached_row.get("logprob_vocab_C")
+                # HS: либо из кэша, либо считаем forward (всё равно нужен HS для H10-H13)
+                if cached_hs is not None and cached_hs.shape == (n_layers_plus_emb, d_model):
+                    hs_array[i] = cached_hs.astype(np.float16)
+                    cache_hit = True
+                    n_cache_hits_with_hs += 1
+                else:
+                    # logits есть, HS нет — всё равно forward, но logits переиспользуем для choice
+                    cache_hit = True   # logits cached, HS будет посчитан
+                n_cache_hits += 1
 
-        # HS на всех слоях, last token
-        hs_layers = torch.stack([h[0, -1] for h in out.hidden_states])  # [n_layers+1, d_model]
-        hs_array[i] = hs_layers.float().cpu().numpy().astype(np.float16)
+        # ---- Forward pass (если не cache hit, либо если HS отсутствует) ----
+        if not cache_hit or (cache_hit and cached_hs is None):
+            inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
+            with torch.no_grad():
+                out = model(**inputs, output_hidden_states=True)
 
-        # Last-token logits → full log-softmax (true log P(token | prompt))
-        last_logits = out.logits[0, -1].float()            # [vocab_size]
-        log_probs_full = F.log_softmax(last_logits, dim=0)  # [vocab_size]
+            # HS на всех слоях, last token
+            hs_layers = torch.stack([h[0, -1] for h in out.hidden_states])
+            hs_array[i] = hs_layers.float().cpu().numpy().astype(np.float16)
 
-        # Raw logits на A/B/C
-        logit_A = last_logits[TOK_A].item()
-        logit_B = last_logits[TOK_B].item()
-        logit_C = last_logits[TOK_C].item()
+            # Если не было cache hit — извлекаем logits из forward'а
+            if not cache_hit:
+                last_logits = out.logits[0, -1].float()
+                log_probs_full = F.log_softmax(last_logits, dim=0)
+                logit_A = last_logits[TOK_A].item()
+                logit_B = last_logits[TOK_B].item()
+                logit_C = last_logits[TOK_C].item()
+                logit_Yes = last_logits[TOK_YES].item()
+                logit_No = last_logits[TOK_NO].item()
+                lp_vocab_A = log_probs_full[TOK_A].item()
+                lp_vocab_B = log_probs_full[TOK_B].item()
+                lp_vocab_C = log_probs_full[TOK_C].item()
+                lp_vocab_Yes = log_probs_full[TOK_YES].item()
+                lp_vocab_No = log_probs_full[TOK_NO].item()
 
-        # True log-probs над full vocab
-        lp_vocab_A = log_probs_full[TOK_A].item()
-        lp_vocab_B = log_probs_full[TOK_B].item()
-        lp_vocab_C = log_probs_full[TOK_C].item()
-
-        # Constrained probs (renormalized над valid set)
-        has_abstain = bool(item.get("has_abstain", False))
-        if has_abstain:
-            valid_logits = torch.tensor([logit_A, logit_B, logit_C])
-            valid_labels = ["A", "B", "C"]
-        else:
-            valid_logits = torch.tensor([logit_A, logit_B])
-            valid_labels = ["A", "B"]
+        # ---- Constrained probs + choice (зависит от answer_type) ----
+        if answer_type == "yesno":
+            valid_labels = ["Yes", "No"]
+            valid_logits = torch.tensor([logit_Yes, logit_No])
+        else:  # abc
+            has_abstain = bool(item.get("has_abstain", False))
+            if has_abstain:
+                valid_labels = ["A", "B", "C"]
+                valid_logits = torch.tensor([logit_A, logit_B, logit_C])
+            else:
+                valid_labels = ["A", "B"]
+                valid_logits = torch.tensor([logit_A, logit_B])
         valid_probs = F.softmax(valid_logits, dim=0).tolist()
         choice = valid_labels[int(np.argmax(valid_probs))]
+        prob_constrained = dict(zip(valid_labels, valid_probs))
 
-        prob_constrained = {lbl: p for lbl, p in zip(valid_labels, valid_probs)}
-
-        # Сохраняем item как есть + добавляем результаты модели
+        # ---- Сохраняем результат ----
         result = dict(item)
         result.update({
-            "logit_A": logit_A,
-            "logit_B": logit_B,
-            "logit_C": logit_C,
-            "logprob_vocab_A": lp_vocab_A,
-            "logprob_vocab_B": lp_vocab_B,
+            "logit_A": logit_A, "logit_B": logit_B, "logit_C": logit_C,
+            "logit_Yes": logit_Yes, "logit_No": logit_No,
+            "logprob_vocab_A": lp_vocab_A, "logprob_vocab_B": lp_vocab_B,
             "logprob_vocab_C": lp_vocab_C,
+            "logprob_vocab_Yes": lp_vocab_Yes, "logprob_vocab_No": lp_vocab_No,
             "prob_constrained_A": prob_constrained.get("A"),
             "prob_constrained_B": prob_constrained.get("B"),
-            "prob_constrained_C": prob_constrained.get("C"),   # None если has_abstain=False
+            "prob_constrained_C": prob_constrained.get("C"),
+            "prob_constrained_Yes": prob_constrained.get("Yes"),
+            "prob_constrained_No": prob_constrained.get("No"),
             "valid_labels": valid_labels,
             "choice": choice,
+            "from_cache": cache_hit,
         })
         per_item_results.append(result)
 
-        # Лог раз в N // 20 шагов чтобы не флудить (минимум каждые 50)
+        # Лог раз в N // 20 шагов
         log_every = max(50, N // 20)
         if (i + 1) % log_every == 0 or i == 0 or i == N - 1:
             elapsed = time.time() - t_inf_start
             rate = (i + 1) / elapsed
             eta_min = (N - i - 1) / rate / 60
-            print(f"  [{i+1:4d}/{N}] {item['id']:>15s}  "
-                  f"choice={choice}  "
-                  f"{rate:.1f} it/s  ETA {eta_min:.1f} min")
+            tag = "cache" if cache_hit else "fwd  "
+            print(f"  [{i+1:4d}/{N}] {item['id']:>22s}  [{tag}] "
+                  f"choice={choice}  {rate:.1f} it/s  ETA {eta_min:.1f} min")
 
     t_inf = time.time() - t_inf_start
-    print(f"\n  Inference done in {t_inf:.1f}s ({N/t_inf:.1f} items/sec)")
+    n_fwd = N - n_cache_hits_with_hs
+    print(f"\n  Inference done in {t_inf:.1f}s")
+    print(f"  cache hits (logits): {n_cache_hits}/{N}  "
+          f"(c HS reuse: {n_cache_hits_with_hs}, forward'ов: {n_fwd})")
 
     # === Save ===
     print(f"\n[4] Saving to {out_dir}...")
@@ -242,7 +383,12 @@ def main():
         "cuda_available": torch.cuda.is_available(),
         "gpu": torch.cuda.get_device_name(0) if torch.cuda.is_available() else None,
         "total_runtime_s": round(time.time() - t0, 1),
-        "tok_ids": {"A": TOK_A, "B": TOK_B, "C": TOK_C},
+        "tok_ids": {"A": TOK_A, "B": TOK_B, "C": TOK_C,
+                    "Yes": TOK_YES, "No": TOK_NO},
+        "cache_from": args.cache_from,
+        "n_cache_hits": n_cache_hits,
+        "n_cache_hits_with_hs": n_cache_hits_with_hs,
+        "n_forward_passes": N - n_cache_hits_with_hs,
     }
     with open(out_dir / "meta.json", "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2, ensure_ascii=False)

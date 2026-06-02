@@ -1,0 +1,37 @@
+# build-контекст должен быть мелким — image qua image не зависит от данных и результатов
+.git/
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Локальные результаты/кэш
+results/
+.hf_cache/
+.hf_home/
+.cache/
+*.log
+
+# Сгенерированные jsonl
+data/*.prepared.jsonl
+
+# EDA HTML
+analysis/*.html
+
+# IDE
+.vscode/
+.idea/
+
+# Secrets
+.env
+.env.local
+
+# Docs/README — не нужны в image (читаются на хосте)
+docs/
+*.md
+LICENSE
+
+# Сам Dockerfile
+Dockerfile
+.dockerignore

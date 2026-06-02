@@ -1,0 +1,66 @@
+# GitHub Actions: автоматический build + push Docker image в Docker Hub.
+#
+# Триггеры:
+#   - push на main/qwen_2b_experiments, который трогает Dockerfile/requirements.txt
+#   - ручной (workflow_dispatch) — кнопка "Run workflow" во вкладке Actions
+#
+# Требуемые GitHub secrets (Settings → Secrets and variables → Actions):
+#   - DOCKERHUB_USERNAME = sportsprogrammerhunter
+#   - DOCKERHUB_TOKEN    = PAT с https://app.docker.com/settings/personal-access-tokens
+#                          (scope: Read & Write)
+#
+# Image публикуется в:
+#   docker.io/sportsprogrammerhunter/bias-subspaces-env:latest
+#   docker.io/sportsprogrammerhunter/bias-subspaces-env:YYYY-MM-DD
+#   docker.io/sportsprogrammerhunter/bias-subspaces-env:sha-<7-char>
+name: Docker build & push
+
+on:
+  push:
+    branches: [main, qwen_2b_experiments]
+    paths:
+      - 'Dockerfile'
+      - 'requirements.txt'
+      - '.dockerignore'
+      - '.github/workflows/docker.yml'
+  workflow_dispatch: {}
+
+jobs:
+  build-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Generate tags + labels
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: sportsprogrammerhunter/bias-subspaces-env
+          tags: |
+            type=raw,value=latest
+            type=raw,value={{date 'YYYY-MM-DD'}}
+            type=sha,prefix=sha-,format=short
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          platforms: linux/amd64
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
