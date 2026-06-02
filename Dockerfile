@@ -1,17 +1,18 @@
 # ---------------------------------------------------------------------------
 # Bias-subspaces research env.
 # Базовый образ для запуска pipeline'а на rented GPU (Vast.ai и аналоги).
-# Содержит: Python 3.10, torch 2.11+cu128, transformers 5.9, deps из
+# Содержит: Python 3.12, torch 2.11+cu128, transformers 5.9, deps из
 # requirements.txt + git/tmux/ssh для интерактивной работы.
 # НЕ содержит: код проекта (git clone в /workspace), веса модели (HF cache).
 # Размер: ~5 GB.
 # ---------------------------------------------------------------------------
-FROM nvidia/cuda:12.8.1-runtime-ubuntu22.04
+FROM nvidia/cuda:12.8.1-runtime-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Системные пакеты: python + интерактивные тулзы
 RUN apt-get update && apt-get install -y --no-install-recommends \
