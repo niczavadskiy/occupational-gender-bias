@@ -21,7 +21,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         ca-certificates build-essential \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN python3 -m pip install --upgrade pip
+# --ignore-installed: на ubuntu24.04 debian-pip без RECORD-файла нельзя
+# деинсталлировать «поверх» — ставим свежий рядом, не трогая системный.
+RUN python3 -m pip install --upgrade --ignore-installed pip
 
 # Torch — отдельно с cu128-индексом
 RUN python3 -m pip install \
