@@ -6,8 +6,8 @@ mismatch CUDA на host'е. Docker image заменяет это на одну �
 
 ## Что в образе
 
-- Ubuntu 22.04 + CUDA 12.8 runtime libs
-- Python 3.10 + pip
+- Ubuntu 24.04 + CUDA 12.8 runtime libs
+- Python 3.12 + pip
 - torch 2.11+cu128
 - Всё из `requirements.txt` (transformers 5.9, accelerate, hf_hub, numpy, pandas, etc.)
 - Интерактивные тулзы: git, tmux, htop, vim, ssh-client
@@ -28,7 +28,8 @@ mismatch CUDA на host'е. Docker image заменяет это на одну �
 ### Через GitHub Actions (рекомендуется — авто-build, ничего качать локально)
 
 Workflow [.github/workflows/docker.yml](../.github/workflows/docker.yml) автоматически
-build'ит и push'ит image при любом push'е на main / qwen_2b_experiments,
+build'ит и push'ит image при любом push'е на main / qwen_2b_experiments /
+qwen_2b_experiments_olya,
 который меняет Dockerfile, requirements.txt или сам workflow. Также есть ручной
 trigger (Actions → "Docker build & push" → "Run workflow").
 
@@ -84,32 +85,87 @@ docker push sportsprogrammerhunter/bias-subspaces-env:$(date +%Y-%m-%d)
 
 ## Использование на Vast.ai
 
-1. **Create Template** (один раз):
+> ⚠️ **Чтобы образ подцепился, а не дефолтный pytorch-шаблон Vast** — поле
+> **Image** при создании инстанса должно быть заполнено. Самый надёжный способ —
+> **сохранить свой Template** (тогда он выбирается по умолчанию для всех будущих
+> аренд). Если оставить дефолт — Vast поднимет свой образ (torch есть, но без
+> наших deps), и придётся доустанавливать вручную.
+
+1. **Create Template** (один раз, потом переиспользуется):
    - **Image Path/Tag**: `sportsprogrammerhunter/bias-subspaces-env:latest`
      (или dated: `:2026-06-02` если нужен конкретный snapshot)
-   - **Docker Options**: `-e HF_TOKEN=hf_xxxxxxxxx --shm-size=8g`
-   - **Launch mode**: ssh (для tmux-прогона) либо jupyter (если хочется ноутбук)
-   - **On-start script** (опционально, автоматизирует clone):
+   - **Launch mode**: `SSH` (Vast сам поднимет sshd поверх образа) либо jupyter
+   - **Docker Options**: `-e HF_TOKEN=hf_xxx -e GH_TOKEN=ghp_xxx --shm-size=8g`
+   - **Disk**: ползунок **≥ 50 GB** (образ ~6.5 GB + модель 4 GB + npz; меньше →
+     `No space left on device`)
+   - **On-start script** — автоматизирует clone приватного репо + pull старых
+     данных с HF (см. `scripts/setup_instance.sh`):
      ```bash
      cd /workspace && \
-     git clone https://github.com/<user>/Bias--subspaces-in-LLM.git && \
-     cd Bias--subspaces-in-LLM && \
-     git checkout qwen_2b_experiments
+     git clone --depth 1 --branch qwen_2b_experiments_olya \
+       https://$GH_TOKEN@github.com/olyamasaeva/Bias--subspaces-in-LLM.git && \
+     cd Bias--subspaces-in-LLM && bash scripts/setup_instance.sh
      ```
+   - **Save Template** → в следующий раз образ подцепится сразу.
 
-2. **Create Instance** из template на любой подходящей GPU (RTX 3090/4090/A100,
-   24+ GB VRAM, 30+ GB disk).
-
-3. **SSH в инстанс** — всё уже стоит, можно сразу:
+   Либо без UI, через **vast-cli**:
    ```bash
-   cd /workspace/Bias--subspaces-in-LLM
-   python3 src/smoke_qwen.py           # проверка модель грузится
-   python3 src/prepare_factorial.py data/factorial_v2_with_gender.csv
-   python3 src/inference.py --items_file data/factorial_v2_with_gender.prepared.jsonl \
-       --run_tag factorial_v2_full
+   vastai create instance <OFFER_ID> \
+     --image sportsprogrammerhunter/bias-subspaces-env:latest \
+     --disk 50 --ssh --direct \
+     --env '-e HF_TOKEN=hf_xxx -e GH_TOKEN=ghp_xxx --shm-size=8g'
    ```
 
-   Время первого smoke: ~2-3 мин (HF download модели). Дальнейшие forward'ы — мгновенно.
+   > 🔒 Токены в Docker Options живут на инфраструктуре Vast (чужое железо).
+   > Используй **fine-grained read-only** токены (GH — на этот репо, HF — read на
+   > org) и отзывай после прогона.
+
+2. **Create Instance** из template на подходящей GPU. Фильтр: **Max CUDA ≥ 12.8**
+   (образ на cu128), 24+ GB VRAM, disk ≥ 50 GB.
+
+3. **SSH в инстанс** — всё уже стоит. Если on-start script не использовала —
+   запусти setup вручную:
+   ```bash
+   export GH_TOKEN=ghp_xxx HF_TOKEN=hf_xxx
+   cd /workspace && \
+     git clone --depth 1 --branch qwen_2b_experiments_olya \
+       https://$GH_TOKEN@github.com/olyamasaeva/Bias--subspaces-in-LLM.git
+   cd Bias--subspaces-in-LLM && bash scripts/setup_instance.sh
+   ```
+   Скрипт: clone кода + download прошлого прогона (HS + per_item) с HF Dataset.
+
+4. **Прогон** — код и данные на месте:
+   ```bash
+   python3 src/prepare_factorial.py data/factorial_v2_with_gender.csv   # → 5400 items
+   # свежий прогон:
+   python3 src/inference.py --items_file data/factorial_v2_with_gender.prepared.jsonl \
+       --run_tag factorial_v2_5400
+   # либо с переиспользованием старого forward'а (нужен скачанный с HF run):
+   python3 src/inference.py --items_file data/factorial_v2_with_gender.prepared.jsonl \
+       --run_tag factorial_v2_5400 \
+       --cache_from results/run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2
+   ```
+   Время первого forward'а: +~30-60 сек (HF download модели 4 GB на скорости
+   инстанса). Прогон 5400 items: ~25 мин на RTX 3090.
+
+## Использование уже посчитанных данных (HF Dataset)
+
+Прошлые прогоны (`hidden_states.npz` + `per_item.jsonl`) лежат в приватном
+HF Dataset `bias-subspaces-group/qwen-bias-experiments`. **Тянуть их надо на
+инстанс с HF (быстрый CDN), а не аплоадить со своей машины.**
+
+```bash
+hf download bias-subspaces-group/qwen-bias-experiments \
+   --repo-type dataset --local-dir results/      # делает и setup_instance.sh
+```
+
+Три способа применить скачанный run:
+- **`--cache_from results/run_<...>`** — новый inference переиспользует forward'ы
+  совпавших промптов (экономия только если `hidden_states.npz` присутствует —
+  без него HS пересчитывается всё равно, см. `src/inference.py` логику cache-hit).
+- **probing H11** (`python -m probes.h11_run …`) — CPU, гоняется прямо на `.npz`,
+  **GPU вообще не нужен** (можно и локально).
+- **behavioral-метрики** — на `per_item.jsonl`.
 
 ## Tradeoff'ы дизайна
 
