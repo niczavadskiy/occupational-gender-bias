@@ -44,9 +44,13 @@ cd Bias--subspaces-in-LLM
 if [ "$PULL_CACHE" = "1" ]; then
   echo "=== [2/3] download прошлого прогона с HF ($HF_DATASET) ==="
   : "${HF_TOKEN:?нужен HF_TOKEN (read на org bias-subspaces-group)}"
-  "$PY" -m huggingface_hub.commands.huggingface_cli download \
-      "$HF_DATASET" --repo-type dataset --local-dir results/ \
-    || hf download "$HF_DATASET" --repo-type dataset --local-dir results/
+  # huggingface_hub 1.x убрал huggingface_hub.commands.* → используем Python API
+  "$PY" - "$HF_DATASET" <<'PY'
+import sys
+from huggingface_hub import snapshot_download
+p = snapshot_download(repo_id=sys.argv[1], repo_type="dataset", local_dir="results")
+print("cache → ", p)
+PY
 else
   echo "=== [2/3] PULL_CACHE=0 — старый прогон не качаем ==="
 fi
