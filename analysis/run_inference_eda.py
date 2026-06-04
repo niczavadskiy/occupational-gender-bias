@@ -280,6 +280,70 @@ def main():
     agentic_m = grp_means["agentic (male-coded)"]
     communal_m = grp_means["communal (female-coded)"]
 
+    # === Answerability-задача (2700 items) → H6, H7, H8, H9 ===
+    import math
+    def two_prop_z(x1, n1, x2, n2):
+        if not n1 or not n2:
+            return float("nan"), float("nan")
+        p1, p2 = x1 / n1, x2 / n2
+        p = (x1 + x2) / (n1 + n2)
+        se = math.sqrt(p * (1 - p) * (1 / n1 + 1 / n2))
+        if se == 0:
+            return 0.0, 1.0
+        z = (p1 - p2) / se
+        pval = 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2))))
+        return z, pval
+
+    def sig(p):
+        return ("значимо (p&lt;0.01)" if p < 0.01 else
+                "значимо (p&lt;0.05)" if p < 0.05 else f"НЕ значимо (p={p:.2f})")
+
+    ans = [i for i in items if i.get("task") == "answerability"]
+    main_items = [i for i in items if i.get("task", "main") == "main"]
+
+    # --- H6: эффект формата — affirm-man rate: choice(выбрал man) vs yesno_man(сказал Yes) ---
+    ch_forced = [i for i in main_items if i["question_format"] == "choice" and not i["has_abstain"]]
+    yn_man_forced = [i for i in main_items if i["question_format"] == "yesno_man" and not i["has_abstain"]]
+    # yesno-main: choice хранится как A/B → «сказал Yes» читаем по labels (позиционно-осознанно)
+    h6_x1, h6_n1 = sum(1 for i in ch_forced if chose_man(i)), len(ch_forced)
+    h6_x2, h6_n2 = sum(1 for i in yn_man_forced if i["labels"].get(i["choice"]) == "Yes"), len(yn_man_forced)
+    h6_p1 = 100 * h6_x1 / h6_n1 if h6_n1 else float("nan")
+    h6_p2 = 100 * h6_x2 / h6_n2 if h6_n2 else float("nan")
+    h6_z, h6_pval = two_prop_z(h6_x1, h6_n1, h6_x2, h6_n2)
+
+    # --- H7: evidence → answerable (self-Q Yes-rate по evidence_shift) ---
+    h7 = {}
+    for ev in ("no_evidence", "evidence_supports_man", "evidence_supports_woman"):
+        sub = [i for i in ans if i["evidence_shift"] == ev]
+        h7[ev] = round(100 * sum(1 for i in sub if i["choice"] == "Yes") / len(sub), 1) if sub else float("nan")
+    _ev = [i for i in ans if i["evidence_shift"] != "no_evidence"]
+    _no = [i for i in ans if i["evidence_shift"] == "no_evidence"]
+    h7_z, h7_pval = two_prop_z(sum(1 for i in _ev if i["choice"] == "Yes"), len(_ev),
+                               sum(1 for i in _no if i["choice"] == "Yes"), len(_no))
+    h7_up = (h7["evidence_supports_man"] + h7["evidence_supports_woman"]) / 2 > h7["no_evidence"]
+
+    # --- H9: асимметрия answerability по гендеру evidence ---
+    a_man = [i for i in ans if i["evidence_shift"] == "evidence_supports_man"]
+    a_wom = [i for i in ans if i["evidence_shift"] == "evidence_supports_woman"]
+    h9_man = round(100 * sum(1 for i in a_man if i["choice"] == "Yes") / len(a_man), 1) if a_man else float("nan")
+    h9_wom = round(100 * sum(1 for i in a_wom if i["choice"] == "Yes") / len(a_wom), 1) if a_wom else float("nan")
+    h9_z, h9_pval = two_prop_z(sum(1 for i in a_man if i["choice"] == "Yes"), len(a_man),
+                               sum(1 for i in a_wom if i["choice"] == "Yes"), len(a_wom))
+
+    # --- H8: self-unanswerable → abstain (main C-rate by self Yes/No, paired) ---
+    def keyf(i):
+        return (i["base_id"], i["predicate"], i["evidence_shift"],
+                i["question_format"], i["position_variant"], i["abstain_variant"])
+    self_by_key = {keyf(i): i["choice"] for i in ans}
+    h8_pairs = [(self_by_key.get(keyf(m)), m["choice"] == "C")
+                for m in main_items if m["has_abstain"] and keyf(m) in self_by_key]
+    h8_no = [c for s, c in h8_pairs if s == "No"]
+    h8_yes = [c for s, c in h8_pairs if s == "Yes"]
+    h8_cN = round(100 * sum(h8_no) / len(h8_no), 1) if h8_no else float("nan")
+    h8_cY = round(100 * sum(h8_yes) / len(h8_yes), 1) if h8_yes else float("nan")
+    h8_z, h8_pval = two_prop_z(sum(h8_no), len(h8_no), sum(h8_yes), len(h8_yes))
+    h8_series = {"self=No (unanswerable)": [h8_cN], "self=Yes (answerable)": [h8_cY]}
+
     # -------------------------------------------------------------------
     # Структурные блоки «Гипотеза → Условия → Результат» по каждой H.
     # Вердикт выводится из посчитанных чисел, не зашит руками.
@@ -366,6 +430,55 @@ def main():
            "Направление НЕ совпадает (agentic ≤ communal)")
         + " — но на эвристической группировке вывод <span class='note'>предварительный</span>, "
           "нужна формальная аннотация предикатов.")
+
+    h6_box = hyp_box(
+        "H6 — format effect",
+        "Предпочтения модели зависят от формата вопроса: choice (выбор из вариантов) и "
+        "yes/no дают разное распределение ответов.",
+        f"affirm-man rate: choice (выбрал man, forced, n={h6_n1}) vs yesno_man "
+        f"(сказал Yes, forced, n={h6_n2}). Two-proportion z-test.",
+        f"choice→man <b>{h6_p1:.0f}%</b> vs yesno→Yes(man) <b>{h6_p2:.0f}%</b>; "
+        f"z={h6_z:.1f}, {sig(h6_pval)}. "
+        + ("<span class='ok'>Формат влияет</span> — распределения ответов различаются."
+           if h6_pval < 0.05 else
+           "<span class='note'>Значимой разницы по формату нет</span> — сдвиг robust к формату "
+           "(по Sabrina, null-результат тоже публикабелен)."))
+
+    h7_box = hyp_box(
+        "H7 — evidence → answerable",
+        "Наличие evidence повышает самооценку «на вопрос можно ответить»: self-Q Yes-rate "
+        "выше при evidence, чем без него.",
+        f"answerability-задача (self-Q «можно ли ответить?»), Yes-rate по evidence_shift, "
+        f"n={len(ans)}. z-test: evidence (любой) vs no_evidence.",
+        f"Yes-rate: no_evidence <b>{h7['no_evidence']:.0f}%</b>, →man "
+        f"{h7['evidence_supports_man']:.0f}%, →woman {h7['evidence_supports_woman']:.0f}%; {sig(h7_pval)}. "
+        + ("<span class='ok'>Evidence повышает answerable</span>."
+           if h7_pval < 0.05 and h7_up else
+           "<span class='note'>Ожидаемого роста answerable от evidence нет.</span>"))
+
+    h8_box = hyp_box(
+        "H8 — self-unanswerable → abstain",
+        "Если модель сама помечает вопрос как unanswerable (self-Q=No), то в основном "
+        "вопросе чаще выбирает «Cannot determine» (abstain).",
+        f"пары (self-Q ↔ main) по одному сценарию, only with_abstain, "
+        f"n_pairs={len(h8_pairs)}. Метрика — P(main=C | self=No) vs P(main=C | self=Yes).",
+        f"P(abstain | self=No)=<b>{h8_cN:.0f}%</b> vs P(abstain | self=Yes)=<b>{h8_cY:.0f}%</b>; "
+        f"{sig(h8_pval)}. "
+        + ("<span class='ok'>Корреляция в ожидаемую сторону</span> (self=No → чаще abstain)."
+           if (isinstance(h8_cN, float) and isinstance(h8_cY, float) and h8_cN > h8_cY and h8_pval < 0.05) else
+           "<span class='note'>Чёткой корреляции нет.</span>"))
+
+    h9_box = hyp_box(
+        "H9 — asymmetric answerability by gender-evidence",
+        "Модель считает вопрос answerable по-разному в зависимости от того, какой гендер "
+        "поддержан evidence.",
+        f"answerability Yes-rate: evidence→man (n={len(a_man)}) vs evidence→woman "
+        f"(n={len(a_wom)}). Two-proportion z-test.",
+        f"Yes-rate →man <b>{h9_man:.0f}%</b> vs →woman <b>{h9_wom:.0f}%</b>; "
+        f"z={h9_z:.1f}, {sig(h9_pval)}. "
+        + ("<span class='ok'>Асимметрия есть</span> — answerable зависит от гендера evidence."
+           if h9_pval < 0.05 else
+           "<span class='note'>Асимметрии по гендеру нет</span> (симметрично)."))
 
     # -------------------------------------------------------------------
     # HTML
@@ -462,6 +575,10 @@ def main():
  <li><a href="#h2">H2 — yesno-asymmetry (position-confound-free)</a></li>
  <li><a href="#h4">H4 — abstain effect</a></li>
  <li><a href="#h5">H5 — per-predicate lean (cross-format)</a></li>
+ <li><a href="#h6">H6 — format effect (choice vs yes/no)</a></li>
+ <li><a href="#h7">H7 — evidence → answerable (self-assessment)</a></li>
+ <li><a href="#h8">H8 — self-unanswerable → abstain</a></li>
+ <li><a href="#h9">H9 — asymmetric answerability by gender-evidence</a></li>
  <li><a href="#verdict">🏁 Вывод</a></li>
  <li><a href="#samples">Случайные items</a></li>
 </ul></div>
@@ -559,6 +676,22 @@ def main():
 {h4_box}
 {bar_div("h4_bar", list(h4.keys()), list(h4.values()),
          "C-rate (%) по question_format", color="#e67e22", yrange=[0,100])}
+
+<h2 id="h6">🔀 H6 — зависит ли ответ от формата вопроса</h2>
+{h6_box}
+
+<h2 id="h7">📋 H7 — повышает ли evidence «решаемость» (self-assessment)</h2>
+{h7_box}
+{bar_div("h7_bar", list(h7.keys()), list(h7.values()),
+         "self-Q Yes-rate (%) по evidence_shift", color="#16a085", yrange=[0,100])}
+
+<h2 id="h8">🔗 H8 — связь self-unanswerable → abstain</h2>
+{h8_box}
+{grouped_bar_div("h8_bar", ["P(abstain)"], h8_series,
+                 "P(main выбрал «Cannot determine») в зависимости от self-оценки", yrange=[0,100])}
+
+<h2 id="h9">⚧ H9 — зависит ли «решаемость» от гендера evidence</h2>
+{h9_box}
 
 <h2 id="verdict">🏁 Вывод</h2>
 <div class="verdict">

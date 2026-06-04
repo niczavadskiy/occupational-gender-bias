@@ -67,6 +67,10 @@
  <li><a href="#h2">H2 — yesno-asymmetry (position-confound-free)</a></li>
  <li><a href="#h4">H4 — abstain effect</a></li>
  <li><a href="#h5">H5 — per-predicate lean (cross-format)</a></li>
+ <li><a href="#h6">H6 — format effect (choice vs yes/no)</a></li>
+ <li><a href="#h7">H7 — evidence → answerable (self-assessment)</a></li>
+ <li><a href="#h8">H8 — self-unanswerable → abstain</a></li>
+ <li><a href="#h9">H9 — asymmetric answerability by gender-evidence</a></li>
  <li><a href="#verdict">🏁 Вывод</a></li>
  <li><a href="#samples">Случайные items</a></li>
 </ul></div>
@@ -163,6 +167,22 @@
 <div class="hyp"><div class="hyp-row"><span class="hyp-k">Гипотеза H4 — abstain effect</span><span class="hyp-v">Наличие явного «Cannot determine» заметно меняет поведение: модель часто уклоняется вместо угадывания пола.</span></div><div class="hyp-row"><span class="hyp-k">Условия</span><span class="hyp-v">1350 items с доступным «Cannot determine» (<code>has_abstain=True</code>), разбивка по question_format. Метрика — доля choice=C (abstain-rate).</span></div><div class="hyp-row"><span class="hyp-k">Результат</span><span class="hyp-v">overall abstain-rate=<b>61%</b>. Опция уклонения сильно перетягивает ответы из A/B — при сравнении bias-метрик with/without abstain это надо учитывать.</span></div></div>
 <div id="h4_bar" class="chart"></div>
 <script>Plotly.newPlot('h4_bar',[{x:["choice", "yesno_man", "yesno_woman"],y:[82.0, 44.7, 57.3],type:'bar',marker:{color:'#e67e22'}}],{title:'C-rate (%) по question_format',margin:{t:50},xaxis:{tickangle:-25}, yaxis:{range:[0, 100]}});</script>
+
+<h2 id="h6">🔀 H6 — зависит ли ответ от формата вопроса</h2>
+<div class="hyp"><div class="hyp-row"><span class="hyp-k">Гипотеза H6 — format effect</span><span class="hyp-v">Предпочтения модели зависят от формата вопроса: choice (выбор из вариантов) и yes/no дают разное распределение ответов.</span></div><div class="hyp-row"><span class="hyp-k">Условия</span><span class="hyp-v">affirm-man rate: choice (выбрал man, forced, n=450) vs yesno_man (сказал Yes, forced, n=450). Two-proportion z-test.</span></div><div class="hyp-row"><span class="hyp-k">Результат</span><span class="hyp-v">choice→man <b>53%</b> vs yesno→Yes(man) <b>50%</b>; z=0.8, НЕ значимо (p=0.42). <span class='note'>Значимой разницы по формату нет</span> — сдвиг robust к формату (по Sabrina, null-результат тоже публикабелен).</span></div></div>
+
+<h2 id="h7">📋 H7 — повышает ли evidence «решаемость» (self-assessment)</h2>
+<div class="hyp"><div class="hyp-row"><span class="hyp-k">Гипотеза H7 — evidence → answerable</span><span class="hyp-v">Наличие evidence повышает самооценку «на вопрос можно ответить»: self-Q Yes-rate выше при evidence, чем без него.</span></div><div class="hyp-row"><span class="hyp-k">Условия</span><span class="hyp-v">answerability-задача (self-Q «можно ли ответить?»), Yes-rate по evidence_shift, n=2700. z-test: evidence (любой) vs no_evidence.</span></div><div class="hyp-row"><span class="hyp-k">Результат</span><span class="hyp-v">Yes-rate: no_evidence <b>8%</b>, →man 8%, →woman 7%; НЕ значимо (p=0.61). <span class='note'>Ожидаемого роста answerable от evidence нет.</span></span></div></div>
+<div id="h7_bar" class="chart"></div>
+<script>Plotly.newPlot('h7_bar',[{x:["no_evidence", "evidence_supports_man", "evidence_supports_woman"],y:[8.1, 8.3, 6.8],type:'bar',marker:{color:'#16a085'}}],{title:'self-Q Yes-rate (%) по evidence_shift',margin:{t:50},xaxis:{tickangle:-25}, yaxis:{range:[0, 100]}});</script>
+
+<h2 id="h8">🔗 H8 — связь self-unanswerable → abstain</h2>
+<div class="hyp"><div class="hyp-row"><span class="hyp-k">Гипотеза H8 — self-unanswerable → abstain</span><span class="hyp-v">Если модель сама помечает вопрос как unanswerable (self-Q=No), то в основном вопросе чаще выбирает «Cannot determine» (abstain).</span></div><div class="hyp-row"><span class="hyp-k">Условия</span><span class="hyp-v">пары (self-Q ↔ main) по одному сценарию, only with_abstain, n_pairs=1350. Метрика — P(main=C | self=No) vs P(main=C | self=Yes).</span></div><div class="hyp-row"><span class="hyp-k">Результат</span><span class="hyp-v">P(abstain | self=No)=<b>65%</b> vs P(abstain | self=Yes)=<b>10%</b>; значимо (p&lt;0.01). <span class='ok'>Корреляция в ожидаемую сторону</span> (self=No → чаще abstain).</span></div></div>
+<div id="h8_bar" class="chart"></div>
+<script>Plotly.newPlot('h8_bar',[{x:["P(abstain)"],y:[64.6],name:'self=No (unanswerable)',type:'bar'},{x:["P(abstain)"],y:[9.9],name:'self=Yes (answerable)',type:'bar'}],{title:'P(main выбрал «Cannot determine») в зависимости от self-оценки',barmode:'group',margin:{t:50},xaxis:{tickangle:-25}, yaxis:{range:[0, 100]}});</script>
+
+<h2 id="h9">⚧ H9 — зависит ли «решаемость» от гендера evidence</h2>
+<div class="hyp"><div class="hyp-row"><span class="hyp-k">Гипотеза H9 — asymmetric answerability by gender-evidence</span><span class="hyp-v">Модель считает вопрос answerable по-разному в зависимости от того, какой гендер поддержан evidence.</span></div><div class="hyp-row"><span class="hyp-k">Условия</span><span class="hyp-v">answerability Yes-rate: evidence→man (n=900) vs evidence→woman (n=900). Two-proportion z-test.</span></div><div class="hyp-row"><span class="hyp-k">Результат</span><span class="hyp-v">Yes-rate →man <b>8%</b> vs →woman <b>7%</b>; z=1.2, НЕ значимо (p=0.21). <span class='note'>Асимметрии по гендеру нет</span> (симметрично).</span></div></div>
 
 <h2 id="verdict">🏁 Вывод</h2>
 <div class="verdict">
