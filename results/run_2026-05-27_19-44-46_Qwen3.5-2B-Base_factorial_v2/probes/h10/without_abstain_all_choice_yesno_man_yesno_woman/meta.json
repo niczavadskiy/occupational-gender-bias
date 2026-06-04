@@ -1,0 +1,142 @@
+{
+  "probe_script": "h10_pipeline",
+  "pipeline_run_id": "2026-06-02_21-34-19",
+  "run_slug": "without_abstain_all_choice_yesno_man_yesno_woman",
+  "datetime": "2026-06-02T21:34:43.354140",
+  "pipeline_runtime_s": 24.43,
+  "abstain_variant": "without_abstain",
+  "annotation_run": "E:\\~edu\\AI Safety\\Bias subspaces в LLM\\repo\\data\\annotation\\runs\\2026-06-02_13-10-31_anthropic_claude-opus-4.8\\annotations.jsonl",
+  "parent_run_id": "2026-05-27_19-44-46",
+  "parent_run_dir": "run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "probe_device": "cpu",
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "sklearn_version": "1.6.1",
+  "hypothesis": "H10",
+  "target": "h10_st_logit",
+  "evidence_mode": "all",
+  "evidence_modes": [
+    "all"
+  ],
+  "n_samples": 675,
+  "n_scenario_families": 75,
+  "rows_per_family": 9,
+  "split": {
+    "group_key": "scenario_family_id (base_id = context×predicate)",
+    "n_scenario_families": 75,
+    "families_per_split": {
+      "train": 45,
+      "val": 15,
+      "test": 15
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "question_formats": [
+      "choice",
+      "yesno_man",
+      "yesno_woman"
+    ],
+    "abstain_variant": "without_abstain",
+    "evidence_shift_levels": [
+      "evidence_supports_man",
+      "evidence_supports_woman",
+      "no_evidence"
+    ]
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 3.65,
+      "summary": {
+        "summary_by_mode": {
+          "all": {
+            "target": "h10_st_logit",
+            "best_layer": 18,
+            "val_r2": 0.34112028145572426
+          }
+        }
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 11.09,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 18,
+        "best_main_metric": 0.34112028145572426,
+        "control_within_scenario_family_at_best_layer": -0.028863902340812375,
+        "control_global_at_best_layer": -3.5510819838657666,
+        "control_permuted_alignment_at_best_layer": -2.164819201695918
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 3.1,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 2,
+        "val_silhouette": 0.023316962644457817
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 1.54,
+      "summary": {
+        "metrics": {
+          "layer": 18,
+          "train_r2": 0.9989825099959159,
+          "train_pearson_r": 0.9995042897032556,
+          "train_mse": 0.037910065331191824,
+          "val_r2": 0.34112028145572426,
+          "val_pearson_r": 0.622229812762035,
+          "val_mse": 29.845736963987974,
+          "test_r2": 0.8321980981943018,
+          "test_pearson_r": 0.9158659037708027,
+          "test_mse": 6.861766752314775
+        },
+        "projection_st_logit_r": 0.9047982322335887
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 2.63,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.16283579691327968,
+          "min_cosine_w_off_diagonal": -0.04575803814944928,
+          "max_cosine_w_off_diagonal": 0.8347880786119181,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_all_h10_st_logit.csv": "layer_scan_all_h10_st_logit.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_all_h10_st_logit.csv": "control_all_h10_st_logit.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_all_median_train.csv": "silhouette_all_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_all_h10_st_logit_L18.npz": "direction_all_h10_st_logit_L18.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_all_h10_st_logit_cos_w_pairs.csv": "compare_directions_all_h10_st_logit_cos_w_pairs.csv",
+    "compare_directions/compare_directions_all_h10_st_logit_cos_w_matrix.csv": "compare_directions_all_h10_st_logit_cos_w_matrix.csv",
+    "compare_directions/compare_directions_all_h10_st_logit_weights.npz": "compare_directions_all_h10_st_logit_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}

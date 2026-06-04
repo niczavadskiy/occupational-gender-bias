@@ -1,0 +1,138 @@
+{
+  "probe_script": "h10_pipeline",
+  "pipeline_run_id": "2026-06-02_21-33-12",
+  "run_slug": "without_abstain_no_evidence_choice",
+  "datetime": "2026-06-02T21:33:21.227448",
+  "pipeline_runtime_s": 10.25,
+  "abstain_variant": "without_abstain",
+  "annotation_run": "E:\\~edu\\AI Safety\\Bias subspaces в LLM\\repo\\data\\annotation\\runs\\2026-06-02_13-10-31_anthropic_claude-opus-4.8\\annotations.jsonl",
+  "parent_run_id": "2026-05-27_19-44-46",
+  "parent_run_dir": "run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "probe_device": "cpu",
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "sklearn_version": "1.6.1",
+  "hypothesis": "H10",
+  "target": "h10_st_logit",
+  "evidence_mode": "no_evidence",
+  "evidence_modes": [
+    "no_evidence"
+  ],
+  "n_samples": 75,
+  "n_scenario_families": 75,
+  "rows_per_family": 1,
+  "split": {
+    "group_key": "scenario_family_id (base_id = context×predicate)",
+    "n_scenario_families": 75,
+    "families_per_split": {
+      "train": 45,
+      "val": 15,
+      "test": 15
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "question_formats": [
+      "choice"
+    ],
+    "abstain_variant": "without_abstain",
+    "evidence_shift_levels": [
+      "no_evidence"
+    ]
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 1.57,
+      "summary": {
+        "summary_by_mode": {
+          "no_evidence": {
+            "target": "h10_st_logit",
+            "best_layer": 4,
+            "val_r2": 0.08670885786262661
+          }
+        }
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 2.37,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 4,
+        "best_main_metric": 0.08670885786262661,
+        "control_within_scenario_family_at_best_layer": 0.08670885786262661,
+        "control_global_at_best_layer": -2.1403619606701816,
+        "control_permuted_alignment_at_best_layer": -2.1250636139573893
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 1.29,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 10,
+        "val_silhouette": 0.12059212476015091
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 1.2,
+      "summary": {
+        "metrics": {
+          "layer": 4,
+          "train_r2": 0.9999987561349712,
+          "train_pearson_r": 0.9999993866209583,
+          "train_mse": 5.170998535723773e-05,
+          "val_r2": 0.08670885786262661,
+          "val_pearson_r": 0.6627040417601872,
+          "val_mse": 36.94314718889874,
+          "test_r2": 0.9857911896224981,
+          "test_pearson_r": 0.9944479909094299,
+          "test_mse": 0.6234179059594492
+        },
+        "projection_st_logit_r": 0.9149124351077503
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 1.27,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.21103188753595953,
+          "min_cosine_w_off_diagonal": -0.02980373137400641,
+          "max_cosine_w_off_diagonal": 0.8775585365474244,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_no_evidence_h10_st_logit.csv": "layer_scan_no_evidence_h10_st_logit.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_no_evidence_h10_st_logit.csv": "control_no_evidence_h10_st_logit.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_no_evidence_median_train.csv": "silhouette_no_evidence_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_no_evidence_h10_st_logit_L4.npz": "direction_no_evidence_h10_st_logit_L4.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_no_evidence_h10_st_logit_cos_w_pairs.csv": "compare_directions_no_evidence_h10_st_logit_cos_w_pairs.csv",
+    "compare_directions/compare_directions_no_evidence_h10_st_logit_cos_w_matrix.csv": "compare_directions_no_evidence_h10_st_logit_cos_w_matrix.csv",
+    "compare_directions/compare_directions_no_evidence_h10_st_logit_weights.npz": "compare_directions_no_evidence_h10_st_logit_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}

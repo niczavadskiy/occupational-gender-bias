@@ -1,0 +1,135 @@
+{
+  "probe_script": "h12_pipeline",
+  "pipeline_run_id": "2026-06-02_14-18-46",
+  "run_slug": "with_abstain_no_evidence_choice",
+  "datetime": "2026-06-02T14:18:56.900540",
+  "pipeline_runtime_s": 11.24,
+  "abstain_variant": "with_abstain",
+  "parent_run_id": "2026-05-27_19-44-46",
+  "parent_run_dir": "run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "probe_device": "cpu",
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "sklearn_version": "1.6.1",
+  "hypothesis": "H12",
+  "target": "abstain_logit",
+  "evidence_mode": "no_evidence",
+  "evidence_modes": [
+    "no_evidence"
+  ],
+  "n_samples": 75,
+  "n_scenario_families": 75,
+  "rows_per_family": 1,
+  "split": {
+    "group_key": "scenario_family_id (base_id = context×predicate)",
+    "n_scenario_families": 75,
+    "families_per_split": {
+      "train": 45,
+      "val": 15,
+      "test": 15
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "question_format": "choice",
+    "abstain_variant": "with_abstain",
+    "evidence_shift_levels": [
+      "no_evidence"
+    ]
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 3.14,
+      "summary": {
+        "summary_by_mode": {
+          "no_evidence": {
+            "target": "abstain_logit",
+            "best_layer": 16,
+            "val_r2": 0.9486190670035229
+          }
+        }
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 1.98,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 16,
+        "best_main_metric": 0.9486190670035229,
+        "control_within_scenario_family_at_best_layer": 0.9486190670035229,
+        "control_global_at_best_layer": -1.8799099766356275,
+        "control_permuted_alignment_at_best_layer": -1.1876407416761352
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 1.36,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 16,
+        "val_silhouette": 0.06491353362798691
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 1.27,
+      "summary": {
+        "metrics": {
+          "layer": 16,
+          "train_r2": 0.9999873631254708,
+          "train_pearson_r": 0.9999938885945748,
+          "train_mse": 9.618366827331516e-07,
+          "val_r2": 0.9486190670035229,
+          "val_pearson_r": 0.9801443709013188,
+          "val_mse": 0.004033862021263783,
+          "test_r2": 0.9795761195088503,
+          "test_pearson_r": 0.9897405966422084,
+          "test_mse": 0.0018899788977679206
+        },
+        "projection_abstain_logit_r": 0.992915683984767
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 1.23,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.18927258143535763,
+          "min_cosine_w_off_diagonal": -0.026254070603858724,
+          "max_cosine_w_off_diagonal": 0.8722678902042107,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_no_evidence_abstain_logit.csv": "layer_scan_no_evidence_abstain_logit.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_no_evidence_abstain_logit.csv": "control_no_evidence_abstain_logit.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_no_evidence_median_train.csv": "silhouette_no_evidence_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_no_evidence_abstain_logit_L16.npz": "direction_no_evidence_abstain_logit_L16.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_no_evidence_abstain_logit_cos_w_pairs.csv": "compare_directions_no_evidence_abstain_logit_cos_w_pairs.csv",
+    "compare_directions/compare_directions_no_evidence_abstain_logit_cos_w_matrix.csv": "compare_directions_no_evidence_abstain_logit_cos_w_matrix.csv",
+    "compare_directions/compare_directions_no_evidence_abstain_logit_weights.npz": "compare_directions_no_evidence_abstain_logit_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}
