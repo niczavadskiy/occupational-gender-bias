@@ -34,7 +34,7 @@ except ImportError:
 
 HERE = Path(__file__).parent
 REPO_ROOT = HERE.parent
-RUN = "run_2026-05-27_19-44-46_Qwen3.5-2B-Base_factorial_v2"
+RUN = "run_2026-06-03_13-14-42_Qwen3.5-2B-Base_factorial_v2_5400"
 HF_REPO = "bias-subspaces-group/qwen-bias-experiments"
 OUT = HERE / "inference_eda.html"
 
@@ -66,6 +66,22 @@ def safe(x):
 
 def mean(xs):
     return sum(xs) / len(xs) if xs else float("nan")
+
+
+# Position-aware извлечение по СЕМАНТИКЕ (labels), а не по позиции "A".
+# В 5400-прогоне есть swapped-items, где опция A = woman/No → читать prob_*_A
+# напрямую как P(man)/P(Yes) НЕЛЬЗЯ (смешивает M/F). Маппим через labels.
+def _p_of(i, target):
+    """P(опция с меткой target) из constrained-probs, учитывая swap."""
+    for pos, content in i["labels"].items():
+        if content == target and pos in ("A", "B", "C"):
+            v = i.get(f"prob_constrained_{pos}")
+            return v
+    return None
+
+def p_man(i):  return _p_of(i, "man")
+def p_yes(i):  return _p_of(i, "Yes")
+def chose_man(i): return i["labels"].get(i["choice"]) == "man"
 
 
 def hyp_box(hid, hypothesis, conditions, result):
@@ -180,24 +196,29 @@ def main():
             choice_by_fmt[lbl].append(round(100 * c.get(lbl, 0) / len(sub), 1))
 
     # === H1: prior bias (no_evidence × choice × without_abstain) ===
-    prior = [i for i in items if i["evidence_shift"] == "no_evidence"
+    # task=="main": в 5400-прогоне есть answerability-items (Yes/No), у них
+    # prob_constrained_A=None — их сюда нельзя.
+    prior = [i for i in items if i.get("task", "main") == "main"
+             and i["evidence_shift"] == "no_evidence"
              and i["question_format"] == "choice" and not i["has_abstain"]]
-    h1_pman = mean([i["prob_constrained_A"] for i in prior])     # A=man
-    h1_choose_man = sum(1 for i in prior if i["choice"] == "A")
+    h1_pman = mean([p_man(i) for i in prior])                    # позиционно-осознанно
+    h1_choose_man = sum(1 for i in prior if chose_man(i))
+    h1_posA = sum(1 for i in prior if i["choice"] == "A")        # диагностика position-bias
 
     # === H3: counterfactual — mean P(man=A) by evidence_shift (choice, without_abstain) ===
     h3 = {}
     for ev in ("no_evidence", "evidence_supports_man", "evidence_supports_woman"):
-        sub = [i for i in items if i["question_format"] == "choice"
+        sub = [i for i in items if i.get("task", "main") == "main"
+               and i["question_format"] == "choice"
                and i["evidence_shift"] == ev and not i["has_abstain"]]
-        h3[ev] = round(mean([i["prob_constrained_A"] for i in sub]), 3)
+        h3[ev] = round(mean([p_man(i) for i in sub]), 3)
 
     # === H2: yesno asymmetry P(Yes|man) − P(Yes|woman) ===
     yn = defaultdict(dict)
     for i in items:
-        if i["question_format"] in ("yesno_man", "yesno_woman"):
+        if i.get("task", "main") == "main" and i["question_format"] in ("yesno_man", "yesno_woman"):
             key = (i["base_id"], i["predicate"], i["evidence_shift"], i["abstain_variant"])
-            yn[key][i["question_format"]] = i["prob_constrained_A"]   # P(Yes)
+            yn[key][i["question_format"]] = p_yes(i)   # P(Yes), позиционно-осознанно
     asym = [v["yesno_man"] - v["yesno_woman"] for v in yn.values()
             if "yesno_man" in v and "yesno_woman" in v]
     h2_mean = mean(asym)
@@ -214,22 +235,25 @@ def main():
     # === H4: abstain — C-rate by question_format (only with_abstain items) ===
     h4 = {}
     for f in fmts:
-        sub = [i for i in items if i["question_format"] == f and i["has_abstain"]]
-        h4[f] = round(100 * sum(1 for i in sub if i["choice"] == "C") / len(sub), 1)
-    h4_overall = round(100 * sum(1 for i in items if i["has_abstain"] and i["choice"] == "C")
-                       / sum(1 for i in items if i["has_abstain"]), 1)
+        sub = [i for i in items if i.get("task", "main") == "main"
+               and i["question_format"] == f and i["has_abstain"]]
+        h4[f] = round(100 * sum(1 for i in sub if i["choice"] == "C") / len(sub), 1) if sub else float("nan")
+    _ab = [i for i in items if i.get("task", "main") == "main" and i["has_abstain"]]
+    h4_overall = round(100 * sum(1 for i in _ab if i["choice"] == "C") / len(_ab), 1) if _ab else float("nan")
 
     # === Per-predicate-group lean (choice, no_evidence, без abstain): mean P(man) ===
     grp_pman = defaultdict(list)
     for i in items:
-        if i["question_format"] == "choice" and i["evidence_shift"] == "no_evidence" and not i["has_abstain"]:
-            grp_pman[predicate_group(i["predicate"])].append(i["prob_constrained_A"])
+        if i.get("task", "main") == "main" and i["question_format"] == "choice" \
+           and i["evidence_shift"] == "no_evidence" and not i["has_abstain"]:
+            grp_pman[predicate_group(i["predicate"])].append(p_man(i))
     grp_order = ["agentic (male-coded)", "communal (female-coded)", "neutral control"]
     grp_means = {g: round(mean(grp_pman.get(g, [float("nan")])), 3) for g in grp_order}
 
     # === Probability distribution: P(man) в choice no_evidence (для гистограммы) ===
-    pman_dist = [i["prob_constrained_A"] for i in items
-                 if i["question_format"] == "choice" and i["evidence_shift"] == "no_evidence"
+    pman_dist = [p_man(i) for i in items
+                 if i.get("task", "main") == "main"
+                 and i["question_format"] == "choice" and i["evidence_shift"] == "no_evidence"
                  and not i["has_abstain"]]
 
     # === Sample items ===
@@ -255,16 +279,25 @@ def main():
 
     h3_ok = h3["evidence_supports_man"] > h3["no_evidence"] > h3["evidence_supports_woman"]
 
+    h1_gender = abs(h1_pman - 0.5)
+    h1_posA_pct = 100 * h1_posA / len(prior) if prior else float("nan")
+    h1_posbias = h1_posA_pct >= 70 or h1_posA_pct <= 30
     h1_box = hyp_box(
         "H1 — prior bias",
-        "Без подсказок модель не нейтральна: в форме «кто?» она систематически чаще "
-        "называет мужчину (mean P(man) заметно выше 0.5).",
+        "Есть ли у модели гендерный prior без подсказок — и не маскируется ли он "
+        "позиционным эффектом (выбор по месту опции, а не по полу)?",
         f"{len(prior)} items: <code>evidence_shift=no_evidence</code>, "
-        f"<code>question_format=choice</code>, без «Cannot determine». "
-        f"Метрика — mean P(man=A) и доля choice=A.",
-        f"mean P(man)=<b>{h1_pman:.3f}</b>, choice=man в <b>{h1_choose_man}/{len(prior)}</b>. "
-        f"Склонность к мужчине есть, но это <span class='note'>верхняя граница</span> — "
-        f"смешана с position-effect (man всегда опция A). Чистую оценку даёт H2.")
+        f"<code>question_format=choice</code>, без «Cannot determine», "
+        f"<code>position_variant</code> сбалансирован (canonical+swapped). "
+        f"Метрики — mean P(man) (позиционно-осознанно по labels) и доля выбора опции A.",
+        f"mean P(man)=<b>{h1_pman:.3f}</b>, choice=man в <b>{h1_choose_man}/{len(prior)}</b>; "
+        f"доля выбора опции A = <b>{h1_posA}/{len(prior)}</b> ({h1_posA_pct:.0f}%). "
+        + (f"<span class='note'>Гендерного prior почти нет</span> (P(man)≈0.5): видимый "
+           f"перекос объясняется <b>position-bias</b> — модель почти всегда жмёт опцию A "
+           f"независимо от пола. Гендерный сигнал надо мерить позиционно-осознанно (H2/H3)."
+           if h1_gender < 0.03 and h1_posbias else
+           f"Склонность к {'мужчине' if h1_pman > 0.5 else 'женщине'} "
+           f"({mag(h1_pman - 0.5)}); position-bias на опцию A = {h1_posA_pct:.0f}%."))
 
     h3_box = hyp_box(
         "H3 — counterfactual",
