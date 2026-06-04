@@ -269,6 +269,15 @@ probes/download_hf.py
 # Prepared JSONL — генерится из CSV через prepare_factorial.py, не коммитим.
 data/*.prepared.jsonl
 
+# LLM annotation runs — track json / jsonl / csv; ignore editor locks
+data/annotation/runs/**
+!data/annotation/runs/**/
+!data/annotation/runs/**/*.json
+!data/annotation/runs/**/*.jsonl
+!data/annotation/runs/**/*.csv
+!data/annotation/runs/.gitkeep
+data/annotation/runs/**/.~lock*
+
 # === Secrets ===
 .env
 .env.local

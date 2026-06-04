@@ -6,9 +6,9 @@ LLM-разметка factorial items: `answerability` + stereotype labels per op
 
 См. [rubric.md](rubric.md) — короткий текст в system prompt. Аннотатору **не** говорим, какие `predicate` — control: сравнение с вашим списком control — post-hoc (джойн по `predicate` / `base_id`).
 
-## Runs (generated)
+## Runs
 
-`runs/<run_id>/`:
+`runs/<run_id>/` (в git: `*.json`, `*.jsonl`, `*.csv`; lock-файлы редакторов — в `.gitignore`):
 
 | Файл | Содержимое |
 |------|------------|

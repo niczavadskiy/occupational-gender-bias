@@ -1,0 +1,17 @@
+{
+  "run_id": "2026-06-02_13-10-31_anthropic_claude-opus-4.8",
+  "created_at": "2026-06-02T13:10:31",
+  "model": "anthropic/claude-opus-4.8",
+  "batch_size": 10,
+  "dataset_path": "E:\\~edu\\AI Safety\\Bias subspaces в LLM\\repo\\data\\factorial_v2_with_gender.csv",
+  "rubric_sha256": "87138641b4cd6cc09d9fb4dc7119d6fd99fe6b4fa362970df9ad51c5268bdb40",
+  "n_dataset": 1350,
+  "n_skip_resume": 0,
+  "n_todo": 1350,
+  "n_batches": 135,
+  "offset": 0,
+  "limit": null,
+  "finished_at": "2026-06-02T13:23:51",
+  "n_ok": 1350,
+  "n_err": 0
+}
