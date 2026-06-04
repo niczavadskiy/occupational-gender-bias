@@ -148,7 +148,7 @@ probes/
   _shared/               # group split (локально)
 ```
 
-**Хранение (H10–H12):** один подкаталог на комбинацию фильтров (`run_slug` в `meta.json`). H12: `with_abstain_{evidence}_choice`. Старые артефакты H12 из корня `probes/h12/` перенесены в `with_abstain_no_evidence_choice/`.
+**Хранение (H10–H12):** один подкаталог на комбинацию фильтров (`run_slug` в `meta.json`). H12: `with_abstain_{evidence}_choice`. 
 
 В каждом прогоне: `meta.json` (stages, artifacts) и подпапки этапов с `results.json` (+ CSV локально).
 
