@@ -88,16 +88,28 @@
  (A / B / C) — сначала по всем вопросам, потом отдельно для каждой формы вопроса.</div>
 
 <div id="c_overall" class="chart"></div>
-<script>Plotly.newPlot('c_overall',[{values:[1250, 2491, 828, 622, 209],labels:["A", "No", "C", "B", "Yes"],type:'pie',hole:0.4,textinfo:'label+percent+value'}],{title:'Overall choice (A/B/C) по всем 1350 items',margin:{t:50}});</script>
+<script>Plotly.newPlot('c_overall',[{values:[53.1, 46.9],labels:["man", "woman"],type:'pie',hole:0.4,textinfo:'label+percent+value'}],{title:'Выбор пола в forced-choice (choice, main, без abstain) — % man vs woman',margin:{t:50}});</script>
 
-<div id="c_byfmt" class="chart"></div>
-<script>Plotly.newPlot('c_byfmt',[{x:["choice", "yesno_man", "yesno_woman"],y:[23.2, 28.1, 18.2],name:'A',type:'bar'},{x:["choice", "yesno_man", "yesno_woman"],y:[6.3, 10.8, 17.5],name:'B',type:'bar'},{x:["choice", "yesno_man", "yesno_woman"],y:[20.5, 11.2, 14.3],name:'C',type:'bar'}],{title:'Choice-распределение по question_format (% внутри формата)',barmode:'group',margin:{t:50},xaxis:{tickangle:-25}, yaxis:{range:[0, 100]}});</script>
+<div id="c_sem" class="chart"></div>
+<script>Plotly.newPlot('c_sem',[{x:["man", "woman", "cannot determine"],y:[53.1, 46.9, 0.0],name:'без «Cannot determine»',type:'bar'},{x:["man", "woman", "cannot determine"],y:[6.4, 11.6, 82.0],name:'с «Cannot determine»',type:'bar'}],{title:'Предпочтение модели ПО СМЫСЛУ в choice-формате (% выбора), main',barmode:'group',margin:{t:50},xaxis:{tickangle:-25}, yaxis:{range:[0, 100]}});</script>
 
 <div class="info">
- <b>Как читать:</b> в <code>choice</code> формате A=man, B=woman, C=Cannot determine.
- В <code>yesno_*</code> формате A=Yes, B=No, C=Cannot determine. Доминирование
- опции <b>A</b> во всех форматах — это <b>смесь</b> position-preference (A — первая
- опция) и content-preference. Разделить их позволяет именно yesno-asymmetry (см. H2).
+ <b>Как читать (по смыслу):</b> это и есть реальные предпочтения — доля выбора
+ <b>man / woman / cannot determine</b>, посчитанная через <code>labels</code>
+ (а не позицию), поэтому корректна при position-swap.
+ Без «Cannot determine» man≈woman (≈50/50) → <b>гендерного перекоса нет</b>;
+ с «Cannot determine» обе опции пола проседают, потому что модель массово уходит
+ в abstain (см. H4).
+</div>
+
+<div id="c_pos" class="chart"></div>
+<script>Plotly.newPlot('c_pos',[{x:["\u043e\u043f\u0446\u0438\u044f A", "\u043e\u043f\u0446\u0438\u044f B"],y:[100.0, 0.0],name:'no_evidence, forced',type:'bar'}],{title:'Позиционная доля выбора A/B (choice, no_evidence, forced)',barmode:'group',margin:{t:50},xaxis:{tickangle:-25}, yaxis:{range:[0, 100]}});</script>
+
+<div class="info">
+ <b>Зачем второй график:</b> здесь видно, что выбор почти полностью уходит в
+ <b>опцию A</b> независимо от того, man там или woman — это <b>position-bias</b>.
+ Именно поэтому «по позиции» предпочтения пола не читаются: их маскирует позиция.
+ Чистый гендерный сигнал даёт либо график «по смыслу» выше, либо yesno-asymmetry (H2).
 </div>
 
 <h2 id="h1">🎯 H1 — склонность «по умолчанию» (нет подсказки, форма «Кто?»)</h2>

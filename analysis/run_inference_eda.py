@@ -186,14 +186,29 @@ def main():
     ab_counts = Counter(i["abstain_variant"] for i in items)
     overall_choice = Counter(i["choice"] for i in items)
 
-    # Choice by question_format (для grouped bar A/B/C)
     fmts = ["choice", "yesno_man", "yesno_woman"]
-    choice_by_fmt = {lbl: [] for lbl in ("A", "B", "C")}
-    for f in fmts:
-        sub = [i for i in items if i["question_format"] == f]
-        c = Counter(i["choice"] for i in sub)
-        for lbl in ("A", "B", "C"):
-            choice_by_fmt[lbl].append(round(100 * c.get(lbl, 0) / len(sub), 1))
+
+    # (1) Предпочтение ПО СМЫСЛУ в choice-формате (main): man / woman / cannot determine.
+    #     Берём labels[choice] (а не позицию) → корректно при position-swap.
+    sem_cats = ["man", "woman", "cannot determine"]
+    sem_series = {}
+    for ab, ab_ru in (("without_abstain", "без «Cannot determine»"),
+                      ("with_abstain", "с «Cannot determine»")):
+        sub = [i for i in items if i.get("task", "main") == "main"
+               and i["question_format"] == "choice" and i["abstain_variant"] == ab]
+        n = len(sub) or 1
+        sem_series[ab_ru] = [
+            round(100 * sum(1 for i in sub if i["labels"].get(i["choice"]) == t) / n, 1)
+            for t in ("man", "woman", "Cannot determine")]
+
+    # (2) Позиционная диагностика на чистом срезе (no_evidence, forced): тут нет ни
+    #     evidence, ни abstain — выбор определяется только prior'ом и позицией.
+    pos_sub = [i for i in items if i.get("task", "main") == "main"
+               and i["question_format"] == "choice"
+               and i["evidence_shift"] == "no_evidence" and not i["has_abstain"]]
+    pn = len(pos_sub) or 1
+    pos_series = {"no_evidence, forced": [round(100 * sum(1 for i in pos_sub if i["choice"] == p) / pn, 1)
+                                          for p in ("A", "B")]}
 
     # === H1: prior bias (no_evidence × choice × without_abstain) ===
     # task=="main": в 5400-прогоне есть answerability-items (Yes/No), у них
@@ -467,17 +482,30 @@ def main():
 <div class="plain"><b>Простыми словами:</b> как часто модель выбирала каждый вариант
  (A / B / C) — сначала по всем вопросам, потом отдельно для каждой формы вопроса.</div>
 
-{pie_div("c_overall", list(overall_choice.keys()), list(overall_choice.values()),
-         "Overall choice (A/B/C) по всем 1350 items")}
+{pie_div("c_overall", ["man", "woman"],
+         [sem_series["без «Cannot determine»"][0], sem_series["без «Cannot determine»"][1]],
+         "Выбор пола в forced-choice (choice, main, без abstain) — % man vs woman")}
 
-{grouped_bar_div("c_byfmt", fmts, choice_by_fmt,
-                 "Choice-распределение по question_format (% внутри формата)", yrange=[0,100])}
+{grouped_bar_div("c_sem", sem_cats, sem_series,
+                 "Предпочтение модели ПО СМЫСЛУ в choice-формате (% выбора), main", yrange=[0,100])}
 
 <div class="info">
- <b>Как читать:</b> в <code>choice</code> формате A=man, B=woman, C=Cannot determine.
- В <code>yesno_*</code> формате A=Yes, B=No, C=Cannot determine. Доминирование
- опции <b>A</b> во всех форматах — это <b>смесь</b> position-preference (A — первая
- опция) и content-preference. Разделить их позволяет именно yesno-asymmetry (см. H2).
+ <b>Как читать (по смыслу):</b> это и есть реальные предпочтения — доля выбора
+ <b>man / woman / cannot determine</b>, посчитанная через <code>labels</code>
+ (а не позицию), поэтому корректна при position-swap.
+ Без «Cannot determine» man≈woman (≈50/50) → <b>гендерного перекоса нет</b>;
+ с «Cannot determine» обе опции пола проседают, потому что модель массово уходит
+ в abstain (см. H4).
+</div>
+
+{grouped_bar_div("c_pos", ["опция A","опция B"], pos_series,
+                 "Позиционная доля выбора A/B (choice, no_evidence, forced)", yrange=[0,100])}
+
+<div class="info">
+ <b>Зачем второй график:</b> здесь видно, что выбор почти полностью уходит в
+ <b>опцию A</b> независимо от того, man там или woman — это <b>position-bias</b>.
+ Именно поэтому «по позиции» предпочтения пола не читаются: их маскирует позиция.
+ Чистый гендерный сигнал даёт либо график «по смыслу» выше, либо yesno-asymmetry (H2).
 </div>
 
 <h2 id="h1">🎯 H1 — склонность «по умолчанию» (нет подсказки, форма «Кто?»)</h2>
