@@ -251,6 +251,15 @@ results/*/probes/silhouette/
 results/*/probes/extract_direction/
 results/*/probes/compare_directions/
 
+# === Behavioral metrics (results/<run>/metrics/<timestamp>/) ===
+# В git: csv / json / jsonl / md в подпапках metrics. Остальное — локально.
+results/*/metrics/**
+!results/*/metrics/**/
+!results/*/metrics/**/*.csv
+!results/*/metrics/**/*.json
+!results/*/metrics/**/*.jsonl
+!results/*/metrics/**/*.md
+
 # Технический скрипт (не user-facing)
 probes/download_hf.py
 
