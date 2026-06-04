@@ -263,3 +263,6 @@ data/*.prepared.jsonl
 # === Secrets ===
 .env
 .env.local
+
+# EDA HF download cache
+.hf_cache/
