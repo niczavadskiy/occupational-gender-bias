@@ -14,6 +14,8 @@ import numpy as np
 import sklearn
 
 from probes.h11 import H11Batch
+from probes.h10 import H10Batch
+from probes.h12 import H12Batch
 from probes.splits import GroupTVTSplit
 
 
@@ -81,6 +83,122 @@ def init_h11_pipeline_meta(
         "datetime": datetime.now().isoformat(),
         "pipeline_runtime_s": 0.0,
         "abstain_variant": abstain_variant,
+        "parent_run_id": parent_meta.get("run_id"),
+        "parent_run_dir": parent_run_dir.name,
+        "model_id": parent_meta.get("model_id"),
+        "n_layers_plus_emb": parent_meta.get("n_layers_plus_emb"),
+        "d_model": parent_meta.get("d_model"),
+        **runtime_env(),
+        "hypothesis": fields["hypothesis"],
+        "target": target,
+        "evidence_mode": fields["evidence_mode"],
+        "evidence_modes": evidence_modes,
+        "n_samples": fields["n_samples"],
+        "n_scenario_families": fields["n_scenario_families"],
+        "rows_per_family": fields["rows_per_family"],
+        "split": fields["split"],
+        "filter": fields["filter"],
+        "stages": {},
+        "artifacts": {},
+    }
+
+
+def h12_probe_fields(batch: H12Batch, target: str, split: GroupTVTSplit) -> dict[str, Any]:
+    n_fam = len(np.unique(batch.scenario_family_id))
+    return {
+        "hypothesis": "H12",
+        "evidence_mode": batch.evidence_mode.value,
+        "target": target,
+        "n_samples": int(len(batch.scenario_family_id)),
+        "n_scenario_families": n_fam,
+        "rows_per_family": int(len(batch.scenario_family_id) / max(1, n_fam)),
+        "split": split.summary(),
+        "filter": {
+            "question_format": "choice",
+            "abstain_variant": batch.abstain_variant,
+            "evidence_shift_levels": sorted({str(x) for x in batch.evidence_shift}),
+        },
+    }
+
+
+def init_h12_pipeline_meta(
+    *,
+    pipeline_run_id: str,
+    run_slug: str,
+    parent_run_dir: Path,
+    parent_meta: dict[str, Any],
+    batch: H12Batch,
+    target: str,
+    split: GroupTVTSplit,
+    evidence_modes: list[str],
+) -> dict[str, Any]:
+    fields = h12_probe_fields(batch, target, split)
+    return {
+        "probe_script": "h12_pipeline",
+        "pipeline_run_id": pipeline_run_id,
+        "run_slug": run_slug,
+        "datetime": datetime.now().isoformat(),
+        "pipeline_runtime_s": 0.0,
+        "abstain_variant": batch.abstain_variant,
+        "parent_run_id": parent_meta.get("run_id"),
+        "parent_run_dir": parent_run_dir.name,
+        "model_id": parent_meta.get("model_id"),
+        "n_layers_plus_emb": parent_meta.get("n_layers_plus_emb"),
+        "d_model": parent_meta.get("d_model"),
+        **runtime_env(),
+        "hypothesis": fields["hypothesis"],
+        "target": target,
+        "evidence_mode": fields["evidence_mode"],
+        "evidence_modes": evidence_modes,
+        "n_samples": fields["n_samples"],
+        "n_scenario_families": fields["n_scenario_families"],
+        "rows_per_family": fields["rows_per_family"],
+        "split": fields["split"],
+        "filter": fields["filter"],
+        "stages": {},
+        "artifacts": {},
+    }
+
+
+def h10_probe_fields(batch: H10Batch, target: str, split: GroupTVTSplit) -> dict[str, Any]:
+    n_fam = len(np.unique(batch.scenario_family_id))
+    return {
+        "hypothesis": "H10",
+        "evidence_mode": batch.evidence_mode.value,
+        "target": target,
+        "n_samples": int(len(batch.scenario_family_id)),
+        "n_scenario_families": n_fam,
+        "rows_per_family": int(len(batch.scenario_family_id) / max(1, n_fam)),
+        "split": split.summary(),
+        "filter": {
+            "question_formats": sorted({str(x) for x in batch.question_format}),
+            "abstain_variant": batch.abstain_variant,
+            "evidence_shift_levels": sorted({str(x) for x in batch.evidence_shift}),
+        },
+    }
+
+
+def init_h10_pipeline_meta(
+    *,
+    pipeline_run_id: str,
+    run_slug: str,
+    parent_run_dir: Path,
+    parent_meta: dict[str, Any],
+    batch: H10Batch,
+    target: str,
+    split: GroupTVTSplit,
+    evidence_modes: list[str],
+    annotation_run: str,
+) -> dict[str, Any]:
+    fields = h10_probe_fields(batch, target, split)
+    return {
+        "probe_script": "h10_pipeline",
+        "pipeline_run_id": pipeline_run_id,
+        "run_slug": run_slug,
+        "datetime": datetime.now().isoformat(),
+        "pipeline_runtime_s": 0.0,
+        "abstain_variant": batch.abstain_variant,
+        "annotation_run": annotation_run,
         "parent_run_id": parent_meta.get("run_id"),
         "parent_run_dir": parent_run_dir.name,
         "model_id": parent_meta.get("model_id"),

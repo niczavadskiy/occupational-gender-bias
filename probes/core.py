@@ -22,8 +22,15 @@ from probes.load_run import load_run
 from probes.paths import DEFAULT_RUN_NAME
 from probes.splits import GroupTVTSplit, get_or_create_split
 
-REGRESSION_TARGETS = ("log_odds", "prob_margin")
-CLASSIFICATION_TARGETS = ("choice",)
+REGRESSION_TARGETS = (
+    "log_odds",
+    "prob_margin",
+    "abstain_logit",
+    "log_prob_abstain",
+    "h10_st_logit",
+    "h10_log_prob_st",
+)
+CLASSIFICATION_TARGETS = ("choice", "choice_abstain", "h10_choice_stereotype")
 
 
 def add_common_args(parser: argparse.ArgumentParser) -> None:
@@ -35,7 +42,17 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
     )
     parser.add_argument(
         "--target",
-        choices=("log_odds", "prob_margin", "choice"),
+        choices=(
+            "log_odds",
+            "prob_margin",
+            "choice",
+            "abstain_logit",
+            "log_prob_abstain",
+            "choice_abstain",
+            "h10_st_logit",
+            "h10_log_prob_st",
+            "h10_choice_stereotype",
+        ),
         default="log_odds",
     )
     parser.add_argument("--seed", type=int, default=0)
@@ -60,7 +77,8 @@ def load_probe_bundle(
     batch = build_h11_batch(
         items, evidence_mode=evidence_mode, abstain_variant=abstain_variant
     )
-    X_layers = hs[batch.indices]
+    # Materialize only selected rows as float32 (smaller peak memory than casting full hs).
+    X_layers = np.asarray(hs[batch.indices], dtype=np.float32)
     return run_dir, meta, batch, X_layers
 
 

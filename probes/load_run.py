@@ -45,7 +45,8 @@ def load_hidden_states(run_dir: Path) -> tuple[np.ndarray, list[str]]:
             "Download from HF: python -m probes.download_hf"
         )
     data = np.load(path)
-    hs = np.asarray(data["hs"], dtype=np.float32)
+    # Keep source dtype (float16 in canonical runs) to avoid a full-run float32 copy.
+    hs = np.asarray(data["hs"])
     item_ids = [str(x) for x in data["item_ids"]]
     return hs, item_ids
 
