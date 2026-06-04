@@ -344,6 +344,37 @@ def main():
     h8_z, h8_pval = two_prop_z(sum(h8_no), len(h8_no), sum(h8_yes), len(h8_yes))
     h8_series = {"self=No (unanswerable)": [h8_cN], "self=Yes (answerable)": [h8_cY]}
 
+    # === Множественные сравнения: Benjamini-Hochberg FDR (статтрек) ===
+    def binom_p(k, n, p0=0.5):
+        if not n:
+            return float("nan")
+        se = math.sqrt(p0 * (1 - p0) / n)
+        if se == 0:
+            return 1.0
+        z = (k / n - p0) / se
+        return 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2))))
+
+    h1_pf = binom_p(h1_choose_man, len(prior))      # chose-man ≠ 50%?
+    h2_pf = binom_p(h2_proman, len(asym))            # pro-man пар ≠ 50%?
+    fdr_in = [("H1 prior (chose-man≠50%)", h1_pf),
+              ("H2 yesno-asym (pro-man≠50%)", h2_pf),
+              ("H6 format effect", h6_pval),
+              ("H7 evidence→answerable", h7_pval),
+              ("H8 self→abstain", h8_pval),
+              ("H9 answerable gender-asym", h9_pval)]
+    _valid = [(n, p) for n, p in fdr_in if p == p]   # отбрасываем NaN
+    _m = len(_valid)
+    _ranked = sorted(_valid, key=lambda x: x[1])
+    _kmax = 0
+    for _i, (_n, _p) in enumerate(_ranked, start=1):
+        if _p <= 0.05 * _i / _m:
+            _kmax = _i
+    _crit_p = (0.05 * _kmax / _m) if _kmax else 0.0
+    fdr_rows = []   # (name, p_raw, survives)
+    for _i, (_n, _p) in enumerate(_ranked, start=1):
+        fdr_rows.append((_n, _p, _i <= _kmax))
+    fdr_nsurv = sum(1 for _, _, s in fdr_rows if s)
+
     # -------------------------------------------------------------------
     # Структурные блоки «Гипотеза → Условия → Результат» по каждой H.
     # Вердикт выводится из посчитанных чисел, не зашит руками.
@@ -480,6 +511,24 @@ def main():
            if h9_pval < 0.05 else
            "<span class='note'>Асимметрии по гендеру нет</span> (симметрично)."))
 
+    _fdr_tr = "".join(
+        f'<tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">{safe(n)}</td>'
+        f'<td style="padding:4px 12px;border-bottom:1px solid #eee;">{p:.4f}</td>'
+        f'<td style="padding:4px 12px;border-bottom:1px solid #eee;">'
+        f'{"✅ значима" if s else "— не проходит"}</td></tr>'
+        for n, p, s in fdr_rows)
+    fdr_html = (
+        '<table style="border-collapse:collapse;margin:1em 0;">'
+        '<tr><th style="text-align:left;padding:4px 12px;border-bottom:2px solid #ccc;">Гипотеза (формальный тест)</th>'
+        '<th style="padding:4px 12px;border-bottom:2px solid #ccc;">p (raw)</th>'
+        '<th style="padding:4px 12px;border-bottom:2px solid #ccc;">после FDR @0.05</th></tr>'
+        + _fdr_tr + '</table>'
+        + f'<div class="info">Benjamini-Hochberg на <b>{_m}</b> формальных тестах '
+          f'(H1, H2, H6–H9; H3/H4/H5 — описательные/трендовые, вне семьи). '
+          f'Порог BH (наибольший прошедший): p ≤ <b>{_crit_p:.4f}</b>. '
+          f'Проходят <b>{fdr_nsurv}/{_m}</b>. Без коррекции «сырые» p завышают число '
+          f'значимых результатов — для paper-quality берём именно FDR-набор.</div>')
+
     # -------------------------------------------------------------------
     # HTML
     # -------------------------------------------------------------------
@@ -579,6 +628,7 @@ def main():
  <li><a href="#h7">H7 — evidence → answerable (self-assessment)</a></li>
  <li><a href="#h8">H8 — self-unanswerable → abstain</a></li>
  <li><a href="#h9">H9 — asymmetric answerability by gender-evidence</a></li>
+ <li><a href="#fdr">📐 Множественные сравнения (FDR)</a></li>
  <li><a href="#verdict">🏁 Вывод</a></li>
  <li><a href="#samples">Случайные items</a></li>
 </ul></div>
@@ -692,6 +742,9 @@ def main():
 
 <h2 id="h9">⚧ H9 — зависит ли «решаемость» от гендера evidence</h2>
 {h9_box}
+
+<h2 id="fdr">📐 Множественные сравнения (FDR, Benjamini-Hochberg)</h2>
+{fdr_html}
 
 <h2 id="verdict">🏁 Вывод</h2>
 <div class="verdict">

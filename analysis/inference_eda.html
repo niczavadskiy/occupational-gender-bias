@@ -71,6 +71,7 @@
  <li><a href="#h7">H7 — evidence → answerable (self-assessment)</a></li>
  <li><a href="#h8">H8 — self-unanswerable → abstain</a></li>
  <li><a href="#h9">H9 — asymmetric answerability by gender-evidence</a></li>
+ <li><a href="#fdr">📐 Множественные сравнения (FDR)</a></li>
  <li><a href="#verdict">🏁 Вывод</a></li>
  <li><a href="#samples">Случайные items</a></li>
 </ul></div>
@@ -183,6 +184,9 @@
 
 <h2 id="h9">⚧ H9 — зависит ли «решаемость» от гендера evidence</h2>
 <div class="hyp"><div class="hyp-row"><span class="hyp-k">Гипотеза H9 — asymmetric answerability by gender-evidence</span><span class="hyp-v">Модель считает вопрос answerable по-разному в зависимости от того, какой гендер поддержан evidence.</span></div><div class="hyp-row"><span class="hyp-k">Условия</span><span class="hyp-v">answerability Yes-rate: evidence→man (n=900) vs evidence→woman (n=900). Two-proportion z-test.</span></div><div class="hyp-row"><span class="hyp-k">Результат</span><span class="hyp-v">Yes-rate →man <b>8%</b> vs →woman <b>7%</b>; z=1.2, НЕ значимо (p=0.21). <span class='note'>Асимметрии по гендеру нет</span> (симметрично).</span></div></div>
+
+<h2 id="fdr">📐 Множественные сравнения (FDR, Benjamini-Hochberg)</h2>
+<table style="border-collapse:collapse;margin:1em 0;"><tr><th style="text-align:left;padding:4px 12px;border-bottom:2px solid #ccc;">Гипотеза (формальный тест)</th><th style="padding:4px 12px;border-bottom:2px solid #ccc;">p (raw)</th><th style="padding:4px 12px;border-bottom:2px solid #ccc;">после FDR @0.05</th></tr><tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">H8 self→abstain</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">0.0000</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">✅ значима</td></tr><tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">H2 yesno-asym (pro-man≠50%)</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">0.0000</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">✅ значима</td></tr><tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">H9 answerable gender-asym</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">0.2118</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">— не проходит</td></tr><tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">H6 format effect</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">0.4234</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">— не проходит</td></tr><tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">H7 evidence→answerable</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">0.6106</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">— не проходит</td></tr><tr><td style="padding:4px 12px;border-bottom:1px solid #eee;">H1 prior (chose-man≠50%)</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">1.0000</td><td style="padding:4px 12px;border-bottom:1px solid #eee;">— не проходит</td></tr></table><div class="info">Benjamini-Hochberg на <b>6</b> формальных тестах (H1, H2, H6–H9; H3/H4/H5 — описательные/трендовые, вне семьи). Порог BH (наибольший прошедший): p ≤ <b>0.0167</b>. Проходят <b>2/6</b>. Без коррекции «сырые» p завышают число значимых результатов — для paper-quality берём именно FDR-набор.</div>
 
 <h2 id="verdict">🏁 Вывод</h2>
 <div class="verdict">
