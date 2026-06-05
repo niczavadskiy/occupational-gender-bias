@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from src.metrics.labels import filter_slice
+from src.metrics.labels import filter_slice, gender_axis_frame
 from src.metrics.stats_tests import proportion_summary
 
 
@@ -33,24 +33,21 @@ def _rate_row(df: pd.DataFrame, label: str, group_cols: dict) -> dict:
 
 def build_rates_summary(df: pd.DataFrame) -> pd.DataFrame:
     rows: list[dict] = []
+    base = gender_axis_frame(df)
 
-    rows.append(_rate_row(df, "overall", {}))
+    rows.append(_rate_row(base, "overall_gender_axis", {}))
 
-    for ev in sorted(df["evidence_shift"].unique()):
-        sub = filter_slice(df, evidence_shift=ev)
-        rows.append(_rate_row(sub, f"by_evidence", {"evidence_shift": ev}))
+    for ev in sorted(base["evidence_shift"].unique()):
+        sub = filter_slice(base, evidence_shift=ev)
+        rows.append(_rate_row(sub, "by_evidence", {"evidence_shift": ev}))
 
-    for ab in sorted(df["abstain_variant"].unique()):
-        sub = filter_slice(df, abstain_variant=ab)
-        rows.append(_rate_row(sub, f"by_abstain", {"abstain_variant": ab}))
+    for ab in sorted(base["abstain_variant"].unique()):
+        sub = filter_slice(base, abstain_variant=ab)
+        rows.append(_rate_row(sub, "by_abstain", {"abstain_variant": ab}))
 
-    for qf in sorted(df["question_format"].unique()):
-        sub = filter_slice(df, question_format=qf)
-        rows.append(_rate_row(sub, f"by_format", {"question_format": qf}))
-
-    for ev in sorted(df["evidence_shift"].unique()):
-        for ab in sorted(df["abstain_variant"].unique()):
-            sub = filter_slice(df, evidence_shift=ev, abstain_variant=ab)
+    for ev in sorted(base["evidence_shift"].unique()):
+        for ab in sorted(base["abstain_variant"].unique()):
+            sub = filter_slice(base, evidence_shift=ev, abstain_variant=ab)
             rows.append(
                 _rate_row(
                     sub,

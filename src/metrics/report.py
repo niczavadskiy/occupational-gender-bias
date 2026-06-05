@@ -11,6 +11,7 @@ from typing import Any
 import pandas as pd
 
 from src.metrics.hypotheses import H2_STEREO_VS_BASELINE_SLICES
+from src.metrics.families import H2_ENABLED
 from src.metrics.test_summaries import human_summary
 from src.metrics.reliability import (
     RELIABILITY_UNRELIABLE,
@@ -20,10 +21,14 @@ from src.metrics.reliability import (
 from src.metrics.stats_tests import TestResult
 
 # Summary: 3 строки (без дубля no_evidence strata и без family_t).
-H1_SUMMARY_TESTS: tuple[tuple[str, str], ...] = (
-    ("h1_primary_vs_half", "no_evidence"),
-    ("h1_vs_half_evidence_man_choice_without", "evidence_supports_man"),
-    ("h1_vs_half_evidence_woman_choice_without", "evidence_supports_woman"),
+H1_SUMMARY_TESTS: tuple[tuple[str, str, str], ...] = (
+    ("h1_primary_man_vs_woman", "pair", "all formats, evidence, abstain"),
+    ("h1_ev_no_evidence_man_vs_woman", "pair", "no_evidence, 2+3 options"),
+    ("h1_ev_ev_man_man_vs_woman", "pair", "ev_man, 2+3 options"),
+    ("h1_ev_ev_woman_man_vs_woman", "pair", "ev_woman, 2+3 options"),
+    ("h1_ev_no_evidence_man_vs_woman_2opt", "pair", "no_evidence, 2 options"),
+    ("h1_ev_ev_man_man_vs_woman_2opt", "pair", "ev_man, 2 options"),
+    ("h1_ev_ev_woman_man_vs_woman_2opt", "pair", "ev_woman, 2 options"),
 )
 
 
@@ -76,9 +81,100 @@ def tests_to_meta_list(results: list[TestResult]) -> list[dict[str, Any]]:
     return [test_result_to_meta(r) for r in results]
 
 
+def _fmt_p(p: float | None) -> str:
+    if p is None or (isinstance(p, float) and math.isnan(p)):
+        return "—"
+    return f"{p:.4g}"
+
+
 def _human(tid: str) -> str:
     s = human_summary(tid)
     return f" {s}" if s else ""
+
+
+def _mcnemar_cells(r: TestResult) -> tuple[int, int, int, int, str, str, str, str]:
+    """Return a,b,c,d and Russian labels for the 2×2 McNemar table."""
+    ex = r.extra
+    if ex.get("discordant_c_self_no_and_c") is not None:
+        a = int(ex.get("mcnemar_a_self_yes_and_c") or 0)
+        b = int(ex["discordant_b_self_yes_no_c"])
+        c = int(ex["discordant_c_self_no_and_c"])
+        d = int(ex.get("mcnemar_d_self_no_no_c") or 0)
+        row = "self_No"
+        col = "main_C"
+        b_lbl = "self Yes / не C"
+        c_lbl = "self No / C"
+    elif ex.get("discordant_b_yes_with_only") is not None:
+        a = int(ex.get("mcnemar_a_both_yes") or 0)
+        b = int(ex["discordant_b_yes_with_only"])
+        c = int(ex["discordant_c_yes_without_only"])
+        d = int(ex.get("mcnemar_d_both_no") or 0)
+        row = "with_abstain"
+        col = "without_abstain"
+        b_lbl = "Yes при with / No при without"
+        c_lbl = "No при with / Yes при without"
+    elif ex.get("discordant_b_ev_yes_no_no") is not None:
+        a = int(ex.get("mcnemar_a_both_yes") or 0)
+        b = int(ex["discordant_b_ev_yes_no_no"])
+        c = int(ex["discordant_c_ev_no_no_yes"])
+        d = int(ex.get("mcnemar_d_both_no") or 0)
+        row = ex.get("mcnemar_row_axis", "evidence")
+        col = ex.get("mcnemar_col_axis", "no_evidence")
+        ev_short = "ev_man" if row == "evidence_supports_man" else (
+            "ev_woman" if row == "evidence_supports_woman" else str(row)
+        )
+        b_lbl = f"Yes при {ev_short} / No при no_evidence"
+        c_lbl = f"No при {ev_short} / Yes при no_evidence"
+    else:
+        a = int(ex.get("mcnemar_a_both_yes") or 0)
+        b = int(ex.get("discordant_b_man_yes_woman_no") or r.k1 or 0)
+        c = int(ex.get("discordant_c_man_no_woman_yes") or r.k2 or 0)
+        d = int(ex.get("mcnemar_d_both_no") or 0)
+        row = ex.get("mcnemar_row_axis", "yesno_man")
+        col = ex.get("mcnemar_col_axis", "yesno_woman")
+        if row == "ev_man":
+            b_lbl = "Yes при ev_man / No при ev_woman"
+            c_lbl = "No при ev_man / Yes при ev_woman"
+        else:
+            b_lbl = "Yes на man / No на woman"
+            c_lbl = "No на man / Yes на woman"
+    return a, b, c, d, row, col, b_lbl, c_lbl
+
+
+def _format_mcnemar_detail(r: TestResult) -> str:
+    a, b, c, d, row, col, b_lbl, c_lbl = _mcnemar_cells(r)
+    n_pairs = r.extra.get("n_pairs", a + b + c + d)
+    h1 = r.extra.get("mcnemar_h1", "b>c")
+    return (
+        f"a={a} (оба Yes), b={b} ({b_lbl}), c={c} ({c_lbl}), d={d} (оба No), "
+        f"n_pairs={n_pairs}; таблица 2×2: строка={row}, столбец={col}; "
+        f"H1 односторонний: {h1}, p={_fmt_p(r.p_raw)}"
+    )
+
+
+MCNEMAR_H7_LEGEND = (
+    "**McNemar H7:** один сценарий (base_id × format × abstain × position × context), "
+    "сравнивается self-Q Yes при **evidence** vs **no_evidence**. "
+    "Таблица 2×2: **строка** = evidence, **столбец** = no_evidence.\n\n"
+    "|  | no_evidence=No | no_evidence=Yes |\n"
+    "|---|---:|---:|\n"
+    "| **evidence=No** | **d** (оба No) | **c** (No→Yes) |\n"
+    "| **evidence=Yes** | **b** (Yes→No) | **a** (оба Yes) |\n\n"
+    "H7↑: **b > c** (чаще Yes с evidence); H7↓: **c > b** (чаще Yes без evidence)."
+)
+
+
+MCNEMAR_H4_LEGEND = (
+    "**McNemar (парные сценарии):** один и тот же сценарий оценивается дважды — "
+    "с опцией «Cannot determine» в основном вопросе (with_abstain) и без (without). "
+    "Таблица 2×2: **строка** = ответ self-Q при with_abstain, **столбец** = при without.\n\n"
+    "|  | without=No | without=Yes |\n"
+    "|---|---:|---:|\n"
+    "| **with=No** | **d** (оба No) | **c** (дискордант: No→Yes) |\n"
+    "| **with=Yes** | **b** (дискордант: Yes→No) | **a** (оба Yes) |\n\n"
+    "**a**, **d** — конкордантные пары; **b**, **c** — дискордантные. "
+    "H4↑: **b > c** (чаще Yes при with_abstain); H4↓: **c > b** (чаще Yes при without)."
+)
 
 
 def _fdr_rejection_mark(r: TestResult) -> str:
@@ -161,11 +257,6 @@ def write_summary_md(
                 return r
         return None
 
-    def _fmt_p(p: float | None) -> str:
-        if p is None or (isinstance(p, float) and math.isnan(p)):
-            return "—"
-        return f"{p:.4g}"
-
     def _rel(r: TestResult) -> str:
         return reliability_badge(r.extra.get("reliability")) + reliability_reason_suffix(r)
 
@@ -185,80 +276,87 @@ def write_summary_md(
         "",
         "## H1 — gender axis preference",
         "",
-        "P(man|choice) vs 0.5 (choice, without_abstain). Сравнение срезов evidence: 75 → 74 → 37 man.",
+        "P(man) vs P(woman) на всех вопросах; strata по evidence и format.",
         "",
     ]
-    for tid, label in H1_SUMMARY_TESTS:
+    for tid, axis, label in H1_SUMMARY_TESTS:
         r = _pick(tid)
         if not r:
             continue
-        lines.append(
-            f"- `{tid}`{_human(tid)} ({label}): P(man)={r.p1:.3f} (k={int(r.k1)}/{int(r.n1)}), "
-            f"p vs 0.5={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+        if axis == "pair":
+            lines.append(
+                f"- `{tid}`{_human(tid)} ({label}): P(man)={r.p1:.3f} vs P(woman)={r.p2:.3f} "
+                f"(k={int(r.k1)}/{int(r.n1)}, k_w={int(r.k2)}), p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+            )
+        else:
+            lines.append(
+                f"- `{tid}`{_human(tid)} ({label}): P({axis})={r.p1:.3f} (k={int(r.k1)}/{int(r.n1)}), "
+                f"p vs 0.5={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+            )
+
+    if H2_ENABLED:
+        lines.extend(
+            [
+                "",
+                "## H2 — stereotype (annotator labels)",
+                "",
+                "### P(stereo choice) vs annotation baseline (uniform random among labeled options)",
+                "",
+            ]
         )
+        for tid, _filters, slice_label in H2_STEREO_VS_BASELINE_SLICES:
+            r = _pick(tid)
+            if r:
+                p0 = r.p2 if r.p2 is not None else r.extra.get("null_p_stereo_mean")
+                p0s = f"{p0:.3f}" if p0 is not None else "—"
+                lines.append(
+                    f"- `{tid}`{_human(tid)} ({slice_label}): P_obs={r.p1:.3f} vs p₀={p0s}, "
+                    f"p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+                )
 
-    lines.extend(
-        [
-            "",
-            "## H2 — stereotype (annotator labels)",
-            "",
-            "### P(stereo choice) vs annotation baseline (uniform random among labeled options)",
-            "",
-        ]
-    )
-    for tid, _filters, slice_label in H2_STEREO_VS_BASELINE_SLICES:
-        r = _pick(tid)
-        if r:
-            p0 = r.p2 if r.p2 is not None else r.extra.get("null_p_stereo_mean")
-            p0s = f"{p0:.3f}" if p0 is not None else "—"
-            lines.append(
-                f"- `{tid}`{_human(tid)} ({slice_label}): P_obs={r.p1:.3f} vs p₀={p0s}, "
-                f"p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
-            )
+        lines.extend(
+            [
+                "",
+                "### P(stereo & gender) vs annotation baseline (primary)",
+                "",
+            ]
+        )
+        for tid, label in (
+            ("h2_primary_stereo_man_vs_ann_baseline", "stereo + мужской"),
+            ("h2_primary_stereo_woman_vs_ann_baseline", "stereo + женский"),
+        ):
+            r = _pick(tid)
+            if r:
+                p0 = r.p2 if r.p2 is not None else r.extra.get(
+                    f"null_p_stereo_{r.extra.get('gender', '')}_mean"
+                )
+                p0s = f"{p0:.3f}" if p0 is not None else "—"
+                lines.append(
+                    f"- `{tid}`{_human(tid)} ({label}): P_obs={r.p1:.3f} vs p₀={p0s}, "
+                    f"p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+                )
 
-    lines.extend(
-        [
-            "",
-            "### P(stereo & gender) vs annotation baseline (primary)",
-            "",
-        ]
-    )
-    for tid, label in (
-        ("h2_primary_stereo_man_vs_ann_baseline", "stereo + мужской"),
-        ("h2_primary_stereo_woman_vs_ann_baseline", "stereo + женский"),
-    ):
-        r = _pick(tid)
-        if r:
-            p0 = r.p2 if r.p2 is not None else r.extra.get(
-                f"null_p_stereo_{r.extra.get('gender', '')}_mean"
-            )
-            p0s = f"{p0:.3f}" if p0 is not None else "—"
-            lines.append(
-                f"- `{tid}`{_human(tid)} ({label}): P_obs={r.p1:.3f} vs p₀={p0s}, "
-                f"p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
-            )
-
-    lines.extend(["", "### Stereo vs anti (and other)", ""])
-    for tid in (
-        "h2_primary_stereo_vs_anti",
-        "h2_with_abstain_stereo_vs_anti",
-        "h2_with_abstain_chi2_stereo_anti_neutral",
-    ):
-        r = _pick(tid)
-        if r:
-            p1s = f"{r.p1:.3f}" if r.p1 is not None else "—"
-            p2s = f"{r.p2:.3f}" if r.p2 is not None else "—"
-            stat = f", stat={r.statistic:.3f}" if r.statistic is not None else ""
-            lines.append(
-                f"- `{tid}`{_human(tid)}: p1={p1s}, p2={p2s}{stat}, "
-                f"p={_fmt_p(r.p_raw)}{_q_rej(r)} — {r.description}{_rel(r)}"
-            )
+        lines.extend(["", "### Stereo vs anti (and other)", ""])
+        for tid in (
+            "h2_primary_stereo_vs_anti",
+            "h2_with_abstain_stereo_vs_anti",
+            "h2_with_abstain_chi2_stereo_anti_neutral",
+        ):
+            r = _pick(tid)
+            if r:
+                p1s = f"{r.p1:.3f}" if r.p1 is not None else "—"
+                p2s = f"{r.p2:.3f}" if r.p2 is not None else "—"
+                stat = f", stat={r.statistic:.3f}" if r.statistic is not None else ""
+                lines.append(
+                    f"- `{tid}`{_human(tid)}: p1={p1s}, p2={p2s}{stat}, "
+                    f"p={_fmt_p(r.p_raw)}{_q_rej(r)} — {r.description}{_rel(r)}"
+                )
 
     lines.extend(["", "## H3 — evidence vs ambiguous context", ""])
     h3c = _pick("h3_chi2_evidence_x_outcome")
     if h3c:
         lines.append(
-            f"- `{h3c.test_id}`{_human(h3c.test_id)} (without_abstain, man/woman): "
+            f"- `{h3c.test_id}`{_human(h3c.test_id)} (all formats, man/woman): "
             f"stat={h3c.statistic:.3f}, p={_fmt_p(h3c.p_raw)}{_rel(h3c)}"
         )
     h3cab = _pick("h3_chi2_evidence_x_outcome_with_abstain")
@@ -267,7 +365,14 @@ def write_summary_md(
             f"- `{h3cab.test_id}`{_human(h3cab.test_id)} (with_abstain, man/woman/C): "
             f"stat={h3cab.statistic:.3f}, p={_fmt_p(h3cab.p_raw)}{_rel(h3cab)}"
         )
-    for tid in ("h3_pair_no_vs_man", "h3_pair_no_vs_woman", "h3_pair_man_vs_woman"):
+    for tid in (
+        "h3_pair_no_vs_man",
+        "h3_pair_no_vs_woman",
+        "h3_pair_man_vs_woman",
+        "h3_pair_woman_no_vs_ev_man",
+        "h3_pair_woman_no_vs_ev_woman",
+        "h3_pair_woman_ev_man_vs_ev_woman",
+    ):
         r = _pick(tid)
         if r:
             lines.append(
@@ -275,13 +380,6 @@ def write_summary_md(
                 f"p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
             )
 
-    h3e = _pick("h3_ev_woman_rate_man_vs_half")
-    if h3e:
-        tid = h3e.test_id
-        lines.append(
-            f"- `{tid}`{_human(tid)}: P(man)={h3e.p1:.3f} vs 0.5, "
-            f"p={_fmt_p(h3e.p_raw)}{_rel(h3e)}"
-        )
     h3p = _pick("h3_paired_family_no_vs_ev_woman")
     if h3p:
         tid = h3p.test_id
@@ -290,16 +388,76 @@ def write_summary_md(
             f"p={_fmt_p(h3p.p_raw)}{_rel(h3p)}"
         )
 
-    for hid, title in (
-        ("H4", "answerability ↑ with abstain option"),
-        ("H7", "context ↑ answerability"),
-        ("H8", "unanswerable ↔ abstain"),
-        ("H9", "answerability by supported gender"),
-    ):
+    lines.extend(
+        [
+            "",
+            "## H4 — answerability ↑ with abstain option",
+            "",
+            "Self-Q (`task=answerability`, all positions): P(Yes) when main options include C vs A/B only.",
+            "",
+        ]
+    )
+    h4_any = False
+    h4_results = sorted(
+        (r for r in results if r.hypothesis_id == "H4" and not r.test_id.endswith("_pending_answerability")),
+        key=lambda r: r.test_id,
+    )
+    h4_has_mcnemar = any(r.test_id.startswith("h4_mcnemar_yes") for r in h4_results)
+    if h4_has_mcnemar:
+        lines.extend(["", MCNEMAR_H4_LEGEND, ""])
+    for r in h4_results:
+        tid = r.test_id
+        h4_any = True
+        if tid.startswith("h4_mcnemar_yes"):
+            lines.append(f"- `{tid}`{_human(tid)}")
+            lines.append(f"  {_format_mcnemar_detail(r)}{_rel(r)}")
+        elif r.p1 is not None and r.p2 is not None:
+            lines.append(
+                f"- `{tid}`{_human(tid)}: P(Yes|with)={r.p1:.3f} vs P(Yes|without)={r.p2:.3f}, "
+                f"Δ={r.effect:+.3f}, p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+            )
+        else:
+            lines.append(f"- `{tid}`{_human(tid)}: p={_fmt_p(r.p_raw)}{_rel(r)}")
+    sk4 = _pick("h4_pending_answerability")
+    if sk4 and not h4_any:
+        lines.append(f"- **Skipped:** {sk4.description}")
+
+    def _render_h_section(hid: str, title: str, *, mcnemar_prefix: str | None = None) -> None:
+        nonlocal lines
         lines.extend(["", f"## {hid} — {title}", ""])
-        sk = _pick(f"{hid.lower()}_pending_answerability")
-        if sk:
-            lines.append(f"- **Skipped:** {sk.description}")
+        hres = sorted(
+            (r for r in results if r.hypothesis_id == hid),
+            key=lambda r: r.test_id,
+        )
+        if not hres:
+            sk = _pick(f"{hid.lower()}_pending_answerability")
+            if sk:
+                lines.append(f"- **Skipped:** {sk.description}")
+            return
+        if mcnemar_prefix and any(r.test_id.startswith(mcnemar_prefix) for r in hres):
+            if hid == "H7":
+                lines.extend(["", MCNEMAR_H7_LEGEND, ""])
+            elif hid == "H8":
+                lines.extend(
+                    [
+                        "",
+                        "**McNemar H8:** строка = self-Q (No/Yes), столбец = main choice C; "
+                        "H1: **c > b** (чаще C при self=No).",
+                        "",
+                    ]
+                )
+        for r in hres:
+            tid = r.test_id
+            if mcnemar_prefix and tid.startswith(mcnemar_prefix):
+                lines.append(f"- `{tid}`{_human(tid)}")
+                lines.append(f"  {_format_mcnemar_detail(r)}{_rel(r)}")
+            elif r.p1 is not None and r.p2 is not None:
+                lines.append(
+                    f"- `{tid}`{_human(tid)}: P₁={r.p1:.3f} vs P₂={r.p2:.3f}, "
+                    f"Δ={r.effect:+.3f}, p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
+                )
+            else:
+                lines.append(f"- `{tid}`{_human(tid)}: p={_fmt_p(r.p_raw)}{_rel(r)}")
 
     lines.extend(["", "## H5 — abstain rate: no_evidence vs evidence", ""])
     for tid in ("h5_abstain_no_vs_ev_man", "h5_abstain_no_vs_ev_woman"):
@@ -323,6 +481,22 @@ def write_summary_md(
                 f"- `{tid}`{_human(tid)} ({label}): P(choice)={r.p1:.3f} vs P(Yes|yesno)={r.p2:.3f}, "
                 f"p={_fmt_p(r.p_raw)}{_q_rej(r)}{_rel(r)}"
             )
+
+    _render_h_section(
+        "H7",
+        "context ↑ answerability",
+        mcnemar_prefix="h7_mcnemar_",
+    )
+    _render_h_section(
+        "H8",
+        "unanswerable ↔ abstain",
+        mcnemar_prefix="h8_mcnemar_",
+    )
+    _render_h_section(
+        "H9",
+        "answerability by supported gender",
+        mcnemar_prefix="h9_mcnemar_",
+    )
 
     lines.extend(["", "## Rates (choice rows, excerpt)", ""])
     rc = rates[rates["slice"] == "overall"]
@@ -353,11 +527,9 @@ def write_summary_md(
                     f"P(Yes|yesno_woman)={r.p2:.3f}, p={_fmt_p(r.p_raw)}{_rel(r)}"
                 )
             elif tid == "post_h_mcnemar_yesno_pair":
+                lines.append(f"- `{tid}`{_human(tid)}")
                 lines.append(
-                    f"- `{tid}`{_human(tid)}. McNemar: "
-                    f"b={r.extra.get('discordant_b_man_yes_woman_no')}, "
-                    f"c={r.extra.get('discordant_c_man_no_woman_yes')}, "
-                    f"p={_fmt_p(r.p_raw)}{_rel(r)}"
+                    f"  {_format_mcnemar_detail(r)}{_rel(r)}"
                 )
             else:
                 lines.append(
@@ -389,6 +561,11 @@ def write_outputs(
     hypotheses: list[str],
     sanity: dict[str, Any] | None = None,
     annotation_jsonl: str | None = None,
+    h4_formats: list[str] | None = None,
+    position_variant: str | None = None,
+    context_order: str | None = None,
+    n_rows_raw: int | None = None,
+    n_rows_metrics: int | None = None,
 ) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     rates_summary.to_csv(out_dir / "rates_summary.csv", index=False)
@@ -411,6 +588,11 @@ def write_outputs(
         "level": level,
         "fdr": fdr,
         "hypotheses": hypotheses,
+        "h4_formats": h4_formats,
+        "position_variant": position_variant,
+        "context_order": context_order,
+        "n_rows_raw": n_rows_raw,
+        "n_rows_metrics": n_rows_metrics,
         "n_tests": len(results),
         "n_post_hoc_tests": len(post_hoc),
         "generated_utc": datetime.now(timezone.utc).isoformat(),

@@ -121,7 +121,10 @@ def merge_item_annotations(
 ) -> tuple[pd.DataFrame, Path]:
     jsonl_path = resolve_annotation_jsonl(annotation_path)
     ann = load_annotations_table(jsonl_path)
-    out = df.merge(ann, on="example_id", how="left", validate="one_to_one")
+    if ann["example_id"].duplicated().any():
+        dupes = ann.loc[ann["example_id"].duplicated(), "example_id"].unique()[:5]
+        raise ValueError(f"Duplicate example_id in annotations: {dupes.tolist()}")
+    out = df.merge(ann, on="example_id", how="left", validate="many_to_one")
     missing = out.loc[out["ann_A"].isna(), "example_id"].tolist()[:5]
     if missing:
         raise ValueError(f"Items missing annotator labels (example_id): {missing}")

@@ -132,8 +132,20 @@ def assess_reliability(r: TestResult) -> tuple[str, list[str]]:
     n_use = n_eff if n_eff is not None else n1
 
     if "mcnemar" in tid:
-        b = _as_int(r.extra.get("discordant_b_man_yes_woman_no")) or _as_int(r.k1) or 0
-        c = _as_int(r.extra.get("discordant_c_man_no_woman_yes")) or _as_int(r.k2) or 0
+        b = (
+            _as_int(r.extra.get("discordant_b_yes_with_only"))
+            or _as_int(r.extra.get("discordant_b_man_yes_woman_no"))
+            or _as_int(r.extra.get("discordant_b_self_yes_no_c"))
+            or _as_int(r.k1)
+            or 0
+        )
+        c = (
+            _as_int(r.extra.get("discordant_c_yes_without_only"))
+            or _as_int(r.extra.get("discordant_c_man_no_woman_yes"))
+            or _as_int(r.extra.get("discordant_c_self_no_and_c"))
+            or _as_int(r.k2)
+            or 0
+        )
         disc = b + c
         if disc < MCNEMAR_DISC_UNRELIABLE:
             status = _add(

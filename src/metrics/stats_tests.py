@@ -106,7 +106,17 @@ def two_proportion_ztest(
     pooled = (k1 + k2) / (n1 + n2)
     se = math.sqrt(pooled * (1 - pooled) * (1 / n1 + 1 / n2))
     if se == 0:
-        return (np.nan, np.nan, p1 - p2, (np.nan, np.nan))
+        if alternative == "larger":
+            p = 1.0 if p1 <= p2 else 0.0
+            z = 0.0 if p1 == p2 else (np.inf if p1 > p2 else -np.inf)
+            return (z, p, p1 - p2, (np.nan, np.nan))
+        if alternative == "smaller":
+            p = 1.0 if p1 >= p2 else 0.0
+            z = 0.0 if p1 == p2 else (-np.inf if p1 < p2 else np.inf)
+            return (z, p, p1 - p2, (np.nan, np.nan))
+        p = 1.0 if p1 == p2 else 0.0
+        z = 0.0 if p1 == p2 else np.inf
+        return (z, p, p1 - p2, (np.nan, np.nan))
     z = (p1 - p2) / se
     if alternative == "two-sided":
         p = 2 * stats.norm.sf(abs(z))
@@ -135,6 +145,28 @@ def mcnemar_from_discordant(b: int, c: int, *, exact: bool = False) -> tuple[flo
     stat = (abs(b - c) - 1) ** 2 / (b + c)
     p = float(stats.chi2.sf(stat, 1))
     return (stat, p)
+
+
+def mcnemar_greater_discordant(b: int, c: int) -> tuple[float, float]:
+    """One-sided McNemar: b > c (e.g. Yes with abstain vs Yes without). b+c discordant pairs."""
+    n = b + c
+    if n == 0:
+        return (0.0, 1.0)
+    if n < 25:
+        p = float(stats.binomtest(b, n, 0.5, alternative="greater").pvalue)
+        return (np.nan, p)
+    if b <= c:
+        stat = 0.0
+        p = 0.5 if b == c else float(stats.binomtest(b, n, 0.5, alternative="greater").pvalue)
+    else:
+        stat = (b - c - 1) ** 2 / n
+        p = float(stats.chi2.sf(stat, 1))
+    return (stat, p)
+
+
+def mcnemar_smaller_discordant(b: int, c: int) -> tuple[float, float]:
+    """One-sided McNemar: c > b (e.g. Yes without abstain more than with)."""
+    return mcnemar_greater_discordant(c, b)
 
 
 def one_sample_ttest_vs(x: np.ndarray, mu: float = 0.0) -> tuple[float, float]:
