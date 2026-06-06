@@ -238,18 +238,14 @@ inference_*.log
 *.log
 
 # === Probe outputs (results/<run>/probes/) ===
-# В git: h11/**/*.json, h11/**/*.md. Остальные каталоги probes/ — локально.
+# В git: json, md, csv. NPZ (*.npz) и inspect_h11/_shared — локально.
 results/*/probes/**
 !results/*/probes/**/
 !results/*/probes/**/*.json
 !results/*/probes/**/*.md
+!results/*/probes/**/*.csv
 results/*/probes/inspect_h11/
 results/*/probes/_shared/
-results/*/probes/layer_scan/
-results/*/probes/control_task/
-results/*/probes/silhouette/
-results/*/probes/extract_direction/
-results/*/probes/compare_directions/
 
 # === Behavioral metrics (results/<run>/metrics/<timestamp>/) ===
 # В git: csv / json / jsonl / md в подпапках metrics. Остальное — локально.

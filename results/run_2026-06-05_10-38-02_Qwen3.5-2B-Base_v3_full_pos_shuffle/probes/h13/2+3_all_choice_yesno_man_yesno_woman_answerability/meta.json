@@ -1,9 +1,9 @@
 {
   "probe_script": "h13_pipeline",
-  "pipeline_run_id": "2026-06-06_11-52-44",
+  "pipeline_run_id": "2026-06-06_14-00-43",
   "run_slug": "2+3_all_choice_yesno_man_yesno_woman_answerability",
-  "datetime": "2026-06-06T12:01:45.816282",
-  "pipeline_runtime_s": 558.99,
+  "datetime": "2026-06-06T14:07:56.545153",
+  "pipeline_runtime_s": 456.4,
   "abstain_variants": [
     "without_abstain",
     "with_abstain"
@@ -66,7 +66,7 @@
   "stages": {
     "layer_scan": {
       "status": "completed",
-      "runtime_s": 108.1,
+      "runtime_s": 74.6,
       "summary": {
         "summary_by_mode": {
           "all": {
@@ -79,7 +79,7 @@
     },
     "control_task": {
       "status": "completed",
-      "runtime_s": 226.47,
+      "runtime_s": 167.61,
       "summary": {
         "control_modes": [
           "main",
@@ -96,7 +96,7 @@
     },
     "silhouette": {
       "status": "completed",
-      "runtime_s": 113.2,
+      "runtime_s": 101.96,
       "summary": {
         "label_method": "median_train",
         "best_layer": 24,
@@ -105,7 +105,7 @@
     },
     "extract_direction": {
       "status": "completed",
-      "runtime_s": 26.05,
+      "runtime_s": 22.47,
       "summary": {
         "metrics": {
           "layer": 24,
@@ -124,7 +124,7 @@
     },
     "compare_directions": {
       "status": "completed",
-      "runtime_s": 45.93,
+      "runtime_s": 42.73,
       "summary": {
         "summary": {
           "mean_cosine_w_off_diagonal": 0.0844993314024615,

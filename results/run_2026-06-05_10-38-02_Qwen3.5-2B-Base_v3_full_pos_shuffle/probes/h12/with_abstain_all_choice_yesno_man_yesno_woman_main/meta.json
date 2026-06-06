@@ -1,9 +1,9 @@
 {
   "probe_script": "h12_pipeline",
-  "pipeline_run_id": "2026-06-06_11-36-23",
+  "pipeline_run_id": "2026-06-06_13-02-07",
   "run_slug": "with_abstain_all_choice_yesno_man_yesno_woman_main",
-  "datetime": "2026-06-06T11:43:21.363942",
-  "pipeline_runtime_s": 436.01,
+  "datetime": "2026-06-06T13:26:18.550641",
+  "pipeline_runtime_s": 1471.01,
   "abstain_variant": "with_abstain",
   "parent_run_id": "2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
   "parent_run_dir": "run_2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
@@ -59,20 +59,20 @@
   "stages": {
     "layer_scan": {
       "status": "completed",
-      "runtime_s": 64.69,
+      "runtime_s": 77.61,
       "summary": {
         "summary_by_mode": {
           "all": {
             "target": "abstain_logit",
-            "best_layer": 24,
-            "val_r2": 0.9917681170971099
+            "best_layer": 16,
+            "val_r2": 0.9691859737029962
           }
         }
       }
     },
     "control_task": {
       "status": "completed",
-      "runtime_s": 162.15,
+      "runtime_s": 231.18,
       "summary": {
         "control_modes": [
           "main",
@@ -80,49 +80,49 @@
           "global",
           "permuted_alignment"
         ],
-        "best_main_layer": 24,
-        "best_main_metric": 0.9917681170971099,
-        "control_within_scenario_family_at_best_layer": 0.9917681170971099,
-        "control_global_at_best_layer": -0.4832716142213709,
-        "control_permuted_alignment_at_best_layer": -0.5238780813137327
+        "best_main_layer": 16,
+        "best_main_metric": 0.9691859737029962,
+        "control_within_scenario_family_at_best_layer": 0.9691859737029962,
+        "control_global_at_best_layer": -0.4421576115363768,
+        "control_permuted_alignment_at_best_layer": -0.4671600401993181
       }
     },
     "silhouette": {
       "status": "completed",
-      "runtime_s": 75.62,
+      "runtime_s": 641.42,
       "summary": {
         "label_method": "median_train",
-        "best_layer": 1,
-        "val_silhouette": 0.05904018506407738
+        "best_layer": 20,
+        "val_silhouette": 0.02559562399983406
       }
     },
     "extract_direction": {
       "status": "completed",
-      "runtime_s": 33.0,
+      "runtime_s": 221.65,
       "summary": {
         "metrics": {
-          "layer": 24,
-          "train_r2": 0.9966673643263945,
-          "train_pearson_r": 0.9983323433783285,
-          "train_mse": 0.0012450392729375633,
-          "val_r2": 0.9917681170971099,
-          "val_pearson_r": 0.9958903916595939,
-          "val_mse": 0.002947823701254462,
-          "test_r2": 0.9927148390671775,
-          "test_pearson_r": 0.9963699146709868,
-          "test_mse": 0.002788200121693016
+          "layer": 16,
+          "train_r2": 0.987583693392076,
+          "train_pearson_r": 0.9937740713823086,
+          "train_mse": 0.0025043264312555697,
+          "val_r2": 0.9691859737029962,
+          "val_pearson_r": 0.9845152080878216,
+          "val_mse": 0.0060387352005326295,
+          "test_r2": 0.9683566051427508,
+          "test_pearson_r": 0.9841566530855146,
+          "test_mse": 0.005972870119543121
         },
-        "projection_abstain_logit_r": 0.9974570234869555
+        "projection_abstain_logit_r": 0.9901001054166002
       }
     },
     "compare_directions": {
       "status": "completed",
-      "runtime_s": 58.96,
+      "runtime_s": 253.9,
       "summary": {
         "summary": {
-          "mean_cosine_w_off_diagonal": 0.0818150921293625,
-          "min_cosine_w_off_diagonal": -0.058567086370158776,
-          "max_cosine_w_off_diagonal": 0.7342158217614272,
+          "mean_cosine_w_off_diagonal": 0.1056083068087206,
+          "min_cosine_w_off_diagonal": -0.0336625767184002,
+          "max_cosine_w_off_diagonal": 0.7552123039527419,
           "layer0_vs_layer19_cosine_w": null
         }
       }
@@ -135,7 +135,7 @@
     "control_task/results.json": "results.json",
     "silhouette/silhouette_all_median_train.csv": "silhouette_all_median_train.csv",
     "silhouette/results.json": "results.json",
-    "extract_direction/direction_all_abstain_logit_L24.npz": "direction_all_abstain_logit_L24.npz",
+    "extract_direction/direction_all_abstain_logit_L16.npz": "direction_all_abstain_logit_L16.npz",
     "extract_direction/results.json": "results.json",
     "compare_directions/compare_directions_all_abstain_logit_cos_w_pairs.csv": "compare_directions_all_abstain_logit_cos_w_pairs.csv",
     "compare_directions/compare_directions_all_abstain_logit_cos_w_matrix.csv": "compare_directions_all_abstain_logit_cos_w_matrix.csv",

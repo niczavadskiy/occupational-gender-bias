@@ -1,9 +1,9 @@
 {
   "probe_script": "h11_pipeline",
-  "pipeline_run_id": "2026-06-06_12-11-32",
+  "pipeline_run_id": "2026-06-06_12-52-10",
   "run_slug": "with_abstain_all_choice_yesno_man_yesno_woman_main",
-  "datetime": "2026-06-06T12:19:41.179992",
-  "pipeline_runtime_s": 508.62,
+  "datetime": "2026-06-06T13:00:46.706875",
+  "pipeline_runtime_s": 540.14,
   "abstain_variant": "with_abstain",
   "parent_run_id": "2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
   "parent_run_dir": "run_2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
@@ -59,20 +59,20 @@
   "stages": {
     "layer_scan": {
       "status": "completed",
-      "runtime_s": 101.63,
+      "runtime_s": 117.63,
       "summary": {
         "summary_by_mode": {
           "all": {
             "target": "log_odds",
-            "best_layer": 24,
-            "val_r2": 0.9829006746094999
+            "best_layer": 22,
+            "val_r2": 0.8816281347162369
           }
         }
       }
     },
     "control_task": {
       "status": "completed",
-      "runtime_s": 197.38,
+      "runtime_s": 203.11,
       "summary": {
         "control_modes": [
           "main",
@@ -80,49 +80,49 @@
           "global",
           "permuted_alignment"
         ],
-        "best_main_layer": 24,
-        "best_main_metric": 0.9829006746094999,
-        "control_within_scenario_family_at_best_layer": 0.9829006746094999,
-        "control_global_at_best_layer": -0.4395443794454179,
-        "control_permuted_alignment_at_best_layer": -0.44503372016757203
+        "best_main_layer": 22,
+        "best_main_metric": 0.8816281347162369,
+        "control_within_scenario_family_at_best_layer": 0.8816281347162369,
+        "control_global_at_best_layer": -0.46349104215904435,
+        "control_permuted_alignment_at_best_layer": -0.3904439098140964
       }
     },
     "silhouette": {
       "status": "completed",
-      "runtime_s": 73.98,
+      "runtime_s": 79.43,
       "summary": {
         "label_method": "median_train",
-        "best_layer": 16,
-        "val_silhouette": 0.028091581538319588
+        "best_layer": 21,
+        "val_silhouette": 0.01063463743776083
       }
     },
     "extract_direction": {
       "status": "completed",
-      "runtime_s": 20.25,
+      "runtime_s": 25.01,
       "summary": {
         "metrics": {
-          "layer": 24,
-          "train_r2": 0.993495553380554,
-          "train_pearson_r": 0.9967426667398189,
-          "train_mse": 0.0015120924638132968,
-          "val_r2": 0.9829006746094999,
-          "val_pearson_r": 0.9914404885893551,
-          "val_mse": 0.0038090611799477007,
-          "test_r2": 0.9829689724044488,
-          "test_pearson_r": 0.9914764335287516,
-          "test_mse": 0.003974485618268628
+          "layer": 22,
+          "train_r2": 0.9527623972685316,
+          "train_pearson_r": 0.9761277324114139,
+          "train_mse": 0.01801385007234248,
+          "val_r2": 0.8816281347162369,
+          "val_pearson_r": 0.9392718837325764,
+          "val_mse": 0.04256241164125525,
+          "test_r2": 0.8913679601901847,
+          "test_pearson_r": 0.9444928198895076,
+          "test_mse": 0.044839832205148075
         },
-        "projection_log_odds_r": 0.9946523452030888
+        "projection_log_odds_r": 0.9624263521562835
       }
     },
     "compare_directions": {
       "status": "completed",
-      "runtime_s": 40.5,
+      "runtime_s": 42.78,
       "summary": {
         "summary": {
-          "mean_cosine_w_off_diagonal": 0.08907551508214744,
-          "min_cosine_w_off_diagonal": -0.04765471493578824,
-          "max_cosine_w_off_diagonal": 0.701180259416157,
+          "mean_cosine_w_off_diagonal": 0.10915579800262665,
+          "min_cosine_w_off_diagonal": -0.02928806974408006,
+          "max_cosine_w_off_diagonal": 0.7587738907160023,
           "layer0_vs_layer19_cosine_w": null
         }
       }
@@ -135,7 +135,7 @@
     "control_task/results.json": "results.json",
     "silhouette/silhouette_all_median_train.csv": "silhouette_all_median_train.csv",
     "silhouette/results.json": "results.json",
-    "extract_direction/direction_all_log_odds_L24.npz": "direction_all_log_odds_L24.npz",
+    "extract_direction/direction_all_log_odds_L22.npz": "direction_all_log_odds_L22.npz",
     "extract_direction/results.json": "results.json",
     "compare_directions/compare_directions_all_log_odds_cos_w_pairs.csv": "compare_directions_all_log_odds_cos_w_pairs.csv",
     "compare_directions/compare_directions_all_log_odds_cos_w_matrix.csv": "compare_directions_all_log_odds_cos_w_matrix.csv",
