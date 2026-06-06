@@ -1,0 +1,152 @@
+{
+  "probe_script": "h13_pipeline",
+  "pipeline_run_id": "2026-06-06_11-52-44",
+  "run_slug": "2+3_all_choice_yesno_man_yesno_woman_answerability",
+  "datetime": "2026-06-06T12:01:45.816282",
+  "pipeline_runtime_s": 558.99,
+  "abstain_variants": [
+    "without_abstain",
+    "with_abstain"
+  ],
+  "abstain_variant_slug": "2+3",
+  "parent_run_id": "2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
+  "parent_run_dir": "run_2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "probe_device": "cpu",
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "sklearn_version": "1.6.1",
+  "hypothesis": "H13",
+  "layout": "v3_main",
+  "target": "h13_yes_logit",
+  "evidence_mode": "all",
+  "evidence_modes": [
+    "all"
+  ],
+  "n_samples": 10800,
+  "n_scenario_families": 10800,
+  "n_probe_groups": 10800,
+  "rows_per_family": 1,
+  "split": {
+    "group_key": "h13_v3_answerability_group (example_id × context_order × position_variant)",
+    "n_scenario_families": 10800,
+    "families_per_split": {
+      "train": 6480,
+      "val": 2160,
+      "test": 2160
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "task": "answerability",
+    "question_formats": [
+      "choice",
+      "yesno_man",
+      "yesno_woman"
+    ],
+    "abstain_variants": [
+      "without_abstain",
+      "with_abstain"
+    ],
+    "abstain_variant_slug": "2+3",
+    "evidence_shift_levels": [
+      "evidence_supports_man",
+      "evidence_supports_woman",
+      "no_evidence"
+    ]
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 108.1,
+      "summary": {
+        "summary_by_mode": {
+          "all": {
+            "target": "h13_yes_logit",
+            "best_layer": 24,
+            "val_r2": 0.9922374061511718
+          }
+        }
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 226.47,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 24,
+        "best_main_metric": 0.9922374061511718,
+        "control_within_scenario_family_at_best_layer": 0.9922374061511718,
+        "control_global_at_best_layer": -0.3605237337285181,
+        "control_permuted_alignment_at_best_layer": -0.3857090879788483
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 113.2,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 24,
+        "val_silhouette": 0.09816154837608337
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 26.05,
+      "summary": {
+        "metrics": {
+          "layer": 24,
+          "train_r2": 0.9960527826183626,
+          "train_pearson_r": 0.998024464874517,
+          "train_mse": 0.0012778191899922085,
+          "val_r2": 0.9922374061511718,
+          "val_pearson_r": 0.9961114890996529,
+          "val_mse": 0.0024734965612145136,
+          "test_r2": 0.9917860136962361,
+          "test_pearson_r": 0.9958905264404376,
+          "test_mse": 0.002485947524432393
+        },
+        "projection_yes_logit_r": 0.9972354828346781
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 45.93,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.0844993314024615,
+          "min_cosine_w_off_diagonal": -0.06274054692691568,
+          "max_cosine_w_off_diagonal": 0.7327350810513442,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_all_h13_yes_logit.csv": "layer_scan_all_h13_yes_logit.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_all_h13_yes_logit.csv": "control_all_h13_yes_logit.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_all_median_train.csv": "silhouette_all_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_all_h13_yes_logit_L24.npz": "direction_all_h13_yes_logit_L24.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_all_h13_yes_logit_cos_w_pairs.csv": "compare_directions_all_h13_yes_logit_cos_w_pairs.csv",
+    "compare_directions/compare_directions_all_h13_yes_logit_cos_w_matrix.csv": "compare_directions_all_h13_yes_logit_cos_w_matrix.csv",
+    "compare_directions/compare_directions_all_h13_yes_logit_weights.npz": "compare_directions_all_h13_yes_logit_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}

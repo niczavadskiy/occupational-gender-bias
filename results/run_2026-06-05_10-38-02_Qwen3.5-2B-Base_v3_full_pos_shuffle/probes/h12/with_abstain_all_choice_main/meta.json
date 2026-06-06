@@ -1,0 +1,141 @@
+{
+  "probe_script": "h12_pipeline",
+  "pipeline_run_id": "2026-06-06_11-21-57",
+  "run_slug": "with_abstain_all_choice_main",
+  "datetime": "2026-06-06T11:24:52.483842",
+  "pipeline_runtime_s": 196.57,
+  "abstain_variant": "with_abstain",
+  "parent_run_id": "2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
+  "parent_run_dir": "run_2026-06-05_10-38-02_Qwen3.5-2B-Base_v3_full_pos_shuffle",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "probe_device": "cpu",
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0",
+  "processor": "Intel64 Family 6 Model 140 Stepping 1, GenuineIntel",
+  "sklearn_version": "1.6.1",
+  "hypothesis": "H12",
+  "layout": "v3_main",
+  "target": "abstain_logit",
+  "evidence_mode": "all",
+  "evidence_modes": [
+    "all"
+  ],
+  "n_samples": 2700,
+  "n_scenario_families": 2700,
+  "n_probe_groups": 2700,
+  "rows_per_family": 1,
+  "split": {
+    "group_key": "h12_v3_main_group (example_id × context_order × position_variant)",
+    "n_scenario_families": 10800,
+    "families_per_split": {
+      "train": 6480,
+      "val": 2160,
+      "test": 2160
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "question_format": "choice",
+    "abstain_variant": "with_abstain",
+    "evidence_shift_levels": [
+      "evidence_supports_man",
+      "evidence_supports_woman",
+      "no_evidence"
+    ],
+    "task": "main",
+    "layout": "v3_main"
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 31.34,
+      "summary": {
+        "summary_by_mode": {
+          "all": {
+            "target": "abstain_logit",
+            "best_layer": 24,
+            "val_r2": 0.9921086377813447
+          }
+        }
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 56.59,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 24,
+        "best_main_metric": 0.9921086377813447,
+        "control_within_scenario_family_at_best_layer": 0.9921086377813447,
+        "control_global_at_best_layer": -0.9164271382119662,
+        "control_permuted_alignment_at_best_layer": -1.0062044109620731
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 26.05,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 1,
+        "val_silhouette": 0.13222680985927582
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 18.67,
+      "summary": {
+        "metrics": {
+          "layer": 24,
+          "train_r2": 0.9993490701533939,
+          "train_pearson_r": 0.9996746092110647,
+          "train_mse": 0.00035011198301751977,
+          "val_r2": 0.9921086377813447,
+          "val_pearson_r": 0.9960465584361801,
+          "val_mse": 0.004172245183619071,
+          "test_r2": 0.9932176813012202,
+          "test_pearson_r": 0.9966199255761273,
+          "test_mse": 0.003887890728151504
+        },
+        "projection_abstain_logit_r": 0.998340194469019
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 22.87,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.100439464090346,
+          "min_cosine_w_off_diagonal": -0.0641520774846932,
+          "max_cosine_w_off_diagonal": 0.7677331049444371,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_all_abstain_logit.csv": "layer_scan_all_abstain_logit.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_all_abstain_logit.csv": "control_all_abstain_logit.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_all_median_train.csv": "silhouette_all_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_all_abstain_logit_L24.npz": "direction_all_abstain_logit_L24.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_all_abstain_logit_cos_w_pairs.csv": "compare_directions_all_abstain_logit_cos_w_pairs.csv",
+    "compare_directions/compare_directions_all_abstain_logit_cos_w_matrix.csv": "compare_directions_all_abstain_logit_cos_w_matrix.csv",
+    "compare_directions/compare_directions_all_abstain_logit_weights.npz": "compare_directions_all_abstain_logit_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}
