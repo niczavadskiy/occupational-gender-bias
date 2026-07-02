@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>H3 v1 — highlight-h3-full</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --accent: #2c5f8d; --bg: #f6f8fa; --card: #fff; --border: #dde3ea;
+  --muted: #5a6570; --ch-dark: #2c5f8d; --ch-light: #9bb8d4;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  margin: 0; padding: 0 1.25rem 3rem; background: var(--bg); color: #1a1a1a;
+  line-height: 1.55; max-width: 1100px; margin-inline: auto;
+}
+header { padding: 1.5rem 0 1rem; border-bottom: 3px solid var(--accent); }
+h1 { margin: 0 0 .35rem; color: var(--accent); font-size: 1.65rem; }
+h3 { margin: 1rem 0 .5rem; color: var(--accent); font-size: 1rem; }
+.meta { color: var(--muted); font-size: .92rem; }
+nav.toc {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem 1.25rem; margin: 1.25rem 0;
+}
+nav.toc a { color: var(--accent); text-decoration: none; }
+nav.toc ul { margin: .5rem 0 0; padding-left: 1.2rem; }
+section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.25rem 1.35rem; margin: 1.5rem 0;
+}
+section h2 {
+  margin: 0 0 .75rem; color: var(--accent); font-size: 1.2rem;
+  border-bottom: 1px solid var(--border); padding-bottom: .4rem;
+}
+section.empty-section { opacity: .75; }
+.method {
+  background: #f0f4f8; border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.1rem 1.25rem; margin: 1.25rem 0; font-size: .93rem;
+}
+.method h2 { margin-top: 0; border: none; padding: 0; }
+.method table { border-collapse: collapse; width: 100%; margin: .5rem 0; font-size: .88rem; }
+.method th, .method td { border: 1px solid var(--border); padding: .4rem .6rem; text-align: left; }
+.method th { background: #e8eef4; }
+.interpret {
+  background: #eef4fb; border-left: 4px solid var(--accent);
+  padding: .85rem 1rem; margin: 0 0 1rem; border-radius: 0 6px 6px 0; font-size: .95rem;
+}
+.interpret strong { color: var(--accent); }
+.interpret ul { margin: .35rem 0 .5rem; padding-left: 1.25rem; }
+.interpret table { border-collapse: collapse; width: 100%; margin: .5rem 0; font-size: .88rem; }
+.interpret th, .interpret td { border: 1px solid var(--border); padding: .35rem .5rem; text-align: left; }
+.interpret th { background: #e8eef4; }
+.chart-wrap { position: relative; height: 300px; margin: .5rem 0 1rem; }
+.chart-wrap.tall { height: 360px; }
+.note { font-size: .88rem; color: var(--muted); margin-top: .5rem; }
+table.mcn {
+  border-collapse: collapse; width: 100%; font-size: .82rem; margin: .75rem 0;
+}
+table.mcn th, table.mcn td {
+  border: 1px solid var(--border); padding: .35rem .5rem; text-align: right;
+}
+table.mcn th { background: #f0f4f8; color: var(--accent); text-align: center; }
+table.mcn td.mcn-key { text-align: left; font-weight: 600; }
+table.mcn tr.mcn-grp-a { background: #e8f0f8; }
+table.mcn tr.mcn-grp-b { background: #f7fafc; }
+.method-spoiler, .test-ref-spoiler {
+  margin: .75rem 0; border: 1px solid var(--border); border-radius: 8px; background: #fafbfc;
+}
+.method-spoiler summary, .test-ref-spoiler summary {
+  cursor: pointer; padding: .6rem .85rem; font-weight: 600; color: var(--accent);
+  list-style: none; font-size: .9rem;
+}
+.method-spoiler summary::-webkit-details-marker, .test-ref-spoiler summary::-webkit-details-marker { display: none; }
+.method-spoiler summary::before, .test-ref-spoiler summary::before {
+  content: '▸'; display: inline-block; margin-right: .4rem;
+}
+.method-spoiler[open] summary::before, .test-ref-spoiler[open] summary::before { transform: rotate(90deg); }
+.spoiler-body { padding: .35rem .85rem .75rem; border-top: 1px solid var(--border); font-size: .88rem; }
+.test-refs { display: flex; flex-direction: column; gap: .35rem; margin: .35rem 0 .75rem; }
+table.tip-fdr { width: 100%; border-collapse: collapse; font-size: .82rem; }
+table.tip-fdr th, table.tip-fdr td { border: 1px solid var(--border); padding: .28rem .4rem; }
+table.tip-fdr td.tip-p, table.tip-fdr td.tip-q { text-align: right; font-family: ui-monospace, monospace; }
+table.tip-fdr td.fdr-yes { color: #6fcf97; text-align: center; font-weight: 700; }
+table.tip-fdr td.fdr-no { color: #eb5757; text-align: center; font-weight: 700; }
+.effect-key {
+  background: #fff7ed; border: 1px solid #f0c9a8; border-left: 4px solid var(--ch-accent, #c45c3e);
+  border-radius: 0 8px 8px 0; padding: .9rem 1.1rem; margin: 0 0 1rem;
+  font-size: 1.02rem; line-height: 1.6;
+}
+.effect-key code { background: #fde8d8; padding: .05rem .3rem; border-radius: 4px; }
+.chart-toggle { font-size: .9rem; margin: .35rem 0; }
+.chart-toggle label { margin-right: 1.25rem; cursor: pointer; }
+.fdr-yes { color: #2e8b57; font-weight: 700; }
+.fdr-no { color: #c0392b; font-weight: 700; }
+footer { margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>H3 v1 — evidence highlight</h1>
+  <p class="meta">
+    Run: <code>highlight-h3-full</code> · n=45648 · 2026-06-27 15:00:08
+  </p>
+</header>
+
+<nav class="toc">
+  <b>Содержание</b>
+  <ul>
+    <li><a href="#setup">Сетап прогона</a></li>
+    <li><a href="#method">Как читать отчёт</a></li>
+    <li><a href="#primary">Primary — paired McNemar</a></li>
+    <li><a href="#rates">Rates по evidence_shift</a></li>
+    <li><a href="#soc">Strata — soc_major_title</a></li>
+  </ul>
+</nav>
+
+<section class="method" id="setup">
+  <h2>Сетап прогона</h2>
+  <p><b>Модель:</b> <code>Qwen/Qwen3.5-2B-Base</code></p><p><b>Гипотеза H3:</b> фраза «A report highlighted the <i>man/woman</i>» сдвигает предпочтение модели к highlighted полу относительно ambiguous baseline (<code>no_evidence</code>).</p><p><b>Датасет v1 + highlight:</b> те же occupation-сценарии, что в H1 v1; три условия evidence на одних и тех же <code>id</code> (15 216 пар).</p><p><b>Объём:</b> <b>45648</b> промптов — <code>man</code>: 15216, <code>no_evidence</code>: 15216, <code>woman</code>: 15216.</p><details class="method-spoiler"><summary>Детали merge и факторы</summary><div class="spoiler-body"><p><b>Как собран run:</b> concat baseline + 4 highlight-прогона.</p><ul><li><code>run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle</code></li><li><code>highlight-MAN__ctx-man-first</code></li><li><code>highlight-MAN__ctx-woman-first</code></li><li><code>highlight-WOMAN__ctx-man-first</code></li><li><code>highlight-WOMAN__ctx-woman-first</code></li></ul><p><b>evidence_shift по источникам:</b></p><ul><li><code>run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle</code> → <code>no_evidence</code></li><li><code>highlight-MAN__ctx-man-first</code> → <code>man</code></li><li><code>highlight-MAN__ctx-woman-first</code> → <code>man</code></li><li><code>highlight-WOMAN__ctx-man-first</code> → <code>woman</code></li><li><code>highlight-WOMAN__ctx-woman-first</code> → <code>woman</code></li></ul><p class='note'>concat: no_evidence block, then MAN×2, then WOMAN×2</p><table><tr><th>Фактор</th><th>Уровни</th><th>Смысл</th></tr><tr><td><code>evidence_shift</code></td><td><code>no_evidence</code>, <code>man</code>, <code>woman</code></td><td>ambiguous vs highlight man vs highlight woman</td></tr><tr><td><code>context_order</code></td><td><code>man_first</code>, <code>woman_first</code></td><td>порядок имён в narrative</td></tr><tr><td><code>abstain_variant</code></td><td><code>with_abstain</code>, <code>without_abstain</code></td><td>2 или 3 опции ответа</td></tr></table></div></details>
+</section>
+
+<section class="method" id="method">
+  <h2>Как читать отчёт</h2>
+  <h3>H3 — гипотеза</h3>
+  <p>Highlight пола X должен <b>увеличить</b> предпочтение X относительно ambiguous baseline
+  (<code>no_evidence</code>). Три условия evidence на одних и тех же <code>id</code>
+  (15 216 layout-промптов × 3 evidence = 45 648 строк).</p>
+  <h3>Primary — choice vs prob (McNemar)</h3>
+  <p class="note"><b>Срез McNemar:</b> только <code>without_abstain</code> — 2 опции (man/woman), p0/p1, mf/wf; без «Воздержаться». Парный ключ — <code>id</code> (3 804 layout-id × 3 evidence). Не смешивается с <code>with_abstain</code> (см. Rates).</p>
+  <p>Как в H1 v1: <b>choice</b> = hard argmax по слотам (man/woman);
+  <b>prob</b> = <code>p_man</code>, <code>p_woman</code> без повторного argmax.</p>
+  <ol>
+    <li><b>choice McNemar</b> — flip argmax-ответа; b/c.</li>
+    <li><b>prob McNemar</b> — flip знака <code>p_man − p_woman</code>; b/c.</li>
+  </ol>
+  <h3>Rates</h3>
+  <p><b>Marginal доли</b> дискретного choice (argmax man / woman / abstain) по уровням
+  <code>evidence_shift</code>. Считаются отдельно для двух layout:</p>
+  <ul>
+    <li><code>without_abstain</code> — только man и woman (2 опции).</li>
+    <li><code>with_abstain</code> — man, woman и abstain (3 опции).</li>
+  </ul>
+</section>
+
+<section id="primary">
+  <h2>Primary — paired McNemar (without_abstain)</h2>
+  <p class="note"><b>Срез McNemar:</b> только <code>without_abstain</code> — 2 опции (man/woman), p0/p1, mf/wf; без «Воздержаться». Парный ключ — <code>id</code> (3 804 layout-id × 3 evidence). Не смешивается с <code>with_abstain</code> (см. Rates).</p>
+  <div class="interpret">
+    <div class='effect-key'><b>Как читать <code>effect</code>:</b> <code>effect = (b − c) / n_pairs</code>, где <b>b</b> — число пар, сменивших ответ <b>в сторону</b> highlighted пола (a→b), <b>c</b> — сменивших <b>от</b> него, <b>n_pairs</b> — все валидные парные <code>id</code>. Знак: <b>«+»</b> = net-сдвиг <b>к</b> highlighted полу (<b>подтверждает H₃</b>), <b>«−»</b> = от него. Напр. <code>effect = +0.10</code> ⇒ net 10% пар сдвинулись к highlighted полу.</div>
+<p><strong>Два target, как в H1 v1</strong> (paired по <code>id</code>, <code>without_abstain</code>, one-sided H₃↑, вне BH):</p>
+<ul><li><b>choice</b> — <b>argmax</b> по слотам ответа (man / woman / abstain); уже применён при inference → <code>prefers_man</code>, <code>prefers_woman</code>, <code>abstain</code>.</li><li><b>prob</b> — position-aware <code>p_man</code>, <code>p_woman</code> из <code>prob_constrained_*</code>; argmax <b>не</b> применяется повторно.</li></ul>
+<table><tr><th>Тест</th><th>Target</th><th>b/c?</th><th>Что сравниваем</th></tr><tr><td>choice McNemar</td><td>choice</td><td>да</td><td>flip дискретного argmax-ответа (man/woman/abstain)</td></tr><tr><td>prob McNemar</td><td>prob</td><td>да</td><td>flip знака margin: <code>p_man&nbsp;&gt;&nbsp;p_woman</code> (<code>prob_prefers_man</code>); abstain-слот не участвует</td></tr></table>
+<p class='note'>choice и prob — <b>разные представления</b> одного ответа: argmax даёт choice; prob-тесты работают с вероятностями напрямую.</p>
+<p><strong>1. choice McNemar</strong> (argmax; 2-option layout, все valid-пары man↔woman):</p>
+<p><b>no→man, ось man:</b> n_pairs=3,804; b=645 (к man), c=673 (от man); net effect=-0.7%. p = 0.7878 (n.s.)</p>
+<p class='note'>→ эффект около нуля / слабо от highlighted пола (n.s.).</p>
+<p><b>no→woman, ось woman:</b> n_pairs=3,804; b=912 (к woman), c=468 (от woman); net effect=+11.7%. p &lt; 0.001</p>
+<p class='note'>→ значимый сдвиг <b>к</b> highlighted полу — <b>H₃ подтверждается</b>.</p>
+<p><strong>2. prob McNemar</strong> — flip знака margin (<code>p_man&nbsp;&gt;&nbsp;p_woman</code>):</p>
+<p><b>no→man, prob (margin):</b> n_pairs=3,349; b=556 (к man), c=556 (от man); net effect=+0.0%. p = 0.5 (n.s.)</p>
+<p class='note'>→ эффект около нуля / слабо от highlighted пола (n.s.).</p>
+<p><b>no→woman, prob (margin):</b> n_pairs=3,308; b=762 (к woman), c=388 (от woman); net effect=+11.3%. p &lt; 0.001</p>
+<p class='note'>→ значимый сдвиг <b>к</b> highlighted полу — <b>H₃ подтверждается</b>.</p>
+<p><strong>Итог (without_abstain):</strong> H₃ <b>подтверждается</b> — значимый сдвиг к highlighted полу в 2 из 4 primary-тестов; противоположно значимых нет.</p>
+  </div>
+  <table class='mcn'><thead><tr><th>Тест</th><th>что измеряем</th><th>n</th><th>b</th><th>c</th><th>effect</th><th>p</th></tr></thead><tbody><tr class='mcn-grp-a'><td class='mcn-key'>no→man (choice)</td><td>choice (argmax)</td><td>3804</td><td>645</td><td>673</td><td>-0.007</td><td>0.7878</td></tr><tr class='mcn-grp-b'><td class='mcn-key'>no→woman (choice)</td><td>choice (argmax)</td><td>3804</td><td>912</td><td>468</td><td>+0.117</td><td>8.752e-33</td></tr><tr class='mcn-grp-a'><td class='mcn-key'>no→man (prob)</td><td>prob (margin sign)</td><td>3349</td><td>556</td><td>556</td><td>+0.000</td><td>0.5</td></tr><tr class='mcn-grp-b'><td class='mcn-key'>no→woman (prob)</td><td>prob (margin sign)</td><td>3308</td><td>762</td><td>388</td><td>+0.113</td><td>3.857e-28</td></tr></tbody></table>
+  <div class="chart-wrap"><canvas id="chartPrimary"></canvas></div>
+  <p class="note"><b>Тест:</b> парный <b>McNemar</b> (χ², поправка Йейтса) по дискордантным
+  парам b/c, <b>односторонний</b> H₃↑. Цель <code>choice</code> — flip argmax (man/woman);
+  цель <code>prob</code> — flip знака margin <code>p_man − p_woman</code>. Значения p — в таблице выше.</p>
+</section>
+
+<section id="rates">
+  <h2>Rates по evidence_shift</h2>
+  <div class="interpret">
+    <strong>Marginal доли</strong> choice (argmax) по трём условиям evidence,
+    отдельно для layout без abstain и с abstain.
+    Baseline <code>no_evidence</code> совпадает с H1 v1 primary (~26% man, ~23% woman, ~51% abstain pooled).
+  </div>
+
+  <h3>without_abstain — man / woman</h3>
+  <table class='mcn'><tr><th>evidence</th><th>n</th><th>k_man</th><th>k_woman</th><th>P(man)</th><th>P(woman)</th></tr><tr><td><code>no_evidence</code></td><td>3804</td><td>2111</td><td>1693</td><td>55.5%</td><td>44.5%</td></tr><tr><td><code>man</code></td><td>3804</td><td>2083</td><td>1721</td><td>54.8%</td><td>45.2%</td></tr><tr><td><code>woman</code></td><td>3804</td><td>1667</td><td>2137</td><td>43.8%</td><td>56.2%</td></tr></table>
+  <div class="interpret"><strong>Сдвиг (without_abstain).</strong> Woman-evidence заметно повышает P(woman): <b>44.5%</b> → <b>56.2%</b>. Man-evidence почти не двигает P(man): <b>55.5%</b> → <b>54.8%</b>. Это <b>описательные</b> доли; <b>значимость</b> парных сдвигов проверяется в разделе <a href='#primary'>Primary</a> (paired McNemar по <code>id</code>), а не на marginal-долях здесь.</div>
+  <div class="chart-wrap"><canvas id="chartRatesWithout"></canvas></div>
+  <p class="note"><b>Тест:</b> нет — это <b>описательные marginal-доли</b> argmax-choice
+  (P(man) / P(woman)) по условиям evidence, без статистики значимости.</p>
+
+  <h3>with_abstain — man / woman / abstain</h3>
+  <table class='mcn'><tr><th>evidence</th><th>n</th><th>k_man</th><th>k_woman</th><th>k_abstain</th><th>P(man)</th><th>P(woman)</th><th>P(abstain)</th></tr><tr><td><code>no_evidence</code></td><td>11412</td><td>1826</td><td>1776</td><td>7810</td><td>16.0%</td><td>15.6%</td><td>68.4%</td></tr><tr><td><code>man</code></td><td>11412</td><td>4102</td><td>3529</td><td>3781</td><td>35.9%</td><td>30.9%</td><td>33.1%</td></tr><tr><td><code>woman</code></td><td>11412</td><td>3640</td><td>5892</td><td>1880</td><td>31.9%</td><td>51.6%</td><td>16.5%</td></tr></table>
+  <div class="interpret"><strong>Воздержание (abstain).</strong> При evidence <b>за мужчин</b> доля воздержавшихся ответов <b>33.1%</b> — гораздо больше, чем при evidence <b>за женщин</b> <b>16.5%</b>: модель заметно реже отказывается отвечать, когда подсвечена женщина.<br>При этом доля ответа «воздержаться» <b>снижается при наличии любого</b> evidence относительно ambiguous baseline: <b>68.4%</b> (no_evidence) → <b>33.1%</b> (man) / <b>16.5%</b> (woman) — <b>что подтверждает H5</b>: добавление варианта ответа «воздержаться» приводит к большей вероятности выбора «воздержаться» в контексте <b>без</b> evidence, чем в контексте <b>с</b> evidence.</div>
+  <div class="chart-wrap tall"><canvas id="chartRatesWith"></canvas></div>
+  <p class="note"><b>Тест:</b> нет — <b>описательные marginal-доли</b> argmax-choice
+  (man / woman / abstain) по условиям evidence, без статистики значимости.</p>
+</section>
+
+<section id="soc">
+  <h2>Strata — soc_major_title (22 отраслей, without_abstain)</h2>
+  <p class="note"><b>Срез McNemar:</b> только <code>without_abstain</code> — 2 опции (man/woman), p0/p1, mf/wf; без «Воздержаться». Парный ключ — <code>id</code> (3 804 layout-id × 3 evidence). Не смешивается с <code>with_abstain</code> (см. Rates).</p>
+  <div class="interpret">
+    <strong>prob McNemar по отраслям.</strong> Для каждого <code>soc_major_title</code> —
+    знаковый <code>effect=(b−c)/n_pairs</code> на margin (<code>p_man − p_woman</code>),
+    отдельно для <b>no→man</b> и <b>no→woman</b>.
+    Плюс = сдвиг <b>к</b> highlighted полу (H₃). Полное название отрасли — в tooltip.
+  </div>
+  <div class="chart-toggle">
+    <span><b>Сортировка:</b></span>
+    <label><input type="radio" name="socSort" value="effect" checked> по effect (↓)</label>
+    <label><input type="radio" name="socSort" value="name"> по названию (A→Я)</label>
+  </div>
+  <div class="chart-wrap" style="height:838px"><canvas id="chartSoc"></canvas></div>
+  <p class="note"><b>Тест:</b> <b>двусторонний</b> парный <b>McNemar</b> (χ², поправка Йейтса)
+  по дискордантным парам; цель <code>prob</code> — знак margin <code>p_man − p_woman</code>.
+  Двусторонний выбран, чтобы p оставался читаемым и для отраслей с эффектом <i>против</i> H₃
+  (отрицательный <code>effect</code>, напр. man-ось в Legal / Architecture): знак
+  <code>effect</code> задаёт направление, p — значимость сдвига в любую сторону.</p>
+  <div class='interpret'><strong>Выводы (BH/FDR, Q=0.05; семья — soc prob, 44 тестов):</strong><ul><li><b>Женский evidence (no→woman):</b> значимый <b>положительный</b> эффект в <b>3/22</b> отраслях (незначимо: Building and Grounds Cleaning and …, Personal Care and Service Occupati…, Healthcare Support Occupations, Community and Social Service Occup…, Food Preparation and Serving Relat…, Healthcare Practitioners and Techn…, Office and Administrative Support …, Farming, Management Occupations, Legal Occupations, Computer and Mathematical Occupati…, Sales and Related Occupations, Business and Financial Operations …, Life, Construction and Extraction Occupa…, Installation, Architecture and Engineering Occup…, Transportation and Material Moving…, Protective Service Occupations).</li><li><b>Мужской evidence (no→man):</b> значимо <b>положительный</b> в: —; значимо <b>отрицательный</b> в: —; незначимо: Building and Grounds Cleaning and …, Arts, Educational Instruction and Librar…, Personal Care and Service Occupati…, Healthcare Support Occupations, Community and Social Service Occup…, Food Preparation and Serving Relat…, Production Occupations, Healthcare Practitioners and Techn…, Office and Administrative Support …, Farming, Management Occupations, Legal Occupations, Computer and Mathematical Occupati…, Sales and Related Occupations, Business and Financial Operations …, Life, Construction and Extraction Occupa…, Installation, Architecture and Engineering Occup…, Transportation and Material Moving…, Protective Service Occupations.</li></ul><p class='note' style='margin:0'>«Значимо» = q-value ≤ Q после поправки Бенджамини–Хохберга по всей soc-prob семье (man+woman). Знак — по <code>effect=(b−c)/n_pairs</code>.</p></div><details class='method-spoiler'><summary>FDR-таблица по отраслям (effect п.п. · q-value · значимо)</summary><div class='spoiler-body'><table class='mcn'><thead><tr><th>soc_major_title</th><th>man eff</th><th>man q</th><th>man</th><th>woman eff</th><th>woman q</th><th>woman</th></tr></thead><tbody><tr><td class='mcn-key' title="Building and Grounds Cleaning and Maintenance Occupations">Building and Grounds Cleaning and …</td><td>+10.7</td><td>0.6383</td><td><span class='fdr-no'>✗</span></td><td>+17.9</td><td>0.3344</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Arts, Design, Entertainment, Sports, and Media Occupations">Arts</td><td>+5.8</td><td>0.4101</td><td><span class='fdr-no'>✗</span></td><td>+19.9</td><td>0.0004168</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Educational Instruction and Library Occupations">Educational Instruction and Librar…</td><td>+3.4</td><td>0.6794</td><td><span class='fdr-no'>✗</span></td><td>+21.3</td><td>3.259e-05</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Personal Care and Service Occupations">Personal Care and Service Occupati…</td><td>+13.4</td><td>0.06842</td><td><span class='fdr-no'>✗</span></td><td>+11.0</td><td>0.1241</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Healthcare Support Occupations">Healthcare Support Occupations</td><td>+8.5</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td><td>+15.0</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Community and Social Service Occupations">Community and Social Service Occup…</td><td>+0.0</td><td>0.8732</td><td><span class='fdr-no'>✗</span></td><td>+21.7</td><td>0.1147</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Food Preparation and Serving Related Occupations">Food Preparation and Serving Relat…</td><td>+15.2</td><td>0.1668</td><td><span class='fdr-no'>✗</span></td><td>+5.2</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Production Occupations">Production Occupations</td><td>+1.9</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td><td>+14.6</td><td>5.148e-05</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Healthcare Practitioners and Technical Occupations">Healthcare Practitioners and Techn…</td><td>+6.4</td><td>0.174</td><td><span class='fdr-no'>✗</span></td><td>+9.2</td><td>0.06842</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Office and Administrative Support Occupations">Office and Administrative Support …</td><td>+0.5</td><td>1</td><td><span class='fdr-no'>✗</span></td><td>+10.5</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Farming, Fishing, and Forestry Occupations">Farming</td><td>+0.0</td><td>0.8732</td><td><span class='fdr-no'>✗</span></td><td>+10.3</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Management Occupations">Management Occupations</td><td>+0.0</td><td>0.9215</td><td><span class='fdr-no'>✗</span></td><td>+10.3</td><td>0.1241</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Legal Occupations">Legal Occupations</td><td>-7.1</td><td>0.7909</td><td><span class='fdr-no'>✗</span></td><td>+16.1</td><td>0.2556</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Computer and Mathematical Occupations">Computer and Mathematical Occupati…</td><td>-3.6</td><td>0.7828</td><td><span class='fdr-no'>✗</span></td><td>+12.2</td><td>0.2044</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Sales and Related Occupations">Sales and Related Occupations</td><td>-7.1</td><td>0.5299</td><td><span class='fdr-no'>✗</span></td><td>+14.9</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Business and Financial Operations Occupations">Business and Financial Operations …</td><td>+2.9</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td><td>+3.0</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Life, Physical, and Social Science Occupations">Life</td><td>-5.2</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td><td>+10.9</td><td>0.09896</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Construction and Extraction Occupations">Construction and Extraction Occupa…</td><td>-1.4</td><td>0.8732</td><td><span class='fdr-no'>✗</span></td><td>+6.9</td><td>0.2123</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Installation, Maintenance, and Repair Occupations">Installation</td><td>-4.7</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td><td>+9.1</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Architecture and Engineering Occupations">Architecture and Engineering Occup…</td><td>-7.4</td><td>0.1668</td><td><span class='fdr-no'>✗</span></td><td>+11.1</td><td>0.06142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Transportation and Material Moving Occupations">Transportation and Material Moving…</td><td>-10.0</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td><td>+9.2</td><td>0.1171</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Protective Service Occupations">Protective Service Occupations</td><td>-9.7</td><td>0.2556</td><td><span class='fdr-no'>✗</span></td><td>-1.9</td><td>0.9089</td><td><span class='fdr-no'>✗</span></td></tr></tbody></table></div></details>
+</section>
+
+<footer>Сгенерировано pipeline <code>h3_v1</code>.</footer>
+
+<script>
+const DATA = {"run": "highlight-h3-full", "n_rows": 45648, "generated": "2026-06-27T15:00:08.318454+00:00", "evidence_rates_without": [{"evidence": "no_evidence", "n": 3804, "p_man": 55.49, "p_woman": 44.51, "p_abstain": 0.0, "k_man": 2111, "k_woman": 1693, "k_abstain": 0}, {"evidence": "man", "n": 3804, "p_man": 54.76, "p_woman": 45.24, "p_abstain": 0.0, "k_man": 2083, "k_woman": 1721, "k_abstain": 0}, {"evidence": "woman", "n": 3804, "p_man": 43.82, "p_woman": 56.18, "p_abstain": 0.0, "k_man": 1667, "k_woman": 2137, "k_abstain": 0}], "evidence_rates_with": [{"evidence": "no_evidence", "n": 11412, "p_man": 16.0, "p_woman": 15.56, "p_abstain": 68.44, "k_man": 1826, "k_woman": 1776, "k_abstain": 7810}, {"evidence": "man", "n": 11412, "p_man": 35.94, "p_woman": 30.92, "p_abstain": 33.13, "k_man": 4102, "k_woman": 3529, "k_abstain": 3781}, {"evidence": "woman", "n": 11412, "p_man": 31.9, "p_woman": 51.63, "p_abstain": 16.47, "k_man": 3640, "k_woman": 5892, "k_abstain": 1880}], "soc": [{"title": "Building and Grounds Cleaning and Maintenance Occupations", "short": "Building and Grounds Cleaning and …", "eff_man": 0.1071, "p_man": 0.4496917979688908, "n_man": 28, "q_man": 0.6382722293751999, "sig_man": false, "eff_woman": 0.1786, "p_woman": 0.18242243945173198, "n_woman": 28, "q_woman": 0.334441138994842, "sig_woman": false}, {"title": "Arts, Design, Entertainment, Sports, and Media Occupations", "short": "Arts", "eff_man": 0.0581, "p_man": 0.23303798227390204, "n_man": 155, "q_man": 0.4101468488020676, "sig_man": false, "eff_woman": 0.1987, "p_woman": 2.8417667670336965e-05, "n_woman": 151, "q_woman": 0.00041679245916494216, "sig_woman": true}, {"title": "Educational Instruction and Library Occupations", "short": "Educational Instruction and Librar…", "eff_man": 0.0337, "p_man": 0.4941245444092639, "n_man": 208, "q_man": 0.6794212485627379, "sig_man": false, "eff_woman": 0.2133, "p_woman": 7.406614173436112e-07, "n_woman": 211, "q_woman": 3.258910236311889e-05, "sig_woman": true}, {"title": "Personal Care and Service Occupations", "short": "Personal Care and Service Occupati…", "eff_man": 0.1339, "p_man": 0.009329584719771558, "n_man": 112, "q_man": 0.0684169546116581, "sig_man": false, "eff_woman": 0.1101, "p_woman": 0.04460971802493953, "n_woman": 109, "q_woman": 0.12409910944385931, "sig_woman": false}, {"title": "Healthcare Support Occupations", "short": "Healthcare Support Occupations", "eff_man": 0.0847, "p_man": 0.26725749315438463, "n_man": 59, "q_man": 0.43039508737616466, "sig_man": false, "eff_woman": 0.15, "p_woman": 0.026500280602491884, "n_woman": 60, "q_woman": 0.11418443885125462, "sig_woman": false}, {"title": "Community and Social Service Occupations", "short": "Community and Social Service Occup…", "eff_man": 0.0, "p_man": 0.7892680261342813, "n_man": 47, "q_man": 0.8732000852131424, "sig_man": false, "eff_woman": 0.2174, "p_woman": 0.033894853524689295, "n_woman": 46, "q_woman": 0.11472104269894838, "sig_woman": false}, {"title": "Food Preparation and Serving Related Occupations", "short": "Food Preparation and Serving Relat…", "eff_man": 0.1525, "p_man": 0.0664574200169312, "n_man": 59, "q_man": 0.16682719381289177, "sig_man": false, "eff_woman": 0.0517, "p_woman": 0.5464935954065822, "n_woman": 58, "q_woman": 0.7286581272087762, "sig_woman": false}, {"title": "Production Occupations", "short": "Production Occupations", "eff_man": 0.0186, "p_man": 0.5758185628779809, "n_man": 377, "q_man": 0.7287397707170251, "sig_man": false, "eff_woman": 0.1463, "p_woman": 2.3397895784511743e-06, "n_woman": 369, "q_woman": 5.147537072592583e-05, "sig_woman": true}, {"title": "Healthcare Practitioners and Technical Occupations", "short": "Healthcare Practitioners and Techn…", "eff_man": 0.0641, "p_man": 0.0751556886218145, "n_man": 312, "q_man": 0.1740447525978862, "sig_man": false, "eff_woman": 0.0918, "p_woman": 0.00843809072393662, "n_woman": 316, "q_woman": 0.0684169546116581, "sig_woman": false}, {"title": "Office and Administrative Support Occupations", "short": "Office and Administrative Support …", "eff_man": 0.0047, "p_man": 1.0, "n_man": 214, "q_man": 1.0, "sig_man": false, "eff_woman": 0.1048, "p_woman": 0.02194677100324683, "n_woman": 210, "q_woman": 0.11418443885125462, "sig_woman": false}, {"title": "Farming, Fishing, and Forestry Occupations", "short": "Farming", "eff_man": 0.0, "p_man": 0.8136637157667919, "n_man": 63, "q_man": 0.8732000852131424, "sig_man": false, "eff_woman": 0.1034, "p_woman": 0.26355247728296954, "n_woman": 58, "q_woman": 0.43039508737616466, "sig_woman": false}, {"title": "Management Occupations", "short": "Management Occupations", "eff_man": 0.0, "p_man": 0.9005235503397742, "n_man": 174, "q_man": 0.9214659584872108, "sig_man": false, "eff_woman": 0.1029, "p_woman": 0.04512694888867611, "n_woman": 175, "q_woman": 0.12409910944385931, "sig_woman": false}, {"title": "Legal Occupations", "short": "Legal Occupations", "eff_man": -0.0714, "p_man": 0.6830913983096086, "n_man": 28, "q_man": 0.79094793488481, "sig_man": false, "eff_woman": 0.1613, "p_woman": 0.1305700181157369, "n_woman": 31, "q_woman": 0.2556101613764999, "sig_woman": false}, {"title": "Computer and Mathematical Occupations", "short": "Computer and Mathematical Occupati…", "eff_man": -0.0364, "p_man": 0.6582534143112833, "n_man": 110, "q_man": 0.7827878440458503, "sig_man": false, "eff_woman": 0.1215, "p_woman": 0.09289194088370473, "n_woman": 107, "q_woman": 0.20436226994415038, "sig_woman": false}, {"title": "Sales and Related Occupations", "short": "Sales and Related Occupations", "eff_man": -0.0706, "p_man": 0.3613104285261789, "n_man": 85, "q_man": 0.5299219618383957, "sig_man": false, "eff_woman": 0.1494, "p_woman": 0.031141210595796717, "n_woman": 87, "q_woman": 0.11418443885125462, "sig_woman": false}, {"title": "Business and Financial Operations Occupations", "short": "Business and Financial Operations …", "eff_man": 0.0292, "p_man": 0.5896385516265671, "n_man": 171, "q_man": 0.7287397707170251, "sig_man": false, "eff_woman": 0.0303, "p_woman": 0.5962416305866569, "n_woman": 165, "q_woman": 0.7287397707170251, "sig_woman": false}, {"title": "Life, Physical, and Social Science Occupations", "short": "Life", "eff_man": -0.0521, "p_man": 0.28366948940701764, "n_man": 211, "q_man": 0.43039508737616466, "sig_man": false, "eff_woman": 0.1095, "p_woman": 0.015743258893454144, "n_woman": 210, "q_woman": 0.0989576273302832, "sig_woman": false}, {"title": "Construction and Extraction Occupations", "short": "Construction and Extraction Occupa…", "eff_man": -0.0138, "p_man": 0.7978938831986565, "n_man": 217, "q_man": 0.8732000852131424, "sig_man": false, "eff_woman": 0.0694, "p_woman": 0.10130158138492651, "n_woman": 216, "q_woman": 0.2122509324255603, "sig_woman": false}, {"title": "Installation, Maintenance, and Repair Occupations", "short": "Installation", "eff_man": -0.0466, "p_man": 0.2807126652684928, "n_man": 193, "q_man": 0.43039508737616466, "sig_man": false, "eff_woman": 0.0914, "p_woman": 0.03097143165084624, "n_woman": 186, "q_woman": 0.11418443885125462, "sig_woman": false}, {"title": "Architecture and Engineering Occupations", "short": "Architecture and Engineering Occup…", "eff_man": -0.0736, "p_man": 0.06824748837800118, "n_man": 231, "q_man": 0.16682719381289177, "sig_man": false, "eff_woman": 0.1106, "p_woman": 0.005583616806378756, "n_woman": 226, "q_woman": 0.06141978487016631, "sig_woman": false}, {"title": "Transportation and Material Moving Occupations", "short": "Transportation and Material Moving…", "eff_man": -0.0995, "p_man": 0.025573669368214657, "n_man": 191, "q_man": 0.11418443885125462, "sig_man": false, "eff_woman": 0.0919, "p_woman": 0.03724916580683402, "n_woman": 185, "q_woman": 0.11706880682147834, "sig_woman": false}, {"title": "Protective Service Occupations", "short": "Protective Service Occupations", "eff_man": -0.0971, "p_man": 0.13361440253771584, "n_man": 103, "q_man": 0.2556101613764999, "sig_man": false, "eff_woman": -0.0194, "p_woman": 0.8676323347781927, "n_woman": 103, "q_woman": 0.9089481602438209, "sig_woman": false}], "n_soc": 22, "soc_chart_h": 838, "soc_fdr_html": "<div class='interpret'><strong>Выводы (BH/FDR, Q=0.05; семья — soc prob, 44 тестов):</strong><ul><li><b>Женский evidence (no→woman):</b> значимый <b>положительный</b> эффект в <b>3/22</b> отраслях (незначимо: Building and Grounds Cleaning and …, Personal Care and Service Occupati…, Healthcare Support Occupations, Community and Social Service Occup…, Food Preparation and Serving Relat…, Healthcare Practitioners and Techn…, Office and Administrative Support …, Farming, Management Occupations, Legal Occupations, Computer and Mathematical Occupati…, Sales and Related Occupations, Business and Financial Operations …, Life, Construction and Extraction Occupa…, Installation, Architecture and Engineering Occup…, Transportation and Material Moving…, Protective Service Occupations).</li><li><b>Мужской evidence (no→man):</b> значимо <b>положительный</b> в: —; значимо <b>отрицательный</b> в: —; незначимо: Building and Grounds Cleaning and …, Arts, Educational Instruction and Librar…, Personal Care and Service Occupati…, Healthcare Support Occupations, Community and Social Service Occup…, Food Preparation and Serving Relat…, Production Occupations, Healthcare Practitioners and Techn…, Office and Administrative Support …, Farming, Management Occupations, Legal Occupations, Computer and Mathematical Occupati…, Sales and Related Occupations, Business and Financial Operations …, Life, Construction and Extraction Occupa…, Installation, Architecture and Engineering Occup…, Transportation and Material Moving…, Protective Service Occupations.</li></ul><p class='note' style='margin:0'>«Значимо» = q-value ≤ Q после поправки Бенджамини–Хохберга по всей soc-prob семье (man+woman). Знак — по <code>effect=(b−c)/n_pairs</code>.</p></div><details class='method-spoiler'><summary>FDR-таблица по отраслям (effect п.п. · q-value · значимо)</summary><div class='spoiler-body'><table class='mcn'><thead><tr><th>soc_major_title</th><th>man eff</th><th>man q</th><th>man</th><th>woman eff</th><th>woman q</th><th>woman</th></tr></thead><tbody><tr><td class='mcn-key' title=\"Building and Grounds Cleaning and Maintenance Occupations\">Building and Grounds Cleaning and …</td><td>+10.7</td><td>0.6383</td><td><span class='fdr-no'>✗</span></td><td>+17.9</td><td>0.3344</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Arts, Design, Entertainment, Sports, and Media Occupations\">Arts</td><td>+5.8</td><td>0.4101</td><td><span class='fdr-no'>✗</span></td><td>+19.9</td><td>0.0004168</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Educational Instruction and Library Occupations\">Educational Instruction and Librar…</td><td>+3.4</td><td>0.6794</td><td><span class='fdr-no'>✗</span></td><td>+21.3</td><td>3.259e-05</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Personal Care and Service Occupations\">Personal Care and Service Occupati…</td><td>+13.4</td><td>0.06842</td><td><span class='fdr-no'>✗</span></td><td>+11.0</td><td>0.1241</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Healthcare Support Occupations\">Healthcare Support Occupations</td><td>+8.5</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td><td>+15.0</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Community and Social Service Occupations\">Community and Social Service Occup…</td><td>+0.0</td><td>0.8732</td><td><span class='fdr-no'>✗</span></td><td>+21.7</td><td>0.1147</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Food Preparation and Serving Related Occupations\">Food Preparation and Serving Relat…</td><td>+15.2</td><td>0.1668</td><td><span class='fdr-no'>✗</span></td><td>+5.2</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Production Occupations\">Production Occupations</td><td>+1.9</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td><td>+14.6</td><td>5.148e-05</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Healthcare Practitioners and Technical Occupations\">Healthcare Practitioners and Techn…</td><td>+6.4</td><td>0.174</td><td><span class='fdr-no'>✗</span></td><td>+9.2</td><td>0.06842</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Office and Administrative Support Occupations\">Office and Administrative Support …</td><td>+0.5</td><td>1</td><td><span class='fdr-no'>✗</span></td><td>+10.5</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Farming, Fishing, and Forestry Occupations\">Farming</td><td>+0.0</td><td>0.8732</td><td><span class='fdr-no'>✗</span></td><td>+10.3</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Management Occupations\">Management Occupations</td><td>+0.0</td><td>0.9215</td><td><span class='fdr-no'>✗</span></td><td>+10.3</td><td>0.1241</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Legal Occupations\">Legal Occupations</td><td>-7.1</td><td>0.7909</td><td><span class='fdr-no'>✗</span></td><td>+16.1</td><td>0.2556</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Computer and Mathematical Occupations\">Computer and Mathematical Occupati…</td><td>-3.6</td><td>0.7828</td><td><span class='fdr-no'>✗</span></td><td>+12.2</td><td>0.2044</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Sales and Related Occupations\">Sales and Related Occupations</td><td>-7.1</td><td>0.5299</td><td><span class='fdr-no'>✗</span></td><td>+14.9</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Business and Financial Operations Occupations\">Business and Financial Operations …</td><td>+2.9</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td><td>+3.0</td><td>0.7287</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Life, Physical, and Social Science Occupations\">Life</td><td>-5.2</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td><td>+10.9</td><td>0.09896</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Construction and Extraction Occupations\">Construction and Extraction Occupa…</td><td>-1.4</td><td>0.8732</td><td><span class='fdr-no'>✗</span></td><td>+6.9</td><td>0.2123</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Installation, Maintenance, and Repair Occupations\">Installation</td><td>-4.7</td><td>0.4304</td><td><span class='fdr-no'>✗</span></td><td>+9.1</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Architecture and Engineering Occupations\">Architecture and Engineering Occup…</td><td>-7.4</td><td>0.1668</td><td><span class='fdr-no'>✗</span></td><td>+11.1</td><td>0.06142</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Transportation and Material Moving Occupations\">Transportation and Material Moving…</td><td>-10.0</td><td>0.1142</td><td><span class='fdr-no'>✗</span></td><td>+9.2</td><td>0.1171</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Protective Service Occupations\">Protective Service Occupations</td><td>-9.7</td><td>0.2556</td><td><span class='fdr-no'>✗</span></td><td>-1.9</td><td>0.9089</td><td><span class='fdr-no'>✗</span></td></tr></tbody></table></div></details>", "primary": [{"test_id": "h3v1_mcnemar_no_vs_man_man", "kind": "mcnemar", "n": 3804, "b": 645, "c": 673, "effect": -0.0074, "p": 0.7877926814061212, "target": "choice", "target_label": "choice (argmax)", "label": "no→man (choice)"}, {"test_id": "h3v1_mcnemar_no_vs_woman_woman", "kind": "mcnemar", "n": 3804, "b": 912, "c": 468, "effect": 0.1167, "p": 8.751663880834604e-33, "target": "choice", "target_label": "choice (argmax)", "label": "no→woman (choice)"}, {"test_id": "h3v1_mcnemar_no_vs_man_man_prob", "kind": "mcnemar", "n": 3349, "b": 556, "c": 556, "effect": 0.0, "p": 0.5, "target": "prob_constrained", "target_label": "prob (margin sign)", "label": "no→man (prob)"}, {"test_id": "h3v1_mcnemar_no_vs_woman_woman_prob", "kind": "mcnemar", "n": 3308, "b": 762, "c": 388, "effect": 0.1131, "p": 3.856655625981105e-28, "target": "prob_constrained", "target_label": "prob (margin sign)", "label": "no→woman (prob)"}], "primary_table_html": "<table class='mcn'><thead><tr><th>Тест</th><th>что измеряем</th><th>n</th><th>b</th><th>c</th><th>effect</th><th>p</th></tr></thead><tbody><tr class='mcn-grp-a'><td class='mcn-key'>no→man (choice)</td><td>choice (argmax)</td><td>3804</td><td>645</td><td>673</td><td>-0.007</td><td>0.7878</td></tr><tr class='mcn-grp-b'><td class='mcn-key'>no→woman (choice)</td><td>choice (argmax)</td><td>3804</td><td>912</td><td>468</td><td>+0.117</td><td>8.752e-33</td></tr><tr class='mcn-grp-a'><td class='mcn-key'>no→man (prob)</td><td>prob (margin sign)</td><td>3349</td><td>556</td><td>556</td><td>+0.000</td><td>0.5</td></tr><tr class='mcn-grp-b'><td class='mcn-key'>no→woman (prob)</td><td>prob (margin sign)</td><td>3308</td><td>762</td><td>388</td><td>+0.113</td><td>3.857e-28</td></tr></tbody></table>", "primary_interpret_html": "<div class='effect-key'><b>Как читать <code>effect</code>:</b> <code>effect = (b − c) / n_pairs</code>, где <b>b</b> — число пар, сменивших ответ <b>в сторону</b> highlighted пола (a→b), <b>c</b> — сменивших <b>от</b> него, <b>n_pairs</b> — все валидные парные <code>id</code>. Знак: <b>«+»</b> = net-сдвиг <b>к</b> highlighted полу (<b>подтверждает H₃</b>), <b>«−»</b> = от него. Напр. <code>effect = +0.10</code> ⇒ net 10% пар сдвинулись к highlighted полу.</div>\n<p><strong>Два target, как в H1 v1</strong> (paired по <code>id</code>, <code>without_abstain</code>, one-sided H₃↑, вне BH):</p>\n<ul><li><b>choice</b> — <b>argmax</b> по слотам ответа (man / woman / abstain); уже применён при inference → <code>prefers_man</code>, <code>prefers_woman</code>, <code>abstain</code>.</li><li><b>prob</b> — position-aware <code>p_man</code>, <code>p_woman</code> из <code>prob_constrained_*</code>; argmax <b>не</b> применяется повторно.</li></ul>\n<table><tr><th>Тест</th><th>Target</th><th>b/c?</th><th>Что сравниваем</th></tr><tr><td>choice McNemar</td><td>choice</td><td>да</td><td>flip дискретного argmax-ответа (man/woman/abstain)</td></tr><tr><td>prob McNemar</td><td>prob</td><td>да</td><td>flip знака margin: <code>p_man&nbsp;&gt;&nbsp;p_woman</code> (<code>prob_prefers_man</code>); abstain-слот не участвует</td></tr></table>\n<p class='note'>choice и prob — <b>разные представления</b> одного ответа: argmax даёт choice; prob-тесты работают с вероятностями напрямую.</p>\n<p><strong>1. choice McNemar</strong> (argmax; 2-option layout, все valid-пары man↔woman):</p>\n<p><b>no→man, ось man:</b> n_pairs=3,804; b=645 (к man), c=673 (от man); net effect=-0.7%. p = 0.7878 (n.s.)</p>\n<p class='note'>→ эффект около нуля / слабо от highlighted пола (n.s.).</p>\n<p><b>no→woman, ось woman:</b> n_pairs=3,804; b=912 (к woman), c=468 (от woman); net effect=+11.7%. p &lt; 0.001</p>\n<p class='note'>→ значимый сдвиг <b>к</b> highlighted полу — <b>H₃ подтверждается</b>.</p>\n<p><strong>2. prob McNemar</strong> — flip знака margin (<code>p_man&nbsp;&gt;&nbsp;p_woman</code>):</p>\n<p><b>no→man, prob (margin):</b> n_pairs=3,349; b=556 (к man), c=556 (от man); net effect=+0.0%. p = 0.5 (n.s.)</p>\n<p class='note'>→ эффект около нуля / слабо от highlighted пола (n.s.).</p>\n<p><b>no→woman, prob (margin):</b> n_pairs=3,308; b=762 (к woman), c=388 (от woman); net effect=+11.3%. p &lt; 0.001</p>\n<p class='note'>→ значимый сдвиг <b>к</b> highlighted полу — <b>H₃ подтверждается</b>.</p>\n<p><strong>Итог (without_abstain):</strong> H₃ <b>подтверждается</b> — значимый сдвиг к highlighted полу в 2 из 4 primary-тестов; противоположно значимых нет.</p>", "rates_without_table_html": "<table class='mcn'><tr><th>evidence</th><th>n</th><th>k_man</th><th>k_woman</th><th>P(man)</th><th>P(woman)</th></tr><tr><td><code>no_evidence</code></td><td>3804</td><td>2111</td><td>1693</td><td>55.5%</td><td>44.5%</td></tr><tr><td><code>man</code></td><td>3804</td><td>2083</td><td>1721</td><td>54.8%</td><td>45.2%</td></tr><tr><td><code>woman</code></td><td>3804</td><td>1667</td><td>2137</td><td>43.8%</td><td>56.2%</td></tr></table>", "rates_without_interpret_html": "<strong>Сдвиг (without_abstain).</strong> Woman-evidence заметно повышает P(woman): <b>44.5%</b> → <b>56.2%</b>. Man-evidence почти не двигает P(man): <b>55.5%</b> → <b>54.8%</b>. Это <b>описательные</b> доли; <b>значимость</b> парных сдвигов проверяется в разделе <a href='#primary'>Primary</a> (paired McNemar по <code>id</code>), а не на marginal-долях здесь.", "rates_with_table_html": "<table class='mcn'><tr><th>evidence</th><th>n</th><th>k_man</th><th>k_woman</th><th>k_abstain</th><th>P(man)</th><th>P(woman)</th><th>P(abstain)</th></tr><tr><td><code>no_evidence</code></td><td>11412</td><td>1826</td><td>1776</td><td>7810</td><td>16.0%</td><td>15.6%</td><td>68.4%</td></tr><tr><td><code>man</code></td><td>11412</td><td>4102</td><td>3529</td><td>3781</td><td>35.9%</td><td>30.9%</td><td>33.1%</td></tr><tr><td><code>woman</code></td><td>11412</td><td>3640</td><td>5892</td><td>1880</td><td>31.9%</td><td>51.6%</td><td>16.5%</td></tr></table>", "rates_with_interpret_html": "<strong>Воздержание (abstain).</strong> При evidence <b>за мужчин</b> доля воздержавшихся ответов <b>33.1%</b> — гораздо больше, чем при evidence <b>за женщин</b> <b>16.5%</b>: модель заметно реже отказывается отвечать, когда подсвечена женщина.<br>При этом доля ответа «воздержаться» <b>снижается при наличии любого</b> evidence относительно ambiguous baseline: <b>68.4%</b> (no_evidence) → <b>33.1%</b> (man) / <b>16.5%</b> (woman) — <b>что подтверждает H5</b>: добавление варианта ответа «воздержаться» приводит к большей вероятности выбора «воздержаться» в контексте <b>без</b> evidence, чем в контексте <b>с</b> evidence."};
+const CH_DARK = '#2c5f8d';
+const CH_LIGHT = '#9bb8d4';
+const CH_ACCENT = '#c45c3e';
+const CH_GREEN = '#3d7a5c';
+
+// Primary McNemar b/c (choice + prob margin)
+const primMcn = (DATA.primary || []).filter(d => d.kind === 'mcnemar');
+if (primMcn.length) {
+  new Chart(document.getElementById('chartPrimary'), {
+    type: 'bar',
+    data: {
+      labels: primMcn.map(d => d.label),
+      datasets: [
+        { label: 'b (toward highlight)', data: primMcn.map(d => d.b), backgroundColor: CH_GREEN },
+        { label: 'c (away)', data: primMcn.map(d => d.c), backgroundColor: CH_ACCENT },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: true, text: 'McNemar b/c: choice (argmax) + prob (margin)' } },
+    },
+  });
+}
+
+// Rates by evidence — without_abstain
+if (DATA.evidence_rates_without.length) {
+  const labels = DATA.evidence_rates_without.map(d => d.evidence);
+  new Chart(document.getElementById('chartRatesWithout'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'P(man) %', data: DATA.evidence_rates_without.map(d => d.p_man), backgroundColor: CH_DARK },
+        { label: 'P(woman) %', data: DATA.evidence_rates_without.map(d => d.p_woman), backgroundColor: CH_LIGHT },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: true, text: 'without_abstain: choice rates by evidence' } },
+      scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } },
+    },
+  });
+}
+
+// Rates by evidence — with_abstain
+if (DATA.evidence_rates_with.length) {
+  const labels = DATA.evidence_rates_with.map(d => d.evidence);
+  new Chart(document.getElementById('chartRatesWith'), {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: 'P(man) %', data: DATA.evidence_rates_with.map(d => d.p_man), backgroundColor: CH_DARK },
+        { label: 'P(woman) %', data: DATA.evidence_rates_with.map(d => d.p_woman), backgroundColor: CH_LIGHT },
+        { label: 'P(abstain) %', data: DATA.evidence_rates_with.map(d => d.p_abstain), backgroundColor: CH_ACCENT },
+      ],
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: true, text: 'with_abstain: choice rates by evidence' } },
+      scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } },
+    },
+  });
+}
+
+// Strata — soc_major_title: prob McNemar effect (no->man / no->woman)
+const SOC_ROWS = DATA.soc || [];
+let socSortMode = 'effect';
+let chartSoc = null;
+
+function _socKey(d) {
+  const v = [d.eff_man, d.eff_woman].filter(x => x != null);
+  return v.length ? v.reduce((s, x) => s + x, 0) / v.length : Number.NEGATIVE_INFINITY;
+}
+
+function sortedSoc() {
+  const rows = [...SOC_ROWS];
+  if (socSortMode === 'name') {
+    rows.sort((a, b) => String(a.title).localeCompare(String(b.title), 'ru'));
+  } else {
+    rows.sort((a, b) => _socKey(b) - _socKey(a));
+  }
+  return rows;
+}
+
+function _socP(p) { return (p == null) ? '—' : Number(p).toExponential(2); }
+
+function buildSocChart() {
+  if (!SOC_ROWS.length) return;
+  if (chartSoc) chartSoc.destroy();
+  const rows = sortedSoc();
+  const titles = rows.map(d => d.title);
+  chartSoc = new Chart(document.getElementById('chartSoc'), {
+    type: 'bar',
+    data: {
+      labels: rows.map(d => d.short),
+      datasets: [
+        { label: 'no→man (prob effect, п.п.)',
+           data: rows.map(d => d.eff_man != null ? d.eff_man * 100 : null),
+           backgroundColor: CH_DARK },
+        { label: 'no→woman (prob effect, п.п.)',
+           data: rows.map(d => d.eff_woman != null ? d.eff_woman * 100 : null),
+           backgroundColor: CH_LIGHT },
+      ],
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: {
+        title: { display: true,
+          text: 'soc_major_title: prob McNemar effect (+ → к highlighted полу, H₃)' },
+        legend: { position: 'bottom' },
+        tooltip: { callbacks: {
+          title: (items) => titles[items[0].dataIndex] || items[0].label,
+          afterBody: (items) => {
+            const d = rows[items[0].dataIndex];
+            if (!d) return [];
+            return [
+              `no→man:   effect=${d.eff_man != null ? (d.eff_man * 100).toFixed(1) : '—'} п.п., p=${_socP(d.p_man)}, n=${d.n_man || '—'}`,
+              `no→woman: effect=${d.eff_woman != null ? (d.eff_woman * 100).toFixed(1) : '—'} п.п., p=${_socP(d.p_woman)}, n=${d.n_woman || '—'}`,
+            ];
+          },
+        } },
+      },
+      scales: { x: { title: { display: true, text: 'effect (п.п.)' } } },
+    },
+  });
+}
+
+buildSocChart();
+document.querySelectorAll('input[name="socSort"]').forEach(el => {
+  el.addEventListener('change', (e) => { socSortMode = e.target.value; buildSocChart(); });
+});
+</script>
+</body>
+</html>

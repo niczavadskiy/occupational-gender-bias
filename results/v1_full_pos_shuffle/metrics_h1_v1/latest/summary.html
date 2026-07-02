@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>H1 v1 — run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --accent: #2c5f8d;
+  --bg: #f6f8fa;
+  --card: #fff;
+  --border: #dde3ea;
+  --muted: #5a6570;
+  --ch-dark: #2c5f8d;
+  --ch-light: #9bb8d4;
+}
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  margin: 0; padding: 0 1.25rem 3rem;
+  background: var(--bg); color: #1a1a1a; line-height: 1.55;
+  max-width: 1100px; margin-inline: auto;
+}
+header {
+  padding: 1.5rem 0 1rem; border-bottom: 3px solid var(--accent);
+}
+h1 { margin: 0 0 .35rem; color: var(--accent); font-size: 1.65rem; }
+h3 { margin: 1rem 0 .5rem; color: var(--accent); font-size: 1rem; }
+.meta { color: var(--muted); font-size: .92rem; }
+nav.toc {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1rem 1.25rem; margin: 1.25rem 0;
+}
+nav.toc a { color: var(--accent); text-decoration: none; }
+nav.toc a:hover { text-decoration: underline; }
+nav.toc ul { margin: .5rem 0 0; padding-left: 1.2rem; }
+section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.25rem 1.35rem; margin: 1.5rem 0;
+}
+section h2 {
+  margin: 0 0 .75rem; color: var(--accent); font-size: 1.2rem;
+  border-bottom: 1px solid var(--border); padding-bottom: .4rem;
+}
+.method {
+  background: #f0f4f8; border: 1px solid var(--border);
+  border-radius: 8px; padding: 1.1rem 1.25rem; margin: 1.25rem 0;
+  font-size: .93rem;
+}
+.method h2 { margin-top: 0; border: none; padding: 0; }
+.method table { font-size: .88rem; }
+.interpret {
+  background: #eef4fb; border-left: 4px solid var(--accent);
+  padding: .85rem 1rem; margin: 0 0 1rem; border-radius: 0 6px 6px 0;
+  font-size: .95rem;
+}
+.interpret strong { color: var(--accent); }
+.interpret ul { margin: .35rem 0 .5rem; padding-left: 1.25rem; }
+.interpret .compare-intro { margin: .35rem 0 .65rem; }
+.interpret .compare-block { margin: 0 0 .65rem; }
+.interpret .compare-hdr { margin: 0 0 .2rem; }
+.interpret .compare-sum { margin: .65rem 0 0; }
+.key-notes {
+  background: #fff8e6; border-left: 4px solid #d4a017;
+  padding: .85rem 1rem; margin: 0 0 1rem; border-radius: 0 6px 6px 0;
+  font-size: .93rem;
+}
+.key-notes strong { color: #9a6700; }
+.key-notes ul { margin: .4rem 0 0; padding-left: 1.2rem; }
+.key-notes ul.formula-list { margin-top: .2rem; }
+.key-notes .formula-note {
+  margin: .25rem 0 0; padding-left: .15rem; font-size: .9rem; color: #5c4a1a;
+}
+.chart-wrap {
+  position: relative; height: 280px; margin: .5rem 0 1rem;
+}
+.chart-wrap.wide { height: 320px; }
+.chart-wrap.abstain { height: 360px; }
+.chart-wrap.abstain-cluster { height: 320px; }
+.note { font-size: .88rem; color: var(--muted); margin-top: .5rem; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+table.mcn {
+  border-collapse: collapse; width: 100%; font-size: .82rem; margin: .75rem 0;
+}
+table.mcn th, table.mcn td {
+  border: 1px solid var(--border); padding: .35rem .5rem; text-align: right;
+}
+table.mcn th { background: #f0f4f8; color: var(--accent); text-align: center; }
+table.mcn td.mcn-key { text-align: left; font-weight: 600; vertical-align: middle; }
+table.mcn td.mcn-target { text-align: left; }
+table.mcn tr.mcn-grp-a { background: #e8f0f8; }
+table.mcn tr.mcn-grp-b { background: #f7fafc; }
+table.mcn tr.mcn-grp-a td, table.mcn tr.mcn-grp-b td { border-color: #c5d4e4; }
+.method table { border-collapse: collapse; width: 100%; margin: .5rem 0; }
+.method th, .method td { border: 1px solid var(--border); padding: .4rem .6rem; text-align: left; }
+.method th { background: #e8eef4; }
+.bh-formulas {
+  margin: .75rem 0 1rem; padding: .75rem 1rem;
+  background: #f4f7fa; border-radius: 6px; border-left: 3px solid var(--accent);
+  font-size: .92rem;
+}
+.bh-formulas ol { margin: .4rem 0 0; padding-left: 1.25rem; }
+.bh-formulas li { margin: .25rem 0; }
+.bh-formula-line {
+  margin: .35rem 0; font-family: ui-monospace, Consolas, monospace; font-size: .9rem;
+}
+.bh-example th { text-align: center; }
+.bh-example td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.method-spoiler {
+  margin: 1.25rem 0; border: 1px solid var(--border); border-radius: 8px;
+  background: #fafbfc;
+}
+.method-spoiler summary {
+  cursor: pointer; padding: .75rem 1rem; font-weight: 600;
+  color: var(--accent); font-size: 1rem; list-style: none;
+}
+.method-spoiler summary::-webkit-details-marker { display: none; }
+.method-spoiler summary::before {
+  content: '▸'; display: inline-block; margin-right: .45rem;
+  transition: transform .15s ease;
+}
+.method-spoiler[open] summary::before { transform: rotate(90deg); }
+.method-spoiler .spoiler-body { padding: .25rem 1rem 1rem; }
+.method-spoiler[open] .spoiler-body {
+  border-top: 1px solid var(--border); margin-top: 0; padding-top: .75rem;
+}
+.positional-intro h2 {
+  font-size: 1.45rem; border-bottom: 3px solid var(--accent);
+  padding-bottom: .45rem; margin-bottom: 1rem;
+}
+.positional-intro h3 { margin-top: 1.25rem; }
+table.mcn-matrix {
+  border-collapse: collapse; font-size: .88rem; margin: .75rem 0;
+  max-width: 420px;
+}
+table.mcn-matrix th, table.mcn-matrix td {
+  border: 1px solid var(--border); padding: .45rem .65rem; text-align: center;
+}
+table.mcn-matrix th { background: #e8eef4; color: var(--accent); font-weight: 600; }
+table.mcn-matrix th.rowgrp {
+  background: #dce8f2; writing-mode: horizontal-tb; text-align: center; vertical-align: middle;
+}
+table.mcn-matrix td.cell-label {
+  background: #f0f4f8; font-weight: 600; text-align: left; color: var(--accent);
+}
+table.mcn-matrix td.cell-val { font-family: ui-monospace, monospace; }
+.example-box {
+  background: #fff; border: 1px dashed var(--border); border-radius: 6px;
+  padding: .75rem 1rem; margin: .75rem 0; font-size: .92rem;
+}
+.example-box .pair { margin: .35rem 0; }
+.example-box code { font-size: .88rem; }
+.test-refs {
+  font-size: .88rem; color: var(--muted); margin: .35rem 0 .75rem;
+  display: flex; flex-direction: column; gap: .35rem;
+}
+.test-ref-spoiler {
+  border: 1px solid var(--border); border-radius: 6px; background: #f8fafc;
+}
+.test-ref-spoiler summary {
+  cursor: pointer; padding: .4rem .65rem; font-weight: 600;
+  color: var(--accent); font-size: .86rem; list-style: none;
+}
+.test-ref-spoiler summary::-webkit-details-marker { display: none; }
+.test-ref-spoiler summary::before {
+  content: '▸'; display: inline-block; margin-right: .4rem;
+  transition: transform .15s ease;
+}
+.test-ref-spoiler[open] summary::before { transform: rotate(90deg); }
+.test-ref-spoiler .spoiler-body {
+  padding: .35rem .65rem .55rem; border-top: 1px solid var(--border);
+  font-size: .84rem; color: #333;
+}
+.test-ref-spoiler .spoiler-body p { margin: .25rem 0; }
+.tip-note {
+  font-size: .78rem; color: var(--muted); margin: 0 0 .4rem; line-height: 1.35;
+}
+table.tip-fdr {
+  width: 100%; border-collapse: collapse; font-size: .82rem; line-height: 1.35;
+}
+table.tip-fdr th, table.tip-fdr td {
+  border: 1px solid var(--border); padding: .28rem .4rem; vertical-align: top;
+}
+table.tip-fdr th {
+  background: #e8eef4; color: var(--accent); font-weight: 600; text-align: left;
+}
+table.tip-fdr th.sortable {
+  cursor: pointer; user-select: none;
+}
+table.tip-fdr th.sortable:hover { background: #dce8f2; }
+table.tip-fdr th.sort-asc::after { content: ' ▲'; font-size: .62rem; opacity: .85; }
+table.tip-fdr th.sort-desc::after { content: ' ▼'; font-size: .62rem; opacity: .85; }
+table.tip-fdr td.tip-p, table.tip-fdr td.tip-q {
+  text-align: right; white-space: nowrap; font-family: ui-monospace, monospace;
+}
+table.tip-fdr td.tip-name { max-width: 220px; }
+table.tip-fdr td.fdr-yes { color: #6fcf97; text-align: center; font-weight: 700; }
+table.tip-fdr td.fdr-no { color: #eb5757; text-align: center; font-weight: 700; }
+.chart-toggle {
+  margin: .5rem 0 .75rem; font-size: .92rem;
+}
+.chart-toggle label { margin-right: 1.25rem; cursor: pointer; }
+.matrix-caption { font-size: .88rem; color: var(--muted); margin: .25rem 0 .75rem; }
+.matrix-wrap { display: flex; flex-wrap: wrap; gap: 1.5rem; align-items: flex-start; }
+@media (max-width: 720px) { .grid2 { grid-template-columns: 1fr; } }
+footer { margin-top: 2rem; font-size: .85rem; color: var(--muted); }
+</style>
+</head>
+<body>
+<header>
+  <h1>H1 v1 — визуализация метрик</h1>
+  <p class="meta">
+    Run: <code>run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle</code> · n=15216 · целевой FDR Q=0.05 · сгенерировано 2026-06-30 11:04:45<br>
+    CSV: <code>summary.md</code>, <code>tests_all.csv</code>
+  </p>
+</header>
+
+<nav class="toc">
+  <b>Содержание</b>
+  <ul>
+    <li><a href="#setup">Сетап прогона</a></li>
+    <li><a href="#method">Как читать отчёт</a></li>
+    <li><a href="#primary">Primary (без BH)</a></li>
+    <li><a href="#abstain">Abstain</a></li>
+    <li><a href="#soc">soc_major_title</a></li>
+    <li><a href="#positional">Позиционные проверки</a>
+      <ul>
+        <li><a href="#position">Position slots flip</a></li>
+        <li><a href="#context">In-context position flip</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+
+<section class="method" id="setup">
+  <h2>Сетап прогона</h2>
+  <p><b>Модель:</b> <code>Qwen/Qwen3.5-2B-Base</code></p><p><b>Гипотеза H1:</b> модель имеет гендерное предпочтение (<code>man</code> vs <code>woman</code>) при выборе исполнителя действия.</p><p><b>Датасет v1:</b> короткие сценарии «a man and a woman …» + вопрос <i>Who …?</i>; профессии и рабочие действия из базы <a href="https://www.onetonline.org/" target="_blank" rel="noopener">O*NET OnLine</a> (<code>www.onetonline.org</code>) — названия профессий, описания задач (<code>onet_action</code>) и группировка по доменам.</p><p><b>Объём:</b> <b>15216</b> промптов — сценарий, вопрос и набор вариантов ответа (A/B или A/B/C).</p><p><b>Outcome:</b> <code>choice</code> (hard argmax по слотам A/B/C) и <code>prob_constrained</code> (softmax только по valid labels промпта).</p><details class="method-spoiler"><summary>Детали дизайна и inference</summary><div class="spoiler-body"><p><b>Структура данных:</b> ~951 базовых пар profession × onet_action; 951 профессий; 22 групп <code>soc_major_title</code>.</p><table><tr><th>Фактор</th><th>Уровни</th><th>Смысл</th></tr><tr><td><code>context_order</code></td><td><code>man_first</code>, <code>woman_first</code></td><td>порядок имён в narrative (man/woman first)</td></tr><tr><td><code>abstain_variant</code></td><td><code>with_abstain</code>, <code>without_abstain</code></td><td>2 или 3 опции ответа (с «Cannot determine» или без)</td></tr><tr><td><code>position_variant</code></td><td><code>p0</code>, <code>p1</code> (<code>without_abstain</code>); <code>p0</code>, <code>p1</code>, <code>p2</code>, <code>p3</code>, <code>p4</code>, <code>p5</code> (<code>with_abstain</code>)</td><td>перестановка слотов A/B/C в списке ответов</td></tr><tr><td><code>soc_major_title</code></td><td>22 доменов</td><td>группировка профессий по доменам (отраслям)</td></tr></table><p><b>Как собран run:</b> объединение двух inference-ранов с разным <code>context_order</code> в один файл <code>per_item.jsonl</code>.</p><ul><li><code>run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_man_first</code></li><li><code>run_2026-06-09_13-06-01_Qwen3.5-2B-Base_v1_woman_first</code></li></ul><p class='note'>Порядок строк: interleaved_by_index: man_first, woman_first.</p><p><b>Inference:</b> GPU: NVIDIA GeForce RTX 3090 · PyTorch 2.11.0+cu128 · forward passes: 15216 · inference: 2026-06-10T11:51:57. Constrained log-prob на last token перед <code>Answer:</code>; один forward на prompt.</p><p class='note'>Источник профессий: <a href="https://www.onetonline.org/" target="_blank" rel="noopener">O*NET OnLine</a> — Occupational Information Network (U.S. Department of Labor).</p></div></details>
+</section>
+
+<section class="method" id="method">
+  <h2>Как читать отчёт</h2>
+  <h3>Два вида цели (outcome)</h3>
+  <p>Исследуем два типа выхода модели: <b>choice</b> — <b>дискретный</b> (argmax по слотам ответа),
+  <b>prob</b> — <b>непрерывный</b> (вероятности по слотам man/woman).</p>
+  <table>
+    <tr><th>Код</th><th>Цель</th><th>Как считается</th><th>Тест man vs woman</th></tr>
+    <tr>
+      <td><b>choice</b> (ch_)</td>
+      <td>hard argmax, дискретный</td>
+      <td><code>choice</code> → prefers_man / prefers_woman</td>
+      <td>pooled binomial (row-level) + <b>cluster t-test</b> по θ_i=M_i/(M_i+W_i) на base item;
+      главный — cluster; Δ=(M−W)/(M+W); <b>&gt;0 → к man</b></td>
+    </tr>
+    <tr>
+      <td><b>prob</b> (pr_)</td>
+      <td>prob_constrained, непрерывный</td>
+      <td>сумма prob по слотам man/woman → margin = p_man−p_woman</td>
+      <td><b>cluster t-test</b> + Wilcoxon по mean(margin) на item; главный — cluster;
+      <b>&gt;0 → к man</b></td>
+    </tr>
+  </table>
+  <p class="note"><b>Единица наблюдения:</b> 951 base items (<code>scenario_family_id</code>), у каждого
+  k swap-строк (layout × context × abstain). Строки одного item зависимы — pooled/naive p-value
+  могут быть завышены; см. DEFF/ICC в спойлерах.</p>
+  <p><b>margin</b> (<code>prob</code>): на промпте <code>p_man − p_woman</code> по constrained-вероятностям
+  слотов man/woman; <b>&gt;0</b> → man, <b>&lt;0</b> → woman.</p>
+  <p><b>b</b>, <b>c</b> (McNemar): один сценарий в двух условиях (p0↔p1 или mf↔wf).
+  Считаем только <b>дискордантные</b> пары (ответ разный); <b>b</b> и <b>c</b> — смены в противоположные
+  стороны (смысл — в подписях таблиц). H₀: <b>b = c</b>.</p>
+  <h3>Abstain (<code>abstain_variant</code>)</h3>
+  <p><b>Abstain</b> — третий вариант ответа «воздержаться» в layout <code>with_abstain</code>.
+  В <code>without_abstain</code> модель выбирает только между
+  <code>man</code> и <code>woman</code>. Раздел Abstain сравнивает, как наличие опции abstain
+  меняет гендерный перекос при прочих равных.</p>
+  <p><b>Как именно тестируем H₀ «man vs woman»:</b></p>
+  <ul>
+    <li><b>choice (pooled binomial + cluster t-test):</b> pooled — conditional binomial по gender-строкам.
+    Cluster — θ_i=M_i/(M_i+W_i) на base item, t-test H₀: E[θ_i]=0.5.</li>
+    <li><b>prob (cluster t-test + Wilcoxon):</b> margin = p_man − p_woman. Swap-варианты одного
+    semantic item зависимы (951 base items × k строк). <b>Главный тест:</b> среднее margin по swap-ам
+    внутри item, затем t-test по G items. DEFF/ICC показывают, насколько naive row-level SE занижена.</li>
+    <li><b>McNemar (position / context):</b> один сценарий прогоняется в двух условиях (p0 vs p1
+    или man_first vs woman_first). Смотрим пары, где ответ <b>разный</b> (ячейки b и c).
+    H₀: b = c (перестановка не влияет). p — насколько b и c могли бы совпасти случайно.</li>
+  </ul>
+
+  <details class="method-spoiler">
+    <summary>Множественные сравнения: Benjamini–Hochberg (BH-FDR)</summary>
+    <div class="spoiler-body">
+  <p>В разделах вроде <code>soc_major_title</code> или abstain делаем <b>много тестов сразу</b>. Без коррекции часть
+  «значимых» p-value — ложные срабатывания. <b>Q = 0.05</b> — целевой FDR (допустимая доля
+  ложных среди отвергнутых H₀); это <b>не</b> q-value отдельного теста.</p>
+  <div class="bh-formulas">
+    <p><b>Формулы</b> (семейство из <i>m</i> тестов):</p>
+    <ol>
+      <li>Сортировка сырых p-value: p<sub>(1)</sub> ≤ p<sub>(2)</sub> ≤ … ≤ p<sub>(m)</sub></li>
+      <li class="bh-formula-line">q<sub>(i)</sub> = min<sub>j ≥ i</sub> ( p<sub>(j)</sub> · m / j ), &nbsp; q<sub>(i)</sub> ≤ 1</li>
+      <li class="bh-formula-line">значимо после BH ⟺ q<sub>(i)</sub> ≤ Q &nbsp;(столбец <b>BH</b> ✓)</li>
+    </ol>
+    <p class="bh-formula-line" style="margin-top:.5rem">
+      отклонение H₀: k = max &#123; i : p<sub>(i)</sub> ≤ (i/m)·Q &#125; → значимы ранги 1…k
+    </p>
+    <p class="note" style="margin-bottom:0">Пошагово (эквивалент п.2): q<sub>(m)</sub> = min(1, p<sub>(m)</sub>·m/m);
+    q<sub>(i)</sub> = min( q<sub>(i+1)</sub>, p<sub>(i)</sub>·m/i ) при i = m−1, …, 1.</p>
+  </div>
+  <p><b>Пример</b> (m = 5, Q = 0.05). Столбец <i>p·m/i</i> — промежуточные величины до min по j ≥ i;
+  <i>(i/m)·Q</i> — порог отклонения для ранга i.</p>
+  <table class="bh-example">
+    <tr>
+      <th>i</th><th>p<sub>(i)</sub></th><th>p<sub>(i)</sub>·m/i</th>
+      <th>(i/m)·Q</th><th>q<sub>(i)</sub></th><th>q ≤ Q</th>
+    </tr>
+    <tr><td class="num">1</td><td class="num">0.001</td><td class="num">0.005</td><td class="num">0.01</td><td class="num">0.005</td><td>✓</td></tr>
+    <tr><td class="num">2</td><td class="num">0.02</td><td class="num">0.05</td><td class="num">0.02</td><td class="num">0.05</td><td>✓</td></tr>
+    <tr><td class="num">3</td><td class="num">0.03</td><td class="num">0.05</td><td class="num">0.03</td><td class="num">0.05</td><td>✓</td></tr>
+    <tr><td class="num">4</td><td class="num">0.04</td><td class="num">0.05</td><td class="num">0.04</td><td class="num">0.05</td><td>✓</td></tr>
+    <tr><td class="num">5</td><td class="num">0.10</td><td class="num">0.10</td><td class="num">0.05</td><td class="num">0.10</td><td>✗</td></tr>
+  </table>
+  <p class="note">q<sub>(5)</sub>=0.10 → q<sub>(4)</sub>=min(0.10, 0.05)=0.05 → q<sub>(3)</sub>=q<sub>(2)</sub>=0.05
+  → q<sub>(1)</sub>=min(0.05, 0.005)=0.005. k=4 (p<sub>(4)</sub>≤0.04, p<sub>(5)</sub>&gt;0.05).</p>
+  <p><b>choice и prob — разные семейства:</b> cluster t-test (choice) и cluster margin (prob)
+  корректируются отдельно. <b>Primary</b> — вне BH (pre-specified).</p>
+    </div>
+  </details>
+
+  <details class="method-spoiler">
+    <summary>Где какая коррекция (семейства тестов)</summary>
+    <div class="spoiler-body">
+  <table>
+    <tr><th>Раздел</th><th>Сетап (фильтр данных)</th><th>Что сравниваем</th><th>Коррекция choice</th><th>Коррекция prob</th></tr>
+    <tr><td><b>Primary</b></td><td>все layout/context/abstain</td><td>man vs woman (cluster)</td><td colspan="2"><b>без BH</b> (pre-specified)</td></tr>
+    <tr><td>Abstain</td><td>pooled по <code>abstain_variant</code></td><td>with / without abstain</td><td>2 теста → BH</td><td>2 теста → BH</td></tr>
+    <tr><td>soc_major_title</td><td>по отрасли SOC (G≥15); <code>without_abstain</code>, p0/p1, mf/wf</td><td>man vs woman</td><td>19 тестов → BH</td><td>19 тестов → BH</td></tr>
+    <tr><td>Position slots flip</td><td><code>without_abstain</code>, пары p0↔p1</td><td>McNemar swap слотов A/B</td><td>2 теста → BH</td><td>2 теста → BH</td></tr>
+    <tr><td>In-context flip</td><td>по <code>position_variant</code> × <code>abstain_variant</code></td><td>McNemar mf↔wf</td><td>8 тестов → BH</td><td>8 тестов → BH</td></tr>
+    <tr><td>Layout</td><td>срезы layout (только CSV)</td><td>man vs woman по layout</td><td>много → BH</td><td>много → BH</td></tr>
+  </table>
+  <p class="note">Полные p-value, q-value и BH — в <code>summary.md</code> и <code>tests_all.csv</code>.
+  В каждом разделе — спойлеры с деталями тестов и таблицей BH.</p>
+    </div>
+  </details>
+</section>
+
+<section id="primary">
+  <h2>Primary — man vs woman (все layouts)</h2>
+  <div class='interpret'><p><strong>Pre-specified primary</strong> — коррекция множественности <b>не применяется</b> (один confirmatory тест; strata — отдельно с BH).</p><ul><li><b>Choice (cluster, главный):</b> G=951, θ̄=0.5345498277280611, Δ=+6.9 п.п., p=6.664e-07 (Wilcoxon 1.216e-05)</li><li><b>Prob (cluster, supporting):</b> G=951, margin=+1.0 п.п., p=0.0001013 (Wilcoxon 0.0007251)</li></ul><p class='note'>Pooled binomial choice p=5.689e-08 — только для сравнения с naive/row-level; <b>inferential claim</b> — cluster.</p></div>
+  <p class="test-refs"><details class="test-ref-spoiler"><summary>Детали тестов (primary, без BH)</summary><div class="spoiler-body"><p><b>conditional binomial (choice, pooled):</b> k_man=3937, k_woman=3469, p-value=5.689e-08 <span class='muted'>(без BH)</span></p><p><b>cluster t-test (choice):</b> G=951, gender-строк=7406, θ̄=0.5345498277280611, p-value=6.664e-07 <span class='muted'>(без BH)</span></p><p>θ_i = M_i/(M_i+W_i) по item; G=951, gender-строк=7406. mean θ̄=0.5345, mean Δ=+6.91 п.п.. Cluster t-test p=6.664e-07 (Wilcoxon p=1.216e-05). Pooled binomial p=5.689e-08. DEFF≈1.42, n_eff≈5226. ICC≈0.074. Naive row t-test p=5.237e-08. Sign-test items: man&gt;364, woman&gt;309, ties=278.</p><p><b>t-test (prob, cluster):</b> margin=0.01, G=951, строк=15216, p-value=0.0001013 <span class='muted'>(без BH)</span></p><p>Единица наблюдения: base item (n=951 кластеров, 15216 строк, k̄=16.0). Cluster t-test p=0.0001013 (Wilcoxon по item-means p=0.0007251). DEFF≈3.36, n_eff≈4530. ICC≈0.157. Naive row-level t-test p=8.727e-13 (для сравнения).</p><p>Wilcoxon signed-rank: W=4.234e+07, p=4.273e-15; H₀: median(margin)=0 (робастная проверка prob).</p><p>Shapiro–Wilk (subsample): W=0.9886, p=1.142e-19, n=5000/15216; нормальность отвергается (α=0.05).</p></div></details></p>
+</section>
+
+<section id="abstain">
+  <h2>Strata — abstain (pooled layout)</h2>
+  <p class="test-refs"><details class="test-ref-spoiler"><summary>with_abstain: binomial · t-test</summary><div class="spoiler-body"><p><b>conditional binomial (choice, pooled):</b> k_man=1826, k_woman=1776, abstain_rate=0.6843673326323169, p-value=0.4143, q-value=0.003903</p><p><b>cluster t-test (choice):</b> G=649, gender-строк=3602, θ̄=0.46392290725880864, p-value=0.003903</p><p>θ_i = M_i/(M_i+W_i) по item; G=649, gender-строк=3602. mean θ̄=0.4639, mean Δ=-7.22 п.п.. Cluster t-test p=0.003903 (Wilcoxon p=0.002827). Pooled binomial p=0.4143. DEFF≈2.24, n_eff≈1611. ICC≈0.111. Naive row t-test p=0.4049. Sign-test items: man&gt;258, woman&gt;295, ties=96.</p><p><b>t-test (prob, cluster):</b> margin=0.0072, G=951, строк=11412, p-value=0.001291, q-value=0.001291</p><p>Единица наблюдения: base item (n=951 кластеров, 11412 строк, k̄=12.0). Cluster t-test p=0.001291 (Wilcoxon по item-means p=0.008551). DEFF≈2.65, n_eff≈4309. ICC≈0.150. Naive row-level t-test p=1.525e-07 (для сравнения).</p><p>Wilcoxon signed-rank: W=2.384e+07, p=5.607e-08; H₀: median(margin)=0 (робастная проверка prob).</p><p>Shapiro–Wilk (subsample): W=0.9823, p=1.679e-24, n=5000/11412; нормальность отвергается (α=0.05).</p></div></details><details class="test-ref-spoiler"><summary>without_abstain: binomial · t-test</summary><div class="spoiler-body"><p><b>conditional binomial (choice, pooled):</b> k_man=2111, k_woman=1693, abstain_rate=0.0, p-value=1.308e-11, q-value=2.746e-14</p><p><b>cluster t-test (choice):</b> G=951, gender-строк=3804, θ̄=0.5549421661409043, p-value=1.373e-14</p><p>θ_i = M_i/(M_i+W_i) по item; G=951, gender-строк=3804. mean θ̄=0.5549, mean Δ=+10.99 п.п.. Cluster t-test p=1.373e-14 (Wilcoxon p=1.296e-13). Pooled binomial p=1.308e-11. DEFF≈0.76, n_eff≈5008. ICC≈-0.080. Naive row t-test p=1.072e-11. Sign-test items: man&gt;265, woman&gt;116, ties=570.</p><p><b>t-test (prob, cluster):</b> margin=0.0184, G=951, строк=3804, p-value=5.943e-07, q-value=1.189e-06</p><p>Единица наблюдения: base item (n=951 кластеров, 3804 строк, k̄=4.0). Cluster t-test p=5.943e-07 (Wilcoxon по item-means p=1.677e-06). DEFF≈0.94, n_eff≈4066. ICC≈-0.021. Naive row-level t-test p=1.206e-06 (для сравнения).</p><p>Wilcoxon signed-rank: W=2.715e+06, p=7.309e-07; H₀: median(margin)=0 (робастная проверка prob).</p><p>Shapiro–Wilk: W=0.9898, p=6.771e-16, n=3804/3804; нормальность отвергается (α=0.05).</p></div></details><details class="test-ref-spoiler"><summary>BH · abstain (Q=0.05)</summary><div class="spoiler-body"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class="tip-fdr"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name="without_abstain · choice" data-s-p="1.3730025032822128e-14" data-s-q="2.7460050065644257e-14" data-s-fdr="1"><td class='tip-name'>without_abstain · choice</td><td class='tip-p'>1.373e-14</td><td class='tip-q'>2.746e-14</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="with_abstain · choice" data-s-p="0.0039025322054471673" data-s-q="0.0039025322054471673" data-s-fdr="1"><td class='tip-name'>with_abstain · choice</td><td class='tip-p'>0.003903</td><td class='tip-q'>0.003903</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="without_abstain · prob" data-s-p="5.942938698797093e-07" data-s-q="1.1885877397594186e-06" data-s-fdr="1"><td class='tip-name'>without_abstain · prob</td><td class='tip-p'>5.943e-07</td><td class='tip-q'>1.189e-06</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="with_abstain · prob" data-s-p="0.0012912391267582762" data-s-q="0.0012912391267582762" data-s-fdr="1"><td class='tip-name'>with_abstain · prob</td><td class='tip-p'>0.001291</td><td class='tip-q'>0.001291</td><td class='fdr-yes'>✓</td></tr></tbody></table></div></details></p>
+  <div class="interpret">
+    <p><strong>Что видим</strong></p>
+    <ul>
+      <li><b>with_abstain</b> — gender почти не различим (P(man) ≈ P(woman), ~16%)</li>
+      <li><b>without_abstain</b> — заметный перекос к man (~55% vs ~45%)</li>
+    </ul>
+    <p class="compare-sum">Детали тестов и q-value — в спойлерах выше.</p>
+  </div>
+  <div class="chart-wrap abstain"><canvas id="chartAbstain"></canvas></div>
+  <p class="note">Pooled доли P(man)/P(woman) и k по gender-строкам.</p>
+  <div class="chart-wrap abstain-cluster"><canvas id="chartAbstainCluster"></canvas></div>
+  <p class="note">Cluster-эффекты: mean Δ по base items (choice — θ_i=M_i/(M_i+W_i); prob — mean margin).</p>
+</section>
+
+<section id="soc">
+  <h2>Strata — soc_major_title (19 отраслей, G≥15, without_abstain)</h2>
+  <p class="note"><b>Срез:</b> только <code>without_abstain</code> — 2 опции ответа (man/woman), без «Воздержаться»; <code>position_variant</code> p0/p1 и оба <code>context_order</code> (mf/wf). Не смешивается с layout <code>with_abstain</code> (см. раздел Abstain).</p>
+  <p class="test-refs"><details class="test-ref-spoiler"><summary>conditional binomial (choice)</summary><div class="spoiler-body"><p>19 отраслей <code>soc_major_title</code> (G≥15). Срез: <code>without_abstain</code> — man/woman, p0/p1, mf/wf. График и BH — <b>cluster t-test</b> (θ_i=M_i/(M_i+W_i) по base items). Pooled p — в таблице для сравнения.</p></div></details><details class="test-ref-spoiler"><summary>cluster t-test (choice)</summary><div class="spoiler-body"><p>θ_i = доля man среди gender-ответов item; cluster t-test H₀: E[θ_i]=0.5.</p><table class='tip-fdr'><thead><tr><th>Отрасль</th><th>pooled p</th><th>cluster p</th><th>Wilcoxon p</th><th>G/строк</th><th>DEFF</th></tr></thead><tbody><tr><td class='tip-name'>Architecture and Engineering Occup…</td><td>1.417e-05</td><td>2.994e-05</td><td>0.0001516</td><td>66/263</td><td>1.02</td></tr><tr><td class='tip-name'>Arts</td><td>0.3216</td><td>0.1641</td><td>0.1664</td><td>43/172</td><td>0.57</td></tr><tr><td class='tip-name'>Business and Financial Operations …</td><td>0.3531</td><td>0.1806</td><td>0.1675</td><td>49/196</td><td>0.54</td></tr><tr><td class='tip-name'>Computer and Mathematical Occupati…</td><td>0.001299</td><td>0.0006106</td><td>0.001668</td><td>30/120</td><td>0.80</td></tr><tr><td class='tip-name'>Construction and Extraction Occupa…</td><td>0.0004078</td><td>0.0007532</td><td>0.002139</td><td>61/244</td><td>1.07</td></tr><tr><td class='tip-name'>Educational Instruction and Librar…</td><td>0.04516</td><td>0.002736</td><td>0.00354</td><td>60/240</td><td>0.44</td></tr><tr><td class='tip-name'>Farming</td><td>0.5446</td><td>0.5292</td><td>0.5839</td><td>17/68</td><td>1.27</td></tr><tr><td class='tip-name'>Food Preparation and Serving Relat…</td><td>0.1143</td><td>0.168</td><td>0.2286</td><td>17/68</td><td>1.42</td></tr><tr><td class='tip-name'>Healthcare Practitioners and Techn…</td><td>0.3056</td><td>0.1051</td><td>0.09711</td><td>86/344</td><td>0.43</td></tr><tr><td class='tip-name'>Healthcare Support Occupations</td><td>0.9036</td><td>0.7498</td><td>0.7389</td><td>17/68</td><td>0.55</td></tr><tr><td class='tip-name'>Installation</td><td>0.04822</td><td>0.005905</td><td>0.007022</td><td>54/216</td><td>0.51</td></tr><tr><td class='tip-name'>Life</td><td>0.08115</td><td>0.01506</td><td>0.01881</td><td>60/240</td><td>0.53</td></tr><tr><td class='tip-name'>Management Occupations</td><td>0.1452</td><td>0.154</td><td>0.1382</td><td>52/208</td><td>1.12</td></tr><tr><td class='tip-name'>Office and Administrative Support …</td><td>0.5708</td><td>0.3884</td><td>0.3667</td><td>63/252</td><td>0.52</td></tr><tr><td class='tip-name'>Personal Care and Service Occupati…</td><td>0.2504</td><td>0.1471</td><td>0.1979</td><td>32/128</td><td>0.70</td></tr><tr><td class='tip-name'>Production Occupations</td><td>0.002398</td><td>0.002357</td><td>0.004411</td><td>108/432</td><td>1.00</td></tr><tr><td class='tip-name'>Protective Service Occupations</td><td>0.07726</td><td>0.03034</td><td>0.0388</td><td>29/116</td><td>0.68</td></tr><tr><td class='tip-name'>Sales and Related Occupations</td><td>0.1253</td><td>0.05744</td><td>0.0571</td><td>24/96</td><td>0.68</td></tr><tr><td class='tip-name'>Transportation and Material Moving…</td><td>8.236e-05</td><td>4.092e-06</td><td>3.256e-05</td><td>53/212</td><td>0.64</td></tr></tbody></table></div></details><details class="test-ref-spoiler"><summary>t-test (prob)</summary><div class="spoiler-body"><p>mean margin по base items (scenario_family_id): сначала среднее margin по swap-вариантам item, затем t-test по G items. Shapiro–Wilk — по строкам (диагностика naive t-test); Wilcoxon — по item-means.</p><p class='tip-note'>* — subsample n=5000 (лимит Shapiro–Wilk). ✓ — нормальность не отвергается при α=0.05. Wilcoxon signed-rank — H₀: median(margin)=0, не требует нормальности.</p><table class='tip-fdr'><thead><tr><th>Отрасль</th><th>t-test p</th><th>Wilcoxon p</th><th>Shapiro W</th><th>Shapiro p</th><th>n</th><th>Normal?</th></tr></thead><tbody><tr><td class='tip-name'>Computer and Mathematical Occupati…</td><td>0.002956</td><td>0.004007</td><td>0.9783</td><td>0.04931</td><td>120/120</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Transportation and Material Moving…</td><td>3.290e-07</td><td>2.015e-06</td><td>0.9913</td><td>0.2351</td><td>212/212</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Architecture and Engineering Occup…</td><td>1.850e-05</td><td>2.053e-06</td><td>0.987</td><td>0.0177</td><td>263/263</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Construction and Extraction Occupa…</td><td>0.001809</td><td>0.0002418</td><td>0.9802</td><td>0.001732</td><td>244/244</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Protective Service Occupations</td><td>0.09353</td><td>0.0417</td><td>0.9809</td><td>0.09704</td><td>116/116</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Sales and Related Occupations</td><td>0.3199</td><td>0.6874</td><td>0.9376</td><td>0.0001904</td><td>96/96</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Production Occupations</td><td>0.005045</td><td>0.003893</td><td>0.9853</td><td>0.0002319</td><td>432/432</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Installation</td><td>0.01518</td><td>0.04797</td><td>0.9761</td><td>0.0009996</td><td>216/216</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Educational Instruction and Librar…</td><td>0.188</td><td>0.2902</td><td>0.9844</td><td>0.009943</td><td>240/240</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Life</td><td>0.3318</td><td>0.3462</td><td>0.9749</td><td>0.0002985</td><td>240/240</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Management Occupations</td><td>0.5461</td><td>0.4887</td><td>0.9869</td><td>0.05188</td><td>208/208</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Farming</td><td>0.1601</td><td>0.1608</td><td>0.9712</td><td>0.1173</td><td>68/68</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Arts</td><td>0.5227</td><td>0.5983</td><td>0.9878</td><td>0.1408</td><td>172/172</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Office and Administrative Support …</td><td>0.452</td><td>0.6193</td><td>0.986</td><td>0.01441</td><td>252/252</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Healthcare Support Occupations</td><td>0.2599</td><td>0.2475</td><td>0.952</td><td>0.01074</td><td>68/68</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Healthcare Practitioners and Techn…</td><td>0.002058</td><td>0.03015</td><td>0.976</td><td>1.692e-05</td><td>344/344</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Business and Financial Operations …</td><td>0.2989</td><td>0.5798</td><td>0.9884</td><td>0.1108</td><td>196/196</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Personal Care and Service Occupati…</td><td>0.001148</td><td>0.002806</td><td>0.9872</td><td>0.2772</td><td>128/128</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Food Preparation and Serving Relat…</td><td>0.02755</td><td>0.002447</td><td>0.9556</td><td>0.01662</td><td>68/68</td><td class='fdr-no'>✗</td></tr></tbody></table></div></details><details class="test-ref-spoiler"><summary>BH · soc_major_title (Q=0.05)</summary><div class="spoiler-body"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class="tip-fdr"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name="Transportation and Material Moving Occupations · choice" data-s-p="4.091777352588594e-06" data-s-q="7.774376969918329e-05" data-s-fdr="1"><td class='tip-name'>Transportation and Material Moving Occupations · choice</td><td class='tip-p'>4.092e-06</td><td class='tip-q'>7.774e-05</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Architecture and Engineering Occupations · choice" data-s-p="2.9939540833105733e-05" data-s-q="0.00028442563791450447" data-s-fdr="1"><td class='tip-name'>Architecture and Engineering Occupations · choice</td><td class='tip-p'>2.994e-05</td><td class='tip-q'>0.0002844</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Computer and Mathematical Occupations · choice" data-s-p="0.0006106304837378892" data-s-q="0.0035778878311348065" data-s-fdr="1"><td class='tip-name'>Computer and Mathematical Occupations · choice</td><td class='tip-p'>0.0006106</td><td class='tip-q'>0.003578</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Construction and Extraction Occupations · choice" data-s-p="0.0007532395433968014" data-s-q="0.0035778878311348065" data-s-fdr="1"><td class='tip-name'>Construction and Extraction Occupations · choice</td><td class='tip-p'>0.0007532</td><td class='tip-q'>0.003578</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Production Occupations · choice" data-s-p="0.0023571975057813167" data-s-q="0.008663302357977395" data-s-fdr="1"><td class='tip-name'>Production Occupations · choice</td><td class='tip-p'>0.002357</td><td class='tip-q'>0.008663</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Educational Instruction and Library Occupations · choice" data-s-p="0.0027357796919928617" data-s-q="0.008663302357977395" data-s-fdr="1"><td class='tip-name'>Educational Instruction and Library Occupations · choice</td><td class='tip-p'>0.002736</td><td class='tip-q'>0.008663</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Installation, Maintenance, and Repair Occupation · choice" data-s-p="0.005904621281702081" data-s-q="0.01602682919319136" data-s-fdr="1"><td class='tip-name'>Installation, Maintenance, and Repair Occupation · choice</td><td class='tip-p'>0.005905</td><td class='tip-q'>0.01603</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Life, Physical, and Social Science Occupations · choice" data-s-p="0.015056173875794266" data-s-q="0.03575841295501138" data-s-fdr="1"><td class='tip-name'>Life, Physical, and Social Science Occupations · choice</td><td class='tip-p'>0.01506</td><td class='tip-q'>0.03576</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Protective Service Occupations · choice" data-s-p="0.030335535324408365" data-s-q="0.0640416856848621" data-s-fdr="0"><td class='tip-name'>Protective Service Occupations · choice</td><td class='tip-p'>0.03034</td><td class='tip-q'>0.06404</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Sales and Related Occupations · choice" data-s-p="0.057444548992082664" data-s-q="0.10914464308495705" data-s-fdr="0"><td class='tip-name'>Sales and Related Occupations · choice</td><td class='tip-p'>0.05744</td><td class='tip-q'>0.1091</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Healthcare Practitioners and Technical Occupatio · choice" data-s-p="0.10511618179864311" data-s-q="0.18156431401583809" data-s-fdr="0"><td class='tip-name'>Healthcare Practitioners and Technical Occupatio · choice</td><td class='tip-p'>0.1051</td><td class='tip-q'>0.1816</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Personal Care and Service Occupations · choice" data-s-p="0.1471256027787178" data-s-q="0.21284820176803085" data-s-fdr="0"><td class='tip-name'>Personal Care and Service Occupations · choice</td><td class='tip-p'>0.1471</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Management Occupations · choice" data-s-p="0.15399804469395817" data-s-q="0.21284820176803085" data-s-fdr="0"><td class='tip-name'>Management Occupations · choice</td><td class='tip-p'>0.154</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Arts, Design, Entertainment, Sports, and Media O · choice" data-s-p="0.1640678877003635" data-s-q="0.21284820176803085" data-s-fdr="0"><td class='tip-name'>Arts, Design, Entertainment, Sports, and Media O · choice</td><td class='tip-p'>0.1641</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Food Preparation and Serving Related Occupations · choice" data-s-p="0.16803805402739277" data-s-q="0.21284820176803085" data-s-fdr="0"><td class='tip-name'>Food Preparation and Serving Related Occupations · choice</td><td class='tip-p'>0.168</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Business and Financial Operations Occupations · choice" data-s-p="0.18058244024891984" data-s-q="0.2144416477955923" data-s-fdr="0"><td class='tip-name'>Business and Financial Operations Occupations · choice</td><td class='tip-p'>0.1806</td><td class='tip-q'>0.2144</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Office and Administrative Support Occupations · choice" data-s-p="0.3883661621804835" data-s-q="0.43405629890759917" data-s-fdr="0"><td class='tip-name'>Office and Administrative Support Occupations · choice</td><td class='tip-p'>0.3884</td><td class='tip-q'>0.4341</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Farming, Fishing, and Forestry Occupations · choice" data-s-p="0.5291629481681231" data-s-q="0.5585608897330189" data-s-fdr="0"><td class='tip-name'>Farming, Fishing, and Forestry Occupations · choice</td><td class='tip-p'>0.5292</td><td class='tip-q'>0.5586</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Healthcare Support Occupations · choice" data-s-p="0.7498058561479997" data-s-q="0.7498058561479997" data-s-fdr="0"><td class='tip-name'>Healthcare Support Occupations · choice</td><td class='tip-p'>0.7498</td><td class='tip-q'>0.7498</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Transportation and Material Moving Occupations · prob" data-s-p="3.28972098713546e-07" data-s-q="6.250469875557374e-06" data-s-fdr="1"><td class='tip-name'>Transportation and Material Moving Occupations · prob</td><td class='tip-p'>3.290e-07</td><td class='tip-q'>6.250e-06</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Architecture and Engineering Occupations · prob" data-s-p="1.8497528055021573e-05" data-s-q="0.00017572651652270494" data-s-fdr="1"><td class='tip-name'>Architecture and Engineering Occupations · prob</td><td class='tip-p'>1.850e-05</td><td class='tip-q'>0.0001757</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Personal Care and Service Occupations · prob" data-s-p="0.0011475821057863455" data-s-q="0.0072680200033135205" data-s-fdr="1"><td class='tip-name'>Personal Care and Service Occupations · prob</td><td class='tip-p'>0.001148</td><td class='tip-q'>0.007268</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Construction and Extraction Occupations · prob" data-s-p="0.0018091241937500432" data-s-q="0.0078203378660829" data-s-fdr="1"><td class='tip-name'>Construction and Extraction Occupations · prob</td><td class='tip-p'>0.001809</td><td class='tip-q'>0.00782</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Healthcare Practitioners and Technical Occupatio · prob" data-s-p="0.002057983648969184" data-s-q="0.0078203378660829" data-s-fdr="1"><td class='tip-name'>Healthcare Practitioners and Technical Occupatio · prob</td><td class='tip-p'>0.002058</td><td class='tip-q'>0.00782</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Computer and Mathematical Occupations · prob" data-s-p="0.002956437762644038" data-s-q="0.009362052915039453" data-s-fdr="1"><td class='tip-name'>Computer and Mathematical Occupations · prob</td><td class='tip-p'>0.002956</td><td class='tip-q'>0.009362</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Production Occupations · prob" data-s-p="0.005045038210283198" data-s-q="0.013693675142197253" data-s-fdr="1"><td class='tip-name'>Production Occupations · prob</td><td class='tip-p'>0.005045</td><td class='tip-q'>0.01369</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Installation, Maintenance, and Repair Occupation · prob" data-s-p="0.015176558387891172" data-s-q="0.036044326171241536" data-s-fdr="1"><td class='tip-name'>Installation, Maintenance, and Repair Occupation · prob</td><td class='tip-p'>0.01518</td><td class='tip-q'>0.03604</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="Food Preparation and Serving Related Occupations · prob" data-s-p="0.02755339027550308" data-s-q="0.0581682683593954" data-s-fdr="0"><td class='tip-name'>Food Preparation and Serving Related Occupations · prob</td><td class='tip-p'>0.02755</td><td class='tip-q'>0.05817</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Protective Service Occupations · prob" data-s-p="0.09353203715909092" data-s-q="0.17771087060227275" data-s-fdr="0"><td class='tip-name'>Protective Service Occupations · prob</td><td class='tip-p'>0.09353</td><td class='tip-q'>0.1777</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Farming, Fishing, and Forestry Occupations · prob" data-s-p="0.1601225793766204" data-s-q="0.27657536437779884" data-s-fdr="0"><td class='tip-name'>Farming, Fishing, and Forestry Occupations · prob</td><td class='tip-p'>0.1601</td><td class='tip-q'>0.2766</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Educational Instruction and Library Occupations · prob" data-s-p="0.1879779182830435" data-s-q="0.2976317039481522" data-s-fdr="0"><td class='tip-name'>Educational Instruction and Library Occupations · prob</td><td class='tip-p'>0.188</td><td class='tip-q'>0.2976</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Healthcare Support Occupations · prob" data-s-p="0.25988097945641214" data-s-q="0.3798260468978331" data-s-fdr="0"><td class='tip-name'>Healthcare Support Occupations · prob</td><td class='tip-p'>0.2599</td><td class='tip-q'>0.3798</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Business and Financial Operations Occupations · prob" data-s-p="0.2989270488243936" data-s-q="0.39406199516281215" data-s-fdr="0"><td class='tip-name'>Business and Financial Operations Occupations · prob</td><td class='tip-p'>0.2989</td><td class='tip-q'>0.3941</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Sales and Related Occupations · prob" data-s-p="0.3198908119702462" data-s-q="0.39406199516281215" data-s-fdr="0"><td class='tip-name'>Sales and Related Occupations · prob</td><td class='tip-p'>0.3199</td><td class='tip-q'>0.3941</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Life, Physical, and Social Science Occupations · prob" data-s-p="0.33184168013710497" data-s-q="0.39406199516281215" data-s-fdr="0"><td class='tip-name'>Life, Physical, and Social Science Occupations · prob</td><td class='tip-p'>0.3318</td><td class='tip-q'>0.3941</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Office and Administrative Support Occupations · prob" data-s-p="0.4520020462651997" data-s-q="0.5051787575905173" data-s-fdr="0"><td class='tip-name'>Office and Administrative Support Occupations · prob</td><td class='tip-p'>0.452</td><td class='tip-q'>0.5052</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Arts, Design, Entertainment, Sports, and Media O · prob" data-s-p="0.5227366816452154" data-s-q="0.5461363368824678" data-s-fdr="0"><td class='tip-name'>Arts, Design, Entertainment, Sports, and Media O · prob</td><td class='tip-p'>0.5227</td><td class='tip-q'>0.5461</td><td class='fdr-no'>✗</td></tr><tr data-s-name="Management Occupations · prob" data-s-p="0.5461363368824678" data-s-q="0.5461363368824678" data-s-fdr="0"><td class='tip-name'>Management Occupations · prob</td><td class='tip-p'>0.5461</td><td class='tip-q'>0.5461</td><td class='fdr-no'>✗</td></tr></tbody></table></div></details></p>
+  <div class="interpret">
+    <strong>Что видим:</strong> bias зависит от отрасли (+ → man, − → woman).
+    <code>soc_major_title</code> — социальные группы профессий (крупные отрасли SOC).
+    Тесты cluster t-test — только при G≥15 base items на отрасль.
+    График — cluster Δ по base items (choice: θ_i; prob: mean margin).
+    После BH (Q=0.05) по cluster p: 8 choice / 8 prob значимы.
+    Полное название — в tooltip; полная BH-таблица — в спойлере выше.
+    <p class='note'>Cluster-тесты по отрасли не выполняются при G &lt; 15 base items (<code>scenario_family_id</code>). Исключено 3: Building and Grounds Cleaning and … (G=8), Legal Occupations (G=8), Community and Social Service Occup… (G=14).</p>
+    <p style='margin-top:.85rem'><strong>Выводы (BH/FDR, Q=0.05; только значимые, + → man, − → woman):</strong></p><ul><li><b>Choice</b> (cluster t-test, семья 19 тестов): к man — <b>8</b>, к woman — <b>0</b>.<div style='margin:.35rem 0 .15rem'>→ man:</div><ul><li>Computer and Mathematical Occupati… — +30.0 п.п. (q=0.003578)</li><li>Transportation and Material Moving… — +27.4 п.п. (q=7.774e-05)</li><li>Architecture and Engineering Occup… — +27.0 п.п. (q=0.0002844)</li><li>Construction and Extraction Occupa… — +23.0 п.п. (q=0.003578)</li><li>Production Occupations — +14.8 п.п. (q=0.008663)</li><li>Installation — +13.9 п.п. (q=0.01603)</li><li>Educational Instruction and Librar… — +13.3 п.п. (q=0.008663)</li><li>Life — +11.7 п.п. (q=0.03576)</li></ul><div style='margin:.35rem 0 .15rem'>→ woman:</div><span class='muted'>нет</span></li><li><b>Prob</b> (cluster t-test, семья 19 тестов): к man — <b>6</b>, к woman — <b>2</b>.<div style='margin:.35rem 0 .15rem'>→ man:</div><ul><li>Transportation and Material Moving… — +7.8 п.п. (q=6.250e-06)</li><li>Architecture and Engineering Occup… — +7.0 п.п. (q=0.0001757)</li><li>Computer and Mathematical Occupati… — +5.9 п.п. (q=0.009362)</li><li>Construction and Extraction Occupa… — +5.4 п.п. (q=0.00782)</li><li>Production Occupations — +3.1 п.п. (q=0.01369)</li><li>Installation — +3.0 п.п. (q=0.03604)</li></ul><div style='margin:.35rem 0 .15rem'>→ woman:</div><ul><li>Personal Care and Service Occupati… — -6.9 п.п. (q=0.007268)</li><li>Healthcare Practitioners and Techn… — -3.1 п.п. (q=0.00782)</li></ul></li></ul><p class='note' style='margin:.35rem 0 0'>«Значимо» = q-value ≤ Q после BH в отдельных семьях choice и prob (cluster p). Δ choice = mean gap по θ_i; Δ prob = mean(p_man−p_woman) по base items.</p><details class='method-spoiler' open><summary>FDR-таблица по отраслям (cluster Δ п.п. · q-value · значимо после BH)</summary><div class='spoiler-body'><table class='mcn'><thead><tr><th>soc_major_title</th><th>choice Δ</th><th>choice q</th><th>choice</th><th>prob Δ</th><th>prob q</th><th>prob</th></tr></thead><tbody><tr><td class='mcn-key' title="Architecture and Engineering Occupations">Architecture and Engineering Occup…</td><td>+27.0</td><td>0.0002844</td><td><span class='fdr-yes'>✓</span></td><td>+7.0</td><td>0.0001757</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Arts, Design, Entertainment, Sports, and Media Occupations">Arts</td><td>+8.1</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>+1.1</td><td>0.5461</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Business and Financial Operations Occupations">Business and Financial Operations …</td><td>-7.1</td><td>0.2144</td><td><span class='fdr-no'>✗</span></td><td>-1.4</td><td>0.3941</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Computer and Mathematical Occupations">Computer and Mathematical Occupati…</td><td>+30.0</td><td>0.003578</td><td><span class='fdr-yes'>✓</span></td><td>+5.9</td><td>0.009362</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Construction and Extraction Occupations">Construction and Extraction Occupa…</td><td>+23.0</td><td>0.003578</td><td><span class='fdr-yes'>✓</span></td><td>+5.4</td><td>0.00782</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Educational Instruction and Library Occupations">Educational Instruction and Librar…</td><td>+13.3</td><td>0.008663</td><td><span class='fdr-yes'>✓</span></td><td>+1.6</td><td>0.2976</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Farming, Fishing, and Forestry Occupations">Farming</td><td>+8.8</td><td>0.5586</td><td><span class='fdr-no'>✗</span></td><td>+5.8</td><td>0.2766</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Food Preparation and Serving Related Occupations">Food Preparation and Serving Relat…</td><td>-20.6</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>-7.5</td><td>0.05817</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Healthcare Practitioners and Technical Occupations">Healthcare Practitioners and Techn…</td><td>-5.8</td><td>0.1816</td><td><span class='fdr-no'>✗</span></td><td>-3.1</td><td>0.00782</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Healthcare Support Occupations">Healthcare Support Occupations</td><td>-2.9</td><td>0.7498</td><td><span class='fdr-no'>✗</span></td><td>-3.1</td><td>0.3798</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Installation, Maintenance, and Repair Occupations">Installation</td><td>+13.9</td><td>0.01603</td><td><span class='fdr-yes'>✓</span></td><td>+3.0</td><td>0.03604</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Life, Physical, and Social Science Occupations">Life</td><td>+11.7</td><td>0.03576</td><td><span class='fdr-yes'>✓</span></td><td>+1.5</td><td>0.3941</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Management Occupations">Management Occupations</td><td>+10.6</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>+0.9</td><td>0.5461</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Office and Administrative Support Occupations">Office and Administrative Support …</td><td>+4.0</td><td>0.4341</td><td><span class='fdr-no'>✗</span></td><td>+0.7</td><td>0.5052</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Personal Care and Service Occupations">Personal Care and Service Occupati…</td><td>-10.9</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>-6.9</td><td>0.007268</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Production Occupations">Production Occupations</td><td>+14.8</td><td>0.008663</td><td><span class='fdr-yes'>✓</span></td><td>+3.1</td><td>0.01369</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title="Protective Service Occupations">Protective Service Occupations</td><td>+17.2</td><td>0.06404</td><td><span class='fdr-no'>✗</span></td><td>+4.6</td><td>0.1777</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Sales and Related Occupations">Sales and Related Occupations</td><td>+16.7</td><td>0.1091</td><td><span class='fdr-no'>✗</span></td><td>+1.8</td><td>0.3941</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title="Transportation and Material Moving Occupations">Transportation and Material Moving…</td><td>+27.4</td><td>7.774e-05</td><td><span class='fdr-yes'>✓</span></td><td>+7.8</td><td>6.250e-06</td><td><span class='fdr-yes'>✓</span></td></tr></tbody></table></div></details>
+  </div>
+  <div class="chart-toggle">
+    <span><b>Ось Y:</b></span>
+    <label><input type="radio" name="socMode" value="margin" checked> Δ margin (п.п.)</label>
+    <label><input type="radio" name="socMode" value="abs"> Δ абсолютный (k_man−k_woman)</label>
+  </div>
+  <div class="chart-toggle">
+    <span><b>Сортировка:</b></span>
+    <label><input type="radio" name="socSort" value="delta" checked> по Δ (↓ man → woman)</label>
+    <label><input type="radio" name="socSort" value="name"> по названию (A→Я)</label>
+  </div>
+  <div class="chart-wrap" style="height:670px"><canvas id="chartSoc"></canvas></div>
+  <p class="note">Cluster Δ по base items; <code>without_abstain</code> (2 опции), p0/p1, mf/wf.</p>
+</section>
+
+<section class="method positional-intro" id="positional">
+  <h2>Позиционные проверки</h2>
+  <p>Два типа смещения: <b>position</b> — кто в слоте A/B ответа; <b>context</b> — кто назван первым в тексте сценария.
+  Оба — парный McNemar на одних и тех же <code>example_id</code>, меняется только один фактор.</p>
+
+  <h3><code>context_order</code> — порядок в narrative</h3>
+  <table>
+    <tr><th>Значение</th><th>Смысл</th></tr>
+    <tr><td><code>man_first</code> (mf)</td><td>в тексте сначала мужчина, потом женщина</td></tr>
+    <tr><td><code>woman_first</code> (wf)</td><td>в тексте сначала женщина, потом мужчина</td></tr>
+  </table>
+  <div class="example-box">
+    <strong>Пример</strong> (один <code>example_id</code>, один predicate):
+    <div class="pair"><code>man_first</code>: «<b>Иван</b> и Мария обсуждали проект. Кто проявил инициативу?» → A: man / B: woman</div>
+    <div class="pair"><code>woman_first</code>: «<b>Мария</b> и Иван обсуждали проект. Кто проявил инициативу?» → те же варианты ответа</div>
+    <p style="margin:.5rem 0 0;color:var(--muted)">Меняется только порядок имён в narrative; McNemar context сравнивает выбор при mf vs wf.</p>
+  </div>
+
+  <h3><code>position_variant</code> (p0…p5) — слоты A/B/C</h3>
+  <p>Слот <b>A</b> — первый в списке ответов. Prob/choice считаются по semantic label (man/woman), не по букве слота.</p>
+
+  <h4><code>without_abstain</code> — только p0, p1 (2 опции)</h4>
+  <table>
+    <tr><th>variant</th><th>A / B</th><th>смысл</th></tr>
+    <tr><td><code>p0</code></td><td>man, woman</td><td>man в слоте A (канон)</td></tr>
+    <tr><td><code>p1</code></td><td>woman, man</td><td>swap в слотах</td></tr>
+  </table>
+
+  <h4><code>with_abstain</code> — p0…p5 (3 опции)</h4>
+  <table>
+    <tr><th>variant</th><th>A</th><th>B</th><th>C</th></tr>
+    <tr><td>p0</td><td>man</td><td>woman</td><td>abstain</td></tr>
+    <tr><td>p1</td><td>man</td><td>abstain</td><td>woman</td></tr>
+    <tr><td>p2</td><td>woman</td><td>man</td><td>abstain</td></tr>
+    <tr><td>p3</td><td>woman</td><td>abstain</td><td>man</td></tr>
+    <tr><td>p4</td><td>abstain</td><td>man</td><td>woman</td></tr>
+    <tr><td>p5</td><td>abstain</td><td>woman</td><td>man</td></tr>
+  </table>
+
+  <h3>Ключевые метрики (таблицы McNemar ниже)</h3>
+  <div class="key-notes">
+    <p><strong>McNemar (столбцы таблицы):</strong></p>
+    <ul>
+      <li><b>n</b> — число <em>пар</em> сценариев</li>
+      <li><b>b, c</b> — дискордантные пары (ответ разный между условиями); по ним тест и <b>p</b></li>
+      <li><b>Order Flip</b> = (b+c)/n — доля пар, где ответ <b>меняется</b> при swap p0↔p1 или mf↔wf</li>
+    </ul>
+
+    <p style="margin:.85rem 0 .35rem"><strong>First-Shown</strong> — отдельная метрика; считается по
+    <em>всем промптам</em> среза (p0+p1 или mf+wf), не по парам McNemar:</p>
+
+    <p style="margin:.35rem 0 .2rem"><b>Position</b> (слоты в списке ответов, p0+p1):</p>
+    <ul class="formula-list">
+      <li><b>choice:</b> (# <code>choice=A</code>) / n</li>
+      <li><b>prob:</b> mean(<code>prob_constrained_A</code>)</li>
+    </ul>
+    <p class="formula-note">Слот A — первый в списке. На p0 в A стоит man, на p1 в A — woman.
+    Метрика измеряет pull к <b>слоту A</b>, не к полу.</p>
+
+    <p style="margin:.65rem 0 .2rem"><b>Context</b> (порядок имён в narrative, mf+wf):</p>
+    <ul class="formula-list">
+      <li><b>choice:</b> (prefers_man@mf + prefers_woman@wf) / (n_mf + n_wf)</li>
+      <li><b>prob:</b> mean(&#123;p_man@mf&#125; ∪ &#123;p_woman@wf&#125;)</li>
+    </ul>
+    <p class="formula-note">Доля выборов в пользу пола, названного <b>первым</b> в тексте.
+    &lt;50% → систематический сдвиг ко второму (recency).</p>
+
+    <p style="margin:.65rem 0 0">Согласованные пары a, d в таблицах не выводим.</p>
+  </div>
+
+  <h3>Словарь: b и c по типу теста</h3>
+  <table>
+    <tr><th>Тест</th><th>b</th><th>c</th><th>Интерпретация b≫c</th></tr>
+    <tr><td>Position (p0↔p1)</td><td>man@p0 ∧ woman@p1</td><td>woman@p0 ∧ man@p1</td><td>bias к слоту A (верхний вариант)</td></tr>
+    <tr><td>Context (mf↔wf)</td><td>первый в narrative</td><td>второй в narrative</td><td>bias ко второму упомянутому (recency)</td></tr>
+  </table>
+</section>
+
+<section id="position">
+  <h2>Position slots flip — p0↔p1 (without_abstain)</h2>
+  <p class="test-refs"><details class="test-ref-spoiler"><summary>McNemar (choice)</summary><div class="spoiler-body"><p>discordant b vs c, p0↔p1. man_first p=3.151e-102</p></div></details><details class="test-ref-spoiler"><summary>McNemar (prob)</summary><div class="spoiler-body"><p>margin&gt;0 бинаризация. p=5.345e-75</p></div></details><details class="test-ref-spoiler"><summary>BH · position p0↔p1 (Q=0.05)</summary><div class="spoiler-body"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class="tip-fdr"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name="woman_first · choice" data-s-p="2.697759024361921e-104" data-s-q="5.395518048723842e-104" data-s-fdr="1"><td class='tip-name'>woman_first · choice</td><td class='tip-p'>2.698e-104</td><td class='tip-q'>5.396e-104</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="man_first · choice" data-s-p="3.1507776564045017e-102" data-s-q="3.1507776564045017e-102" data-s-fdr="1"><td class='tip-name'>man_first · choice</td><td class='tip-p'>3.151e-102</td><td class='tip-q'>3.151e-102</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="woman_first · prob" data-s-p="3.208177894372742e-76" data-s-q="6.416355788745483e-76" data-s-fdr="1"><td class='tip-name'>woman_first · prob</td><td class='tip-p'>3.208e-76</td><td class='tip-q'>6.416e-76</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="man_first · prob" data-s-p="5.344878413213735e-75" data-s-q="5.344878413213735e-75" data-s-fdr="1"><td class='tip-name'>man_first · prob</td><td class='tip-p'>5.345e-75</td><td class='tip-q'>5.345e-75</td><td class='fdr-yes'>✓</td></tr></tbody></table></div></details></p>
+  <p><b>Вопрос:</b> меняется ли ответ при swap man/woman в слотах A/B?</p>
+  <div class="matrix-wrap">
+    <div>
+      <p class="matrix-caption"><b>Схема McNemar</b> — position (p0 vs p1)</p>
+      <table class="mcn-matrix">
+        <tr>
+          <th rowspan="2" colspan="2"></th>
+          <th colspan="2">@ p1</th>
+        </tr>
+        <tr>
+          <th>man</th>
+          <th>woman</th>
+        </tr>
+        <tr>
+          <th rowspan="2" class="rowgrp">@ p0</th>
+          <td class="cell-label">man</td>
+          <td class="cell-val">a</td>
+          <td class="cell-val">b</td>
+        </tr>
+        <tr>
+          <td class="cell-label">woman</td>
+          <td class="cell-val">c</td>
+          <td class="cell-val">d</td>
+        </tr>
+      </table>
+      <p class="matrix-caption">
+        <b>b</b> = man@p0 ∧ woman@p1 (слот A) ·
+        <b>c</b> = woman@p0 ∧ man@p1 ·
+        b≫c → bias к варианту в слоте A.
+      </p>
+    </div>
+  </div>
+  <div class="key-notes">
+    <strong>Ключевые заметки — position:</strong>
+    <ul>
+      <li><b>Order Flip ~60%</b> — в большинстве пар ответ <b>меняется</b>, если поменять man/woman в слотах A/B</li>
+      <li><b>First-Shown ~77%</b> — модель часто жмёт <b>слот A</b> (P(choice=A)), не «man» как такового</li>
+      <li><b>b ≫ c</b> — типичный паттерн man@p0 &amp; woman@p1: перекос к тому, кто стоит в первом слоте на p0</li>
+      <li>Это <b>position bias</b>, а не чистый gender-prior; prob смягчает эффект (ниже First-Shown)</li>
+    </ul>
+  </div>
+  <div class="interpret">
+    <strong>Итог:</strong> ответ сильно зависит от слота. McNemar p ≪ 0.05 для обоих context_order.
+  </div>
+  <div class="grid2">
+    <div class="chart-wrap"><canvas id="chartPosFlip"></canvas></div>
+    <div class="chart-wrap"><canvas id="chartPosDiscord"></canvas></div>
+  </div>
+  <h3>Таблица McNemar — position</h3>
+  <table class='mcn'><thead><tr><th>context_order</th><th>таргет</th><th>n</th><th>b: man@p0 &amp; woman@p1</th><th>c: woman@p0 &amp; man@p1</th><th>Order Flip</th><th>First-Shown</th><th>p</th></tr></thead><tbody><tr class='mcn-grp-a'><td rowspan="2" class="mcn-key">man_first</td><td class='mcn-target'>choice</td><td>951</td><td>549</td><td>31</td><td>61.0%</td><td>77.2%</td><td>3.151e-102</td></tr><tr class='mcn-grp-a'><td class='mcn-target'>prob</td><td>786</td><td>422</td><td>31</td><td>57.6%</td><td>55.6%</td><td>5.345e-75</td></tr><tr class='mcn-grp-b'><td rowspan="2" class="mcn-key">woman_first</td><td class='mcn-target'>choice</td><td>951</td><td>532</td><td>21</td><td>58.1%</td><td>76.9%</td><td>2.698e-104</td></tr><tr class='mcn-grp-b'><td class='mcn-target'>prob</td><td>792</td><td>402</td><td>21</td><td>53.4%</td><td>54.8%</td><td>3.208e-76</td></tr></tbody></table>
+  <div class="interpret"><p><strong>choice vs prob</strong></p><p class='compare-intro'>Один и тот же срез p0↔p1; prob-версия McNemar исключает пары с ничьей по <code>margin=0</code>.</p><div class='compare-block'><p class='compare-hdr'><b>man_first</b></p><ul><li>b≫c у обоих таргетов → bias к <b>слоту A</b></li><li>Пар McNemar: choice <b>951</b>, prob <b>786</b> (на 165 меньше у prob)</li><li>Order Flip: choice <b>61.0%</b>, prob <b>57.6%</b></li><li>First-Shown: choice <b>77.2%</b>, prob <b>55.6%</b></li></ul></div><div class='compare-block'><p class='compare-hdr'><b>woman_first</b></p><ul><li>b≫c у обоих таргетов → bias к <b>слоту A</b></li><li>Пар McNemar: choice <b>951</b>, prob <b>792</b> (на 159 меньше у prob)</li><li>Order Flip: choice <b>58.1%</b>, prob <b>53.4%</b></li><li>First-Shown: choice <b>76.9%</b>, prob <b>54.8%</b></li></ul></div><p class='compare-sum'><b>Вывод:</b> знак эффекта совпадает; prob смягчает Order Flip и First-Shown (argmax резче, чем средняя вероятность на слот A).</p></div>
+</section>
+
+<section id="context">
+  <h2>In-context position flip — man_first↔woman_first</h2>
+  <p class="test-refs"><details class="test-ref-spoiler"><summary>McNemar (choice)</summary><div class="spoiler-body"><p>mf↔wf narrative order. p0 p=7.472e-32</p></div></details><details class="test-ref-spoiler"><summary>McNemar (prob)</summary><div class="spoiler-body"><p>p=1.379e-29</p></div></details><details class="test-ref-spoiler"><summary>BH · context mf↔wf (Q=0.05)</summary><div class="spoiler-body"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class="tip-fdr"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name="p5/with_abstain · choice" data-s-p="3.216304612556528e-36" data-s-q="2.5730436900452223e-35" data-s-fdr="1"><td class='tip-name'>p5/with_abstain · choice</td><td class='tip-p'>3.216e-36</td><td class='tip-q'>2.573e-35</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p0/without_abstain · choice" data-s-p="7.471808228205074e-32" data-s-q="2.9887232912820297e-31" data-s-fdr="1"><td class='tip-name'>p0/without_abstain · choice</td><td class='tip-p'>7.472e-32</td><td class='tip-q'>2.989e-31</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p4/with_abstain · choice" data-s-p="1.268444585731211e-28" data-s-q="3.3825188952832296e-28" data-s-fdr="1"><td class='tip-name'>p4/with_abstain · choice</td><td class='tip-p'>1.268e-28</td><td class='tip-q'>3.383e-28</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p1/without_abstain · choice" data-s-p="4.532152528438163e-26" data-s-q="9.064305056876326e-26" data-s-fdr="1"><td class='tip-name'>p1/without_abstain · choice</td><td class='tip-p'>4.532e-26</td><td class='tip-q'>9.064e-26</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p2/with_abstain · choice" data-s-p="2.5203104221245264e-21" data-s-q="4.032496675399242e-21" data-s-fdr="1"><td class='tip-name'>p2/with_abstain · choice</td><td class='tip-p'>2.520e-21</td><td class='tip-q'>4.032e-21</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p3/with_abstain · choice" data-s-p="6.844060346519136e-14" data-s-q="9.125413795358848e-14" data-s-fdr="1"><td class='tip-name'>p3/with_abstain · choice</td><td class='tip-p'>6.844e-14</td><td class='tip-q'>9.125e-14</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p0/with_abstain · choice" data-s-p="2.478790797016709e-09" data-s-q="2.832903768019096e-09" data-s-fdr="1"><td class='tip-name'>p0/with_abstain · choice</td><td class='tip-p'>2.479e-09</td><td class='tip-q'>2.833e-09</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p1/with_abstain · choice" data-s-p="7.228793882618061e-05" data-s-q="7.228793882618061e-05" data-s-fdr="1"><td class='tip-name'>p1/with_abstain · choice</td><td class='tip-p'>7.229e-05</td><td class='tip-q'>7.229e-05</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p5/with_abstain · prob" data-s-p="4.269709087919505e-64" data-s-q="3.415767270335604e-63" data-s-fdr="1"><td class='tip-name'>p5/with_abstain · prob</td><td class='tip-p'>4.270e-64</td><td class='tip-q'>3.416e-63</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p2/with_abstain · prob" data-s-p="3.1617840444718245e-48" data-s-q="1.2647136177887298e-47" data-s-fdr="1"><td class='tip-name'>p2/with_abstain · prob</td><td class='tip-p'>3.162e-48</td><td class='tip-q'>1.265e-47</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p3/with_abstain · prob" data-s-p="8.876697062827798e-47" data-s-q="2.3671192167540793e-46" data-s-fdr="1"><td class='tip-name'>p3/with_abstain · prob</td><td class='tip-p'>8.877e-47</td><td class='tip-q'>2.367e-46</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p0/with_abstain · prob" data-s-p="2.7412235662396016e-44" data-s-q="5.482447132479203e-44" data-s-fdr="1"><td class='tip-name'>p0/with_abstain · prob</td><td class='tip-p'>2.741e-44</td><td class='tip-q'>5.482e-44</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p4/with_abstain · prob" data-s-p="1.59026772730139e-42" data-s-q="2.544428363682224e-42" data-s-fdr="1"><td class='tip-name'>p4/with_abstain · prob</td><td class='tip-p'>1.590e-42</td><td class='tip-q'>2.544e-42</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p0/without_abstain · prob" data-s-p="1.3786312100474367e-29" data-s-q="1.8381749467299156e-29" data-s-fdr="1"><td class='tip-name'>p0/without_abstain · prob</td><td class='tip-p'>1.379e-29</td><td class='tip-q'>1.838e-29</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p1/with_abstain · prob" data-s-p="6.3849216096863906e-27" data-s-q="7.297053268213018e-27" data-s-fdr="1"><td class='tip-name'>p1/with_abstain · prob</td><td class='tip-p'>6.385e-27</td><td class='tip-q'>7.297e-27</td><td class='fdr-yes'>✓</td></tr><tr data-s-name="p1/without_abstain · prob" data-s-p="2.1367949062621281e-23" data-s-q="2.1367949062621281e-23" data-s-fdr="1"><td class='tip-name'>p1/without_abstain · prob</td><td class='tip-p'>2.137e-23</td><td class='tip-q'>2.137e-23</td><td class='fdr-yes'>✓</td></tr></tbody></table></div></details></p>
+  <p><b>Вопрос:</b> меняется ли ответ, если в нарративе контекста поменять порядок имен?</p>
+
+  <div class="matrix-wrap">
+    <div>
+      <p class="matrix-caption"><b>Схема McNemar</b> — context_order</p>
+      <table class="mcn-matrix">
+        <tr>
+          <th rowspan="2" colspan="2"></th>
+          <th colspan="2">@ woman_first</th>
+        </tr>
+        <tr>
+          <th>woman</th>
+          <th>man</th>
+        </tr>
+        <tr>
+          <th rowspan="2" class="rowgrp">@ man_first</th>
+          <td class="cell-label">woman</td>
+          <td class="cell-val">a</td>
+          <td class="cell-val">c</td>
+        </tr>
+        <tr>
+          <td class="cell-label">man</td>
+          <td class="cell-val">b</td>
+          <td class="cell-val">d</td>
+        </tr>
+      </table>
+      <p class="matrix-caption">
+        <b>b</b> = выбран первый в narrative ·
+        <b>c</b> = выбран второй ·
+        c≫b → bias ко второму упомянутому.
+      </p>
+    </div>
+  </div>
+  <div class="key-notes">
+    <strong>Ключевые заметки — in-context:</strong>
+    <ul>
+      <li><b>b</b> — в обоих вариантах текста выбран <b>первый</b> упомянутый пол; <b>c</b> — <b>второй</b></li>
+      <li><b>c ≫ b</b> — recency: модель чаще выбирает того, кто назван <b>вторым</b> в narrative</li>
+      <li><b>First-Shown ~41%</b> (&lt;50%) — систематический сдвиг <b>не</b> к первому в тексте, а ко второму</li>
+      <li>Order Flip тоже значим, но направление противоположно position (не slot A, а порядок имён)</li>
+    </ul>
+  </div>
+  <div class="interpret">
+    <strong>Итог:</strong> порядок имён в сценарии сильно влияет на ответ; эффект противоположен slot-A bias.
+  </div>
+  <h3>without_abstain — p0/p1</h3>
+  <div class="chart-wrap"><canvas id="chartCtxP01"></canvas></div>
+  <h3>with_abstain — p0–p5</h3>
+  <p class="note">Та же логика mf↔wf при 3 опциях; Order Flip / First-Shown для with_abstain не считаются.</p>
+  <div class="chart-wrap wide"><canvas id="chartCtxWa"></canvas></div>
+  <div class="interpret"><p><strong>choice vs prob</strong></p><p class='compare-intro'>Один срез mf↔wf: <b>choice</b> = argmax, <b>prob</b> = сравнение p_man и p_woman. Среди пар, где ответ <b>меняется</b> при смене mf/wf: <b>c</b> — выбран второй в нарративе.</p><div class='compare-block'><p class='compare-hdr'><b>without_abstain</b> — c≫b, recency</p><ul><li><b>p0</b>: choice <b>89.6%</b>, prob <b>93.1%</b></li><li><b>p1</b>: choice <b>80.8%</b>, prob <b>82.0%</b></li></ul></div><div class='compare-block'><p class='compare-hdr'><b>with_abstain</b> (6 поз.) — c≫b</p><p>В среднем по p0–p5: choice <b>94.2%</b>, prob <b>92.3%</b>.</p></div><p class='compare-sum'><b>Вывод:</b> знак эффекта совпадает — перекос ко <b>второму</b> имени в нарративе контекста.</p></div>
+</section>
+
+<footer>
+  <p>ch = argmax choice; pr = position-aware p_man−p_woman. Наведите на столбцы для точных значений.</p>
+</footer>
+
+<script>
+const DATA = {"run": "run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle", "fdr": 0.05, "n_rows": 15216, "n_soc": 19, "soc_chart_h": 670, "generated": "2026-06-30T11:04:45.258150+00:00", "primary": {"ch_p_man": 25.87, "ch_p_wom": 22.8, "ch_margin": 0.0632, "ch_k_man": 3937, "ch_k_wom": 3469, "ch_k_delta": 468, "ch_n_man": 7406, "ch_n_wom": 7406, "ch_p": 5.6891841272288055e-08, "ch_theta": 0.5315960032406157, "ch_effect": 0.06319200648123144, "ch_abstain_rate": 0.5132754994742377, "ch_non_abstain": 7406, "ch_cluster_p": 6.663561367463047e-07, "ch_cluster_t": 5.004752117601463, "ch_cluster_theta": 0.5345498277280611, "ch_cluster_gap": 0.06909965545612234, "ch_cluster_n": 951, "ch_row_n": 7406, "ch_pooled_p": 5.6891841272288055e-08, "ch_naive_p": 5.2368645291074415e-08, "ch_cluster_wilcoxon_p": 1.2161735060208692e-05, "ch_deff": 1.4172595500993035, "ch_icc": 0.0739914045477872, "ch_n_eff": 5225.577770480419, "ch_sign_man_wins": 364, "ch_sign_woman_wins": 309, "ch_sign_ties": 278, "ch_sign_p": 0.03730524580526001, "pr_margin": 0.01, "pr_p": 0.00010125005163615173, "pr_n": 951, "stat": 0.988609410191062, "p": 1.1419314863491374e-19, "n": 15216, "n_used": 5000, "subsampled": true, "normal": false, "note": "subsampled n=5000 of 15216 (Shapiro–Wilk limit)", "wilcoxon_stat": 42337660.5, "wilcoxon_p": 4.272522925703201e-15, "row_n": 15216, "n_clusters": 951, "k_mean": 16.0, "naive_p": 8.726626781267762e-13, "naive_se": 0.0014010497392920112, "cluster_se": 0.0025678001439210147, "cluster_wilcoxon_p": 0.0007250982083300683, "icc": 0.15723470024563946, "deff": 3.359041198231997, "n_eff": 4529.864060020703, "layout_contrasts": {"gender_mean": {"effect": 0.018381195990946515, "t": 5.027337378399486, "p": 5.942938698797093e-07, "n_clusters": 951}, "position_effect": {"effect": 0.20762819640894667, "t": 25.94209753117837, "p": 1.3238964802833346e-112, "n_clusters": 951}, "context_order_effect": {"effect": 0.11115104317289046, "t": 15.825628703383206, "p": 3.0321312887840673e-50, "n_clusters": 951}, "position_x_context": {"effect": -0.029228645544322883, "t": -7.9833799745563345, "p": 4.091858252230091e-15, "n_clusters": 951}}, "cluster_p": 0.00010125005163615173}, "abstain": [{"variant": "with_abstain", "ch_p_man": 16.0, "ch_p_wom": 15.56, "ch_margin": 0.0139, "ch_k_man": 1826, "ch_k_wom": 1776, "ch_k_delta": 50, "ch_p": 0.41425218371983435, "ch_q": 0.0039025322054471673, "ch_theta": 0.50694058856191, "ch_effect": 0.0138811771238201, "ch_abstain_rate": 0.6843673326323169, "ch_non_abstain": 3602, "ch_cluster_p": 0.0039025322054471673, "ch_cluster_t": -2.896355781161454, "ch_cluster_theta": 0.46392290725880864, "ch_cluster_gap": -0.07215418548238271, "ch_cluster_n": 649, "ch_row_n": 3602, "ch_pooled_p": 0.41425218371983435, "ch_naive_p": 0.4048624405076951, "ch_cluster_wilcoxon_p": 0.002826994081944482, "ch_deff": 2.2352497368688145, "ch_icc": 0.11073093223041224, "ch_n_eff": 1611.4530473206803, "ch_sign_man_wins": 258, "ch_sign_woman_wins": 295, "ch_sign_ties": 96, "ch_sign_p": 0.1257235110211248, "pr_margin": 0.0072, "pr_p": 0.0012912391267582762, "pr_q": 0.0012912391267582762, "pr_n": 951, "stat": 0.9823439363825961, "p": 1.678544696012299e-24, "n": 11412, "n_used": 5000, "subsampled": true, "normal": false, "note": "subsampled n=5000 of 11412 (Shapiro–Wilk limit)", "wilcoxon_stat": 23836646.0, "wilcoxon_p": 5.6070437850953005e-08, "row_n": 11412, "n_clusters": 951, "k_mean": 12.0, "naive_p": 1.5251032624270977e-07, "naive_se": 0.0013782418485187044, "cluster_se": 0.0022430596667752326, "cluster_wilcoxon_p": 0.008551051301757956, "icc": 0.1498459362659157, "deff": 2.6486878987233964, "n_eff": 4308.548396925251, "layout_contrasts": {"gender_mean": {"effect": -0.002362140257510853, "t": -0.8520893396610014, "p": 0.39437925874803703, "n_clusters": 951}, "position_effect": {"effect": 0.008568581804774161, "t": 2.631975877126192, "p": 0.00862665077869393, "n_clusters": 951}, "context_order_effect": {"effect": 0.07740167278079581, "t": 18.911300160417746, "p": 6.0329788634301255e-68, "n_clusters": 951}, "position_x_context": {"effect": -0.012242570292247708, "t": -4.320377945510322, "p": 1.721521948683985e-05, "n_clusters": 951}}, "cluster_p": 0.0012912391267582762}, {"variant": "without_abstain", "ch_p_man": 55.49, "ch_p_wom": 44.51, "ch_margin": 0.1099, "ch_k_man": 2111, "ch_k_wom": 1693, "ch_k_delta": 418, "ch_p": 1.3082124577063009e-11, "ch_q": 2.7460050065644257e-14, "ch_theta": 0.5549421661409043, "ch_effect": 0.10988433228180862, "ch_abstain_rate": 0.0, "ch_non_abstain": 3804, "ch_cluster_p": 1.3730025032822128e-14, "ch_cluster_t": 7.822620294305569, "ch_cluster_theta": 0.5549421661409043, "ch_cluster_gap": 0.10988433228180862, "ch_cluster_n": 951, "ch_row_n": 3804, "ch_pooled_p": 1.3082124577063009e-11, "ch_naive_p": 1.0715968199349041e-11, "ch_cluster_wilcoxon_p": 1.295607804835918e-13, "ch_deff": 0.7595724521323228, "ch_icc": -0.08012651230313662, "ch_n_eff": 5008.080518614328, "ch_sign_man_wins": 265, "ch_sign_woman_wins": 116, "ch_sign_ties": 570, "ch_sign_p": 1.5725942832291495e-14, "pr_margin": 0.0184, "pr_p": 5.942938698797093e-07, "pr_q": 1.1885877397594186e-06, "pr_n": 951, "stat": 0.9898303485659677, "p": 6.770510756409626e-16, "n": 3804, "n_used": 3804, "subsampled": false, "normal": false, "note": "full sample n=3804", "wilcoxon_stat": 2714844.5, "wilcoxon_p": 7.30863185736091e-07, "row_n": 3804, "n_clusters": 951, "k_mean": 4.0, "naive_p": 1.2059377637723251e-06, "naive_se": 0.003780186051608229, "cluster_se": 0.003656248747084961, "cluster_wilcoxon_p": 1.676876682734245e-06, "icc": -0.021493760061430934, "deff": 0.9355028580166272, "n_eff": 4066.2622966913364, "layout_contrasts": {"gender_mean": {"effect": 0.018381195990946515, "t": 5.027337378399486, "p": 5.942938698797093e-07, "n_clusters": 951}, "position_effect": {"effect": 0.20762819640894667, "t": 25.94209753117837, "p": 1.3238964802833346e-112, "n_clusters": 951}, "context_order_effect": {"effect": 0.11115104317289046, "t": 15.825628703383206, "p": 3.0321312887840673e-50, "n_clusters": 951}, "position_x_context": {"effect": -0.029228645544322883, "t": -7.9833799745563345, "p": 4.091858252230091e-15, "n_clusters": 951}}, "cluster_p": 5.942938698797093e-07}], "soc": [{"title": "Computer and Mathematical Occupations", "short": "Computer and Mathematical Occupati…", "stratum_g": 30, "ch_margin": 0.3, "ch_cluster_gap": 0.3, "pr_margin": 0.0589, "pr_cluster_margin": 0.0589, "ch_k_man": 78, "ch_k_wom": 42, "ch_k_delta": 36, "ch_sign_delta": 13, "ch_p": 0.0012993330972502681, "ch_cluster_p": 0.0006106304837378892, "pr_p": 0.002956437762644038, "pr_n": 30, "pr_k_delta": 7, "fdr_ch": true, "fdr_pr": true, "ch_cluster_t": 3.843642140686407, "ch_cluster_theta": 0.65, "ch_cluster_n": 30, "ch_row_n": 120, "ch_pooled_p": 0.0012993330972502681, "ch_naive_p": 0.000828494705497796, "ch_cluster_wilcoxon_p": 0.0016681585520700762, "ch_deff": 0.7966401414677274, "ch_icc": -0.06733584274362195, "ch_n_eff": 150.63263041065488, "ch_sign_man_wins": 15, "ch_sign_woman_wins": 2, "ch_sign_ties": 13, "ch_sign_p": 0.002349853515625, "stat": 0.9782798806673011, "p": 0.04930548660747594, "n": 120, "n_used": 120, "subsampled": false, "normal": false, "note": "full sample n=120", "wilcoxon_stat": 2219.5, "wilcoxon_p": 0.00400745178371489, "row_n": 120, "n_clusters": 30, "k_mean": 4.0, "naive_p": 0.002425598588936114, "naive_se": 0.018998334893831407, "cluster_se": 0.01814132417518127, "cluster_wilcoxon_p": 0.006870472935038411, "icc": -0.029171369441589913, "deff": 0.9118153311234642, "n_eff": 131.60559589642546, "layout_contrasts": {"gender_mean": {"effect": 0.05887060376505057, "t": 3.2451106212847516, "p": 0.002956437762644038, "n_clusters": 30}, "position_effect": {"effect": 0.2301190637052059, "t": 5.62261473805979, "p": 4.50571699689539e-06, "n_clusters": 30}, "context_order_effect": {"effect": 0.03145980363090833, "t": 1.0278224653653305, "p": 0.31253037394404465, "n_clusters": 30}, "position_x_context": {"effect": 0.04065932681163152, "t": 1.8436766450155426, "p": 0.07547114605922929, "n_clusters": 30}}, "cluster_p": 0.002956437762644038, "ch_q": 0.0035778878311348065, "pr_q": 0.009362052915039453}, {"title": "Transportation and Material Moving Occupations", "short": "Transportation and Material Moving…", "stratum_g": 53, "ch_margin": 0.2736, "ch_cluster_gap": 0.27358490566037735, "pr_margin": 0.0784, "pr_cluster_margin": 0.0784, "ch_k_man": 135, "ch_k_wom": 77, "ch_k_delta": 58, "ch_sign_delta": 22, "ch_p": 8.236337782292451e-05, "ch_cluster_p": 4.091777352588594e-06, "pr_p": 3.28972098713546e-07, "pr_n": 53, "pr_k_delta": 17, "fdr_ch": true, "fdr_pr": true, "ch_cluster_t": 5.148227114671849, "ch_cluster_theta": 0.6367924528301887, "ch_cluster_n": 53, "ch_row_n": 212, "ch_pooled_p": 8.236337782292451e-05, "ch_naive_p": 5.191751131860844e-05, "ch_cluster_wilcoxon_p": 3.2557280996015844e-05, "ch_deff": 0.6440781440781439, "ch_icc": -0.1182795698924731, "ch_n_eff": 329.1526066350712, "ch_sign_man_wins": 24, "ch_sign_woman_wins": 2, "ch_sign_ties": 27, "ch_sign_p": 1.049041748046875e-05, "stat": 0.9912882180047138, "p": 0.23512110822497306, "n": 212, "n_used": 212, "subsampled": false, "normal": true, "note": "full sample n=212", "wilcoxon_stat": 5887.0, "wilcoxon_p": 2.0148094197003524e-06, "row_n": 212, "n_clusters": 53, "k_mean": 4.0, "naive_p": 1.5713093803404836e-06, "naive_se": 0.01587024596874455, "cluster_se": 0.013402224945570506, "cluster_wilcoxon_p": 1.8271057155473516e-06, "icc": -0.09529152343223254, "deff": 0.7131592018342146, "n_eff": 297.2688278504227, "layout_contrasts": {"gender_mean": {"effect": 0.07843546681808976, "t": 5.85242130591257, "p": 3.28972098713546e-07, "n_clusters": 53}, "position_effect": {"effect": 0.12185730011957996, "t": 3.5256340673443263, "p": 0.0008912863808791822, "n_clusters": 53}, "context_order_effect": {"effect": 0.17198954213340328, "t": 4.844761149147657, "p": 1.1826003140817913e-05, "n_clusters": 53}, "position_x_context": {"effect": -0.06360154331855054, "t": -4.982171815639413, "p": 7.330314591398566e-06, "n_clusters": 53}}, "cluster_p": 3.28972098713546e-07, "ch_q": 7.774376969918329e-05, "pr_q": 6.250469875557374e-06}, {"title": "Architecture and Engineering Occupations", "short": "Architecture and Engineering Occup…", "stratum_g": 66, "ch_margin": 0.27, "ch_cluster_gap": 0.27020202020202017, "pr_margin": 0.0705, "pr_cluster_margin": 0.07, "ch_k_man": 167, "ch_k_wom": 96, "ch_k_delta": 71, "ch_sign_delta": 25, "ch_p": 1.4174619036180706e-05, "ch_cluster_p": 2.9939540833105733e-05, "pr_p": 1.8497528055021573e-05, "pr_n": 66, "pr_k_delta": 18, "fdr_ch": true, "fdr_pr": true, "ch_cluster_t": 4.489073148842074, "ch_cluster_theta": 0.63510101010101, "ch_cluster_n": 66, "ch_row_n": 263, "ch_pooled_p": 1.4174619036180706e-05, "ch_naive_p": 8.650499686916004e-06, "ch_cluster_wilcoxon_p": 0.00015160782860096765, "ch_deff": 1.023832500934275, "ch_icc": 0.009230350928491582, "ch_n_eff": 256.87795587657683, "ch_sign_man_wins": 31, "ch_sign_woman_wins": 6, "ch_sign_ties": 29, "ch_sign_p": 4.12575900554657e-05, "stat": 0.987004470726805, "p": 0.017696957054774413, "n": 263, "n_used": 263, "subsampled": false, "normal": false, "note": "full sample n=263", "wilcoxon_stat": 8926.0, "wilcoxon_p": 2.05315970252658e-06, "row_n": 263, "n_clusters": 66, "k_mean": 3.984848484848485, "naive_p": 1.5226641003654185e-06, "naive_se": 0.014332197715133502, "cluster_se": 0.015133837609688568, "cluster_wilcoxon_p": 1.893208805554862e-05, "icc": 0.03762593882621187, "deff": 1.1149940701874714, "n_eff": 235.87569390012993, "layout_contrasts": {"gender_mean": {"effect": 0.07227057785942004, "t": 4.758311321112751, "p": 1.153741155591492e-05, "n_clusters": 65}, "position_effect": {"effect": 0.13680942413898614, "t": 4.669234235021768, "p": 1.5957327092744386e-05, "n_clusters": 65}, "context_order_effect": {"effect": 0.10285813178007419, "t": 3.3079171407383026, "p": 0.001545211323581463, "n_clusters": 65}, "position_x_context": {"effect": -0.0072937587132820714, "t": -0.4984925412026156, "p": 0.6198458485899176, "n_clusters": 65}}, "cluster_p": 1.8497528055021573e-05, "ch_q": 0.00028442563791450447, "pr_q": 0.00017572651652270494}, {"title": "Construction and Extraction Occupations", "short": "Construction and Extraction Occupa…", "stratum_g": 61, "ch_margin": 0.2295, "ch_cluster_gap": 0.22950819672131148, "pr_margin": 0.0538, "pr_cluster_margin": 0.0538, "ch_k_man": 150, "ch_k_wom": 94, "ch_k_delta": 56, "ch_sign_delta": 20, "ch_p": 0.0004078109121963745, "ch_cluster_p": 0.0007532395433968014, "pr_p": 0.0018091241937500432, "pr_n": 61, "pr_k_delta": 13, "fdr_ch": true, "fdr_pr": true, "ch_cluster_t": 3.5512335960366377, "ch_cluster_theta": 0.6147540983606558, "ch_cluster_n": 61, "ch_row_n": 244, "ch_pooled_p": 0.0004078109121963745, "ch_naive_p": 0.00029179954768203853, "ch_cluster_wilcoxon_p": 0.002139100519872233, "ch_deff": 1.0713829787234046, "ch_icc": 0.02368987796123477, "ch_n_eff": 227.74302452586628, "ch_sign_man_wins": 26, "ch_sign_woman_wins": 6, "ch_sign_ties": 29, "ch_sign_p": 0.0005350527353584766, "stat": 0.9801830561052004, "p": 0.001732310007407766, "n": 244, "n_used": 244, "subsampled": false, "normal": false, "note": "full sample n=244", "wilcoxon_stat": 9137.0, "wilcoxon_p": 0.00024176874965998446, "row_n": 244, "n_clusters": 61, "k_mean": 4.0, "naive_p": 0.0002007207474562539, "naive_se": 0.014249536997816175, "cluster_se": 0.01647630050848318, "cluster_wilcoxon_p": 0.0033898650492311935, "icc": 0.11170488722381809, "deff": 1.336958424511367, "n_eff": 182.50380529908952, "layout_contrasts": {"gender_mean": {"effect": 0.05380048993669572, "t": 3.2653258484206074, "p": 0.0018091241937500432, "n_clusters": 61}, "position_effect": {"effect": 0.15152815692737454, "t": 5.266990925156418, "p": 1.974600059146818e-06, "n_clusters": 61}, "context_order_effect": {"effect": 0.14176817873462302, "t": 5.844849110322536, "p": 2.2278928558606924e-07, "n_clusters": 61}, "position_x_context": {"effect": -0.050015792983477234, "t": -3.243214369315849, "p": 0.0019326357733379608, "n_clusters": 61}}, "cluster_p": 0.0018091241937500432, "ch_q": 0.0035778878311348065, "pr_q": 0.0078203378660829}, {"title": "Protective Service Occupations", "short": "Protective Service Occupations", "stratum_g": 29, "ch_margin": 0.1724, "ch_cluster_gap": 0.1724137931034483, "pr_margin": 0.0461, "pr_cluster_margin": 0.0461, "ch_k_man": 68, "ch_k_wom": 48, "ch_k_delta": 20, "ch_sign_delta": 9, "ch_p": 0.07726226461070683, "ch_cluster_p": 0.030335535324408365, "pr_p": 0.09353203715909092, "pr_n": 29, "pr_k_delta": 5, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": 2.28132877212881, "ch_cluster_theta": 0.5862068965517241, "ch_cluster_n": 29, "ch_row_n": 116, "ch_pooled_p": 0.07726226461070683, "ch_naive_p": 0.0630465347668602, "ch_cluster_wilcoxon_p": 0.038800722085105536, "ch_deff": 0.6769739145658265, "ch_icc": -0.10704521556256573, "ch_n_eff": 171.35076773880715, "ch_sign_man_wins": 11, "ch_sign_woman_wins": 2, "ch_sign_ties": 16, "ch_sign_p": 0.0224609375, "stat": 0.980887538645163, "p": 0.09704213294825886, "n": 116, "n_used": 116, "subsampled": false, "normal": true, "note": "full sample n=116", "wilcoxon_stat": 2280.5, "wilcoxon_p": 0.04169600154209917, "row_n": 116, "n_clusters": 29, "k_mean": 4.0, "naive_p": 0.04006898227642978, "naive_se": 0.022216606116064193, "cluster_se": 0.02657292745804222, "cluster_wilcoxon_p": 0.024172843351395388, "icc": 0.1417752853792291, "deff": 1.430616972560813, "n_eff": 81.08389752454795, "layout_contrasts": {"gender_mean": {"effect": 0.04613437837567823, "t": 1.7361421111212867, "p": 0.09353203715909092, "n_clusters": 29}, "position_effect": {"effect": 0.23535824644154515, "t": 5.769269460339035, "p": 3.410944276222462e-06, "n_clusters": 29}, "context_order_effect": {"effect": 0.14422751449305435, "t": 5.44806031665847, "p": 8.160155285707515e-06, "n_clusters": 29}, "position_x_context": {"effect": -0.0530880658790983, "t": -2.0192624738405107, "p": 0.05312592875546339, "n_clusters": 29}}, "cluster_p": 0.09353203715909092, "ch_q": 0.0640416856848621, "pr_q": 0.17771087060227275}, {"title": "Sales and Related Occupations", "short": "Sales and Related Occupations", "stratum_g": 24, "ch_margin": 0.1667, "ch_cluster_gap": 0.16666666666666666, "pr_margin": 0.0183, "pr_cluster_margin": 0.0183, "ch_k_man": 56, "ch_k_wom": 40, "ch_k_delta": 16, "ch_sign_delta": 5, "ch_p": 0.1253456971884926, "ch_cluster_p": 0.057444548992082664, "pr_p": 0.3198908119702462, "pr_n": 24, "pr_k_delta": 2, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": 2.000000000000001, "ch_cluster_theta": 0.5833333333333334, "ch_cluster_n": 24, "ch_row_n": 96, "ch_pooled_p": 0.1253456971884926, "ch_naive_p": 0.10275734194796271, "ch_cluster_wilcoxon_p": 0.05710309217830269, "ch_deff": 0.6785714285714284, "ch_icc": -0.10638297872340426, "ch_n_eff": 141.47368421052636, "ch_sign_man_wins": 7, "ch_sign_woman_wins": 2, "ch_sign_ties": 15, "ch_sign_p": 0.1796875, "stat": 0.9376077518467015, "p": 0.0001903960742240335, "n": 96, "n_used": 96, "subsampled": false, "normal": false, "note": "full sample n=96", "wilcoxon_stat": 1904.5, "wilcoxon_p": 0.6874024464564293, "row_n": 96, "n_clusters": 24, "k_mean": 4.0, "naive_p": 0.4682617750076593, "naive_se": 0.025099477414043822, "cluster_se": 0.017978745797021037, "cluster_wilcoxon_p": 0.26043936484565566, "icc": -0.1614330746137341, "deff": 0.5130851263853985, "n_eff": 187.10345528100655, "layout_contrasts": {"gender_mean": {"effect": 0.018278285550574463, "t": 1.0166607702748132, "p": 0.3198908119702462, "n_clusters": 24}, "position_effect": {"effect": 0.22534293867647648, "t": 3.5293776109918875, "p": 0.0017947279422239292, "n_clusters": 24}, "context_order_effect": {"effect": 0.16813565976917744, "t": 4.446667570107245, "p": 0.00018490305006577977, "n_clusters": 24}, "position_x_context": {"effect": -0.05750268821914991, "t": -2.462031206668622, "p": 0.021735300672105443, "n_clusters": 24}}, "cluster_p": 0.3198908119702462, "ch_q": 0.10914464308495705, "pr_q": 0.39406199516281215}, {"title": "Production Occupations", "short": "Production Occupations", "stratum_g": 108, "ch_margin": 0.1481, "ch_cluster_gap": 0.14814814814814814, "pr_margin": 0.031, "pr_cluster_margin": 0.031, "ch_k_man": 248, "ch_k_wom": 184, "ch_k_delta": 64, "ch_sign_delta": 21, "ch_p": 0.0023980883549396246, "ch_cluster_p": 0.0023571975057813167, "pr_p": 0.005045038210283198, "pr_n": 108, "pr_k_delta": 13, "fdr_ch": true, "fdr_pr": true, "ch_cluster_t": 3.1155402533369725, "ch_cluster_theta": 0.5740740740740741, "ch_cluster_n": 108, "ch_row_n": 432, "ch_pooled_p": 0.0023980883549396246, "ch_naive_p": 0.001995340536048734, "ch_cluster_wilcoxon_p": 0.004410720637868575, "ch_deff": 0.9964166808666812, "ch_icc": -0.0011916846890585833, "ch_n_eff": 433.55356076962426, "ch_sign_man_wins": 33, "ch_sign_woman_wins": 12, "ch_sign_ties": 63, "ch_sign_p": 0.002458900322096724, "stat": 0.9853124470828066, "p": 0.00023186084556660132, "n": 432, "n_used": 432, "subsampled": false, "normal": false, "note": "full sample n=432", "wilcoxon_stat": 31378.5, "wilcoxon_p": 0.003893101408516133, "row_n": 432, "n_clusters": 108, "k_mean": 4.0, "naive_p": 0.002310683763729328, "naive_se": 0.010099799992809714, "cluster_se": 0.010812381234557886, "cluster_wilcoxon_p": 0.009480670413382013, "icc": 0.04856614187663104, "deff": 1.1460858569639913, "n_eff": 376.9351112528151, "layout_contrasts": {"gender_mean": {"effect": 0.03095960344567343, "t": 2.863347376868492, "p": 0.005045038210283198, "n_clusters": 108}, "position_effect": {"effect": 0.1320919633877498, "t": 5.638858984433551, "p": 1.4075243136921448e-07, "n_clusters": 108}, "context_order_effect": {"effect": 0.10114119277784119, "t": 5.490565609252229, "p": 2.721011768217139e-07, "n_clusters": 108}, "position_x_context": {"effect": -0.036285719799774664, "t": -3.552449284139937, "p": 0.0005691169875239448, "n_clusters": 108}}, "cluster_p": 0.005045038210283198, "ch_q": 0.008663302357977395, "pr_q": 0.013693675142197253}, {"title": "Installation, Maintenance, and Repair Occupations", "short": "Installation", "stratum_g": 54, "ch_margin": 0.1389, "ch_cluster_gap": 0.1388888888888889, "pr_margin": 0.0302, "pr_cluster_margin": 0.0302, "ch_k_man": 123, "ch_k_wom": 93, "ch_k_delta": 30, "ch_sign_delta": 10, "ch_p": 0.04822120950653141, "ch_cluster_p": 0.005904621281702081, "pr_p": 0.015176558387891172, "pr_n": 54, "pr_k_delta": 7, "fdr_ch": true, "fdr_pr": true, "ch_cluster_t": 2.8687651811530803, "ch_cluster_theta": 0.5694444444444444, "ch_cluster_n": 54, "ch_row_n": 216, "ch_pooled_p": 0.04822120950653141, "ch_naive_p": 0.04094745572355718, "ch_cluster_wilcoxon_p": 0.00702157395317671, "ch_deff": 0.5138577557412826, "ch_icc": -0.16166103903797166, "ch_n_eff": 420.34979055322816, "ch_sign_man_wins": 13, "ch_sign_woman_wins": 3, "ch_sign_ties": 38, "ch_sign_p": 0.021270751953125, "stat": 0.9761120538047915, "p": 0.0009996175015375502, "n": 216, "n_used": 216, "subsampled": false, "normal": false, "note": "full sample n=216", "wilcoxon_stat": 8171.5, "wilcoxon_p": 0.04796558431513107, "row_n": 216, "n_clusters": 54, "k_mean": 4.0, "naive_p": 0.06285603461242452, "naive_se": 0.01613522244883088, "cluster_se": 0.012022279329136455, "cluster_wilcoxon_p": 0.012856774364887573, "icc": -0.1478957440509906, "deff": 0.5551670908706059, "n_eff": 389.0720533547325, "layout_contrasts": {"gender_mean": {"effect": 0.03017135226616153, "t": 2.5096199680737827, "p": 0.015176558387891172, "n_clusters": 54}, "position_effect": {"effect": 0.21137262163338838, "t": 6.76024356185532, "p": 1.0965271930803207e-08, "n_clusters": 54}, "context_order_effect": {"effect": 0.17132217630192084, "t": 4.902390749435659, "p": 9.354234344980425e-06, "n_clusters": 54}, "position_x_context": {"effect": -0.04492801151893757, "t": -3.502777654018617, "p": 0.0009439040698971949, "n_clusters": 54}}, "cluster_p": 0.015176558387891172, "ch_q": 0.01602682919319136, "pr_q": 0.036044326171241536}, {"title": "Educational Instruction and Library Occupations", "short": "Educational Instruction and Librar…", "stratum_g": 60, "ch_margin": 0.1333, "ch_cluster_gap": 0.13333333333333333, "pr_margin": 0.0156, "pr_cluster_margin": 0.0156, "ch_k_man": 136, "ch_k_wom": 104, "ch_k_delta": 32, "ch_sign_delta": 13, "ch_p": 0.045162417754493, "ch_cluster_p": 0.0027357796919928617, "pr_p": 0.1879779182830435, "pr_n": 60, "pr_k_delta": 4, "fdr_ch": true, "fdr_pr": false, "ch_cluster_t": 3.1276801977966215, "ch_cluster_theta": 0.5666666666666667, "ch_cluster_n": 60, "ch_row_n": 240, "ch_pooled_p": 0.045162417754493, "ch_naive_p": 0.038605017647827665, "ch_cluster_wilcoxon_p": 0.003539908931383138, "ch_deff": 0.4422022394355395, "ch_icc": -0.18558920625807382, "ch_n_eff": 542.738092657229, "ch_sign_man_wins": 17, "ch_sign_woman_wins": 4, "ch_sign_ties": 39, "ch_sign_p": 0.007197380065917969, "stat": 0.9844205095361999, "p": 0.00994342805728253, "n": 240, "n_used": 240, "subsampled": false, "normal": false, "note": "full sample n=240", "wilcoxon_stat": 10850.5, "wilcoxon_p": 0.2901638114875672, "row_n": 240, "n_clusters": 60, "k_mean": 4.0, "naive_p": 0.26972067999293475, "naive_se": 0.014110060052029576, "cluster_se": 0.011718768250736688, "cluster_wilcoxon_p": 0.296407853536937, "icc": -0.10311140343724286, "deff": 0.6897730265315497, "n_eff": 347.94054097304223, "layout_contrasts": {"gender_mean": {"effect": 0.015609577608605226, "t": 1.3320152147922157, "p": 0.1879779182830435, "n_clusters": 60}, "position_effect": {"effect": 0.2448529423524936, "t": 8.23520975277897, "p": 2.1919257828520608e-11, "n_clusters": 60}, "context_order_effect": {"effect": 0.06221822760999203, "t": 2.4719056986176597, "p": 0.016343538846038938, "n_clusters": 60}, "position_x_context": {"effect": -0.02072944715619087, "t": -1.1925547918325539, "p": 0.23781799514640367, "n_clusters": 60}}, "cluster_p": 0.1879779182830435, "ch_q": 0.008663302357977395, "pr_q": 0.2976317039481522}, {"title": "Life, Physical, and Social Science Occupations", "short": "Life", "stratum_g": 60, "ch_margin": 0.1167, "ch_cluster_gap": 0.11666666666666667, "pr_margin": 0.0151, "pr_cluster_margin": 0.0151, "ch_k_man": 134, "ch_k_wom": 106, "ch_k_delta": 28, "ch_sign_delta": 11, "ch_p": 0.08114540916016125, "ch_cluster_p": 0.015056173875794266, "pr_p": 0.33184168013710497, "pr_n": 60, "pr_k_delta": 4, "fdr_ch": true, "fdr_pr": false, "ch_cluster_t": 2.504226362496089, "ch_cluster_theta": 0.5583333333333333, "ch_cluster_n": 60, "ch_row_n": 240, "ch_pooled_p": 0.08114540916016125, "ch_naive_p": 0.07061958298311634, "ch_cluster_wilcoxon_p": 0.018811815784792574, "ch_deff": 0.5258914891484374, "ch_icc": -0.15768919369433726, "ch_n_eff": 456.36791040034865, "ch_sign_man_wins": 15, "ch_sign_woman_wins": 4, "ch_sign_ties": 41, "ch_sign_p": 0.0192108154296875, "stat": 0.9749310936304733, "p": 0.0002985214881617055, "n": 240, "n_used": 240, "subsampled": false, "normal": false, "note": "full sample n=240", "wilcoxon_stat": 10956.5, "wilcoxon_p": 0.3462250343646742, "row_n": 240, "n_clusters": 60, "k_mean": 4.0, "naive_p": 0.3810214063011585, "naive_se": 0.017233183436049584, "cluster_se": 0.015457445372759882, "cluster_wilcoxon_p": 0.32646248629014285, "icc": -0.06493672964272035, "deff": 0.8045340310442786, "n_eff": 298.30932035091416, "layout_contrasts": {"gender_mean": {"effect": 0.015124502095083396, "t": 0.9784606531255662, "p": 0.33184168013710497, "n_clusters": 60}, "position_effect": {"effect": 0.34143666985134286, "t": 10.337022156581353, "p": 7.31996979772889e-15, "n_clusters": 60}, "context_order_effect": {"effect": 0.018326333289345107, "t": 0.687624447402388, "p": 0.4943837366445627, "n_clusters": 60}, "position_x_context": {"effect": 0.016447329769531886, "t": 0.9670360079114976, "p": 0.3374734467112799, "n_clusters": 60}}, "cluster_p": 0.33184168013710497, "ch_q": 0.03575841295501138, "pr_q": 0.39406199516281215}, {"title": "Management Occupations", "short": "Management Occupations", "stratum_g": 52, "ch_margin": 0.1058, "ch_cluster_gap": 0.10576923076923077, "pr_margin": 0.0091, "pr_cluster_margin": 0.0091, "ch_k_man": 115, "ch_k_wom": 93, "ch_k_delta": 22, "ch_sign_delta": 6, "ch_p": 0.1451879942723577, "ch_cluster_p": 0.15399804469395817, "pr_p": 0.5461363368824678, "pr_n": 52, "pr_k_delta": 2, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": 1.447063886666258, "ch_cluster_theta": 0.5528846153846154, "ch_cluster_n": 52, "ch_row_n": 208, "ch_pooled_p": 0.1451879942723577, "ch_naive_p": 0.12745974554297929, "ch_cluster_wilcoxon_p": 0.13824515004035487, "ch_deff": 1.1184060721062623, "ch_icc": 0.039256590176370246, "ch_n_eff": 185.9789616559212, "ch_sign_man_wins": 16, "ch_sign_woman_wins": 10, "ch_sign_ties": 26, "ch_sign_p": 0.32693958282470703, "stat": 0.9868807066324211, "p": 0.05187672208891893, "n": 208, "n_used": 208, "subsampled": false, "normal": true, "note": "full sample n=208", "wilcoxon_stat": 8188.5, "wilcoxon_p": 0.4886913857546804, "row_n": 208, "n_clusters": 52, "k_mean": 4.0, "naive_p": 0.5327212225140106, "naive_se": 0.014482989544108453, "cluster_se": 0.0148950252501475, "cluster_wilcoxon_p": 0.8256426537140602, "icc": 0.019138422726673026, "deff": 1.057708643181974, "n_eff": 196.6515082776104, "layout_contrasts": {"gender_mean": {"effect": 0.009050501725421501, "t": 0.6076190925108959, "p": 0.5461363368824678, "n_clusters": 52}, "position_effect": {"effect": 0.17956973941853413, "t": 6.579541174788386, "p": 2.5118943743553506e-08, "n_clusters": 52}, "context_order_effect": {"effect": 0.048660220291752085, "t": 1.4987476805446518, "p": 0.14010394309799454, "n_clusters": 52}, "position_x_context": {"effect": 0.002569727313060027, "t": 0.20235901079018118, "p": 0.8404411650984304, "n_clusters": 52}}, "cluster_p": 0.5461363368824678, "ch_q": 0.21284820176803085, "pr_q": 0.5461363368824678}, {"title": "Farming, Fishing, and Forestry Occupations", "short": "Farming", "stratum_g": 17, "ch_margin": 0.0882, "ch_cluster_gap": 0.08823529411764706, "pr_margin": 0.0581, "pr_cluster_margin": 0.0581, "ch_k_man": 37, "ch_k_wom": 31, "ch_k_delta": 6, "ch_sign_delta": 3, "ch_p": 0.5446122234192592, "ch_cluster_p": 0.5291629481681231, "pr_p": 0.1601225793766204, "pr_n": 17, "pr_k_delta": 4, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": 0.6432675209026761, "ch_cluster_theta": 0.5441176470588235, "ch_cluster_n": 17, "ch_row_n": 68, "ch_pooled_p": 0.5446122234192592, "ch_naive_p": 0.4709369425555972, "ch_cluster_wilcoxon_p": 0.583882420770365, "ch_deff": 1.2704882301656495, "ch_icc": 0.08848484848484853, "ch_n_eff": 53.52273117172757, "ch_sign_man_wins": 6, "ch_sign_woman_wins": 3, "ch_sign_ties": 8, "ch_sign_p": 0.5078125, "stat": 0.9712448653726371, "p": 0.11731558781977808, "n": 68, "n_used": 68, "subsampled": false, "normal": true, "note": "full sample n=68", "wilcoxon_stat": 831.0, "wilcoxon_p": 0.1608110445888956, "row_n": 68, "n_clusters": 17, "k_mean": 4.0, "naive_p": 0.08287262405458458, "naive_se": 0.03298992975349268, "cluster_se": 0.039427926079331335, "cluster_wilcoxon_p": 0.16267331507194682, "icc": 0.139814066296334, "deff": 1.4283843582334212, "n_eff": 47.606233999999944, "layout_contrasts": {"gender_mean": {"effect": 0.058081485988462675, "t": 1.4731052775030384, "p": 0.1601225793766204, "n_clusters": 17}, "position_effect": {"effect": 0.048376198638887966, "t": 0.5399130319313856, "p": 0.5966922648317079, "n_clusters": 17}, "context_order_effect": {"effect": 0.1220107722808333, "t": 2.3470227850088743, "p": 0.0321243613729686, "n_clusters": 17}, "position_x_context": {"effect": -0.05383762804900899, "t": -2.13633280735772, "p": 0.04844884050457374, "n_clusters": 17}}, "cluster_p": 0.1601225793766204, "ch_q": 0.5585608897330189, "pr_q": 0.27657536437779884}, {"title": "Arts, Design, Entertainment, Sports, and Media Occupations", "short": "Arts", "stratum_g": 43, "ch_margin": 0.0814, "ch_cluster_gap": 0.08139534883720931, "pr_margin": 0.0106, "pr_cluster_margin": 0.0106, "ch_k_man": 93, "ch_k_wom": 79, "ch_k_delta": 14, "ch_sign_delta": 5, "ch_p": 0.32157393688809527, "ch_cluster_p": 0.1640678877003635, "pr_p": 0.5227366816452154, "pr_n": 43, "pr_k_delta": 2, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": 1.4162796168893947, "ch_cluster_theta": 0.5406976744186046, "ch_cluster_n": 43, "ch_row_n": 172, "ch_pooled_p": 0.32157393688809527, "ch_naive_p": 0.2870592871495788, "ch_cluster_wilcoxon_p": 0.1663956986225884, "ch_deff": 0.5685702619144842, "ch_icc": -0.14333333333333337, "ch_n_eff": 302.51318354365435, "ch_sign_man_wins": 9, "ch_sign_woman_wins": 4, "ch_sign_ties": 30, "ch_sign_p": 0.266845703125, "stat": 0.9877578214899967, "p": 0.14082698016201778, "n": 172, "n_used": 172, "subsampled": false, "normal": true, "note": "full sample n=172", "wilcoxon_stat": 6131.5, "wilcoxon_p": 0.5982984610970785, "row_n": 172, "n_clusters": 43, "k_mean": 4.0, "naive_p": 0.5711554696466342, "naive_se": 0.01864587853684731, "cluster_se": 0.016415880326673776, "cluster_wilcoxon_p": 0.6616496026276808, "icc": -0.07462547953529083, "deff": 0.7751087743068525, "n_eff": 221.90433872176513, "layout_contrasts": {"gender_mean": {"effect": 0.010580527747786322, "t": 0.6445300244175315, "p": 0.5227366816452154, "n_clusters": 43}, "position_effect": {"effect": 0.26606228254562203, "t": 9.190903335641458, "p": 1.3088522460204475e-11, "n_clusters": 43}, "context_order_effect": {"effect": 0.1617120691510134, "t": 4.404679343515498, "p": 7.16347937695805e-05, "n_clusters": 43}, "position_x_context": {"effect": -0.060484013585157176, "t": -3.6584329747839672, "p": 0.0007020193967964836, "n_clusters": 43}}, "cluster_p": 0.5227366816452154, "ch_q": 0.21284820176803085, "pr_q": 0.5461363368824678}, {"title": "Office and Administrative Support Occupations", "short": "Office and Administrative Support …", "stratum_g": 63, "ch_margin": 0.0397, "ch_cluster_gap": 0.03968253968253968, "pr_margin": 0.0067, "pr_cluster_margin": 0.0067, "ch_k_man": 131, "ch_k_wom": 121, "ch_k_delta": 10, "ch_sign_delta": 2, "ch_p": 0.5708375672009757, "ch_cluster_p": 0.3883661621804835, "pr_p": 0.4520020462651997, "pr_n": 63, "pr_k_delta": 2, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": 0.868691614851745, "ch_cluster_theta": 0.5198412698412699, "ch_cluster_n": 63, "ch_row_n": 252, "ch_pooled_p": 0.5708375672009757, "ch_naive_p": 0.5298000050181446, "ch_cluster_wilcoxon_p": 0.3666689081834129, "ch_deff": 0.5245970031401296, "ch_icc": -0.1581371545547595, "ch_n_eff": 480.36873731946605, "ch_sign_man_wins": 13, "ch_sign_woman_wins": 11, "ch_sign_ties": 39, "ch_sign_p": 0.8388197422027588, "stat": 0.985995027800443, "p": 0.014410105170780927, "n": 252, "n_used": 252, "subsampled": false, "normal": false, "note": "full sample n=252", "wilcoxon_stat": 11795.0, "wilcoxon_p": 0.6192702357036787, "row_n": 252, "n_clusters": 63, "k_mean": 4.0, "naive_p": 0.5632809565308327, "naive_se": 0.011600620417686117, "cluster_se": 0.00887061379710289, "cluster_wilcoxon_p": 0.9398237465666, "icc": -0.13810630547298275, "deff": 0.5847159088330017, "n_eff": 430.9785251147881, "layout_contrasts": {"gender_mean": {"effect": 0.006713788187693036, "t": 0.7568572300922101, "p": 0.4520020462651997, "n_clusters": 63}, "position_effect": {"effect": 0.19195053596345205, "t": 6.970849718119438, "p": 2.4149655674191554e-09, "n_clusters": 63}, "context_order_effect": {"effect": 0.05799929017112369, "t": 2.839397721566576, "p": 0.006104585449152664, "n_clusters": 63}, "position_x_context": {"effect": -0.024521297878689237, "t": -1.9878269672772029, "p": 0.05125148826682767, "n_clusters": 63}}, "cluster_p": 0.4520020462651997, "ch_q": 0.43405629890759917, "pr_q": 0.5051787575905173}, {"title": "Healthcare Support Occupations", "short": "Healthcare Support Occupations", "stratum_g": 17, "ch_margin": -0.0294, "ch_cluster_gap": -0.029411764705882353, "pr_margin": -0.0313, "pr_cluster_margin": -0.0313, "ch_k_man": 33, "ch_k_wom": 35, "ch_k_delta": -2, "ch_sign_delta": 0, "ch_p": 0.9035973456835127, "ch_cluster_p": 0.7498058561479997, "pr_p": 0.25988097945641214, "pr_n": 17, "pr_k_delta": -2, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": -0.32444284226152514, "ch_cluster_theta": 0.4852941176470588, "ch_cluster_n": 17, "ch_row_n": 68, "ch_pooled_p": 0.9035973456835127, "ch_naive_p": 0.8104069808530198, "ch_cluster_wilcoxon_p": 0.7388826803635273, "ch_deff": 0.5510822510822513, "ch_icc": -0.14841849148418496, "ch_n_eff": 123.39355852317357, "ch_sign_man_wins": 3, "ch_sign_woman_wins": 3, "ch_sign_ties": 11, "ch_sign_p": 1.0, "stat": 0.9520297948188079, "p": 0.010736359359898954, "n": 68, "n_used": 68, "subsampled": false, "normal": false, "note": "full sample n=68", "wilcoxon_stat": 785.0, "wilcoxon_p": 0.24749220532731175, "row_n": 68, "n_clusters": 17, "k_mean": 4.0, "naive_p": 0.3004135525323658, "naive_se": 0.029964602760889553, "cluster_se": 0.026771479660803305, "cluster_wilcoxon_p": 0.320106280731166, "icc": -0.06646502206146826, "deff": 0.7982293666901992, "n_eff": 85.18854709888352, "layout_contrasts": {"gender_mean": {"effect": -0.03127156921169337, "t": -1.1680926720490068, "p": 0.25988097945641214, "n_clusters": 17}, "position_effect": {"effect": 0.21831157759708517, "t": 3.231922165252254, "p": 0.0052156496941382245, "n_clusters": 17}, "context_order_effect": {"effect": 0.21426058648263707, "t": 5.404333907723511, "p": 5.846041406055506e-05, "n_clusters": 17}, "position_x_context": {"effect": -0.060023024678230286, "t": -2.5953165448574658, "p": 0.019525632087854832, "n_clusters": 17}}, "cluster_p": 0.25988097945641214, "ch_q": 0.7498058561479997, "pr_q": 0.3798260468978331}, {"title": "Healthcare Practitioners and Technical Occupations", "short": "Healthcare Practitioners and Techn…", "stratum_g": 86, "ch_margin": -0.0581, "ch_cluster_gap": -0.05813953488372093, "pr_margin": -0.0311, "pr_cluster_margin": -0.0311, "ch_k_man": 162, "ch_k_wom": 182, "ch_k_delta": -20, "ch_sign_delta": -6, "ch_p": 0.3056356705821584, "ch_cluster_p": 0.10511618179864311, "pr_p": 0.002057983648969184, "pr_n": 86, "pr_k_delta": -11, "fdr_ch": false, "fdr_pr": true, "ch_cluster_t": -1.6380112356393675, "ch_cluster_theta": 0.47093023255813954, "ch_cluster_n": 86, "ch_row_n": 344, "ch_pooled_p": 0.3056356705821584, "ch_naive_p": 0.281531253775077, "ch_cluster_wilcoxon_p": 0.09710972225903595, "ch_deff": 0.4335847159376569, "ch_icc": -0.1885667283569813, "ch_n_eff": 793.3858998144716, "ch_sign_man_wins": 7, "ch_sign_woman_wins": 13, "ch_sign_ties": 66, "ch_sign_p": 0.26317596435546875, "stat": 0.975968909633974, "p": 1.6921120562965376e-05, "n": 344, "n_used": 344, "subsampled": false, "normal": false, "note": "full sample n=344", "wilcoxon_stat": 22821.5, "wilcoxon_p": 0.030149778340879577, "row_n": 344, "n_clusters": 86, "k_mean": 4.0, "naive_p": 0.022237327479872938, "naive_se": 0.013561489568996455, "cluster_se": 0.009795740111249613, "cluster_wilcoxon_p": 0.0011151300795552242, "icc": -0.15917563644525526, "deff": 0.5217467113798572, "n_eff": 659.323753263777, "layout_contrasts": {"gender_mean": {"effect": -0.031146831333983774, "t": -3.179630225000985, "p": 0.002057983648969184, "n_clusters": 86}, "position_effect": {"effect": 0.34668209810936174, "t": 15.230604615918113, "p": 5.115536868231659e-26, "n_clusters": 86}, "context_order_effect": {"effect": 0.1266612220815448, "t": 6.0828487092255585, "p": 3.266419522690013e-08, "n_clusters": 86}, "position_x_context": {"effect": -0.040014249814111134, "t": -3.9521677944390765, "p": 0.00015952961163285428, "n_clusters": 86}}, "cluster_p": 0.002057983648969184, "ch_q": 0.18156431401583809, "pr_q": 0.0078203378660829}, {"title": "Business and Financial Operations Occupations", "short": "Business and Financial Operations …", "stratum_g": 49, "ch_margin": -0.0714, "ch_cluster_gap": -0.07142857142857142, "pr_margin": -0.0138, "pr_cluster_margin": -0.0138, "ch_k_man": 91, "ch_k_wom": 105, "ch_k_delta": -14, "ch_sign_delta": -4, "ch_p": 0.35314085510666426, "ch_cluster_p": 0.18058244024891984, "pr_p": 0.2989270488243936, "pr_n": 49, "pr_k_delta": -3, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": -1.3587324409735144, "ch_cluster_theta": 0.4642857142857143, "ch_cluster_n": 49, "ch_row_n": 196, "ch_pooled_p": 0.35314085510666426, "ch_naive_p": 0.31854979114921084, "ch_cluster_wilcoxon_p": 0.1674852470125836, "ch_deff": 0.5416666666666667, "ch_icc": -0.1523545706371191, "ch_n_eff": 361.8461538461538, "ch_sign_man_wins": 7, "ch_sign_woman_wins": 11, "ch_sign_ties": 31, "ch_sign_p": 0.480682373046875, "stat": 0.9883904691648587, "p": 0.11083952437111944, "n": 196, "n_used": 196, "subsampled": false, "normal": true, "note": "full sample n=196", "wilcoxon_stat": 7759.0, "wilcoxon_p": 0.5797968889221603, "row_n": 196, "n_clusters": 49, "k_mean": 4.0, "naive_p": 0.40595932020784103, "naive_se": 0.016551748541944925, "cluster_se": 0.013127031923288141, "cluster_wilcoxon_p": 0.5587753371167263, "icc": -0.12327161101651617, "deff": 0.6289922916718151, "n_eff": 311.6095421122673, "layout_contrasts": {"gender_mean": {"effect": -0.013784797215948299, "t": -1.0501076935368188, "p": 0.2989270488243936, "n_clusters": 49}, "position_effect": {"effect": 0.20725903219106245, "t": 5.622766975457231, "p": 9.399585806172308e-07, "n_clusters": 49}, "context_order_effect": {"effect": 0.09274205230936712, "t": 2.604999310213647, "p": 0.01219570016172465, "n_clusters": 49}, "position_x_context": {"effect": -0.011561743458923029, "t": -0.736609270826182, "p": 0.46494509550749435, "n_clusters": 49}}, "cluster_p": 0.2989270488243936, "ch_q": 0.2144416477955923, "pr_q": 0.39406199516281215}, {"title": "Personal Care and Service Occupations", "short": "Personal Care and Service Occupati…", "stratum_g": 32, "ch_margin": -0.1094, "ch_cluster_gap": -0.109375, "pr_margin": -0.0693, "pr_cluster_margin": -0.0693, "ch_k_man": 57, "ch_k_wom": 71, "ch_k_delta": -14, "ch_sign_delta": -7, "ch_p": 0.250439880619259, "ch_cluster_p": 0.1471256027787178, "pr_p": 0.0011475821057863455, "pr_n": 32, "pr_k_delta": -9, "fdr_ch": false, "fdr_pr": true, "ch_cluster_t": -1.486964219803306, "ch_cluster_theta": 0.4453125, "ch_cluster_n": 32, "ch_row_n": 128, "ch_pooled_p": 0.250439880619259, "ch_naive_p": 0.21724938474276642, "ch_cluster_wilcoxon_p": 0.19794049209309417, "ch_deff": 0.6954494368588438, "ch_icc": -0.10096397767630645, "ch_n_eff": 184.05363958326177, "ch_sign_man_wins": 2, "ch_sign_woman_wins": 9, "ch_sign_ties": 21, "ch_sign_p": 0.0654296875, "stat": 0.9872006215977562, "p": 0.27715979350107317, "n": 128, "n_used": 128, "subsampled": false, "normal": true, "note": "full sample n=128", "wilcoxon_stat": 2267.0, "wilcoxon_p": 0.002806309187387252, "row_n": 128, "n_clusters": 32, "k_mean": 4.0, "naive_p": 0.0017822036414580267, "naive_se": 0.02170402385112183, "cluster_se": 0.019336617243874473, "cluster_wilcoxon_p": 0.0020972042744691723, "icc": -0.06832495395792043, "deff": 0.7937440548348772, "n_eff": 161.26105036040602, "layout_contrasts": {"gender_mean": {"effect": -0.06927490048110485, "t": -3.582575980452321, "p": 0.0011475821057863455, "n_clusters": 32}, "position_effect": {"effect": 0.2345682163722813, "t": 5.094143635294311, "p": 1.6397728794947947e-05, "n_clusters": 32}, "context_order_effect": {"effect": 0.15201108111068606, "t": 4.011862958592731, "p": 0.00035345135533303883, "n_clusters": 32}, "position_x_context": {"effect": -0.054702382534742355, "t": -2.4627195526630463, "p": 0.019546259314715757, "n_clusters": 32}}, "cluster_p": 0.0011475821057863455, "ch_q": 0.21284820176803085, "pr_q": 0.0072680200033135205}, {"title": "Food Preparation and Serving Related Occupations", "short": "Food Preparation and Serving Relat…", "stratum_g": 17, "ch_margin": -0.2059, "ch_cluster_gap": -0.20588235294117646, "pr_margin": -0.0746, "pr_cluster_margin": -0.0746, "ch_k_man": 27, "ch_k_wom": 41, "ch_k_delta": -14, "ch_sign_delta": -6, "ch_p": 0.11425430684992327, "ch_cluster_p": 0.16803805402739277, "pr_p": 0.02755339027550308, "pr_n": 17, "pr_k_delta": -5, "fdr_ch": false, "fdr_pr": false, "ch_cluster_t": -1.443989744762311, "ch_cluster_theta": 0.39705882352941174, "ch_cluster_n": 17, "ch_row_n": 68, "ch_pooled_p": 0.11425430684992327, "ch_naive_p": 0.08966289390182246, "ch_cluster_wilcoxon_p": 0.22863788735524238, "ch_deff": 1.4223125564588985, "ch_icc": 0.1378446115288221, "ch_n_eff": 47.80946332168941, "ch_sign_man_wins": 2, "ch_sign_woman_wins": 8, "ch_sign_ties": 7, "ch_sign_p": 0.109375, "stat": 0.9556498960597756, "p": 0.016618120290959677, "n": 68, "n_used": 68, "subsampled": false, "normal": false, "note": "full sample n=68", "wilcoxon_stat": 485.0, "wilcoxon_p": 0.002447395890434154, "row_n": 68, "n_clusters": 17, "k_mean": 4.0, "naive_p": 0.005960617830931928, "naive_se": 0.026269809960561254, "cluster_se": 0.030779757183871236, "cluster_wilcoxon_p": 0.0395355224609375, "icc": 0.12178111556258447, "deff": 1.3728292276498477, "n_eff": 49.532744955036755, "layout_contrasts": {"gender_mean": {"effect": -0.07461867152768023, "t": -2.42427745878323, "p": 0.02755339027550308, "n_clusters": 17}, "position_effect": {"effect": 0.11255835391142789, "t": 2.195521985092807, "p": 0.04321997644634145, "n_clusters": 17}, "context_order_effect": {"effect": 0.17543391839546316, "t": 3.7579454195418562, "p": 0.0017186919375192428, "n_clusters": 17}, "position_x_context": {"effect": -0.045730542610673344, "t": -1.563421098696664, "p": 0.1375144035862601, "n_clusters": 17}}, "cluster_p": 0.02755339027550308, "ch_q": 0.21284820176803085, "pr_q": 0.0581682683593954}], "position": [{"key": "man_first", "ctx": "man_first", "ch": {"n": 951, "a": 148, "b": 549, "c": 31, "d": 223, "flip": 60.99, "flip_str": "61.0%", "first": 77.23, "first_str": "77.2%", "second_wins_pct": 5.3}, "pr": {"n": 786, "a": 127, "b": 422, "c": 31, "d": 206, "flip": 57.63, "flip_str": "57.6%", "first": 55.56, "first_str": "55.6%", "second_wins_pct": 6.8}, "ch_p": 3.1507776564045017e-102, "pr_p": 5.344878413213735e-75}, {"key": "woman_first", "ctx": "woman_first", "ch": {"n": 951, "a": 341, "b": 532, "c": 21, "d": 57, "flip": 58.15, "flip_str": "58.1%", "first": 76.87, "first_str": "76.9%", "second_wins_pct": 3.8}, "pr": {"n": 792, "a": 318, "b": 402, "c": 21, "d": 51, "flip": 53.41, "flip_str": "53.4%", "first": 54.83, "first_str": "54.8%", "second_wins_pct": 5.0}, "ch_p": 2.697759024361921e-104, "pr_p": 3.208177894372742e-76}], "context_p01": [{"key": "p0/without_abstain", "pos": "p0", "av": "without_abstain", "slice": "p0/without_abstain", "ch": {"n": 951, "a": 674, "b": 23, "c": 199, "d": 55, "flip": 23.34, "flip_str": "23.3%", "first": 40.75, "first_str": "40.7%", "second_wins_pct": 89.6}, "pr": {"n": 779, "a": 550, "b": 12, "c": 162, "d": 55, "flip": 22.34, "flip_str": "22.3%", "first": 47.59, "first_str": "47.6%", "second_wins_pct": 93.1}, "ch_p": 7.471808228205074e-32, "pr_p": 1.3786312100474367e-29}, {"key": "p1/without_abstain", "pos": "p1", "av": "without_abstain", "slice": "p1/without_abstain", "ch": {"n": 951, "a": 122, "b": 57, "c": 240, "d": 532, "flip": 31.23, "flip_str": "31.2%", "first": 40.38, "first_str": "40.4%", "second_wins_pct": 80.8}, "pr": {"n": 807, "a": 122, "b": 44, "c": 201, "d": 440, "flip": 30.36, "flip_str": "30.4%", "first": 46.86, "first_str": "46.9%", "second_wins_pct": 82.0}, "ch_p": 4.532152528438163e-26, "pr_p": 2.1367949062621281e-23}], "context_wa": [{"key": "p0/with_abstain", "pos": "p0", "av": "with_abstain", "slice": "p0/with_abstain", "ch": {"n": 92, "a": 36, "b": 2, "c": 43, "d": 11, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 95.6}, "pr": {"n": 658, "a": 200, "b": 10, "c": 225, "d": 223, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 95.7}, "ch_p": 2.478790797016709e-09, "pr_p": 2.7412235662396016e-44}, {"key": "p1/with_abstain", "pos": "p1", "av": "with_abstain", "slice": "p1/with_abstain", "ch": {"n": 98, "a": 11, "b": 3, "c": 25, "d": 59, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 89.3}, "pr": {"n": 806, "a": 290, "b": 52, "c": 235, "d": 229, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 81.9}, "ch_p": 7.228793882618061e-05, "pr_p": 6.3849216096863906e-27}, {"key": "p2/with_abstain", "pos": "p2", "av": "with_abstain", "slice": "p2/with_abstain", "ch": {"n": 268, "a": 60, "b": 9, "c": 116, "d": 83, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 92.8}, "pr": {"n": 712, "a": 211, "b": 24, "c": 279, "d": 198, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 92.1}, "ch_p": 2.5203104221245264e-21, "pr_p": 3.1617840444718245e-48}, {"key": "p3/with_abstain", "pos": "p3", "av": "with_abstain", "slice": "p3/with_abstain", "ch": {"n": 165, "a": 68, "b": 6, "c": 74, "d": 17, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 92.5}, "pr": {"n": 813, "a": 267, "b": 38, "c": 305, "d": 203, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 88.9}, "ch_p": 6.844060346519136e-14, "pr_p": 8.876697062827798e-47}, {"key": "p4/with_abstain", "pos": "p4", "av": "with_abstain", "slice": "p4/with_abstain", "ch": {"n": 409, "a": 248, "b": 2, "c": 131, "d": 28, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 98.5}, "pr": {"n": 740, "a": 476, "b": 6, "c": 206, "d": 52, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 97.2}, "ch_p": 1.268444585731211e-28, "pr_p": 1.59026772730139e-42}, {"key": "p5/with_abstain", "pos": "p5", "av": "with_abstain", "slice": "p5/with_abstain", "ch": {"n": 355, "a": 32, "b": 6, "c": 177, "d": 140, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 96.7}, "pr": {"n": 753, "a": 75, "b": 7, "c": 308, "d": 363, "flip": null, "flip_str": "—", "first": null, "first_str": "—", "second_wins_pct": 97.8}, "ch_p": 3.216304612556528e-36, "pr_p": 4.269709087919505e-64}], "pos_table_html": "<table class='mcn'><thead><tr><th>context_order</th><th>таргет</th><th>n</th><th>b: man@p0 &amp; woman@p1</th><th>c: woman@p0 &amp; man@p1</th><th>Order Flip</th><th>First-Shown</th><th>p</th></tr></thead><tbody><tr class='mcn-grp-a'><td rowspan=\"2\" class=\"mcn-key\">man_first</td><td class='mcn-target'>choice</td><td>951</td><td>549</td><td>31</td><td>61.0%</td><td>77.2%</td><td>3.151e-102</td></tr><tr class='mcn-grp-a'><td class='mcn-target'>prob</td><td>786</td><td>422</td><td>31</td><td>57.6%</td><td>55.6%</td><td>5.345e-75</td></tr><tr class='mcn-grp-b'><td rowspan=\"2\" class=\"mcn-key\">woman_first</td><td class='mcn-target'>choice</td><td>951</td><td>532</td><td>21</td><td>58.1%</td><td>76.9%</td><td>2.698e-104</td></tr><tr class='mcn-grp-b'><td class='mcn-target'>prob</td><td>792</td><td>402</td><td>21</td><td>53.4%</td><td>54.8%</td><td>3.208e-76</td></tr></tbody></table>", "pos_target_diff_html": "<p><strong>choice vs prob</strong></p><p class='compare-intro'>Один и тот же срез p0↔p1; prob-версия McNemar исключает пары с ничьей по <code>margin=0</code>.</p><div class='compare-block'><p class='compare-hdr'><b>man_first</b></p><ul><li>b≫c у обоих таргетов → bias к <b>слоту A</b></li><li>Пар McNemar: choice <b>951</b>, prob <b>786</b> (на 165 меньше у prob)</li><li>Order Flip: choice <b>61.0%</b>, prob <b>57.6%</b></li><li>First-Shown: choice <b>77.2%</b>, prob <b>55.6%</b></li></ul></div><div class='compare-block'><p class='compare-hdr'><b>woman_first</b></p><ul><li>b≫c у обоих таргетов → bias к <b>слоту A</b></li><li>Пар McNemar: choice <b>951</b>, prob <b>792</b> (на 159 меньше у prob)</li><li>Order Flip: choice <b>58.1%</b>, prob <b>53.4%</b></li><li>First-Shown: choice <b>76.9%</b>, prob <b>54.8%</b></li></ul></div><p class='compare-sum'><b>Вывод:</b> знак эффекта совпадает; prob смягчает Order Flip и First-Shown (argmax резче, чем средняя вероятность на слот A).</p>", "ctx_target_diff_html": "<p><strong>choice vs prob</strong></p><p class='compare-intro'>Один срез mf↔wf: <b>choice</b> = argmax, <b>prob</b> = сравнение p_man и p_woman. Среди пар, где ответ <b>меняется</b> при смене mf/wf: <b>c</b> — выбран второй в нарративе.</p><div class='compare-block'><p class='compare-hdr'><b>without_abstain</b> — c≫b, recency</p><ul><li><b>p0</b>: choice <b>89.6%</b>, prob <b>93.1%</b></li><li><b>p1</b>: choice <b>80.8%</b>, prob <b>82.0%</b></li></ul></div><div class='compare-block'><p class='compare-hdr'><b>with_abstain</b> (6 поз.) — c≫b</p><p>В среднем по p0–p5: choice <b>94.2%</b>, prob <b>92.3%</b>.</p></div><p class='compare-sum'><b>Вывод:</b> знак эффекта совпадает — перекос ко <b>второму</b> имени в нарративе контекста.</p>", "fdr_rows": {"abstain": [{"name": "without_abstain · choice", "p": 1.3730025032822128e-14, "q": 2.7460050065644257e-14, "ok": true}, {"name": "with_abstain · choice", "p": 0.0039025322054471673, "q": 0.0039025322054471673, "ok": true}, {"name": "without_abstain · prob", "p": 5.942938698797093e-07, "q": 1.1885877397594186e-06, "ok": true}, {"name": "with_abstain · prob", "p": 0.0012912391267582762, "q": 0.0012912391267582762, "ok": true}], "soc": [{"name": "Transportation and Material Moving Occupations · choice", "p": 4.091777352588594e-06, "q": 7.774376969918329e-05, "ok": true}, {"name": "Architecture and Engineering Occupations · choice", "p": 2.9939540833105733e-05, "q": 0.00028442563791450447, "ok": true}, {"name": "Computer and Mathematical Occupations · choice", "p": 0.0006106304837378892, "q": 0.0035778878311348065, "ok": true}, {"name": "Construction and Extraction Occupations · choice", "p": 0.0007532395433968014, "q": 0.0035778878311348065, "ok": true}, {"name": "Production Occupations · choice", "p": 0.0023571975057813167, "q": 0.008663302357977395, "ok": true}, {"name": "Educational Instruction and Library Occupations · choice", "p": 0.0027357796919928617, "q": 0.008663302357977395, "ok": true}, {"name": "Installation, Maintenance, and Repair Occupation · choice", "p": 0.005904621281702081, "q": 0.01602682919319136, "ok": true}, {"name": "Life, Physical, and Social Science Occupations · choice", "p": 0.015056173875794266, "q": 0.03575841295501138, "ok": true}, {"name": "Protective Service Occupations · choice", "p": 0.030335535324408365, "q": 0.0640416856848621, "ok": false}, {"name": "Sales and Related Occupations · choice", "p": 0.057444548992082664, "q": 0.10914464308495705, "ok": false}, {"name": "Healthcare Practitioners and Technical Occupatio · choice", "p": 0.10511618179864311, "q": 0.18156431401583809, "ok": false}, {"name": "Personal Care and Service Occupations · choice", "p": 0.1471256027787178, "q": 0.21284820176803085, "ok": false}, {"name": "Management Occupations · choice", "p": 0.15399804469395817, "q": 0.21284820176803085, "ok": false}, {"name": "Arts, Design, Entertainment, Sports, and Media O · choice", "p": 0.1640678877003635, "q": 0.21284820176803085, "ok": false}, {"name": "Food Preparation and Serving Related Occupations · choice", "p": 0.16803805402739277, "q": 0.21284820176803085, "ok": false}, {"name": "Business and Financial Operations Occupations · choice", "p": 0.18058244024891984, "q": 0.2144416477955923, "ok": false}, {"name": "Office and Administrative Support Occupations · choice", "p": 0.3883661621804835, "q": 0.43405629890759917, "ok": false}, {"name": "Farming, Fishing, and Forestry Occupations · choice", "p": 0.5291629481681231, "q": 0.5585608897330189, "ok": false}, {"name": "Healthcare Support Occupations · choice", "p": 0.7498058561479997, "q": 0.7498058561479997, "ok": false}, {"name": "Transportation and Material Moving Occupations · prob", "p": 3.28972098713546e-07, "q": 6.250469875557374e-06, "ok": true}, {"name": "Architecture and Engineering Occupations · prob", "p": 1.8497528055021573e-05, "q": 0.00017572651652270494, "ok": true}, {"name": "Personal Care and Service Occupations · prob", "p": 0.0011475821057863455, "q": 0.0072680200033135205, "ok": true}, {"name": "Construction and Extraction Occupations · prob", "p": 0.0018091241937500432, "q": 0.0078203378660829, "ok": true}, {"name": "Healthcare Practitioners and Technical Occupatio · prob", "p": 0.002057983648969184, "q": 0.0078203378660829, "ok": true}, {"name": "Computer and Mathematical Occupations · prob", "p": 0.002956437762644038, "q": 0.009362052915039453, "ok": true}, {"name": "Production Occupations · prob", "p": 0.005045038210283198, "q": 0.013693675142197253, "ok": true}, {"name": "Installation, Maintenance, and Repair Occupation · prob", "p": 0.015176558387891172, "q": 0.036044326171241536, "ok": true}, {"name": "Food Preparation and Serving Related Occupations · prob", "p": 0.02755339027550308, "q": 0.0581682683593954, "ok": false}, {"name": "Protective Service Occupations · prob", "p": 0.09353203715909092, "q": 0.17771087060227275, "ok": false}, {"name": "Farming, Fishing, and Forestry Occupations · prob", "p": 0.1601225793766204, "q": 0.27657536437779884, "ok": false}, {"name": "Educational Instruction and Library Occupations · prob", "p": 0.1879779182830435, "q": 0.2976317039481522, "ok": false}, {"name": "Healthcare Support Occupations · prob", "p": 0.25988097945641214, "q": 0.3798260468978331, "ok": false}, {"name": "Business and Financial Operations Occupations · prob", "p": 0.2989270488243936, "q": 0.39406199516281215, "ok": false}, {"name": "Sales and Related Occupations · prob", "p": 0.3198908119702462, "q": 0.39406199516281215, "ok": false}, {"name": "Life, Physical, and Social Science Occupations · prob", "p": 0.33184168013710497, "q": 0.39406199516281215, "ok": false}, {"name": "Office and Administrative Support Occupations · prob", "p": 0.4520020462651997, "q": 0.5051787575905173, "ok": false}, {"name": "Arts, Design, Entertainment, Sports, and Media O · prob", "p": 0.5227366816452154, "q": 0.5461363368824678, "ok": false}, {"name": "Management Occupations · prob", "p": 0.5461363368824678, "q": 0.5461363368824678, "ok": false}], "position": [{"name": "woman_first · choice", "p": 2.697759024361921e-104, "q": 5.395518048723842e-104, "ok": true}, {"name": "man_first · choice", "p": 3.1507776564045017e-102, "q": 3.1507776564045017e-102, "ok": true}, {"name": "woman_first · prob", "p": 3.208177894372742e-76, "q": 6.416355788745483e-76, "ok": true}, {"name": "man_first · prob", "p": 5.344878413213735e-75, "q": 5.344878413213735e-75, "ok": true}], "context": [{"name": "p5/with_abstain · choice", "p": 3.216304612556528e-36, "q": 2.5730436900452223e-35, "ok": true}, {"name": "p0/without_abstain · choice", "p": 7.471808228205074e-32, "q": 2.9887232912820297e-31, "ok": true}, {"name": "p4/with_abstain · choice", "p": 1.268444585731211e-28, "q": 3.3825188952832296e-28, "ok": true}, {"name": "p1/without_abstain · choice", "p": 4.532152528438163e-26, "q": 9.064305056876326e-26, "ok": true}, {"name": "p2/with_abstain · choice", "p": 2.5203104221245264e-21, "q": 4.032496675399242e-21, "ok": true}, {"name": "p3/with_abstain · choice", "p": 6.844060346519136e-14, "q": 9.125413795358848e-14, "ok": true}, {"name": "p0/with_abstain · choice", "p": 2.478790797016709e-09, "q": 2.832903768019096e-09, "ok": true}, {"name": "p1/with_abstain · choice", "p": 7.228793882618061e-05, "q": 7.228793882618061e-05, "ok": true}, {"name": "p5/with_abstain · prob", "p": 4.269709087919505e-64, "q": 3.415767270335604e-63, "ok": true}, {"name": "p2/with_abstain · prob", "p": 3.1617840444718245e-48, "q": 1.2647136177887298e-47, "ok": true}, {"name": "p3/with_abstain · prob", "p": 8.876697062827798e-47, "q": 2.3671192167540793e-46, "ok": true}, {"name": "p0/with_abstain · prob", "p": 2.7412235662396016e-44, "q": 5.482447132479203e-44, "ok": true}, {"name": "p4/with_abstain · prob", "p": 1.59026772730139e-42, "q": 2.544428363682224e-42, "ok": true}, {"name": "p0/without_abstain · prob", "p": 1.3786312100474367e-29, "q": 1.8381749467299156e-29, "ok": true}, {"name": "p1/with_abstain · prob", "p": 6.3849216096863906e-27, "q": 7.297053268213018e-27, "ok": true}, {"name": "p1/without_abstain · prob", "p": 2.1367949062621281e-23, "q": 2.1367949062621281e-23, "ok": true}]}, "soc_fdr_ch_n": 8, "soc_fdr_pr_n": 8, "soc_fdr_html": "<p style='margin-top:.85rem'><strong>Выводы (BH/FDR, Q=0.05; только значимые, + → man, − → woman):</strong></p><ul><li><b>Choice</b> (cluster t-test, семья 19 тестов): к man — <b>8</b>, к woman — <b>0</b>.<div style='margin:.35rem 0 .15rem'>→ man:</div><ul><li>Computer and Mathematical Occupati… — +30.0 п.п. (q=0.003578)</li><li>Transportation and Material Moving… — +27.4 п.п. (q=7.774e-05)</li><li>Architecture and Engineering Occup… — +27.0 п.п. (q=0.0002844)</li><li>Construction and Extraction Occupa… — +23.0 п.п. (q=0.003578)</li><li>Production Occupations — +14.8 п.п. (q=0.008663)</li><li>Installation — +13.9 п.п. (q=0.01603)</li><li>Educational Instruction and Librar… — +13.3 п.п. (q=0.008663)</li><li>Life — +11.7 п.п. (q=0.03576)</li></ul><div style='margin:.35rem 0 .15rem'>→ woman:</div><span class='muted'>нет</span></li><li><b>Prob</b> (cluster t-test, семья 19 тестов): к man — <b>6</b>, к woman — <b>2</b>.<div style='margin:.35rem 0 .15rem'>→ man:</div><ul><li>Transportation and Material Moving… — +7.8 п.п. (q=6.250e-06)</li><li>Architecture and Engineering Occup… — +7.0 п.п. (q=0.0001757)</li><li>Computer and Mathematical Occupati… — +5.9 п.п. (q=0.009362)</li><li>Construction and Extraction Occupa… — +5.4 п.п. (q=0.00782)</li><li>Production Occupations — +3.1 п.п. (q=0.01369)</li><li>Installation — +3.0 п.п. (q=0.03604)</li></ul><div style='margin:.35rem 0 .15rem'>→ woman:</div><ul><li>Personal Care and Service Occupati… — -6.9 п.п. (q=0.007268)</li><li>Healthcare Practitioners and Techn… — -3.1 п.п. (q=0.00782)</li></ul></li></ul><p class='note' style='margin:.35rem 0 0'>«Значимо» = q-value ≤ Q после BH в отдельных семьях choice и prob (cluster p). Δ choice = mean gap по θ_i; Δ prob = mean(p_man−p_woman) по base items.</p><details class='method-spoiler' open><summary>FDR-таблица по отраслям (cluster Δ п.п. · q-value · значимо после BH)</summary><div class='spoiler-body'><table class='mcn'><thead><tr><th>soc_major_title</th><th>choice Δ</th><th>choice q</th><th>choice</th><th>prob Δ</th><th>prob q</th><th>prob</th></tr></thead><tbody><tr><td class='mcn-key' title=\"Architecture and Engineering Occupations\">Architecture and Engineering Occup…</td><td>+27.0</td><td>0.0002844</td><td><span class='fdr-yes'>✓</span></td><td>+7.0</td><td>0.0001757</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Arts, Design, Entertainment, Sports, and Media Occupations\">Arts</td><td>+8.1</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>+1.1</td><td>0.5461</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Business and Financial Operations Occupations\">Business and Financial Operations …</td><td>-7.1</td><td>0.2144</td><td><span class='fdr-no'>✗</span></td><td>-1.4</td><td>0.3941</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Computer and Mathematical Occupations\">Computer and Mathematical Occupati…</td><td>+30.0</td><td>0.003578</td><td><span class='fdr-yes'>✓</span></td><td>+5.9</td><td>0.009362</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Construction and Extraction Occupations\">Construction and Extraction Occupa…</td><td>+23.0</td><td>0.003578</td><td><span class='fdr-yes'>✓</span></td><td>+5.4</td><td>0.00782</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Educational Instruction and Library Occupations\">Educational Instruction and Librar…</td><td>+13.3</td><td>0.008663</td><td><span class='fdr-yes'>✓</span></td><td>+1.6</td><td>0.2976</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Farming, Fishing, and Forestry Occupations\">Farming</td><td>+8.8</td><td>0.5586</td><td><span class='fdr-no'>✗</span></td><td>+5.8</td><td>0.2766</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Food Preparation and Serving Related Occupations\">Food Preparation and Serving Relat…</td><td>-20.6</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>-7.5</td><td>0.05817</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Healthcare Practitioners and Technical Occupations\">Healthcare Practitioners and Techn…</td><td>-5.8</td><td>0.1816</td><td><span class='fdr-no'>✗</span></td><td>-3.1</td><td>0.00782</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Healthcare Support Occupations\">Healthcare Support Occupations</td><td>-2.9</td><td>0.7498</td><td><span class='fdr-no'>✗</span></td><td>-3.1</td><td>0.3798</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Installation, Maintenance, and Repair Occupations\">Installation</td><td>+13.9</td><td>0.01603</td><td><span class='fdr-yes'>✓</span></td><td>+3.0</td><td>0.03604</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Life, Physical, and Social Science Occupations\">Life</td><td>+11.7</td><td>0.03576</td><td><span class='fdr-yes'>✓</span></td><td>+1.5</td><td>0.3941</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Management Occupations\">Management Occupations</td><td>+10.6</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>+0.9</td><td>0.5461</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Office and Administrative Support Occupations\">Office and Administrative Support …</td><td>+4.0</td><td>0.4341</td><td><span class='fdr-no'>✗</span></td><td>+0.7</td><td>0.5052</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Personal Care and Service Occupations\">Personal Care and Service Occupati…</td><td>-10.9</td><td>0.2128</td><td><span class='fdr-no'>✗</span></td><td>-6.9</td><td>0.007268</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Production Occupations\">Production Occupations</td><td>+14.8</td><td>0.008663</td><td><span class='fdr-yes'>✓</span></td><td>+3.1</td><td>0.01369</td><td><span class='fdr-yes'>✓</span></td></tr><tr><td class='mcn-key' title=\"Protective Service Occupations\">Protective Service Occupations</td><td>+17.2</td><td>0.06404</td><td><span class='fdr-no'>✗</span></td><td>+4.6</td><td>0.1777</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Sales and Related Occupations\">Sales and Related Occupations</td><td>+16.7</td><td>0.1091</td><td><span class='fdr-no'>✗</span></td><td>+1.8</td><td>0.3941</td><td><span class='fdr-no'>✗</span></td></tr><tr><td class='mcn-key' title=\"Transportation and Material Moving Occupations\">Transportation and Material Moving…</td><td>+27.4</td><td>7.774e-05</td><td><span class='fdr-yes'>✓</span></td><td>+7.8</td><td>6.250e-06</td><td><span class='fdr-yes'>✓</span></td></tr></tbody></table></div></details>", "min_soc_g": 15, "soc_excluded": [{"title": "Building and Grounds Cleaning and Maintenance Occupations", "short": "Building and Grounds Cleaning and …", "g": 8, "n_rows": 32}, {"title": "Community and Social Service Occupations", "short": "Community and Social Service Occup…", "g": 14, "n_rows": 56}, {"title": "Legal Occupations", "short": "Legal Occupations", "g": 8, "n_rows": 32}], "soc_excluded_note": "<p class='note'>Cluster-тесты по отрасли не выполняются при G &lt; 15 base items (<code>scenario_family_id</code>). Исключено 3: Building and Grounds Cleaning and … (G=8), Legal Occupations (G=8), Community and Social Service Occup… (G=14).</p>", "primary_html": "<div class='interpret'><p><strong>Pre-specified primary</strong> — коррекция множественности <b>не применяется</b> (один confirmatory тест; strata — отдельно с BH).</p><ul><li><b>Choice (cluster, главный):</b> G=951, θ̄=0.5345498277280611, Δ=+6.9 п.п., p=6.664e-07 (Wilcoxon 1.216e-05)</li><li><b>Prob (cluster, supporting):</b> G=951, margin=+1.0 п.п., p=0.0001013 (Wilcoxon 0.0007251)</li></ul><p class='note'>Pooled binomial choice p=5.689e-08 — только для сравнения с naive/row-level; <b>inferential claim</b> — cluster.</p></div>", "primary_refs_html": "<details class=\"test-ref-spoiler\"><summary>Детали тестов (primary, без BH)</summary><div class=\"spoiler-body\"><p><b>conditional binomial (choice, pooled):</b> k_man=3937, k_woman=3469, p-value=5.689e-08 <span class='muted'>(без BH)</span></p><p><b>cluster t-test (choice):</b> G=951, gender-строк=7406, θ̄=0.5345498277280611, p-value=6.664e-07 <span class='muted'>(без BH)</span></p><p>θ_i = M_i/(M_i+W_i) по item; G=951, gender-строк=7406. mean θ̄=0.5345, mean Δ=+6.91 п.п.. Cluster t-test p=6.664e-07 (Wilcoxon p=1.216e-05). Pooled binomial p=5.689e-08. DEFF≈1.42, n_eff≈5226. ICC≈0.074. Naive row t-test p=5.237e-08. Sign-test items: man&gt;364, woman&gt;309, ties=278.</p><p><b>t-test (prob, cluster):</b> margin=0.01, G=951, строк=15216, p-value=0.0001013 <span class='muted'>(без BH)</span></p><p>Единица наблюдения: base item (n=951 кластеров, 15216 строк, k̄=16.0). Cluster t-test p=0.0001013 (Wilcoxon по item-means p=0.0007251). DEFF≈3.36, n_eff≈4530. ICC≈0.157. Naive row-level t-test p=8.727e-13 (для сравнения).</p><p>Wilcoxon signed-rank: W=4.234e+07, p=4.273e-15; H₀: median(margin)=0 (робастная проверка prob).</p><p>Shapiro–Wilk (subsample): W=0.9886, p=1.142e-19, n=5000/15216; нормальность отвергается (α=0.05).</p></div></details>", "section_refs": {"abstain": "<details class=\"test-ref-spoiler\"><summary>with_abstain: binomial · t-test</summary><div class=\"spoiler-body\"><p><b>conditional binomial (choice, pooled):</b> k_man=1826, k_woman=1776, abstain_rate=0.6843673326323169, p-value=0.4143, q-value=0.003903</p><p><b>cluster t-test (choice):</b> G=649, gender-строк=3602, θ̄=0.46392290725880864, p-value=0.003903</p><p>θ_i = M_i/(M_i+W_i) по item; G=649, gender-строк=3602. mean θ̄=0.4639, mean Δ=-7.22 п.п.. Cluster t-test p=0.003903 (Wilcoxon p=0.002827). Pooled binomial p=0.4143. DEFF≈2.24, n_eff≈1611. ICC≈0.111. Naive row t-test p=0.4049. Sign-test items: man&gt;258, woman&gt;295, ties=96.</p><p><b>t-test (prob, cluster):</b> margin=0.0072, G=951, строк=11412, p-value=0.001291, q-value=0.001291</p><p>Единица наблюдения: base item (n=951 кластеров, 11412 строк, k̄=12.0). Cluster t-test p=0.001291 (Wilcoxon по item-means p=0.008551). DEFF≈2.65, n_eff≈4309. ICC≈0.150. Naive row-level t-test p=1.525e-07 (для сравнения).</p><p>Wilcoxon signed-rank: W=2.384e+07, p=5.607e-08; H₀: median(margin)=0 (робастная проверка prob).</p><p>Shapiro–Wilk (subsample): W=0.9823, p=1.679e-24, n=5000/11412; нормальность отвергается (α=0.05).</p></div></details><details class=\"test-ref-spoiler\"><summary>without_abstain: binomial · t-test</summary><div class=\"spoiler-body\"><p><b>conditional binomial (choice, pooled):</b> k_man=2111, k_woman=1693, abstain_rate=0.0, p-value=1.308e-11, q-value=2.746e-14</p><p><b>cluster t-test (choice):</b> G=951, gender-строк=3804, θ̄=0.5549421661409043, p-value=1.373e-14</p><p>θ_i = M_i/(M_i+W_i) по item; G=951, gender-строк=3804. mean θ̄=0.5549, mean Δ=+10.99 п.п.. Cluster t-test p=1.373e-14 (Wilcoxon p=1.296e-13). Pooled binomial p=1.308e-11. DEFF≈0.76, n_eff≈5008. ICC≈-0.080. Naive row t-test p=1.072e-11. Sign-test items: man&gt;265, woman&gt;116, ties=570.</p><p><b>t-test (prob, cluster):</b> margin=0.0184, G=951, строк=3804, p-value=5.943e-07, q-value=1.189e-06</p><p>Единица наблюдения: base item (n=951 кластеров, 3804 строк, k̄=4.0). Cluster t-test p=5.943e-07 (Wilcoxon по item-means p=1.677e-06). DEFF≈0.94, n_eff≈4066. ICC≈-0.021. Naive row-level t-test p=1.206e-06 (для сравнения).</p><p>Wilcoxon signed-rank: W=2.715e+06, p=7.309e-07; H₀: median(margin)=0 (робастная проверка prob).</p><p>Shapiro–Wilk: W=0.9898, p=6.771e-16, n=3804/3804; нормальность отвергается (α=0.05).</p></div></details><details class=\"test-ref-spoiler\"><summary>BH · abstain (Q=0.05)</summary><div class=\"spoiler-body\"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class=\"tip-fdr\"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name=\"without_abstain · choice\" data-s-p=\"1.3730025032822128e-14\" data-s-q=\"2.7460050065644257e-14\" data-s-fdr=\"1\"><td class='tip-name'>without_abstain · choice</td><td class='tip-p'>1.373e-14</td><td class='tip-q'>2.746e-14</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"with_abstain · choice\" data-s-p=\"0.0039025322054471673\" data-s-q=\"0.0039025322054471673\" data-s-fdr=\"1\"><td class='tip-name'>with_abstain · choice</td><td class='tip-p'>0.003903</td><td class='tip-q'>0.003903</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"without_abstain · prob\" data-s-p=\"5.942938698797093e-07\" data-s-q=\"1.1885877397594186e-06\" data-s-fdr=\"1\"><td class='tip-name'>without_abstain · prob</td><td class='tip-p'>5.943e-07</td><td class='tip-q'>1.189e-06</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"with_abstain · prob\" data-s-p=\"0.0012912391267582762\" data-s-q=\"0.0012912391267582762\" data-s-fdr=\"1\"><td class='tip-name'>with_abstain · prob</td><td class='tip-p'>0.001291</td><td class='tip-q'>0.001291</td><td class='fdr-yes'>✓</td></tr></tbody></table></div></details>", "soc": "<details class=\"test-ref-spoiler\"><summary>conditional binomial (choice)</summary><div class=\"spoiler-body\"><p>19 отраслей <code>soc_major_title</code> (G≥15). Срез: <code>without_abstain</code> — man/woman, p0/p1, mf/wf. График и BH — <b>cluster t-test</b> (θ_i=M_i/(M_i+W_i) по base items). Pooled p — в таблице для сравнения.</p></div></details><details class=\"test-ref-spoiler\"><summary>cluster t-test (choice)</summary><div class=\"spoiler-body\"><p>θ_i = доля man среди gender-ответов item; cluster t-test H₀: E[θ_i]=0.5.</p><table class='tip-fdr'><thead><tr><th>Отрасль</th><th>pooled p</th><th>cluster p</th><th>Wilcoxon p</th><th>G/строк</th><th>DEFF</th></tr></thead><tbody><tr><td class='tip-name'>Architecture and Engineering Occup…</td><td>1.417e-05</td><td>2.994e-05</td><td>0.0001516</td><td>66/263</td><td>1.02</td></tr><tr><td class='tip-name'>Arts</td><td>0.3216</td><td>0.1641</td><td>0.1664</td><td>43/172</td><td>0.57</td></tr><tr><td class='tip-name'>Business and Financial Operations …</td><td>0.3531</td><td>0.1806</td><td>0.1675</td><td>49/196</td><td>0.54</td></tr><tr><td class='tip-name'>Computer and Mathematical Occupati…</td><td>0.001299</td><td>0.0006106</td><td>0.001668</td><td>30/120</td><td>0.80</td></tr><tr><td class='tip-name'>Construction and Extraction Occupa…</td><td>0.0004078</td><td>0.0007532</td><td>0.002139</td><td>61/244</td><td>1.07</td></tr><tr><td class='tip-name'>Educational Instruction and Librar…</td><td>0.04516</td><td>0.002736</td><td>0.00354</td><td>60/240</td><td>0.44</td></tr><tr><td class='tip-name'>Farming</td><td>0.5446</td><td>0.5292</td><td>0.5839</td><td>17/68</td><td>1.27</td></tr><tr><td class='tip-name'>Food Preparation and Serving Relat…</td><td>0.1143</td><td>0.168</td><td>0.2286</td><td>17/68</td><td>1.42</td></tr><tr><td class='tip-name'>Healthcare Practitioners and Techn…</td><td>0.3056</td><td>0.1051</td><td>0.09711</td><td>86/344</td><td>0.43</td></tr><tr><td class='tip-name'>Healthcare Support Occupations</td><td>0.9036</td><td>0.7498</td><td>0.7389</td><td>17/68</td><td>0.55</td></tr><tr><td class='tip-name'>Installation</td><td>0.04822</td><td>0.005905</td><td>0.007022</td><td>54/216</td><td>0.51</td></tr><tr><td class='tip-name'>Life</td><td>0.08115</td><td>0.01506</td><td>0.01881</td><td>60/240</td><td>0.53</td></tr><tr><td class='tip-name'>Management Occupations</td><td>0.1452</td><td>0.154</td><td>0.1382</td><td>52/208</td><td>1.12</td></tr><tr><td class='tip-name'>Office and Administrative Support …</td><td>0.5708</td><td>0.3884</td><td>0.3667</td><td>63/252</td><td>0.52</td></tr><tr><td class='tip-name'>Personal Care and Service Occupati…</td><td>0.2504</td><td>0.1471</td><td>0.1979</td><td>32/128</td><td>0.70</td></tr><tr><td class='tip-name'>Production Occupations</td><td>0.002398</td><td>0.002357</td><td>0.004411</td><td>108/432</td><td>1.00</td></tr><tr><td class='tip-name'>Protective Service Occupations</td><td>0.07726</td><td>0.03034</td><td>0.0388</td><td>29/116</td><td>0.68</td></tr><tr><td class='tip-name'>Sales and Related Occupations</td><td>0.1253</td><td>0.05744</td><td>0.0571</td><td>24/96</td><td>0.68</td></tr><tr><td class='tip-name'>Transportation and Material Moving…</td><td>8.236e-05</td><td>4.092e-06</td><td>3.256e-05</td><td>53/212</td><td>0.64</td></tr></tbody></table></div></details><details class=\"test-ref-spoiler\"><summary>t-test (prob)</summary><div class=\"spoiler-body\"><p>mean margin по base items (scenario_family_id): сначала среднее margin по swap-вариантам item, затем t-test по G items. Shapiro–Wilk — по строкам (диагностика naive t-test); Wilcoxon — по item-means.</p><p class='tip-note'>* — subsample n=5000 (лимит Shapiro–Wilk). ✓ — нормальность не отвергается при α=0.05. Wilcoxon signed-rank — H₀: median(margin)=0, не требует нормальности.</p><table class='tip-fdr'><thead><tr><th>Отрасль</th><th>t-test p</th><th>Wilcoxon p</th><th>Shapiro W</th><th>Shapiro p</th><th>n</th><th>Normal?</th></tr></thead><tbody><tr><td class='tip-name'>Computer and Mathematical Occupati…</td><td>0.002956</td><td>0.004007</td><td>0.9783</td><td>0.04931</td><td>120/120</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Transportation and Material Moving…</td><td>3.290e-07</td><td>2.015e-06</td><td>0.9913</td><td>0.2351</td><td>212/212</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Architecture and Engineering Occup…</td><td>1.850e-05</td><td>2.053e-06</td><td>0.987</td><td>0.0177</td><td>263/263</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Construction and Extraction Occupa…</td><td>0.001809</td><td>0.0002418</td><td>0.9802</td><td>0.001732</td><td>244/244</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Protective Service Occupations</td><td>0.09353</td><td>0.0417</td><td>0.9809</td><td>0.09704</td><td>116/116</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Sales and Related Occupations</td><td>0.3199</td><td>0.6874</td><td>0.9376</td><td>0.0001904</td><td>96/96</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Production Occupations</td><td>0.005045</td><td>0.003893</td><td>0.9853</td><td>0.0002319</td><td>432/432</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Installation</td><td>0.01518</td><td>0.04797</td><td>0.9761</td><td>0.0009996</td><td>216/216</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Educational Instruction and Librar…</td><td>0.188</td><td>0.2902</td><td>0.9844</td><td>0.009943</td><td>240/240</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Life</td><td>0.3318</td><td>0.3462</td><td>0.9749</td><td>0.0002985</td><td>240/240</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Management Occupations</td><td>0.5461</td><td>0.4887</td><td>0.9869</td><td>0.05188</td><td>208/208</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Farming</td><td>0.1601</td><td>0.1608</td><td>0.9712</td><td>0.1173</td><td>68/68</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Arts</td><td>0.5227</td><td>0.5983</td><td>0.9878</td><td>0.1408</td><td>172/172</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Office and Administrative Support …</td><td>0.452</td><td>0.6193</td><td>0.986</td><td>0.01441</td><td>252/252</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Healthcare Support Occupations</td><td>0.2599</td><td>0.2475</td><td>0.952</td><td>0.01074</td><td>68/68</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Healthcare Practitioners and Techn…</td><td>0.002058</td><td>0.03015</td><td>0.976</td><td>1.692e-05</td><td>344/344</td><td class='fdr-no'>✗</td></tr><tr><td class='tip-name'>Business and Financial Operations …</td><td>0.2989</td><td>0.5798</td><td>0.9884</td><td>0.1108</td><td>196/196</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Personal Care and Service Occupati…</td><td>0.001148</td><td>0.002806</td><td>0.9872</td><td>0.2772</td><td>128/128</td><td class='fdr-yes'>✓</td></tr><tr><td class='tip-name'>Food Preparation and Serving Relat…</td><td>0.02755</td><td>0.002447</td><td>0.9556</td><td>0.01662</td><td>68/68</td><td class='fdr-no'>✗</td></tr></tbody></table></div></details><details class=\"test-ref-spoiler\"><summary>BH · soc_major_title (Q=0.05)</summary><div class=\"spoiler-body\"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class=\"tip-fdr\"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name=\"Transportation and Material Moving Occupations · choice\" data-s-p=\"4.091777352588594e-06\" data-s-q=\"7.774376969918329e-05\" data-s-fdr=\"1\"><td class='tip-name'>Transportation and Material Moving Occupations · choice</td><td class='tip-p'>4.092e-06</td><td class='tip-q'>7.774e-05</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Architecture and Engineering Occupations · choice\" data-s-p=\"2.9939540833105733e-05\" data-s-q=\"0.00028442563791450447\" data-s-fdr=\"1\"><td class='tip-name'>Architecture and Engineering Occupations · choice</td><td class='tip-p'>2.994e-05</td><td class='tip-q'>0.0002844</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Computer and Mathematical Occupations · choice\" data-s-p=\"0.0006106304837378892\" data-s-q=\"0.0035778878311348065\" data-s-fdr=\"1\"><td class='tip-name'>Computer and Mathematical Occupations · choice</td><td class='tip-p'>0.0006106</td><td class='tip-q'>0.003578</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Construction and Extraction Occupations · choice\" data-s-p=\"0.0007532395433968014\" data-s-q=\"0.0035778878311348065\" data-s-fdr=\"1\"><td class='tip-name'>Construction and Extraction Occupations · choice</td><td class='tip-p'>0.0007532</td><td class='tip-q'>0.003578</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Production Occupations · choice\" data-s-p=\"0.0023571975057813167\" data-s-q=\"0.008663302357977395\" data-s-fdr=\"1\"><td class='tip-name'>Production Occupations · choice</td><td class='tip-p'>0.002357</td><td class='tip-q'>0.008663</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Educational Instruction and Library Occupations · choice\" data-s-p=\"0.0027357796919928617\" data-s-q=\"0.008663302357977395\" data-s-fdr=\"1\"><td class='tip-name'>Educational Instruction and Library Occupations · choice</td><td class='tip-p'>0.002736</td><td class='tip-q'>0.008663</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Installation, Maintenance, and Repair Occupation · choice\" data-s-p=\"0.005904621281702081\" data-s-q=\"0.01602682919319136\" data-s-fdr=\"1\"><td class='tip-name'>Installation, Maintenance, and Repair Occupation · choice</td><td class='tip-p'>0.005905</td><td class='tip-q'>0.01603</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Life, Physical, and Social Science Occupations · choice\" data-s-p=\"0.015056173875794266\" data-s-q=\"0.03575841295501138\" data-s-fdr=\"1\"><td class='tip-name'>Life, Physical, and Social Science Occupations · choice</td><td class='tip-p'>0.01506</td><td class='tip-q'>0.03576</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Protective Service Occupations · choice\" data-s-p=\"0.030335535324408365\" data-s-q=\"0.0640416856848621\" data-s-fdr=\"0\"><td class='tip-name'>Protective Service Occupations · choice</td><td class='tip-p'>0.03034</td><td class='tip-q'>0.06404</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Sales and Related Occupations · choice\" data-s-p=\"0.057444548992082664\" data-s-q=\"0.10914464308495705\" data-s-fdr=\"0\"><td class='tip-name'>Sales and Related Occupations · choice</td><td class='tip-p'>0.05744</td><td class='tip-q'>0.1091</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Healthcare Practitioners and Technical Occupatio · choice\" data-s-p=\"0.10511618179864311\" data-s-q=\"0.18156431401583809\" data-s-fdr=\"0\"><td class='tip-name'>Healthcare Practitioners and Technical Occupatio · choice</td><td class='tip-p'>0.1051</td><td class='tip-q'>0.1816</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Personal Care and Service Occupations · choice\" data-s-p=\"0.1471256027787178\" data-s-q=\"0.21284820176803085\" data-s-fdr=\"0\"><td class='tip-name'>Personal Care and Service Occupations · choice</td><td class='tip-p'>0.1471</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Management Occupations · choice\" data-s-p=\"0.15399804469395817\" data-s-q=\"0.21284820176803085\" data-s-fdr=\"0\"><td class='tip-name'>Management Occupations · choice</td><td class='tip-p'>0.154</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Arts, Design, Entertainment, Sports, and Media O · choice\" data-s-p=\"0.1640678877003635\" data-s-q=\"0.21284820176803085\" data-s-fdr=\"0\"><td class='tip-name'>Arts, Design, Entertainment, Sports, and Media O · choice</td><td class='tip-p'>0.1641</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Food Preparation and Serving Related Occupations · choice\" data-s-p=\"0.16803805402739277\" data-s-q=\"0.21284820176803085\" data-s-fdr=\"0\"><td class='tip-name'>Food Preparation and Serving Related Occupations · choice</td><td class='tip-p'>0.168</td><td class='tip-q'>0.2128</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Business and Financial Operations Occupations · choice\" data-s-p=\"0.18058244024891984\" data-s-q=\"0.2144416477955923\" data-s-fdr=\"0\"><td class='tip-name'>Business and Financial Operations Occupations · choice</td><td class='tip-p'>0.1806</td><td class='tip-q'>0.2144</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Office and Administrative Support Occupations · choice\" data-s-p=\"0.3883661621804835\" data-s-q=\"0.43405629890759917\" data-s-fdr=\"0\"><td class='tip-name'>Office and Administrative Support Occupations · choice</td><td class='tip-p'>0.3884</td><td class='tip-q'>0.4341</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Farming, Fishing, and Forestry Occupations · choice\" data-s-p=\"0.5291629481681231\" data-s-q=\"0.5585608897330189\" data-s-fdr=\"0\"><td class='tip-name'>Farming, Fishing, and Forestry Occupations · choice</td><td class='tip-p'>0.5292</td><td class='tip-q'>0.5586</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Healthcare Support Occupations · choice\" data-s-p=\"0.7498058561479997\" data-s-q=\"0.7498058561479997\" data-s-fdr=\"0\"><td class='tip-name'>Healthcare Support Occupations · choice</td><td class='tip-p'>0.7498</td><td class='tip-q'>0.7498</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Transportation and Material Moving Occupations · prob\" data-s-p=\"3.28972098713546e-07\" data-s-q=\"6.250469875557374e-06\" data-s-fdr=\"1\"><td class='tip-name'>Transportation and Material Moving Occupations · prob</td><td class='tip-p'>3.290e-07</td><td class='tip-q'>6.250e-06</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Architecture and Engineering Occupations · prob\" data-s-p=\"1.8497528055021573e-05\" data-s-q=\"0.00017572651652270494\" data-s-fdr=\"1\"><td class='tip-name'>Architecture and Engineering Occupations · prob</td><td class='tip-p'>1.850e-05</td><td class='tip-q'>0.0001757</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Personal Care and Service Occupations · prob\" data-s-p=\"0.0011475821057863455\" data-s-q=\"0.0072680200033135205\" data-s-fdr=\"1\"><td class='tip-name'>Personal Care and Service Occupations · prob</td><td class='tip-p'>0.001148</td><td class='tip-q'>0.007268</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Construction and Extraction Occupations · prob\" data-s-p=\"0.0018091241937500432\" data-s-q=\"0.0078203378660829\" data-s-fdr=\"1\"><td class='tip-name'>Construction and Extraction Occupations · prob</td><td class='tip-p'>0.001809</td><td class='tip-q'>0.00782</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Healthcare Practitioners and Technical Occupatio · prob\" data-s-p=\"0.002057983648969184\" data-s-q=\"0.0078203378660829\" data-s-fdr=\"1\"><td class='tip-name'>Healthcare Practitioners and Technical Occupatio · prob</td><td class='tip-p'>0.002058</td><td class='tip-q'>0.00782</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Computer and Mathematical Occupations · prob\" data-s-p=\"0.002956437762644038\" data-s-q=\"0.009362052915039453\" data-s-fdr=\"1\"><td class='tip-name'>Computer and Mathematical Occupations · prob</td><td class='tip-p'>0.002956</td><td class='tip-q'>0.009362</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Production Occupations · prob\" data-s-p=\"0.005045038210283198\" data-s-q=\"0.013693675142197253\" data-s-fdr=\"1\"><td class='tip-name'>Production Occupations · prob</td><td class='tip-p'>0.005045</td><td class='tip-q'>0.01369</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Installation, Maintenance, and Repair Occupation · prob\" data-s-p=\"0.015176558387891172\" data-s-q=\"0.036044326171241536\" data-s-fdr=\"1\"><td class='tip-name'>Installation, Maintenance, and Repair Occupation · prob</td><td class='tip-p'>0.01518</td><td class='tip-q'>0.03604</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"Food Preparation and Serving Related Occupations · prob\" data-s-p=\"0.02755339027550308\" data-s-q=\"0.0581682683593954\" data-s-fdr=\"0\"><td class='tip-name'>Food Preparation and Serving Related Occupations · prob</td><td class='tip-p'>0.02755</td><td class='tip-q'>0.05817</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Protective Service Occupations · prob\" data-s-p=\"0.09353203715909092\" data-s-q=\"0.17771087060227275\" data-s-fdr=\"0\"><td class='tip-name'>Protective Service Occupations · prob</td><td class='tip-p'>0.09353</td><td class='tip-q'>0.1777</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Farming, Fishing, and Forestry Occupations · prob\" data-s-p=\"0.1601225793766204\" data-s-q=\"0.27657536437779884\" data-s-fdr=\"0\"><td class='tip-name'>Farming, Fishing, and Forestry Occupations · prob</td><td class='tip-p'>0.1601</td><td class='tip-q'>0.2766</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Educational Instruction and Library Occupations · prob\" data-s-p=\"0.1879779182830435\" data-s-q=\"0.2976317039481522\" data-s-fdr=\"0\"><td class='tip-name'>Educational Instruction and Library Occupations · prob</td><td class='tip-p'>0.188</td><td class='tip-q'>0.2976</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Healthcare Support Occupations · prob\" data-s-p=\"0.25988097945641214\" data-s-q=\"0.3798260468978331\" data-s-fdr=\"0\"><td class='tip-name'>Healthcare Support Occupations · prob</td><td class='tip-p'>0.2599</td><td class='tip-q'>0.3798</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Business and Financial Operations Occupations · prob\" data-s-p=\"0.2989270488243936\" data-s-q=\"0.39406199516281215\" data-s-fdr=\"0\"><td class='tip-name'>Business and Financial Operations Occupations · prob</td><td class='tip-p'>0.2989</td><td class='tip-q'>0.3941</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Sales and Related Occupations · prob\" data-s-p=\"0.3198908119702462\" data-s-q=\"0.39406199516281215\" data-s-fdr=\"0\"><td class='tip-name'>Sales and Related Occupations · prob</td><td class='tip-p'>0.3199</td><td class='tip-q'>0.3941</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Life, Physical, and Social Science Occupations · prob\" data-s-p=\"0.33184168013710497\" data-s-q=\"0.39406199516281215\" data-s-fdr=\"0\"><td class='tip-name'>Life, Physical, and Social Science Occupations · prob</td><td class='tip-p'>0.3318</td><td class='tip-q'>0.3941</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Office and Administrative Support Occupations · prob\" data-s-p=\"0.4520020462651997\" data-s-q=\"0.5051787575905173\" data-s-fdr=\"0\"><td class='tip-name'>Office and Administrative Support Occupations · prob</td><td class='tip-p'>0.452</td><td class='tip-q'>0.5052</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Arts, Design, Entertainment, Sports, and Media O · prob\" data-s-p=\"0.5227366816452154\" data-s-q=\"0.5461363368824678\" data-s-fdr=\"0\"><td class='tip-name'>Arts, Design, Entertainment, Sports, and Media O · prob</td><td class='tip-p'>0.5227</td><td class='tip-q'>0.5461</td><td class='fdr-no'>✗</td></tr><tr data-s-name=\"Management Occupations · prob\" data-s-p=\"0.5461363368824678\" data-s-q=\"0.5461363368824678\" data-s-fdr=\"0\"><td class='tip-name'>Management Occupations · prob</td><td class='tip-p'>0.5461</td><td class='tip-q'>0.5461</td><td class='fdr-no'>✗</td></tr></tbody></table></div></details>", "position": "<details class=\"test-ref-spoiler\"><summary>McNemar (choice)</summary><div class=\"spoiler-body\"><p>discordant b vs c, p0↔p1. man_first p=3.151e-102</p></div></details><details class=\"test-ref-spoiler\"><summary>McNemar (prob)</summary><div class=\"spoiler-body\"><p>margin&gt;0 бинаризация. p=5.345e-75</p></div></details><details class=\"test-ref-spoiler\"><summary>BH · position p0↔p1 (Q=0.05)</summary><div class=\"spoiler-body\"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class=\"tip-fdr\"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name=\"woman_first · choice\" data-s-p=\"2.697759024361921e-104\" data-s-q=\"5.395518048723842e-104\" data-s-fdr=\"1\"><td class='tip-name'>woman_first · choice</td><td class='tip-p'>2.698e-104</td><td class='tip-q'>5.396e-104</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"man_first · choice\" data-s-p=\"3.1507776564045017e-102\" data-s-q=\"3.1507776564045017e-102\" data-s-fdr=\"1\"><td class='tip-name'>man_first · choice</td><td class='tip-p'>3.151e-102</td><td class='tip-q'>3.151e-102</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"woman_first · prob\" data-s-p=\"3.208177894372742e-76\" data-s-q=\"6.416355788745483e-76\" data-s-fdr=\"1\"><td class='tip-name'>woman_first · prob</td><td class='tip-p'>3.208e-76</td><td class='tip-q'>6.416e-76</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"man_first · prob\" data-s-p=\"5.344878413213735e-75\" data-s-q=\"5.344878413213735e-75\" data-s-fdr=\"1\"><td class='tip-name'>man_first · prob</td><td class='tip-p'>5.345e-75</td><td class='tip-q'>5.345e-75</td><td class='fdr-yes'>✓</td></tr></tbody></table></div></details>", "context": "<details class=\"test-ref-spoiler\"><summary>McNemar (choice)</summary><div class=\"spoiler-body\"><p>mf↔wf narrative order. p0 p=7.472e-32</p></div></details><details class=\"test-ref-spoiler\"><summary>McNemar (prob)</summary><div class=\"spoiler-body\"><p>p=1.379e-29</p></div></details><details class=\"test-ref-spoiler\"><summary>BH · context mf↔wf (Q=0.05)</summary><div class=\"spoiler-body\"><p class='tip-note'>Клик по заголовку столбца — сортировка. По умолчанию: p-value ↑. Choice и prob — отдельные BH-семейства; p = cluster t-test (choice) / cluster margin (prob).</p><table class=\"tip-fdr\"><thead><tr><th class='sortable' data-sort='name'>Тест</th><th class='sortable sort-asc' data-sort='p' data-dir='asc'>p-value</th><th class='sortable' data-sort='q'>q-value</th><th class='sortable' data-sort='fdr' title='✓ — q-value ≤ Q (значимо), ✗ — нет'>Значимо</th></tr></thead><tbody><tr data-s-name=\"p5/with_abstain · choice\" data-s-p=\"3.216304612556528e-36\" data-s-q=\"2.5730436900452223e-35\" data-s-fdr=\"1\"><td class='tip-name'>p5/with_abstain · choice</td><td class='tip-p'>3.216e-36</td><td class='tip-q'>2.573e-35</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p0/without_abstain · choice\" data-s-p=\"7.471808228205074e-32\" data-s-q=\"2.9887232912820297e-31\" data-s-fdr=\"1\"><td class='tip-name'>p0/without_abstain · choice</td><td class='tip-p'>7.472e-32</td><td class='tip-q'>2.989e-31</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p4/with_abstain · choice\" data-s-p=\"1.268444585731211e-28\" data-s-q=\"3.3825188952832296e-28\" data-s-fdr=\"1\"><td class='tip-name'>p4/with_abstain · choice</td><td class='tip-p'>1.268e-28</td><td class='tip-q'>3.383e-28</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p1/without_abstain · choice\" data-s-p=\"4.532152528438163e-26\" data-s-q=\"9.064305056876326e-26\" data-s-fdr=\"1\"><td class='tip-name'>p1/without_abstain · choice</td><td class='tip-p'>4.532e-26</td><td class='tip-q'>9.064e-26</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p2/with_abstain · choice\" data-s-p=\"2.5203104221245264e-21\" data-s-q=\"4.032496675399242e-21\" data-s-fdr=\"1\"><td class='tip-name'>p2/with_abstain · choice</td><td class='tip-p'>2.520e-21</td><td class='tip-q'>4.032e-21</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p3/with_abstain · choice\" data-s-p=\"6.844060346519136e-14\" data-s-q=\"9.125413795358848e-14\" data-s-fdr=\"1\"><td class='tip-name'>p3/with_abstain · choice</td><td class='tip-p'>6.844e-14</td><td class='tip-q'>9.125e-14</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p0/with_abstain · choice\" data-s-p=\"2.478790797016709e-09\" data-s-q=\"2.832903768019096e-09\" data-s-fdr=\"1\"><td class='tip-name'>p0/with_abstain · choice</td><td class='tip-p'>2.479e-09</td><td class='tip-q'>2.833e-09</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p1/with_abstain · choice\" data-s-p=\"7.228793882618061e-05\" data-s-q=\"7.228793882618061e-05\" data-s-fdr=\"1\"><td class='tip-name'>p1/with_abstain · choice</td><td class='tip-p'>7.229e-05</td><td class='tip-q'>7.229e-05</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p5/with_abstain · prob\" data-s-p=\"4.269709087919505e-64\" data-s-q=\"3.415767270335604e-63\" data-s-fdr=\"1\"><td class='tip-name'>p5/with_abstain · prob</td><td class='tip-p'>4.270e-64</td><td class='tip-q'>3.416e-63</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p2/with_abstain · prob\" data-s-p=\"3.1617840444718245e-48\" data-s-q=\"1.2647136177887298e-47\" data-s-fdr=\"1\"><td class='tip-name'>p2/with_abstain · prob</td><td class='tip-p'>3.162e-48</td><td class='tip-q'>1.265e-47</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p3/with_abstain · prob\" data-s-p=\"8.876697062827798e-47\" data-s-q=\"2.3671192167540793e-46\" data-s-fdr=\"1\"><td class='tip-name'>p3/with_abstain · prob</td><td class='tip-p'>8.877e-47</td><td class='tip-q'>2.367e-46</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p0/with_abstain · prob\" data-s-p=\"2.7412235662396016e-44\" data-s-q=\"5.482447132479203e-44\" data-s-fdr=\"1\"><td class='tip-name'>p0/with_abstain · prob</td><td class='tip-p'>2.741e-44</td><td class='tip-q'>5.482e-44</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p4/with_abstain · prob\" data-s-p=\"1.59026772730139e-42\" data-s-q=\"2.544428363682224e-42\" data-s-fdr=\"1\"><td class='tip-name'>p4/with_abstain · prob</td><td class='tip-p'>1.590e-42</td><td class='tip-q'>2.544e-42</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p0/without_abstain · prob\" data-s-p=\"1.3786312100474367e-29\" data-s-q=\"1.8381749467299156e-29\" data-s-fdr=\"1\"><td class='tip-name'>p0/without_abstain · prob</td><td class='tip-p'>1.379e-29</td><td class='tip-q'>1.838e-29</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p1/with_abstain · prob\" data-s-p=\"6.3849216096863906e-27\" data-s-q=\"7.297053268213018e-27\" data-s-fdr=\"1\"><td class='tip-name'>p1/with_abstain · prob</td><td class='tip-p'>6.385e-27</td><td class='tip-q'>7.297e-27</td><td class='fdr-yes'>✓</td></tr><tr data-s-name=\"p1/without_abstain · prob\" data-s-p=\"2.1367949062621281e-23\" data-s-q=\"2.1367949062621281e-23\" data-s-fdr=\"1\"><td class='tip-name'>p1/without_abstain · prob</td><td class='tip-p'>2.137e-23</td><td class='tip-q'>2.137e-23</td><td class='fdr-yes'>✓</td></tr></tbody></table></div></details>"}, "primary_p_ch": "5.689e-08", "primary_p_ch_cluster": "6.664e-07", "primary_p_pr": "0.0001013"};
+const CH_DARK = '#2c5f8d';
+const CH_LIGHT = '#9bb8d4';
+const COLORS = { man: CH_DARK, woman: '#c45c3e' };
+const fmtP = (p) => p == null ? '—' : (p < 1e-3 ? p.toExponential(2) : p.toFixed(4));
+
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif";
+Chart.defaults.plugins.tooltip.callbacks.label = (ctx) => {
+  const isHorizontal = ctx.chart.options.indexAxis === 'y';
+  const v = isHorizontal ? ctx.parsed.x : ctx.parsed.y;
+  if (v == null) return ctx.dataset.label;
+  if (ctx.dataset.unit === 'pp') return ctx.dataset.label + ': ' + v.toFixed(2) + ' п.п.';
+  if (ctx.dataset.unit === 'pct') return ctx.dataset.label + ': ' + v + '%';
+  if (ctx.dataset.unit === 'count') return ctx.dataset.label + ': ' + v;
+  return ctx.dataset.label + ': ' + v;
+};
+
+const groupedBar = {
+  categoryPercentage: 0.52,
+  barPercentage: 1.0,
+};
+
+const dualY = {
+  y: { position: 'left', title: { display: true, text: '%' } },
+  y1: {
+    position: 'right', grid: { drawOnChartArea: false },
+    title: { display: true, text: 'число ответов (k)' },
+  },
+};
+
+// Abstain — P(man)/P(woman) слева (%); k — точки справа, без соединяющих линий
+const abstPctMax = Math.max(...DATA.abstain.flatMap(d => [d.ch_p_man, d.ch_p_wom]));
+const abstKs = DATA.abstain.flatMap(d => [d.ch_k_man, d.ch_k_wom]);
+const abstKLo = Math.min(...abstKs);
+const abstKHi = Math.max(...abstKs);
+const abstKSpan = Math.max(abstKHi - abstKLo, 1);
+new Chart(document.getElementById('chartAbstain'), {
+  type: 'bar',
+  data: {
+    labels: DATA.abstain.map(d => d.variant.replace('_', ' ')),
+    datasets: [
+      { label: 'P(man) %', data: DATA.abstain.map(d => d.ch_p_man), backgroundColor: CH_DARK, yAxisID: 'y', unit: 'pct' },
+      { label: 'P(woman) %', data: DATA.abstain.map(d => d.ch_p_wom), backgroundColor: '#c45c3e', yAxisID: 'y', unit: 'pct' },
+      { label: 'k man', data: DATA.abstain.map(d => d.ch_k_man), type: 'line',
+         pointBackgroundColor: CH_DARK, pointBorderColor: CH_DARK, backgroundColor: CH_DARK, borderColor: CH_DARK,
+         pointRadius: 6, pointBorderWidth: 2, pointHoverRadius: 8, showLine: false, yAxisID: 'y1', unit: 'count' },
+      { label: 'k woman', data: DATA.abstain.map(d => d.ch_k_wom), type: 'line',
+         pointBackgroundColor: COLORS.woman, pointBorderColor: COLORS.woman,
+         backgroundColor: COLORS.woman, borderColor: COLORS.woman,
+         pointRadius: 6, pointBorderWidth: 2, pointHoverRadius: 8, showLine: false, yAxisID: 'y1', unit: 'count' },
+    ],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { title: { display: true, text: 'Abstain: доли (%) и k по вариантам' } },
+    scales: {
+      y: {
+        position: 'left',
+        min: 0,
+        suggestedMax: Math.ceil(abstPctMax / 10) * 10 + 20,
+        grace: '8%',
+        title: { display: true, text: '%' },
+      },
+      y1: {
+        position: 'right',
+        min: abstKLo - abstKSpan * 4,
+        max: abstKHi + abstKSpan * 0.35,
+        grid: { drawOnChartArea: false },
+        title: { display: true, text: 'число ответов (k)' },
+      },
+    },
+  },
+});
+
+// Abstain cluster — только mean Δ по base items (choice + prob)
+const abstClusterVals = DATA.abstain.flatMap(d => [
+  d.ch_cluster_gap != null ? d.ch_cluster_gap * 100 : 0,
+  d.pr_margin != null ? d.pr_margin * 100 : 0,
+]);
+const abstClusterAbsMax = Math.max(...abstClusterVals.map(v => Math.abs(v)), 0.5);
+const abstClusterY = Math.ceil(abstClusterAbsMax + 1);
+new Chart(document.getElementById('chartAbstainCluster'), {
+  type: 'bar',
+  data: {
+    labels: DATA.abstain.map(d => d.variant.replace('_', ' ')),
+    datasets: [
+      {
+        label: 'choice cluster Δ (п.п.)',
+        data: DATA.abstain.map(d => d.ch_cluster_gap != null ? d.ch_cluster_gap * 100 : null),
+        backgroundColor: CH_DARK,
+        unit: 'pp',
+      },
+      {
+        label: 'prob cluster margin (п.п.)',
+        data: DATA.abstain.map(d => d.pr_margin != null ? d.pr_margin * 100 : null),
+        backgroundColor: CH_LIGHT,
+        unit: 'pp',
+      },
+    ],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    datasets: { bar: groupedBar },
+    plugins: {
+      title: { display: true, text: 'Abstain: cluster Δ man−woman (base items)' },
+      legend: { position: 'bottom' },
+      tooltip: {
+        callbacks: {
+          afterBody: (items) => {
+            const d = DATA.abstain[items[0].dataIndex];
+            if (!d) return [];
+            return [
+              d.ch_cluster_p != null
+                ? `choice cluster p=${fmtP(d.ch_cluster_p)}, G=${d.ch_cluster_n}, DEFF≈${d.ch_deff != null ? Number(d.ch_deff).toFixed(2) : '—'}`
+                : 'choice cluster: —',
+              d.ch_cluster_theta != null ? `θ̄=${Number(d.ch_cluster_theta).toFixed(4)}` : '',
+              d.pr_p != null
+                ? `prob cluster p=${fmtP(d.pr_p)}, G=${d.n_clusters}, DEFF≈${d.deff != null ? Number(d.deff).toFixed(2) : '—'}`
+                : 'prob cluster: —',
+              d.ch_p != null ? `pooled choice p=${fmtP(d.ch_p)} (сравн.)` : '',
+            ].filter(Boolean);
+          },
+        },
+      },
+    },
+    scales: {
+      y: {
+        min: -abstClusterY,
+        max: abstClusterY,
+        title: { display: true, text: 'п.п. (+ man, − woman)' },
+        grid: { color: ctx => ctx.tick.value === 0 ? '#999' : '#eee' },
+      },
+    },
+  },
+});
+
+// soc_major_title — toggle margin vs absolute + sort
+let chartSoc = null;
+let socSortMode = 'delta';
+
+function socDeltaKey(d, isAbs) {
+  if (isAbs) {
+    const v = d.ch_sign_delta != null ? d.ch_sign_delta : d.ch_k_delta;
+    return v != null ? v : Number.NEGATIVE_INFINITY;
+  }
+  const g = d.ch_cluster_gap;
+  return g != null ? g * 100 : Number.NEGATIVE_INFINITY;
+}
+
+function socProbMarginPp(d) {
+  const m = d.pr_cluster_margin != null ? d.pr_cluster_margin : d.pr_margin;
+  return m != null ? m * 100 : null;
+}
+
+function sortedSoc(mode) {
+  const isAbs = mode === 'abs';
+  const rows = [...DATA.soc];
+  if (socSortMode === 'name') {
+    rows.sort((a, b) => String(a.title).localeCompare(String(b.title), 'ru'));
+  } else {
+    rows.sort((a, b) => {
+      const da = socDeltaKey(a, isAbs);
+      const db = socDeltaKey(b, isAbs);
+      if (db !== da) return db - da;
+      return String(a.title).localeCompare(String(b.title), 'ru');
+    });
+  }
+  return rows;
+}
+
+function buildSocChart(mode) {
+  if (chartSoc) chartSoc.destroy();
+  const isAbs = mode === 'abs';
+  const socRows = sortedSoc(mode);
+  const socTitles = socRows.map(d => d.title);
+  chartSoc = new Chart(document.getElementById('chartSoc'), {
+    type: 'bar',
+    data: {
+      labels: socRows.map(d => d.short),
+      datasets: isAbs ? [
+        {
+          label: 'choice items (man>−woman>)',
+          data: socRows.map(d => d.ch_sign_delta != null ? d.ch_sign_delta : d.ch_k_delta),
+          backgroundColor: CH_DARK, unit: 'count',
+        },
+        {
+          label: 'prob Δ×n (cluster margin)',
+          data: socRows.map(d => d.pr_k_delta),
+          backgroundColor: CH_LIGHT, unit: 'count',
+        },
+      ] : [
+        {
+          label: 'choice cluster Δ (п.п., +→man)',
+          data: socRows.map(d => d.ch_cluster_gap != null ? d.ch_cluster_gap * 100 : null),
+          backgroundColor: CH_DARK, unit: 'pp',
+        },
+        {
+          label: 'prob cluster margin (п.п., +→man)',
+          data: socRows.map(d => socProbMarginPp(d)),
+          backgroundColor: CH_LIGHT, unit: 'pp',
+        },
+      ],
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      datasets: { bar: groupedBar },
+      plugins: {
+        title: { display: true,
+          text: isAbs ? 'soc_major_title: cluster sign Δ (items)' : 'soc_major_title: cluster margin (п.п.)' },
+        legend: { position: 'bottom' },
+        tooltip: {
+          callbacks: {
+            title: (items) => socTitles[items[0].dataIndex] || items[0].label,
+            afterBody: (items) => {
+              const d = socRows[items[0].dataIndex];
+              if (!d) return [];
+              return [
+                d.ch_cluster_p != null
+                  ? `choice cluster p=${fmtP(d.ch_cluster_p)}, G=${d.ch_cluster_n}, DEFF≈${d.ch_deff != null ? Number(d.ch_deff).toFixed(2) : '—'}`
+                  : 'choice cluster: —',
+                d.ch_p != null ? `pooled choice p=${fmtP(d.ch_p)}` : '',
+                d.ch_sign_delta != null
+                  ? `items man>${d.ch_sign_man_wins}, woman>${d.ch_sign_woman_wins}, Δsign=${d.ch_sign_delta}`
+                  : `k_man=${d.ch_k_man}, k_woman=${d.ch_k_wom}, Δk=${d.ch_k_delta}`,
+                d.pr_p != null
+                  ? `prob cluster p=${fmtP(d.pr_p)}, G=${d.n_clusters}, margin=${socProbMarginPp(d)?.toFixed(2) ?? '—'} п.п.`
+                  : 'prob cluster: —',
+                d.naive_p != null ? `naive prob p=${fmtP(d.naive_p)}` : '',
+              ].filter(Boolean);
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          title: { display: true, text: isAbs ? 'items man>woman − woman>man (+→man)' : 'п.п. (+ man, − woman)' },
+          grid: { color: ctx => ctx.tick.value === 0 ? '#999' : '#eee' },
+        },
+        y: { ticks: { font: { size: 10 } } },
+      },
+    },
+  });
+}
+buildSocChart('margin');
+document.querySelectorAll('input[name=socMode]').forEach(el => {
+  el.addEventListener('change', () => { if (el.checked) buildSocChart(el.value); });
+});
+document.querySelectorAll('input[name=socSort]').forEach(el => {
+  el.addEventListener('change', () => {
+    if (el.checked) {
+      socSortMode = el.value;
+      const modeEl = document.querySelector('input[name=socMode]:checked');
+      buildSocChart(modeEl ? modeEl.value : 'margin');
+    }
+  });
+});
+
+// Position — flip (ch + pr)
+const posLabels = DATA.position.map(d => d.ctx);
+new Chart(document.getElementById('chartPosFlip'), {
+  type: 'bar',
+  data: {
+    labels: posLabels,
+    datasets: [
+      { label: 'Order Flip % choice', data: DATA.position.map(d => d.ch.flip), backgroundColor: CH_DARK, unit: 'pct' },
+      { label: 'Order Flip % prob', data: DATA.position.map(d => d.pr.flip), backgroundColor: CH_LIGHT, unit: 'pct' },
+      { label: 'First-Shown % choice', data: DATA.position.map(d => d.ch.first), backgroundColor: '#4a7ba4', unit: 'pct' },
+      { label: 'First-Shown % prob', data: DATA.position.map(d => d.pr.first), backgroundColor: '#c5d8ea', unit: 'pct' },
+    ],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    datasets: { bar: { categoryPercentage: 0.65, barPercentage: 0.85 } },
+    plugins: { title: { display: true, text: 'Position slots flip: flip & first-shown' } },
+    scales: { y: { max: 100, title: { display: true, text: '%' } } },
+  },
+});
+
+// Position — discordant b/c both targets
+const posDiscLabels = DATA.position.flatMap(d => [d.ctx + ' ch', d.ctx + ' pr']);
+new Chart(document.getElementById('chartPosDiscord'), {
+  type: 'bar',
+  data: {
+    labels: posDiscLabels,
+    datasets: [
+      { label: 'b (slot-A pattern)', data: DATA.position.flatMap(d => [d.ch.b, d.pr.b]), backgroundColor: CH_DARK },
+      { label: 'c (slot-B pattern)', data: DATA.position.flatMap(d => [d.ch.c, d.pr.c]), backgroundColor: '#c45c3e' },
+    ],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    datasets: { bar: groupedBar },
+    plugins: { title: { display: true, text: 'Position slots flip: discordant b vs c' } },
+    scales: { y: { title: { display: true, text: 'count' } } },
+  },
+});
+
+// Context without_abstain p0/p1 — b/c (left) + Order Flip / First-Shown % (right)
+const ctxP01Labels = DATA.context_p01.flatMap(d => [d.pos + ' ch', d.pos + ' pr']);
+new Chart(document.getElementById('chartCtxP01'), {
+  type: 'bar',
+  data: {
+    labels: ctxP01Labels,
+    datasets: [
+      { label: 'b (first in narrative)', data: DATA.context_p01.flatMap(d => [d.ch.b, d.pr.b]),
+        backgroundColor: CH_DARK, yAxisID: 'y', unit: 'count' },
+      { label: 'c (second in narrative)', data: DATA.context_p01.flatMap(d => [d.ch.c, d.pr.c]),
+        backgroundColor: '#c45c3e', yAxisID: 'y', unit: 'count' },
+      { label: 'Order Flip %', data: DATA.context_p01.flatMap(d => [d.ch.flip, d.pr.flip]),
+        backgroundColor: '#4a7ba4', yAxisID: 'y1', unit: 'pct' },
+      { label: 'First-Shown %', data: DATA.context_p01.flatMap(d => [d.ch.first, d.pr.first]),
+        backgroundColor: '#c5d8ea', yAxisID: 'y1', unit: 'pct' },
+    ],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    datasets: { bar: groupedBar },
+    plugins: { title: { display: true, text: 'In-context without_abstain: b/c + flip & first-shown' } },
+    scales: {
+      y: { position: 'left', title: { display: true, text: 'discordant count' } },
+      y1: { position: 'right', min: 0, max: 100, grid: { drawOnChartArea: false },
+        title: { display: true, text: '%' } },
+    },
+  },
+});
+
+// Context with_abstain
+const ctxWaLabels = DATA.context_wa.flatMap(d => [d.pos + ' ch', d.pos + ' pr']);
+new Chart(document.getElementById('chartCtxWa'), {
+  type: 'bar',
+  data: {
+    labels: ctxWaLabels,
+    datasets: [
+      { label: 'b', data: DATA.context_wa.flatMap(d => [d.ch.b, d.pr.b]), backgroundColor: CH_DARK },
+      { label: 'c', data: DATA.context_wa.flatMap(d => [d.ch.c, d.pr.c]), backgroundColor: '#c45c3e' },
+    ],
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    datasets: { bar: groupedBar },
+    plugins: { title: { display: true, text: 'Context with_abstain p0–p5 (ch + pr)' } },
+    scales: { y: { title: { display: true, text: 'discordant count' } } },
+  },
+});
+
+function fdrNumAttr(row, key) {
+  const v = row.dataset['s' + key];
+  if (v === '' || v == null) return Number.POSITIVE_INFINITY;
+  const n = parseFloat(v);
+  return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
+}
+
+function sortFdrTable(table, key, dir) {
+  const tbody = table.tBodies[0];
+  if (!tbody) return;
+  const mult = dir === 'asc' ? 1 : -1;
+  const rows = Array.from(tbody.rows);
+  rows.sort((a, b) => {
+    if (key === 'name') {
+      return mult * (a.dataset.sName || '').localeCompare(b.dataset.sName || '', 'ru');
+    }
+    if (key === 'fdr') {
+      return mult * ((parseInt(a.dataset.sFdr, 10) || 0) - (parseInt(b.dataset.sFdr, 10) || 0));
+    }
+    const ak = key === 'p' ? 'P' : 'Q';
+    return mult * (fdrNumAttr(a, ak) - fdrNumAttr(b, ak));
+  });
+  rows.forEach((r) => tbody.appendChild(r));
+}
+
+document.querySelectorAll('table.tip-fdr').forEach((table) => {
+  const headers = table.querySelectorAll('th.sortable');
+  headers.forEach((th) => {
+    th.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = th.dataset.sort;
+      const cur = th.dataset.dir || 'asc';
+      const next = th.classList.contains('sort-asc') || th.classList.contains('sort-desc')
+        ? (cur === 'asc' ? 'desc' : 'asc')
+        : 'asc';
+      headers.forEach((h) => {
+        h.classList.remove('sort-asc', 'sort-desc');
+        delete h.dataset.dir;
+      });
+      th.dataset.dir = next;
+      th.classList.add(next === 'asc' ? 'sort-asc' : 'sort-desc');
+      sortFdrTable(table, key, next);
+    });
+  });
+});
+</script>
+</body>
+</html>

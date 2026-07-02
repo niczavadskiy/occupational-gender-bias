@@ -1,0 +1,3 @@
+comparison,gender_axis,n_pairs,shift_toward,shift_away,rate_toward,rate_away,net_rate
+no_evidence_vs_man,man,7167,968,1017,0.1350634854192828,0.14190037672666386,-0.006836891307381052
+no_evidence_vs_woman,woman,7329,1431,686,0.1952517396643471,0.0936007640878701,0.10165097557647701

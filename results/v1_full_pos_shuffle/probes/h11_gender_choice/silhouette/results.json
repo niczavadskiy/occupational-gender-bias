@@ -1,0 +1,155 @@
+{
+  "layers": [
+    {
+      "layer": 0,
+      "train_silhouette": 0.0,
+      "val_silhouette": 0.0,
+      "test_silhouette": 0.0
+    },
+    {
+      "layer": 1,
+      "train_silhouette": 0.015530317090451717,
+      "val_silhouette": 0.013696485199034214,
+      "test_silhouette": 0.015320807695388794
+    },
+    {
+      "layer": 2,
+      "train_silhouette": 0.018743447959423065,
+      "val_silhouette": 0.016535963863134384,
+      "test_silhouette": 0.017517995089292526
+    },
+    {
+      "layer": 3,
+      "train_silhouette": 0.019488733261823654,
+      "val_silhouette": 0.01552294660359621,
+      "test_silhouette": 0.015131741762161255
+    },
+    {
+      "layer": 4,
+      "train_silhouette": 0.012200288474559784,
+      "val_silhouette": 0.009757808409631252,
+      "test_silhouette": 0.009404703043401241
+    },
+    {
+      "layer": 5,
+      "train_silhouette": 0.011453161016106606,
+      "val_silhouette": 0.008846675977110863,
+      "test_silhouette": 0.009632366709411144
+    },
+    {
+      "layer": 6,
+      "train_silhouette": 0.010038848966360092,
+      "val_silhouette": 0.007223544642329216,
+      "test_silhouette": 0.009325720369815826
+    },
+    {
+      "layer": 7,
+      "train_silhouette": 0.01312412042170763,
+      "val_silhouette": 0.010983612388372421,
+      "test_silhouette": 0.011919599026441574
+    },
+    {
+      "layer": 8,
+      "train_silhouette": 0.010553017258644104,
+      "val_silhouette": 0.008854230865836143,
+      "test_silhouette": 0.010138616897165775
+    },
+    {
+      "layer": 9,
+      "train_silhouette": 0.011123904027044773,
+      "val_silhouette": 0.009575123898684978,
+      "test_silhouette": 0.011363960802555084
+    },
+    {
+      "layer": 10,
+      "train_silhouette": 0.011467080563306808,
+      "val_silhouette": 0.009965253993868828,
+      "test_silhouette": 0.011568608693778515
+    },
+    {
+      "layer": 11,
+      "train_silhouette": 0.01030102837830782,
+      "val_silhouette": 0.009443716146051884,
+      "test_silhouette": 0.010761923156678677
+    },
+    {
+      "layer": 12,
+      "train_silhouette": 0.011297296732664108,
+      "val_silhouette": 0.009895808063447475,
+      "test_silhouette": 0.011401851661503315
+    },
+    {
+      "layer": 13,
+      "train_silhouette": 0.011204562149941921,
+      "val_silhouette": 0.010065793991088867,
+      "test_silhouette": 0.011532284319400787
+    },
+    {
+      "layer": 14,
+      "train_silhouette": 0.010479963384568691,
+      "val_silhouette": 0.009963040240108967,
+      "test_silhouette": 0.010527015663683414
+    },
+    {
+      "layer": 15,
+      "train_silhouette": 0.01217575091868639,
+      "val_silhouette": 0.011982542462646961,
+      "test_silhouette": 0.011877145618200302
+    },
+    {
+      "layer": 16,
+      "train_silhouette": 0.017485326156020164,
+      "val_silhouette": 0.01721884496510029,
+      "test_silhouette": 0.016454407945275307
+    },
+    {
+      "layer": 17,
+      "train_silhouette": 0.015312761068344116,
+      "val_silhouette": 0.01612439565360546,
+      "test_silhouette": 0.01537556853145361
+    },
+    {
+      "layer": 18,
+      "train_silhouette": 0.013399497605860233,
+      "val_silhouette": 0.014658874832093716,
+      "test_silhouette": 0.013642125762999058
+    },
+    {
+      "layer": 19,
+      "train_silhouette": 0.012807955965399742,
+      "val_silhouette": 0.013988497667014599,
+      "test_silhouette": 0.0125264972448349
+    },
+    {
+      "layer": 20,
+      "train_silhouette": 0.014827845618128777,
+      "val_silhouette": 0.016025464981794357,
+      "test_silhouette": 0.015153479762375355
+    },
+    {
+      "layer": 21,
+      "train_silhouette": 0.013879845850169659,
+      "val_silhouette": 0.01534532755613327,
+      "test_silhouette": 0.014020460657775402
+    },
+    {
+      "layer": 22,
+      "train_silhouette": 0.012354613281786442,
+      "val_silhouette": 0.01392501313239336,
+      "test_silhouette": 0.012612888589501381
+    },
+    {
+      "layer": 23,
+      "train_silhouette": 0.010836753062903881,
+      "val_silhouette": 0.01298770122230053,
+      "test_silhouette": 0.010993022471666336
+    },
+    {
+      "layer": 24,
+      "train_silhouette": 0.011397096328437328,
+      "val_silhouette": 0.013606270775198936,
+      "test_silhouette": 0.011812436394393444
+    }
+  ],
+  "label_method": "median_train"
+}

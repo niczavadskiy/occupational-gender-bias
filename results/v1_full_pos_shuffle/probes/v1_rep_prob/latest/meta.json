@@ -1,0 +1,55 @@
+{
+  "pipeline": "v1_rep_summary",
+  "run_dir": "run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle",
+  "probe_root": "v1_rep_prob",
+  "generated": "2026-06-27T19:19:28.514139+00:00",
+  "artifacts": {
+    "summary_html": "summary.html",
+    "summary_md": "summary.md"
+  },
+  "targets": [
+    "gender_choice",
+    "narrative_choice",
+    "slot_choice"
+  ],
+  "orthogonal": {
+    "layer": 16,
+    "n_total": 3804,
+    "n_test": 760,
+    "label_correlations": {
+      "gender_narrative": 0.021248823776066104,
+      "gender_slot": -0.07111709923860059,
+      "narrative_slot": 0.12364072644212136
+    },
+    "direction_cosines": {
+      "gender_narrative": 0.04509699940500742,
+      "gender_slot": -0.07383816935582627,
+      "narrative_slot": -5.421010862427522e-18
+    },
+    "raw": {
+      "val_balanced_accuracy": 0.8684873949579832,
+      "test_balanced_accuracy": 0.8692113199285265,
+      "test_roc_auc": 0.9406176946274833
+    },
+    "orthogonal_score": {
+      "val_balanced_accuracy": 0.8646358543417367,
+      "test_balanced_accuracy": 0.8433692819458865,
+      "description": "score = h·w_g⊥, threshold from train class means"
+    },
+    "residual_hs_refit": {
+      "val_balanced_accuracy": 0.8702380952380953,
+      "test_balanced_accuracy": 0.864998481541906,
+      "test_roc_auc": 0.9391627998954736,
+      "confounds": "narrative + slot"
+    },
+    "ablation": {
+      "remove_narrative_only": 0.8661532159529914,
+      "remove_slot_only": 0.8638437471308205
+    },
+    "slugs": {
+      "gender": "without_abstain_p0_p1_mf_wf_gender_choice",
+      "narrative": "without_abstain_p0_p1_mf_wf_narrative_choice",
+      "slot": "without_abstain_p0_p1_mf_wf_slot_choice"
+    }
+  }
+}

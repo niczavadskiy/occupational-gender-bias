@@ -1,0 +1,130 @@
+{
+  "probe_script": "v1_rep_pipeline",
+  "pipeline_run_id": "2026-06-20_08-49-12",
+  "run_slug": "without_abstain_p0_p1_mf_wf_gender_choice",
+  "datetime": "2026-06-20T09:05:15.918908",
+  "pipeline_runtime_s": 966.68,
+  "parent_run_id": "2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle",
+  "parent_run_dir": "run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle",
+  "model_id": "Qwen/Qwen3.5-2B-Base",
+  "n_layers_plus_emb": 25,
+  "d_model": 2048,
+  "hypothesis": "v1_rep",
+  "regression_scale": "classification",
+  "layout": "v1_main",
+  "target": "gender_choice",
+  "axis": "gender",
+  "n_samples": 3804,
+  "n_probe_groups": 951,
+  "rows_per_group": 4,
+  "split": {
+    "group_key": "v1_scenario (soc × profession × onet_action)",
+    "n_scenario_families": 951,
+    "families_per_split": {
+      "train": 571,
+      "val": 190,
+      "test": 190
+    },
+    "seed": 0,
+    "ratios": {
+      "train": 0.6,
+      "val": 0.2,
+      "test": 0.2
+    }
+  },
+  "filter": {
+    "task": "main",
+    "question_format": "choice",
+    "abstain_variant": "without_abstain",
+    "position_variants": [
+      "p0",
+      "p1"
+    ],
+    "context_orders": [
+      "man_first",
+      "woman_first"
+    ]
+  },
+  "stages": {
+    "layer_scan": {
+      "status": "completed",
+      "runtime_s": 167.12,
+      "summary": {
+        "target": "gender_choice",
+        "best_layer": 16,
+        "val_balanced_accuracy": 0.8684873949579832
+      }
+    },
+    "control_task": {
+      "status": "completed",
+      "runtime_s": 705.33,
+      "summary": {
+        "control_modes": [
+          "main",
+          "within_scenario_family",
+          "global",
+          "permuted_alignment"
+        ],
+        "best_main_layer": 16,
+        "best_main_metric": 0.8684873949579832,
+        "control_within_scenario_family_at_best_layer": 0.5311624649859944,
+        "control_global_at_best_layer": 0.4927653188356552,
+        "control_permuted_alignment_at_best_layer": 0.4828447888589398
+      }
+    },
+    "silhouette": {
+      "status": "completed",
+      "runtime_s": 25.18,
+      "summary": {
+        "label_method": "median_train",
+        "best_layer": 16,
+        "val_silhouette": 0.01721884496510029
+      }
+    },
+    "extract_direction": {
+      "status": "completed",
+      "runtime_s": 7.64,
+      "summary": {
+        "metrics": {
+          "layer": 16,
+          "train_accuracy": 0.999124343257443,
+          "train_balanced_accuracy": 0.9992050874403815,
+          "train_roc_auc": NaN,
+          "val_accuracy": 0.8710526315789474,
+          "val_balanced_accuracy": 0.8684873949579832,
+          "val_roc_auc": NaN,
+          "test_accuracy": 0.8697368421052631,
+          "test_balanced_accuracy": 0.8692113199285265,
+          "test_roc_auc": NaN
+        },
+        "projection_soft_target_r": 0.8626426747395765
+      }
+    },
+    "compare_directions": {
+      "status": "completed",
+      "runtime_s": 57.4,
+      "summary": {
+        "summary": {
+          "mean_cosine_w_off_diagonal": 0.15206718066144542,
+          "min_cosine_w_off_diagonal": -0.05575557936786388,
+          "max_cosine_w_off_diagonal": 0.8482245372659074,
+          "layer0_vs_layer19_cosine_w": null
+        }
+      }
+    }
+  },
+  "artifacts": {
+    "layer_scan/layer_scan_gender_choice.csv": "layer_scan_gender_choice.csv",
+    "layer_scan/results.json": "results.json",
+    "control_task/control_gender_choice.csv": "control_gender_choice.csv",
+    "control_task/results.json": "results.json",
+    "silhouette/silhouette_gender_choice_median_train.csv": "silhouette_gender_choice_median_train.csv",
+    "silhouette/results.json": "results.json",
+    "extract_direction/direction_gender_choice_L16.npz": "direction_gender_choice_L16.npz",
+    "extract_direction/results.json": "results.json",
+    "compare_directions/compare_directions_gender_choice_cos_w_pairs.csv": "compare_directions_gender_choice_cos_w_pairs.csv",
+    "compare_directions/compare_directions_gender_choice_cos_w_matrix.csv": "compare_directions_gender_choice_cos_w_matrix.csv",
+    "compare_directions/compare_directions_gender_choice_weights.npz": "compare_directions_gender_choice_weights.npz",
+    "compare_directions/results.json": "results.json"
+  }
+}
