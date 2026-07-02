@@ -102,6 +102,7 @@ def main() -> None:
     docs = ROOT / "docs"
     docs.mkdir(parents=True, exist_ok=True)
     shutil.copy2(ROOT / "analysis/combined_h1_h3_h5_h11.html", docs / "index.html")
+    (docs / ".nojekyll").touch()
 
     print(f"Built publish tree at {ROOT}")
 
