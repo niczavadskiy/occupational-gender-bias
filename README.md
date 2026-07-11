@@ -7,14 +7,11 @@ scenarios (O\*NET-based prompts with factorial controls).
 
 ## What is in this repository
 
-This is a **variant A** public release: tests, aggregated metrics, probing summaries,
-and the combined HTML report. Raw inference outputs (`per_item.jsonl`) are **not**
-included here.
 
 | Component | Path | Hypothesis |
 |-----------|------|------------|
 | Combined report | [`analysis/combined_h1_h3_h5_h11.html`](analysis/combined_h1_h3_h5_h11.html) | H1 + H3 + H5 + H11 |
-| H3 metrics | `results/highlight-h3-full/metrics_h3_v1/latest/` | evidence highlight vs ambiguous |
+| H3 metrics | `results/highlight-h3-full/metrics_h3_v1/latest/` | evidence highlight vs no-evidence promt |
 | H1 metrics | `results/v1_full_pos_shuffle/metrics_h1_v1/latest/` | position / layout bias |
 | H11 probing summary | `results/v1_full_pos_shuffle/probes/` | gender axis in hidden states |
 | Metrics code | `src/metrics/` | reproducible pipelines `h1_v1`, `h3_v1` |
@@ -27,7 +24,7 @@ included here.
 
 ## Attribution
 
-- **Dataset design & inference outputs:** project teammate (used with permission)
+- **Dataset design & inference outputs:** project [teammate](https://github.com/olyamasaeva) (used with permission):https://huggingface.co/buckets/H83/occupational-gender-bias-qwen3_5_2b  
 - **Statistical analysis, metrics pipelines & report:** [niczavadskiy](https://github.com/niczavadskiy)
 
 Raw prompts and model responses may be released separately as a Hugging Face Dataset.
