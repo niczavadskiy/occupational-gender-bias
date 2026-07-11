@@ -24,14 +24,14 @@ scenarios (O\*NET-based prompts with factorial controls).
 
 ## Attribution
 
-- **Dataset design & inference outputs:** project [teammate](https://github.com/olyamasaeva) (used with permission):https://huggingface.co/buckets/H83/occupational-gender-bias-qwen3_5_2b  
+- **Dataset design & inference outputs:** project [teammate](https://github.com/olyamasaeva) (used with permission): https://huggingface.co/buckets/H83/occupational-gender-bias-qwen3_5_2b (copy) 
 - **Statistical analysis, metrics pipelines & report:** [niczavadskiy](https://github.com/niczavadskiy)
 
 Raw prompts and model responses may be released separately as a Hugging Face Dataset.
 
 ## Reproducing metrics (requires local `per_item.jsonl`)
 
-Metrics pipelines read `results/<run>/per_item.jsonl` from a full checkout with
+Metrics pipelines read `HF/<run>/per_item.jsonl` from a full checkout with
 inference data. From the repository root:
 
 ```bash
