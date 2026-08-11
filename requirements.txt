@@ -1,3 +1,10 @@
 numpy>=2.0
 pandas>=2.0
 scipy>=1.10
+
+# Steering (Stage A runner + profile builders)
+PyYAML>=6.0
+pyarrow>=14.0
+torch
+transformers>=4.50
+accelerate

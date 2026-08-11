@@ -1,0 +1,4 @@
+config_id,role,family,vector_id,layer,intervention,alpha,beta,mean_abs_theta_dev,mean_abs_theta_prob_dev,mean_theta_prob,slot_a_rate,narrative_first_rate,reduction_vs_baseline,prob_reduction_vs_baseline
+main_center_core__wgperp__L16__center__a1,candidate,main_center_core,w_gender_perp,16,center,1.0,,0.0,0.0570655101218386,0.49745915845279937,0.8333333333333334,0.3333333333333333,0.08333333333333333,-0.002298465061610931
+baseline,baseline,,,,,,,0.08333333333333333,0.05476704506022767,0.4997980006917852,0.75,0.4166666666666667,0.0,0.0
+causality_shift__wgperp__L16__shift__b1,control,causality_shift,w_gender_perp,16,shift,,1.0,0.08333333333333333,0.05730788660742827,0.4972571591445846,0.75,0.4166666666666667,0.0,-0.0025408415472005993

@@ -1,0 +1,26 @@
+{
+  "schema": "steering.stage_a_run/v1",
+  "tag": "smoke",
+  "datetime": "2026-08-10T00:00:02.343284",
+  "model": "steering/.cache/model",
+  "device": "cpu",
+  "dtype": "bfloat16",
+  "sample": {
+    "file": "h1_stagea_sample_v1.json",
+    "n_base_items": 3,
+    "n_rows": 12,
+    "limited": true
+  },
+  "candidates_file": "h1_candidates_v1.json",
+  "vectors_file": "h1_vectors_v1.npz",
+  "vectors_sha256": "0313e1273c8033875804331429ffb331da771c0c4c5ffa3aea39e87abda93e80",
+  "n_configs": 3,
+  "config_ids": [
+    "baseline",
+    "main_center_core__wgperp__L16__center__a1",
+    "causality_shift__wgperp__L16__shift__b1"
+  ],
+  "runtime_s": 304.5,
+  "python_version": "3.11.3",
+  "platform": "Windows-10-10.0.22631-SP0"
+}

@@ -1,0 +1,2272 @@
+{
+  "schema": "steering.mmlu_pro_overall_smoke/v1",
+  "profile": "overall_smoke",
+  "role": "Stage B — быстрый общий capability, дизъюнктно с доменными профилями",
+  "map_version": "v1",
+  "benchmark": {
+    "dataset": "TIGER-Lab/MMLU-Pro",
+    "revision": "main",
+    "split": "test",
+    "categories": [
+      "biology",
+      "business",
+      "chemistry",
+      "computer science",
+      "economics",
+      "engineering",
+      "health",
+      "history",
+      "law",
+      "math",
+      "other",
+      "philosophy",
+      "physics",
+      "psychology"
+    ],
+    "n_rows": 12032
+  },
+  "n_per_category": 40,
+  "n_questions": 560,
+  "items": [
+    {
+      "question_id": 2811,
+      "category": "biology"
+    },
+    {
+      "question_id": 2826,
+      "category": "biology"
+    },
+    {
+      "question_id": 2833,
+      "category": "biology"
+    },
+    {
+      "question_id": 2856,
+      "category": "biology"
+    },
+    {
+      "question_id": 2863,
+      "category": "biology"
+    },
+    {
+      "question_id": 2864,
+      "category": "biology"
+    },
+    {
+      "question_id": 2879,
+      "category": "biology"
+    },
+    {
+      "question_id": 2883,
+      "category": "biology"
+    },
+    {
+      "question_id": 2895,
+      "category": "biology"
+    },
+    {
+      "question_id": 2896,
+      "category": "biology"
+    },
+    {
+      "question_id": 2897,
+      "category": "biology"
+    },
+    {
+      "question_id": 2928,
+      "category": "biology"
+    },
+    {
+      "question_id": 2937,
+      "category": "biology"
+    },
+    {
+      "question_id": 2938,
+      "category": "biology"
+    },
+    {
+      "question_id": 2944,
+      "category": "biology"
+    },
+    {
+      "question_id": 2947,
+      "category": "biology"
+    },
+    {
+      "question_id": 2949,
+      "category": "biology"
+    },
+    {
+      "question_id": 2972,
+      "category": "biology"
+    },
+    {
+      "question_id": 2982,
+      "category": "biology"
+    },
+    {
+      "question_id": 3111,
+      "category": "biology"
+    },
+    {
+      "question_id": 3113,
+      "category": "biology"
+    },
+    {
+      "question_id": 3128,
+      "category": "biology"
+    },
+    {
+      "question_id": 3154,
+      "category": "biology"
+    },
+    {
+      "question_id": 3161,
+      "category": "biology"
+    },
+    {
+      "question_id": 3168,
+      "category": "biology"
+    },
+    {
+      "question_id": 3198,
+      "category": "biology"
+    },
+    {
+      "question_id": 3201,
+      "category": "biology"
+    },
+    {
+      "question_id": 3231,
+      "category": "biology"
+    },
+    {
+      "question_id": 3234,
+      "category": "biology"
+    },
+    {
+      "question_id": 3240,
+      "category": "biology"
+    },
+    {
+      "question_id": 3246,
+      "category": "biology"
+    },
+    {
+      "question_id": 3312,
+      "category": "biology"
+    },
+    {
+      "question_id": 3328,
+      "category": "biology"
+    },
+    {
+      "question_id": 3347,
+      "category": "biology"
+    },
+    {
+      "question_id": 3366,
+      "category": "biology"
+    },
+    {
+      "question_id": 3369,
+      "category": "biology"
+    },
+    {
+      "question_id": 3435,
+      "category": "biology"
+    },
+    {
+      "question_id": 3492,
+      "category": "biology"
+    },
+    {
+      "question_id": 3508,
+      "category": "biology"
+    },
+    {
+      "question_id": 3518,
+      "category": "biology"
+    },
+    {
+      "question_id": 76,
+      "category": "business"
+    },
+    {
+      "question_id": 87,
+      "category": "business"
+    },
+    {
+      "question_id": 103,
+      "category": "business"
+    },
+    {
+      "question_id": 156,
+      "category": "business"
+    },
+    {
+      "question_id": 163,
+      "category": "business"
+    },
+    {
+      "question_id": 186,
+      "category": "business"
+    },
+    {
+      "question_id": 204,
+      "category": "business"
+    },
+    {
+      "question_id": 210,
+      "category": "business"
+    },
+    {
+      "question_id": 259,
+      "category": "business"
+    },
+    {
+      "question_id": 271,
+      "category": "business"
+    },
+    {
+      "question_id": 284,
+      "category": "business"
+    },
+    {
+      "question_id": 292,
+      "category": "business"
+    },
+    {
+      "question_id": 315,
+      "category": "business"
+    },
+    {
+      "question_id": 324,
+      "category": "business"
+    },
+    {
+      "question_id": 327,
+      "category": "business"
+    },
+    {
+      "question_id": 340,
+      "category": "business"
+    },
+    {
+      "question_id": 343,
+      "category": "business"
+    },
+    {
+      "question_id": 348,
+      "category": "business"
+    },
+    {
+      "question_id": 355,
+      "category": "business"
+    },
+    {
+      "question_id": 371,
+      "category": "business"
+    },
+    {
+      "question_id": 380,
+      "category": "business"
+    },
+    {
+      "question_id": 492,
+      "category": "business"
+    },
+    {
+      "question_id": 514,
+      "category": "business"
+    },
+    {
+      "question_id": 551,
+      "category": "business"
+    },
+    {
+      "question_id": 604,
+      "category": "business"
+    },
+    {
+      "question_id": 615,
+      "category": "business"
+    },
+    {
+      "question_id": 658,
+      "category": "business"
+    },
+    {
+      "question_id": 661,
+      "category": "business"
+    },
+    {
+      "question_id": 669,
+      "category": "business"
+    },
+    {
+      "question_id": 670,
+      "category": "business"
+    },
+    {
+      "question_id": 673,
+      "category": "business"
+    },
+    {
+      "question_id": 693,
+      "category": "business"
+    },
+    {
+      "question_id": 717,
+      "category": "business"
+    },
+    {
+      "question_id": 724,
+      "category": "business"
+    },
+    {
+      "question_id": 732,
+      "category": "business"
+    },
+    {
+      "question_id": 756,
+      "category": "business"
+    },
+    {
+      "question_id": 820,
+      "category": "business"
+    },
+    {
+      "question_id": 823,
+      "category": "business"
+    },
+    {
+      "question_id": 850,
+      "category": "business"
+    },
+    {
+      "question_id": 857,
+      "category": "business"
+    },
+    {
+      "question_id": 3549,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3559,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3601,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3628,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3665,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3744,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3761,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3819,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3820,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3831,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3838,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3888,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3889,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3964,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 3970,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4028,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4041,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4082,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4093,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4127,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4140,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4150,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4167,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4184,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4201,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4248,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4263,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4295,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4318,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4359,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4418,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4428,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4458,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4459,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4492,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4536,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4547,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4614,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4620,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 4654,
+      "category": "chemistry"
+    },
+    {
+      "question_id": 10360,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10368,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10384,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10406,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10414,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10427,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10428,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10431,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10444,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10447,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10489,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10495,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10497,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10505,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10518,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10526,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10529,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10532,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10543,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10552,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10558,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10586,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10595,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10606,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10608,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10609,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10616,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10626,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10641,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10661,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10690,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10694,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10705,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10724,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10727,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10736,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10739,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10752,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10763,
+      "category": "computer science"
+    },
+    {
+      "question_id": 10771,
+      "category": "computer science"
+    },
+    {
+      "question_id": 6827,
+      "category": "economics"
+    },
+    {
+      "question_id": 6841,
+      "category": "economics"
+    },
+    {
+      "question_id": 6848,
+      "category": "economics"
+    },
+    {
+      "question_id": 6857,
+      "category": "economics"
+    },
+    {
+      "question_id": 6922,
+      "category": "economics"
+    },
+    {
+      "question_id": 6974,
+      "category": "economics"
+    },
+    {
+      "question_id": 6986,
+      "category": "economics"
+    },
+    {
+      "question_id": 6997,
+      "category": "economics"
+    },
+    {
+      "question_id": 7009,
+      "category": "economics"
+    },
+    {
+      "question_id": 7065,
+      "category": "economics"
+    },
+    {
+      "question_id": 7068,
+      "category": "economics"
+    },
+    {
+      "question_id": 7075,
+      "category": "economics"
+    },
+    {
+      "question_id": 7092,
+      "category": "economics"
+    },
+    {
+      "question_id": 7107,
+      "category": "economics"
+    },
+    {
+      "question_id": 7140,
+      "category": "economics"
+    },
+    {
+      "question_id": 7160,
+      "category": "economics"
+    },
+    {
+      "question_id": 7163,
+      "category": "economics"
+    },
+    {
+      "question_id": 7208,
+      "category": "economics"
+    },
+    {
+      "question_id": 7245,
+      "category": "economics"
+    },
+    {
+      "question_id": 7249,
+      "category": "economics"
+    },
+    {
+      "question_id": 7262,
+      "category": "economics"
+    },
+    {
+      "question_id": 7266,
+      "category": "economics"
+    },
+    {
+      "question_id": 7271,
+      "category": "economics"
+    },
+    {
+      "question_id": 7293,
+      "category": "economics"
+    },
+    {
+      "question_id": 7323,
+      "category": "economics"
+    },
+    {
+      "question_id": 7356,
+      "category": "economics"
+    },
+    {
+      "question_id": 7359,
+      "category": "economics"
+    },
+    {
+      "question_id": 7360,
+      "category": "economics"
+    },
+    {
+      "question_id": 7440,
+      "category": "economics"
+    },
+    {
+      "question_id": 7483,
+      "category": "economics"
+    },
+    {
+      "question_id": 7493,
+      "category": "economics"
+    },
+    {
+      "question_id": 7518,
+      "category": "economics"
+    },
+    {
+      "question_id": 7523,
+      "category": "economics"
+    },
+    {
+      "question_id": 7549,
+      "category": "economics"
+    },
+    {
+      "question_id": 7561,
+      "category": "economics"
+    },
+    {
+      "question_id": 7577,
+      "category": "economics"
+    },
+    {
+      "question_id": 7612,
+      "category": "economics"
+    },
+    {
+      "question_id": 7614,
+      "category": "economics"
+    },
+    {
+      "question_id": 7629,
+      "category": "economics"
+    },
+    {
+      "question_id": 7651,
+      "category": "economics"
+    },
+    {
+      "question_id": 11285,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11297,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11307,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11344,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11356,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11372,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11448,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11480,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11512,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11540,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11568,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11587,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11625,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11648,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11679,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11754,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11759,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11766,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11781,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11789,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11805,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11818,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11845,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11863,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11875,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11877,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11945,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11946,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11986,
+      "category": "engineering"
+    },
+    {
+      "question_id": 11989,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12024,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12027,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12037,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12059,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12091,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12114,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12123,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12176,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12183,
+      "category": "engineering"
+    },
+    {
+      "question_id": 12192,
+      "category": "engineering"
+    },
+    {
+      "question_id": 6002,
+      "category": "health"
+    },
+    {
+      "question_id": 6035,
+      "category": "health"
+    },
+    {
+      "question_id": 6036,
+      "category": "health"
+    },
+    {
+      "question_id": 6040,
+      "category": "health"
+    },
+    {
+      "question_id": 6091,
+      "category": "health"
+    },
+    {
+      "question_id": 6109,
+      "category": "health"
+    },
+    {
+      "question_id": 6111,
+      "category": "health"
+    },
+    {
+      "question_id": 6123,
+      "category": "health"
+    },
+    {
+      "question_id": 6157,
+      "category": "health"
+    },
+    {
+      "question_id": 6182,
+      "category": "health"
+    },
+    {
+      "question_id": 6193,
+      "category": "health"
+    },
+    {
+      "question_id": 6203,
+      "category": "health"
+    },
+    {
+      "question_id": 6224,
+      "category": "health"
+    },
+    {
+      "question_id": 6226,
+      "category": "health"
+    },
+    {
+      "question_id": 6261,
+      "category": "health"
+    },
+    {
+      "question_id": 6291,
+      "category": "health"
+    },
+    {
+      "question_id": 6293,
+      "category": "health"
+    },
+    {
+      "question_id": 6312,
+      "category": "health"
+    },
+    {
+      "question_id": 6373,
+      "category": "health"
+    },
+    {
+      "question_id": 6407,
+      "category": "health"
+    },
+    {
+      "question_id": 6427,
+      "category": "health"
+    },
+    {
+      "question_id": 6502,
+      "category": "health"
+    },
+    {
+      "question_id": 6529,
+      "category": "health"
+    },
+    {
+      "question_id": 6530,
+      "category": "health"
+    },
+    {
+      "question_id": 6575,
+      "category": "health"
+    },
+    {
+      "question_id": 6611,
+      "category": "health"
+    },
+    {
+      "question_id": 6638,
+      "category": "health"
+    },
+    {
+      "question_id": 6648,
+      "category": "health"
+    },
+    {
+      "question_id": 6650,
+      "category": "health"
+    },
+    {
+      "question_id": 6655,
+      "category": "health"
+    },
+    {
+      "question_id": 6661,
+      "category": "health"
+    },
+    {
+      "question_id": 6670,
+      "category": "health"
+    },
+    {
+      "question_id": 6675,
+      "category": "health"
+    },
+    {
+      "question_id": 6705,
+      "category": "health"
+    },
+    {
+      "question_id": 6719,
+      "category": "health"
+    },
+    {
+      "question_id": 6725,
+      "category": "health"
+    },
+    {
+      "question_id": 6765,
+      "category": "health"
+    },
+    {
+      "question_id": 6768,
+      "category": "health"
+    },
+    {
+      "question_id": 6787,
+      "category": "health"
+    },
+    {
+      "question_id": 6823,
+      "category": "health"
+    },
+    {
+      "question_id": 4670,
+      "category": "history"
+    },
+    {
+      "question_id": 4678,
+      "category": "history"
+    },
+    {
+      "question_id": 4686,
+      "category": "history"
+    },
+    {
+      "question_id": 4694,
+      "category": "history"
+    },
+    {
+      "question_id": 4698,
+      "category": "history"
+    },
+    {
+      "question_id": 4700,
+      "category": "history"
+    },
+    {
+      "question_id": 4702,
+      "category": "history"
+    },
+    {
+      "question_id": 4709,
+      "category": "history"
+    },
+    {
+      "question_id": 4714,
+      "category": "history"
+    },
+    {
+      "question_id": 4724,
+      "category": "history"
+    },
+    {
+      "question_id": 4744,
+      "category": "history"
+    },
+    {
+      "question_id": 4774,
+      "category": "history"
+    },
+    {
+      "question_id": 4777,
+      "category": "history"
+    },
+    {
+      "question_id": 4785,
+      "category": "history"
+    },
+    {
+      "question_id": 4795,
+      "category": "history"
+    },
+    {
+      "question_id": 4811,
+      "category": "history"
+    },
+    {
+      "question_id": 4818,
+      "category": "history"
+    },
+    {
+      "question_id": 4844,
+      "category": "history"
+    },
+    {
+      "question_id": 4865,
+      "category": "history"
+    },
+    {
+      "question_id": 4873,
+      "category": "history"
+    },
+    {
+      "question_id": 4877,
+      "category": "history"
+    },
+    {
+      "question_id": 4882,
+      "category": "history"
+    },
+    {
+      "question_id": 4883,
+      "category": "history"
+    },
+    {
+      "question_id": 4911,
+      "category": "history"
+    },
+    {
+      "question_id": 4926,
+      "category": "history"
+    },
+    {
+      "question_id": 4943,
+      "category": "history"
+    },
+    {
+      "question_id": 4945,
+      "category": "history"
+    },
+    {
+      "question_id": 4974,
+      "category": "history"
+    },
+    {
+      "question_id": 4977,
+      "category": "history"
+    },
+    {
+      "question_id": 4980,
+      "category": "history"
+    },
+    {
+      "question_id": 4981,
+      "category": "history"
+    },
+    {
+      "question_id": 4982,
+      "category": "history"
+    },
+    {
+      "question_id": 4993,
+      "category": "history"
+    },
+    {
+      "question_id": 4995,
+      "category": "history"
+    },
+    {
+      "question_id": 5012,
+      "category": "history"
+    },
+    {
+      "question_id": 5020,
+      "category": "history"
+    },
+    {
+      "question_id": 5028,
+      "category": "history"
+    },
+    {
+      "question_id": 5042,
+      "category": "history"
+    },
+    {
+      "question_id": 5043,
+      "category": "history"
+    },
+    {
+      "question_id": 5047,
+      "category": "history"
+    },
+    {
+      "question_id": 875,
+      "category": "law"
+    },
+    {
+      "question_id": 886,
+      "category": "law"
+    },
+    {
+      "question_id": 930,
+      "category": "law"
+    },
+    {
+      "question_id": 953,
+      "category": "law"
+    },
+    {
+      "question_id": 958,
+      "category": "law"
+    },
+    {
+      "question_id": 986,
+      "category": "law"
+    },
+    {
+      "question_id": 1000,
+      "category": "law"
+    },
+    {
+      "question_id": 1034,
+      "category": "law"
+    },
+    {
+      "question_id": 1109,
+      "category": "law"
+    },
+    {
+      "question_id": 1122,
+      "category": "law"
+    },
+    {
+      "question_id": 1215,
+      "category": "law"
+    },
+    {
+      "question_id": 1326,
+      "category": "law"
+    },
+    {
+      "question_id": 1415,
+      "category": "law"
+    },
+    {
+      "question_id": 1418,
+      "category": "law"
+    },
+    {
+      "question_id": 1437,
+      "category": "law"
+    },
+    {
+      "question_id": 1444,
+      "category": "law"
+    },
+    {
+      "question_id": 1469,
+      "category": "law"
+    },
+    {
+      "question_id": 1482,
+      "category": "law"
+    },
+    {
+      "question_id": 1489,
+      "category": "law"
+    },
+    {
+      "question_id": 1512,
+      "category": "law"
+    },
+    {
+      "question_id": 1560,
+      "category": "law"
+    },
+    {
+      "question_id": 1565,
+      "category": "law"
+    },
+    {
+      "question_id": 1569,
+      "category": "law"
+    },
+    {
+      "question_id": 1571,
+      "category": "law"
+    },
+    {
+      "question_id": 1632,
+      "category": "law"
+    },
+    {
+      "question_id": 1637,
+      "category": "law"
+    },
+    {
+      "question_id": 1659,
+      "category": "law"
+    },
+    {
+      "question_id": 1721,
+      "category": "law"
+    },
+    {
+      "question_id": 1728,
+      "category": "law"
+    },
+    {
+      "question_id": 1730,
+      "category": "law"
+    },
+    {
+      "question_id": 1732,
+      "category": "law"
+    },
+    {
+      "question_id": 1770,
+      "category": "law"
+    },
+    {
+      "question_id": 1797,
+      "category": "law"
+    },
+    {
+      "question_id": 1818,
+      "category": "law"
+    },
+    {
+      "question_id": 1834,
+      "category": "law"
+    },
+    {
+      "question_id": 1838,
+      "category": "law"
+    },
+    {
+      "question_id": 1864,
+      "category": "law"
+    },
+    {
+      "question_id": 1920,
+      "category": "law"
+    },
+    {
+      "question_id": 1947,
+      "category": "law"
+    },
+    {
+      "question_id": 1964,
+      "category": "law"
+    },
+    {
+      "question_id": 7723,
+      "category": "math"
+    },
+    {
+      "question_id": 7737,
+      "category": "math"
+    },
+    {
+      "question_id": 7741,
+      "category": "math"
+    },
+    {
+      "question_id": 7748,
+      "category": "math"
+    },
+    {
+      "question_id": 7821,
+      "category": "math"
+    },
+    {
+      "question_id": 7946,
+      "category": "math"
+    },
+    {
+      "question_id": 7957,
+      "category": "math"
+    },
+    {
+      "question_id": 8011,
+      "category": "math"
+    },
+    {
+      "question_id": 8022,
+      "category": "math"
+    },
+    {
+      "question_id": 8071,
+      "category": "math"
+    },
+    {
+      "question_id": 8098,
+      "category": "math"
+    },
+    {
+      "question_id": 8216,
+      "category": "math"
+    },
+    {
+      "question_id": 8297,
+      "category": "math"
+    },
+    {
+      "question_id": 8325,
+      "category": "math"
+    },
+    {
+      "question_id": 8391,
+      "category": "math"
+    },
+    {
+      "question_id": 8406,
+      "category": "math"
+    },
+    {
+      "question_id": 8433,
+      "category": "math"
+    },
+    {
+      "question_id": 8448,
+      "category": "math"
+    },
+    {
+      "question_id": 8456,
+      "category": "math"
+    },
+    {
+      "question_id": 8457,
+      "category": "math"
+    },
+    {
+      "question_id": 8462,
+      "category": "math"
+    },
+    {
+      "question_id": 8465,
+      "category": "math"
+    },
+    {
+      "question_id": 8517,
+      "category": "math"
+    },
+    {
+      "question_id": 8537,
+      "category": "math"
+    },
+    {
+      "question_id": 8556,
+      "category": "math"
+    },
+    {
+      "question_id": 8613,
+      "category": "math"
+    },
+    {
+      "question_id": 8711,
+      "category": "math"
+    },
+    {
+      "question_id": 8771,
+      "category": "math"
+    },
+    {
+      "question_id": 8774,
+      "category": "math"
+    },
+    {
+      "question_id": 8815,
+      "category": "math"
+    },
+    {
+      "question_id": 8833,
+      "category": "math"
+    },
+    {
+      "question_id": 8874,
+      "category": "math"
+    },
+    {
+      "question_id": 8887,
+      "category": "math"
+    },
+    {
+      "question_id": 8895,
+      "category": "math"
+    },
+    {
+      "question_id": 8897,
+      "category": "math"
+    },
+    {
+      "question_id": 8903,
+      "category": "math"
+    },
+    {
+      "question_id": 8936,
+      "category": "math"
+    },
+    {
+      "question_id": 8961,
+      "category": "math"
+    },
+    {
+      "question_id": 8974,
+      "category": "math"
+    },
+    {
+      "question_id": 9029,
+      "category": "math"
+    },
+    {
+      "question_id": 5089,
+      "category": "other"
+    },
+    {
+      "question_id": 5121,
+      "category": "other"
+    },
+    {
+      "question_id": 5128,
+      "category": "other"
+    },
+    {
+      "question_id": 5137,
+      "category": "other"
+    },
+    {
+      "question_id": 5139,
+      "category": "other"
+    },
+    {
+      "question_id": 5147,
+      "category": "other"
+    },
+    {
+      "question_id": 5151,
+      "category": "other"
+    },
+    {
+      "question_id": 5174,
+      "category": "other"
+    },
+    {
+      "question_id": 5276,
+      "category": "other"
+    },
+    {
+      "question_id": 5304,
+      "category": "other"
+    },
+    {
+      "question_id": 5312,
+      "category": "other"
+    },
+    {
+      "question_id": 5327,
+      "category": "other"
+    },
+    {
+      "question_id": 5341,
+      "category": "other"
+    },
+    {
+      "question_id": 5352,
+      "category": "other"
+    },
+    {
+      "question_id": 5394,
+      "category": "other"
+    },
+    {
+      "question_id": 5414,
+      "category": "other"
+    },
+    {
+      "question_id": 5436,
+      "category": "other"
+    },
+    {
+      "question_id": 5437,
+      "category": "other"
+    },
+    {
+      "question_id": 5439,
+      "category": "other"
+    },
+    {
+      "question_id": 5488,
+      "category": "other"
+    },
+    {
+      "question_id": 5496,
+      "category": "other"
+    },
+    {
+      "question_id": 5536,
+      "category": "other"
+    },
+    {
+      "question_id": 5543,
+      "category": "other"
+    },
+    {
+      "question_id": 5545,
+      "category": "other"
+    },
+    {
+      "question_id": 5549,
+      "category": "other"
+    },
+    {
+      "question_id": 5555,
+      "category": "other"
+    },
+    {
+      "question_id": 5587,
+      "category": "other"
+    },
+    {
+      "question_id": 5719,
+      "category": "other"
+    },
+    {
+      "question_id": 5723,
+      "category": "other"
+    },
+    {
+      "question_id": 5743,
+      "category": "other"
+    },
+    {
+      "question_id": 5774,
+      "category": "other"
+    },
+    {
+      "question_id": 5805,
+      "category": "other"
+    },
+    {
+      "question_id": 5839,
+      "category": "other"
+    },
+    {
+      "question_id": 5860,
+      "category": "other"
+    },
+    {
+      "question_id": 5880,
+      "category": "other"
+    },
+    {
+      "question_id": 5888,
+      "category": "other"
+    },
+    {
+      "question_id": 5894,
+      "category": "other"
+    },
+    {
+      "question_id": 5903,
+      "category": "other"
+    },
+    {
+      "question_id": 5907,
+      "category": "other"
+    },
+    {
+      "question_id": 5987,
+      "category": "other"
+    },
+    {
+      "question_id": 10781,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10798,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10817,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10875,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10877,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10887,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10888,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10911,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10930,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10936,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10937,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10938,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10944,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10958,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10971,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10974,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 10988,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11000,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11005,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11017,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11042,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11047,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11050,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11058,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11072,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11077,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11105,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11107,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11108,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11171,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11177,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11180,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11181,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11204,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11206,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11215,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11228,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11272,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11283,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 11284,
+      "category": "philosophy"
+    },
+    {
+      "question_id": 9107,
+      "category": "physics"
+    },
+    {
+      "question_id": 9158,
+      "category": "physics"
+    },
+    {
+      "question_id": 9177,
+      "category": "physics"
+    },
+    {
+      "question_id": 9185,
+      "category": "physics"
+    },
+    {
+      "question_id": 9229,
+      "category": "physics"
+    },
+    {
+      "question_id": 9234,
+      "category": "physics"
+    },
+    {
+      "question_id": 9262,
+      "category": "physics"
+    },
+    {
+      "question_id": 9333,
+      "category": "physics"
+    },
+    {
+      "question_id": 9349,
+      "category": "physics"
+    },
+    {
+      "question_id": 9384,
+      "category": "physics"
+    },
+    {
+      "question_id": 9414,
+      "category": "physics"
+    },
+    {
+      "question_id": 9423,
+      "category": "physics"
+    },
+    {
+      "question_id": 9424,
+      "category": "physics"
+    },
+    {
+      "question_id": 9436,
+      "category": "physics"
+    },
+    {
+      "question_id": 9464,
+      "category": "physics"
+    },
+    {
+      "question_id": 9486,
+      "category": "physics"
+    },
+    {
+      "question_id": 9558,
+      "category": "physics"
+    },
+    {
+      "question_id": 9626,
+      "category": "physics"
+    },
+    {
+      "question_id": 9644,
+      "category": "physics"
+    },
+    {
+      "question_id": 9666,
+      "category": "physics"
+    },
+    {
+      "question_id": 9676,
+      "category": "physics"
+    },
+    {
+      "question_id": 9689,
+      "category": "physics"
+    },
+    {
+      "question_id": 9804,
+      "category": "physics"
+    },
+    {
+      "question_id": 9826,
+      "category": "physics"
+    },
+    {
+      "question_id": 9855,
+      "category": "physics"
+    },
+    {
+      "question_id": 9863,
+      "category": "physics"
+    },
+    {
+      "question_id": 9928,
+      "category": "physics"
+    },
+    {
+      "question_id": 9930,
+      "category": "physics"
+    },
+    {
+      "question_id": 9944,
+      "category": "physics"
+    },
+    {
+      "question_id": 10143,
+      "category": "physics"
+    },
+    {
+      "question_id": 10149,
+      "category": "physics"
+    },
+    {
+      "question_id": 10155,
+      "category": "physics"
+    },
+    {
+      "question_id": 10198,
+      "category": "physics"
+    },
+    {
+      "question_id": 10200,
+      "category": "physics"
+    },
+    {
+      "question_id": 10221,
+      "category": "physics"
+    },
+    {
+      "question_id": 10244,
+      "category": "physics"
+    },
+    {
+      "question_id": 10259,
+      "category": "physics"
+    },
+    {
+      "question_id": 10261,
+      "category": "physics"
+    },
+    {
+      "question_id": 10270,
+      "category": "physics"
+    },
+    {
+      "question_id": 10288,
+      "category": "physics"
+    },
+    {
+      "question_id": 2045,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2047,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2099,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2123,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2132,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2151,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2167,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2199,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2223,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2227,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2246,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2292,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2305,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2307,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2324,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2344,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2358,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2359,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2378,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2380,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2383,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2391,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2393,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2434,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2455,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2487,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2532,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2548,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2556,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2606,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2633,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2649,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2661,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2672,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2674,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2705,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2741,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2744,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2753,
+      "category": "psychology"
+    },
+    {
+      "question_id": 2780,
+      "category": "psychology"
+    }
+  ]
+}

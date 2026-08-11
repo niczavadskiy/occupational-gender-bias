@@ -8,3 +8,9 @@ venv/
 *.log
 per_item.jsonl
 hidden_states.npz
+
+# === Steering ===
+!steering/vectors/*.npz
+results/steering/**/per_item.jsonl
+.cache/
+steering/.cache/

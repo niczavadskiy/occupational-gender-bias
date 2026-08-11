@@ -1,0 +1,91 @@
+{
+  "n_items": 3,
+  "n_rows": 12,
+  "theta_choice": {
+    "mean_abs_dev": 0.08333333333333333,
+    "abs_mean_dev": 0.08333333333333337,
+    "mean_theta": 0.5833333333333334,
+    "n_items": 3
+  },
+  "theta_prob": {
+    "mean_abs_dev": 0.05730788660742827,
+    "abs_mean_dev": 0.002742840855415374,
+    "mean_theta": 0.4972571591445846,
+    "n_items": 3
+  },
+  "rates": {
+    "slot_a_rate": 0.75,
+    "man_choice_rate": 0.5833333333333334,
+    "narrative_first_rate": 0.4166666666666667
+  },
+  "per_soc": [
+    {
+      "soc_major_title": "Management Occupations",
+      "n_items": 3,
+      "mean_theta_choice": 0.5833333333333334,
+      "mean_theta_prob": 0.4972571591445846,
+      "abs_dev_theta_prob": 0.002742840855415374
+    }
+  ],
+  "per_item": [
+    {
+      "scenario_family_id": 59,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.4770131720892684
+    },
+    {
+      "scenario_family_id": 131,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 3,
+      "n_woman": 1,
+      "theta_choice": 0.75,
+      "theta_prob": 0.5818475686280193
+    },
+    {
+      "scenario_family_id": 139,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.4329107367164661
+    }
+  ],
+  "config_id": "causality_shift__wgperp__L16__shift__b1",
+  "role": "control",
+  "candidate": {
+    "id": "causality_shift__wgperp__L16__shift__b1",
+    "family": "causality_shift",
+    "role": "control",
+    "vector_id": "w_gender_perp",
+    "vector_kind": "probe_direction_orthogonalized",
+    "vector_base": "gender",
+    "orthogonalize_against": [
+      "narrative",
+      "slot"
+    ],
+    "layers": [
+      16
+    ],
+    "apply_to_all_layers_at_once": false,
+    "intervention": "shift",
+    "formula": "h' = h + β·σ_train·ŵ",
+    "beta": 1.0,
+    "reference_c": null,
+    "scale": "train_projection_std"
+  },
+  "runtime_s": 79.1,
+  "hook_check": {
+    "mean_abs_error": 0.0008982931867201246,
+    "max_abs_error": 0.0011616438920258598,
+    "mean_abs_delta_s": 0.04250835130612055,
+    "relative_error": 0.021132157778859424,
+    "note": "s_after против аналитической формулы; ошибка = квантование dtype модели"
+  },
+  "agreement_with_recorded_run": 1.0
+}
