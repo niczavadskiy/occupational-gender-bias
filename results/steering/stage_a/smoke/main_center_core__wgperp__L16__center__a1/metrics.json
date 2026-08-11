@@ -1,0 +1,91 @@
+{
+  "n_items": 3,
+  "n_rows": 12,
+  "theta_choice": {
+    "mean_abs_dev": 0.0,
+    "abs_mean_dev": 0.0,
+    "mean_theta": 0.5,
+    "n_items": 3
+  },
+  "theta_prob": {
+    "mean_abs_dev": 0.0570655101218386,
+    "abs_mean_dev": 0.002540841547200634,
+    "mean_theta": 0.49745915845279937,
+    "n_items": 3
+  },
+  "rates": {
+    "slot_a_rate": 0.8333333333333334,
+    "man_choice_rate": 0.5,
+    "narrative_first_rate": 0.3333333333333333
+  },
+  "per_soc": [
+    {
+      "soc_major_title": "Management Occupations",
+      "n_items": 3,
+      "mean_theta_choice": 0.5,
+      "mean_theta_prob": 0.49745915845279937,
+      "abs_dev_theta_prob": 0.002540841547200634
+    }
+  ],
+  "per_item": [
+    {
+      "scenario_family_id": 59,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.48463569673087015
+    },
+    {
+      "scenario_family_id": 131,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.581787002861957
+    },
+    {
+      "scenario_family_id": 139,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.425954775765571
+    }
+  ],
+  "config_id": "main_center_core__wgperp__L16__center__a1",
+  "role": "candidate",
+  "candidate": {
+    "id": "main_center_core__wgperp__L16__center__a1",
+    "family": "main_center_core",
+    "role": "candidate",
+    "vector_id": "w_gender_perp",
+    "vector_kind": "probe_direction_orthogonalized",
+    "vector_base": "gender",
+    "orthogonalize_against": [
+      "narrative",
+      "slot"
+    ],
+    "layers": [
+      16
+    ],
+    "apply_to_all_layers_at_once": false,
+    "intervention": "center",
+    "formula": "h' = h − α·(s − c)·ŵ",
+    "alpha": 1.0,
+    "reference_c": "class_midpoint_train",
+    "scale": null
+  },
+  "runtime_s": 81.3,
+  "hook_check": {
+    "mean_abs_error": 0.002336468186794713,
+    "max_abs_error": 0.003431608598345487,
+    "mean_abs_delta_s": 0.025906138122081757,
+    "relative_error": 0.09018975255146829,
+    "note": "s_after против аналитической формулы; ошибка = квантование dtype модели"
+  },
+  "agreement_with_recorded_run": 0.9166666666666666
+}

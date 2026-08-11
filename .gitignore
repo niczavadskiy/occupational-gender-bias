@@ -280,3 +280,9 @@ data/annotation/runs/**/.~lock*
 
 # EDA HF download cache
 .hf_cache/
+
+# === Steering ===
+# Векторы направлений — ~400 KB, нужны для прогонов без 1.5 GB hidden_states.npz.
+!steering/vectors/*.npz
+# Stage A/B/C: в git метрики и рейтинги; per_item.jsonl восстанавливается прогоном.
+results/steering/**/per_item.jsonl

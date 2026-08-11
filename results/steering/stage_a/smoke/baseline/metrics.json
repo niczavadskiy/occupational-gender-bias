@@ -1,0 +1,65 @@
+{
+  "n_items": 3,
+  "n_rows": 12,
+  "theta_choice": {
+    "mean_abs_dev": 0.08333333333333333,
+    "abs_mean_dev": 0.08333333333333337,
+    "mean_theta": 0.5833333333333334,
+    "n_items": 3
+  },
+  "theta_prob": {
+    "mean_abs_dev": 0.05476704506022767,
+    "abs_mean_dev": 0.00020199930821479528,
+    "mean_theta": 0.4997980006917852,
+    "n_items": 3
+  },
+  "rates": {
+    "slot_a_rate": 0.75,
+    "man_choice_rate": 0.5833333333333334,
+    "narrative_first_rate": 0.4166666666666667
+  },
+  "per_soc": [
+    {
+      "soc_major_title": "Management Occupations",
+      "n_items": 3,
+      "mean_theta_choice": 0.5833333333333334,
+      "mean_theta_prob": 0.4997980006917852,
+      "abs_dev_theta_prob": 0.00020199930821479528
+    }
+  ],
+  "per_item": [
+    {
+      "scenario_family_id": 59,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.4770131720892684
+    },
+    {
+      "scenario_family_id": 131,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 3,
+      "n_woman": 1,
+      "theta_choice": 0.75,
+      "theta_prob": 0.5818475686280193
+    },
+    {
+      "scenario_family_id": 139,
+      "soc_major_title": "Management Occupations",
+      "n_rows": 4,
+      "n_man": 2,
+      "n_woman": 2,
+      "theta_choice": 0.5,
+      "theta_prob": 0.4405332613580679
+    }
+  ],
+  "config_id": "baseline",
+  "role": "baseline",
+  "candidate": null,
+  "runtime_s": 143.6,
+  "hook_check": null,
+  "agreement_with_recorded_run": 1.0
+}

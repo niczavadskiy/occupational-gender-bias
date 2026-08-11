@@ -1,0 +1,2259 @@
+{
+  "schema": "steering.h1_candidates/v1",
+  "hypothesis": "h1",
+  "map_version": "v1",
+  "map_config": "h1_steering_candidates_v1.yaml",
+  "map_sha256": "e7c6883ef075682b82e0a2b96b069846bcb63576179399219516d7353fa07783",
+  "source": {
+    "run": "run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle",
+    "probe_root": "probes/v1_rep_prob",
+    "model_id": "Qwen/Qwen3.5-2B-Base",
+    "d_model": 2048,
+    "n_hidden_states": 25,
+    "hidden_state_index": "0 = embeddings, 1..24 = block output",
+    "slugs": {
+      "gender": "without_abstain_p0_p1_mf_wf_gender_choice",
+      "narrative": "without_abstain_p0_p1_mf_wf_narrative_choice",
+      "slot": "without_abstain_p0_p1_mf_wf_slot_choice"
+    },
+    "weights_npz": "compare_directions/compare_directions_{target}_weights.npz",
+    "weights_key": "w_raw",
+    "layer_scan": "layer_scan/results.json",
+    "split": {
+      "file": "probes/_shared/group_split_v1_scenario.json",
+      "families": {
+        "train": 571,
+        "val": 190,
+        "test": 190
+      },
+      "note": "Направления обучены на train. Stage A/B — только val, Stage C — test."
+    }
+  },
+  "hook": {
+    "site": "residual_stream_hidden_state",
+    "positions": "last_prompt_token",
+    "note": "Интервенция там же, где снимался HS (last token после \"Answer:\"). Та же точка для MCQ MMLU-Pro."
+  },
+  "vectors": [
+    {
+      "id": "w_gender_perp",
+      "short": "wgperp",
+      "role": "candidate",
+      "kind": "probe_direction_orthogonalized",
+      "base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "description": "Основной кандидат: gender ⊥ {narrative, slot} на том же слое. Test bacc падает с 86.9% до 84.3% — сигнал почти целиком свой."
+    },
+    {
+      "id": "w_gender",
+      "short": "wg",
+      "role": "candidate",
+      "kind": "probe_direction",
+      "base": "gender",
+      "description": "Сырое направление LogReg gender_choice (аблация к w_gender_perp)."
+    },
+    {
+      "id": "w_narrative",
+      "short": "wnarr",
+      "role": "control",
+      "kind": "probe_direction",
+      "base": "narrative",
+      "description": "Контроль: гасим не ту ось — preference меняться не должно."
+    },
+    {
+      "id": "w_slot",
+      "short": "wslot",
+      "role": "control",
+      "kind": "probe_direction",
+      "base": "slot",
+      "description": "Контроль: ось выбора слота A/B."
+    },
+    {
+      "id": "w_random",
+      "short": "wrand",
+      "role": "control",
+      "kind": "random_unit",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "description": "Null-контроль — случайное unit-направление (3 seed)."
+    }
+  ],
+  "interventions": [
+    {
+      "id": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "reference_c": "class_midpoint_train",
+      "reference_note": "c = mid-point mean(s|man) и mean(s|woman) только на train пробы. α>0 тянет к нейтрали; α=1 сажает s на c; α>1 зеркалит за c; α<0 усиливает |s−c| (anti-steering).",
+      "alphas": [
+        0.25,
+        0.5,
+        0.75,
+        1.0
+      ]
+    },
+    {
+      "id": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "reference_c": "origin",
+      "reference_note": "Полное удаление компоненты вдоль оси (эквивалент center с c=0, α=1). Жёстче mid-point center: убирает и общий сдвиг среза вдоль ŵ.",
+      "alphas": [
+        1.0
+      ]
+    },
+    {
+      "id": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "scale": "train_projection_std",
+      "reference_note": "Константный сдвиг — контроль каузальности, не equalize. ±β обязаны разводить P(man) в разные стороны.",
+      "betas": [
+        -1.0,
+        -0.5,
+        0.5,
+        1.0
+      ]
+    }
+  ],
+  "layers": {
+    "belt": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "core": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "edge": [
+      14,
+      19,
+      20
+    ],
+    "anchor": 16,
+    "note": "Пояс L14–L20: скачок сигнала на L15–16 и плато. Ранние L1–13 (~0.65–0.71) и поздние L21–24 — только если пояс не даст эффекта (новая версия конфига)."
+  },
+  "baseline": {
+    "id": "baseline",
+    "description": "Без интервенции на той же выборке. Не кандидат: θ̄_before и capability baseline."
+  },
+  "screening": {
+    "stage": "A",
+    "sample": {
+      "source_split": "val",
+      "n_base_items": 95,
+      "fraction_of_all_groups": 0.1,
+      "stratify_by": "soc_major_title",
+      "rows_per_item": 4,
+      "seed": 20260809,
+      "note": "95 из 190 val-семей ≈ 10% всех 951. Вторая половина val — Stage B."
+    },
+    "forwards_per_candidate": 380,
+    "primary_metric": {
+      "id": "mean_abs_theta_dev",
+      "formula": "mean_i |θ_i − 0.5|, θ_i = M_i/(M_i+W_i) по base item",
+      "direction": "minimize",
+      "note": "Нейтральность ПОСЛЕ интервенции. Не «Δ_до − Δ_после → 0» (это null)."
+    },
+    "secondary_metrics": [
+      {
+        "id": "abs_theta_bar_dev",
+        "formula": "|θ̄ − 0.5|"
+      },
+      {
+        "id": "reduction_vs_baseline",
+        "formula": "mean_abs_theta_dev(baseline) − mean_abs_theta_dev(candidate)"
+      }
+    ],
+    "guardrails": {
+      "mode": "flag",
+      "slot_choice_rate_shift_pp_max": 10,
+      "narrative_choice_rate_shift_pp_max": 10,
+      "note": "Stage A только flag. Дисквалификация — на Stage B."
+    },
+    "keep_top": 15,
+    "keep_rule": "Топ по primary_metric среди role=candidate. Контроли не ранжируются, но обязаны: random ≈ baseline; shift ±β расходятся по знаку; anti_steering увеличивает mean_abs_theta_dev. Иначе сетка не годится."
+  },
+  "n_candidates": 105,
+  "n_by_role": {
+    "candidate": 94,
+    "control": 11
+  },
+  "n_by_family": {
+    "anti_steering": 2,
+    "causality_shift": 4,
+    "control_other_axes": 2,
+    "control_random": 3,
+    "main_center_core": 56,
+    "main_center_edge": 24,
+    "main_project_out": 14
+  },
+  "forwards_estimate": {
+    "per_candidate": 380,
+    "total_with_baseline": 40280
+  },
+  "candidates": [
+    {
+      "id": "main_center_core__wgperp__L15__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L15__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L15__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L15__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L15__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L15__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L15__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L16__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L17__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wgperp__L18__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a1p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L15__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L16__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L17__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__wg__L18__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L14__center__a0p25",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L19__center__a0p25",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L20__center__a0p25",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L14__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L19__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L20__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L14__center__a0p75",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L19__center__a0p75",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L20__center__a0p75",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L14__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L19__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wgperp__L20__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L14__center__a0p25",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L19__center__a0p25",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L20__center__a0p25",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L14__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L19__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L20__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L14__center__a0p75",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L19__center__a0p75",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L20__center__a0p75",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L14__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L19__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__wg__L20__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L14__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L15__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L16__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L17__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L18__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L19__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wgperp__L20__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L14__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L15__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L16__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L17__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L18__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L19__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__wg__L20__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "w_gender",
+      "vector_kind": "probe_direction",
+      "vector_base": "gender",
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "causality_shift__wgperp__L16__shift__bm1",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": -1.0,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "causality_shift__wgperp__L16__shift__bm0p5",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": -0.5,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "causality_shift__wgperp__L16__shift__b0p5",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": 0.5,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "causality_shift__wgperp__L16__shift__b1",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": 1.0,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "anti_steering__wgperp__L16__center__am0p5",
+      "family": "anti_steering",
+      "role": "control",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": -0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "anti_steering__wgperp__L16__center__am1",
+      "family": "anti_steering",
+      "role": "control",
+      "vector_id": "w_gender_perp",
+      "vector_kind": "probe_direction_orthogonalized",
+      "vector_base": "gender",
+      "orthogonalize_against": [
+        "narrative",
+        "slot"
+      ],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": -1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "control_other_axes__wnarr__L16__project_out__a1",
+      "family": "control_other_axes",
+      "role": "control",
+      "vector_id": "w_narrative",
+      "vector_kind": "probe_direction",
+      "vector_base": "narrative",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "control_other_axes__wslot__L16__project_out__a1",
+      "family": "control_other_axes",
+      "role": "control",
+      "vector_id": "w_slot",
+      "vector_kind": "probe_direction",
+      "vector_base": "slot",
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "control_random__wrand__L16__project_out__a1__s0",
+      "family": "control_random",
+      "role": "control",
+      "vector_id": "w_random",
+      "vector_kind": "random_unit",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null,
+      "random_seed": 0
+    },
+    {
+      "id": "control_random__wrand__L16__project_out__a1__s1",
+      "family": "control_random",
+      "role": "control",
+      "vector_id": "w_random",
+      "vector_kind": "random_unit",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null,
+      "random_seed": 1
+    },
+    {
+      "id": "control_random__wrand__L16__project_out__a1__s2",
+      "family": "control_random",
+      "role": "control",
+      "vector_id": "w_random",
+      "vector_kind": "random_unit",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null,
+      "random_seed": 2
+    }
+  ]
+}

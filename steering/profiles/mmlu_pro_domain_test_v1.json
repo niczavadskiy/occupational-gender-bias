@@ -1,0 +1,7063 @@
+{
+  "schema": "steering.mmlu_pro_domain_profile/v1",
+  "profile": "test",
+  "role": "Stage C — подтверждение на held-out",
+  "map_version": "v1",
+  "map_config": "soc_mmlu_pro_map_v1.yaml",
+  "map_sha256": "9b80b61e4e4639ae9f725f73b15005e7a17cd2cab5b8f7bb00a176e246e383d2",
+  "benchmark": {
+    "dataset": "TIGER-Lab/MMLU-Pro",
+    "revision": "main",
+    "split": "test",
+    "categories": [
+      "biology",
+      "business",
+      "chemistry",
+      "computer science",
+      "economics",
+      "engineering",
+      "health",
+      "history",
+      "law",
+      "math",
+      "other",
+      "philosophy",
+      "physics",
+      "psychology"
+    ],
+    "n_rows": 12032,
+    "parquet_sha256": "0e24a191921c2f453518a537a8b2117bd137e7714d4ef1565e9ba06c1ecb9ad8"
+  },
+  "sampling": {
+    "n_per_soc": 50,
+    "master_seed": 20260809,
+    "disjoint_across_domains": true,
+    "disjoint_across_profiles": true
+  },
+  "scoring": {
+    "penalty": "one_sided_drop",
+    "aggregate": "macro_average_over_domains",
+    "headline": "all_domains",
+    "report_breakdown": [
+      "primary",
+      "secondary",
+      "generic"
+    ],
+    "caveat": "Домены тира generic измеряют общую эрудицию, а не знания профессии: их просадка дублирует overall-capability и не является доменным свидетельством. Тир secondary — натянутый прокси: просадка там означает «модель хуже отвечает на смежную академическую дисциплину», а не «потеряла профессиональные знания»."
+  },
+  "n_domains": 22,
+  "n_questions": 1100,
+  "n_domains_by_tier": {
+    "primary": 11,
+    "secondary": 8,
+    "generic": 3
+  },
+  "domains": [
+    {
+      "soc_major_title": "Architecture and Engineering Occupations",
+      "g_base_items": 66,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "high",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "engineering": 25,
+        "math": 13,
+        "physics": 12
+      },
+      "question_ids": [
+        7906,
+        8032,
+        8114,
+        8193,
+        8307,
+        8438,
+        8473,
+        8579,
+        8670,
+        8731,
+        8813,
+        8891,
+        8942,
+        9090,
+        9223,
+        9260,
+        9274,
+        9362,
+        9404,
+        9681,
+        9686,
+        9768,
+        9924,
+        10268,
+        10271,
+        11316,
+        11338,
+        11365,
+        11399,
+        11414,
+        11464,
+        11510,
+        11582,
+        11601,
+        11622,
+        11653,
+        11722,
+        11743,
+        11757,
+        11792,
+        11797,
+        11804,
+        11888,
+        11956,
+        11968,
+        12023,
+        12072,
+        12116,
+        12128,
+        12211
+      ],
+      "items": [
+        {
+          "question_id": 7906,
+          "category": "math",
+          "src": "ori_mmlu-high_school_statistics"
+        },
+        {
+          "question_id": 8032,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8114,
+          "category": "math",
+          "src": "ori_mmlu-high_school_statistics"
+        },
+        {
+          "question_id": 8193,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8307,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8438,
+          "category": "math",
+          "src": "ori_mmlu-abstract_algebra"
+        },
+        {
+          "question_id": 8473,
+          "category": "math",
+          "src": "ori_mmlu-college_mathematics"
+        },
+        {
+          "question_id": 8579,
+          "category": "math",
+          "src": "ori_mmlu-college_mathematics"
+        },
+        {
+          "question_id": 8670,
+          "category": "math",
+          "src": "ori_mmlu-high_school_statistics"
+        },
+        {
+          "question_id": 8731,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8813,
+          "category": "math",
+          "src": "ori_mmlu-college_mathematics"
+        },
+        {
+          "question_id": 8891,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8942,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 9090,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 9223,
+          "category": "physics",
+          "src": "theoremQA-Physics"
+        },
+        {
+          "question_id": 9260,
+          "category": "physics",
+          "src": "ori_mmlu-astronomy"
+        },
+        {
+          "question_id": 9274,
+          "category": "physics",
+          "src": "stemez-Mechanics"
+        },
+        {
+          "question_id": 9362,
+          "category": "physics",
+          "src": "ori_mmlu-astronomy"
+        },
+        {
+          "question_id": 9404,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 9681,
+          "category": "physics",
+          "src": "ori_mmlu-college_physics"
+        },
+        {
+          "question_id": 9686,
+          "category": "physics",
+          "src": "ori_mmlu-college_physics"
+        },
+        {
+          "question_id": 9768,
+          "category": "physics",
+          "src": "ori_mmlu-college_physics"
+        },
+        {
+          "question_id": 9924,
+          "category": "physics",
+          "src": "ori_mmlu-high_school_physics"
+        },
+        {
+          "question_id": 10268,
+          "category": "physics",
+          "src": "theoremQA-Physics"
+        },
+        {
+          "question_id": 10271,
+          "category": "physics",
+          "src": "scibench-class"
+        },
+        {
+          "question_id": 11316,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11338,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11365,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11399,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11414,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11464,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11510,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11582,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11601,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11622,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11653,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11722,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11743,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11757,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11792,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11797,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11804,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11888,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11956,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11968,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 12023,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 12072,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 12116,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 12128,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 12211,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Arts, Design, Entertainment, Sports, and Media Occupations",
+      "g_base_items": 43,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "history": 10,
+        "other": 30,
+        "philosophy": 10
+      },
+      "question_ids": [
+        4780,
+        4816,
+        4888,
+        4908,
+        4929,
+        4972,
+        4973,
+        4983,
+        4994,
+        5027,
+        5061,
+        5076,
+        5079,
+        5096,
+        5102,
+        5192,
+        5205,
+        5298,
+        5364,
+        5395,
+        5400,
+        5417,
+        5419,
+        5535,
+        5675,
+        5720,
+        5726,
+        5755,
+        5790,
+        5796,
+        5816,
+        5847,
+        5876,
+        5886,
+        5909,
+        5927,
+        5974,
+        5986,
+        5992,
+        5998,
+        10814,
+        10815,
+        10834,
+        10939,
+        11183,
+        11196,
+        11212,
+        11213,
+        11243,
+        11268
+      ],
+      "items": [
+        {
+          "question_id": 4780,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 4816,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 4888,
+          "category": "history",
+          "src": "ori_mmlu-high_school_european_history"
+        },
+        {
+          "question_id": 4908,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 4929,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 4972,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 4973,
+          "category": "history",
+          "src": "ori_mmlu-high_school_us_history"
+        },
+        {
+          "question_id": 4983,
+          "category": "history",
+          "src": "ori_mmlu-high_school_us_history"
+        },
+        {
+          "question_id": 4994,
+          "category": "history",
+          "src": "ori_mmlu-high_school_world_history"
+        },
+        {
+          "question_id": 5027,
+          "category": "history",
+          "src": "ori_mmlu-high_school_world_history"
+        },
+        {
+          "question_id": 5061,
+          "category": "other",
+          "src": "ori_mmlu-public_relations"
+        },
+        {
+          "question_id": 5076,
+          "category": "other",
+          "src": "ori_mmlu-security_studies"
+        },
+        {
+          "question_id": 5079,
+          "category": "other",
+          "src": "ori_mmlu-sociology"
+        },
+        {
+          "question_id": 5096,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5102,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5192,
+          "category": "other",
+          "src": "ori_mmlu-professional_accounting"
+        },
+        {
+          "question_id": 5205,
+          "category": "other",
+          "src": "ori_mmlu-high_school_government_and_politics"
+        },
+        {
+          "question_id": 5298,
+          "category": "other",
+          "src": "ori_mmlu-sociology"
+        },
+        {
+          "question_id": 5364,
+          "category": "other",
+          "src": "ori_mmlu-security_studies"
+        },
+        {
+          "question_id": 5395,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5400,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5417,
+          "category": "other",
+          "src": "ori_mmlu-high_school_geography"
+        },
+        {
+          "question_id": 5419,
+          "category": "other",
+          "src": "ori_mmlu-high_school_geography"
+        },
+        {
+          "question_id": 5535,
+          "category": "other",
+          "src": "ori_mmlu-global_facts"
+        },
+        {
+          "question_id": 5675,
+          "category": "other",
+          "src": "ori_mmlu-human_sexuality"
+        },
+        {
+          "question_id": 5720,
+          "category": "other",
+          "src": "ori_mmlu-professional_accounting"
+        },
+        {
+          "question_id": 5726,
+          "category": "other",
+          "src": "ori_mmlu-public_relations"
+        },
+        {
+          "question_id": 5755,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5790,
+          "category": "other",
+          "src": "ori_mmlu-high_school_geography"
+        },
+        {
+          "question_id": 5796,
+          "category": "other",
+          "src": "ori_mmlu-high_school_government_and_politics"
+        },
+        {
+          "question_id": 5816,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5847,
+          "category": "other",
+          "src": "ori_mmlu-professional_accounting"
+        },
+        {
+          "question_id": 5876,
+          "category": "other",
+          "src": "ori_mmlu-sociology"
+        },
+        {
+          "question_id": 5886,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5909,
+          "category": "other",
+          "src": "ori_mmlu-professional_accounting"
+        },
+        {
+          "question_id": 5927,
+          "category": "other",
+          "src": "ori_mmlu-high_school_geography"
+        },
+        {
+          "question_id": 5974,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5986,
+          "category": "other",
+          "src": "ori_mmlu-professional_accounting"
+        },
+        {
+          "question_id": 5992,
+          "category": "other",
+          "src": "ori_mmlu-professional_accounting"
+        },
+        {
+          "question_id": 5998,
+          "category": "other",
+          "src": "ori_mmlu-high_school_geography"
+        },
+        {
+          "question_id": 10814,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 10815,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 10834,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 10939,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11183,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11196,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11212,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11213,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11243,
+          "category": "philosophy",
+          "src": "ori_mmlu-world_religions"
+        },
+        {
+          "question_id": 11268,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Building and Grounds Cleaning and Maintenance Occupations",
+      "g_base_items": 8,
+      "preference_stratum": "small",
+      "capability_proxy": "generic_mmlu_pro",
+      "mapping_confidence": "none",
+      "score_tier": "generic",
+      "n": 50,
+      "n_by_category": {
+        "biology": 3,
+        "business": 3,
+        "chemistry": 5,
+        "computer science": 2,
+        "economics": 3,
+        "engineering": 4,
+        "health": 3,
+        "history": 2,
+        "law": 5,
+        "math": 6,
+        "other": 4,
+        "philosophy": 2,
+        "physics": 5,
+        "psychology": 3
+      },
+      "question_ids": [
+        134,
+        331,
+        386,
+        1084,
+        1159,
+        1299,
+        1473,
+        1820,
+        2084,
+        2420,
+        2601,
+        2878,
+        2900,
+        3426,
+        3926,
+        4223,
+        4439,
+        4466,
+        4583,
+        4781,
+        4783,
+        5221,
+        5429,
+        5448,
+        5869,
+        6166,
+        6715,
+        6717,
+        6930,
+        7324,
+        7515,
+        7709,
+        8296,
+        8461,
+        8772,
+        8798,
+        8841,
+        9067,
+        9440,
+        9615,
+        9747,
+        9780,
+        10670,
+        10671,
+        10862,
+        11165,
+        11736,
+        12086,
+        12090,
+        12182
+      ],
+      "items": [
+        {
+          "question_id": 134,
+          "category": "business",
+          "src": "ori_mmlu-management"
+        },
+        {
+          "question_id": 331,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 386,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 1084,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1159,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1299,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1473,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1820,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 2084,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2420,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2601,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2878,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2900,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3426,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3926,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4223,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 4439,
+          "category": "chemistry",
+          "src": "ori_mmlu-college_chemistry"
+        },
+        {
+          "question_id": 4466,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4583,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4781,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 4783,
+          "category": "history",
+          "src": "ori_mmlu-prehistory"
+        },
+        {
+          "question_id": 5221,
+          "category": "other",
+          "src": "ori_mmlu-human_sexuality"
+        },
+        {
+          "question_id": 5429,
+          "category": "other",
+          "src": "ori_mmlu-high_school_government_and_politics"
+        },
+        {
+          "question_id": 5448,
+          "category": "other",
+          "src": "ori_mmlu-global_facts"
+        },
+        {
+          "question_id": 5869,
+          "category": "other",
+          "src": "ori_mmlu-sociology"
+        },
+        {
+          "question_id": 6166,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6715,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6717,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6930,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7324,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7515,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7709,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8296,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8461,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8772,
+          "category": "math",
+          "src": "scibench-stat"
+        },
+        {
+          "question_id": 8798,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8841,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 9067,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 9440,
+          "category": "physics",
+          "src": "theoremQA-Physics"
+        },
+        {
+          "question_id": 9615,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 9747,
+          "category": "physics",
+          "src": "scibench-class"
+        },
+        {
+          "question_id": 9780,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 10670,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 10671,
+          "category": "computer science",
+          "src": "ori_mmlu-computer_security"
+        },
+        {
+          "question_id": 10862,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 11165,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11736,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 12086,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 12090,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 12182,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Business and Financial Operations Occupations",
+      "g_base_items": 49,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "high",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "business": 30,
+        "economics": 20
+      },
+      "question_ids": [
+        105,
+        161,
+        173,
+        215,
+        222,
+        299,
+        312,
+        325,
+        330,
+        341,
+        344,
+        356,
+        361,
+        382,
+        384,
+        401,
+        450,
+        467,
+        470,
+        527,
+        544,
+        556,
+        617,
+        664,
+        721,
+        790,
+        827,
+        838,
+        841,
+        844,
+        6876,
+        6879,
+        6888,
+        6979,
+        6983,
+        7047,
+        7120,
+        7151,
+        7176,
+        7217,
+        7264,
+        7289,
+        7325,
+        7344,
+        7394,
+        7412,
+        7436,
+        7439,
+        7445,
+        7625
+      ],
+      "items": [
+        {
+          "question_id": 105,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 161,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 173,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 215,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 222,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 299,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 312,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 325,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 330,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 341,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 344,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 356,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 361,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 382,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 384,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 401,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 450,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 467,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 470,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 527,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 544,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 556,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 617,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 664,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 721,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 790,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 827,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 838,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 841,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 844,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 6876,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 6879,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 6888,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 6979,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 6983,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7047,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7120,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7151,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7176,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7217,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7264,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7289,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7325,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7344,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7394,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7412,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7436,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7439,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7445,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7625,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Community and Social Service Occupations",
+      "g_base_items": 14,
+      "preference_stratum": "small",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "medium",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "philosophy": 15,
+        "psychology": 35
+      },
+      "question_ids": [
+        2014,
+        2035,
+        2060,
+        2079,
+        2085,
+        2092,
+        2101,
+        2117,
+        2141,
+        2144,
+        2166,
+        2180,
+        2226,
+        2289,
+        2314,
+        2377,
+        2398,
+        2437,
+        2445,
+        2456,
+        2460,
+        2464,
+        2503,
+        2505,
+        2521,
+        2525,
+        2526,
+        2530,
+        2544,
+        2545,
+        2611,
+        2622,
+        2696,
+        2702,
+        2736,
+        10836,
+        10845,
+        10860,
+        10864,
+        10886,
+        10898,
+        10933,
+        10935,
+        10982,
+        11003,
+        11023,
+        11086,
+        11101,
+        11127,
+        11173
+      ],
+      "items": [
+        {
+          "question_id": 2014,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2035,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2060,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2079,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2085,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2092,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2101,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2117,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2141,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2144,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2166,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2180,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2226,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2289,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2314,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2377,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2398,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2437,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2445,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2456,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2460,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2464,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2503,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2505,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2521,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2525,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2526,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2530,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2544,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2545,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2611,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2622,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2696,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2702,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2736,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 10836,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 10845,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 10860,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 10864,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 10886,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 10898,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 10933,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 10935,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 10982,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11003,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11023,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11086,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11101,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 11127,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 11173,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Computer and Mathematical Occupations",
+      "g_base_items": 30,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "high",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "computer science": 30,
+        "math": 20
+      },
+      "question_ids": [
+        7687,
+        7729,
+        7853,
+        7901,
+        8005,
+        8043,
+        8059,
+        8066,
+        8076,
+        8355,
+        8363,
+        8484,
+        8490,
+        8505,
+        8563,
+        8635,
+        8700,
+        8744,
+        8751,
+        8912,
+        10370,
+        10374,
+        10386,
+        10422,
+        10436,
+        10438,
+        10466,
+        10469,
+        10483,
+        10487,
+        10501,
+        10504,
+        10508,
+        10569,
+        10571,
+        10578,
+        10582,
+        10622,
+        10633,
+        10640,
+        10647,
+        10665,
+        10672,
+        10689,
+        10717,
+        10723,
+        10746,
+        10748,
+        10756,
+        10768
+      ],
+      "items": [
+        {
+          "question_id": 7687,
+          "category": "math",
+          "src": "ori_mmlu-abstract_algebra"
+        },
+        {
+          "question_id": 7729,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 7853,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 7901,
+          "category": "math",
+          "src": "ori_mmlu-high_school_statistics"
+        },
+        {
+          "question_id": 8005,
+          "category": "math",
+          "src": "ori_mmlu-abstract_algebra"
+        },
+        {
+          "question_id": 8043,
+          "category": "math",
+          "src": "ori_mmlu-college_mathematics"
+        },
+        {
+          "question_id": 8059,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8066,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8076,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8355,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8363,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8484,
+          "category": "math",
+          "src": "ori_mmlu-high_school_mathematics"
+        },
+        {
+          "question_id": 8490,
+          "category": "math",
+          "src": "ori_mmlu-high_school_mathematics"
+        },
+        {
+          "question_id": 8505,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8563,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8635,
+          "category": "math",
+          "src": "scibench-diff"
+        },
+        {
+          "question_id": 8700,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8744,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8751,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8912,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 10370,
+          "category": "computer science",
+          "src": "ori_mmlu-computer_security"
+        },
+        {
+          "question_id": 10374,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10386,
+          "category": "computer science",
+          "src": "ori_mmlu-college_computer_science"
+        },
+        {
+          "question_id": 10422,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 10436,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10438,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10466,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10469,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10483,
+          "category": "computer science",
+          "src": "ori_mmlu-college_computer_science"
+        },
+        {
+          "question_id": 10487,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 10501,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10504,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10508,
+          "category": "computer science",
+          "src": "ori_mmlu-high_school_computer_science"
+        },
+        {
+          "question_id": 10569,
+          "category": "computer science",
+          "src": "ori_mmlu-computer_security"
+        },
+        {
+          "question_id": 10571,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10578,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10582,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10622,
+          "category": "computer science",
+          "src": "ori_mmlu-college_computer_science"
+        },
+        {
+          "question_id": 10633,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 10640,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10647,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10665,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 10672,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10689,
+          "category": "computer science",
+          "src": "ori_mmlu-college_computer_science"
+        },
+        {
+          "question_id": 10717,
+          "category": "computer science",
+          "src": "ori_mmlu-high_school_computer_science"
+        },
+        {
+          "question_id": 10723,
+          "category": "computer science",
+          "src": "ori_mmlu-college_computer_science"
+        },
+        {
+          "question_id": 10746,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10748,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10756,
+          "category": "computer science",
+          "src": "ori_mmlu-college_computer_science"
+        },
+        {
+          "question_id": 10768,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Construction and Extraction Occupations",
+      "g_base_items": 61,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "engineering": 50
+      },
+      "question_ids": [
+        11294,
+        11310,
+        11314,
+        11321,
+        11324,
+        11377,
+        11388,
+        11407,
+        11426,
+        11437,
+        11438,
+        11440,
+        11444,
+        11451,
+        11455,
+        11508,
+        11514,
+        11515,
+        11552,
+        11595,
+        11602,
+        11605,
+        11608,
+        11613,
+        11675,
+        11691,
+        11697,
+        11700,
+        11725,
+        11868,
+        11909,
+        11910,
+        11916,
+        11974,
+        12031,
+        12066,
+        12074,
+        12120,
+        12129,
+        12138,
+        12139,
+        12140,
+        12190,
+        12197,
+        12200,
+        12208,
+        12224,
+        12233,
+        12236,
+        12254
+      ],
+      "items": [
+        {
+          "question_id": 11294,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11310,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11314,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11321,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 11324,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11377,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11388,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11407,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 11426,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11437,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11438,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11440,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11444,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11451,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11455,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11508,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11514,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11515,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11552,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11595,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11602,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11605,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11608,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 11613,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 11675,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11691,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11697,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11700,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 11725,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11868,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11909,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11910,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11916,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11974,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12031,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12066,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 12074,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 12120,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12129,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 12138,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12139,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12140,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12190,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12197,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12200,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12208,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 12224,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 12233,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 12236,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 12254,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Educational Instruction and Library Occupations",
+      "g_base_items": 60,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "medium",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "philosophy": 20,
+        "psychology": 30
+      },
+      "question_ids": [
+        2006,
+        2053,
+        2064,
+        2080,
+        2121,
+        2158,
+        2159,
+        2182,
+        2190,
+        2214,
+        2219,
+        2263,
+        2270,
+        2370,
+        2376,
+        2394,
+        2421,
+        2459,
+        2543,
+        2579,
+        2610,
+        2690,
+        2740,
+        2752,
+        2757,
+        2760,
+        2768,
+        2779,
+        2781,
+        2801,
+        10799,
+        10856,
+        10979,
+        10990,
+        11019,
+        11065,
+        11094,
+        11104,
+        11128,
+        11130,
+        11132,
+        11144,
+        11147,
+        11157,
+        11186,
+        11218,
+        11224,
+        11231,
+        11249,
+        11259
+      ],
+      "items": [
+        {
+          "question_id": 2006,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2053,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2064,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2080,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2121,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2158,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2159,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2182,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2190,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2214,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2219,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2263,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2270,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2370,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2376,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2394,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2421,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2459,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2543,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2579,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2610,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2690,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2740,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2752,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2757,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2760,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2768,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2779,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2781,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2801,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 10799,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 10856,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 10979,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 10990,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 11019,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11065,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11094,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11104,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 11128,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11130,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11132,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11144,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 11147,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11157,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11186,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11218,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11224,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 11231,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11249,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 11259,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Farming, Fishing, and Forestry Occupations",
+      "g_base_items": 17,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "biology": 50
+      },
+      "question_ids": [
+        2806,
+        2827,
+        2832,
+        2852,
+        2854,
+        2861,
+        2862,
+        2881,
+        2891,
+        2912,
+        2940,
+        2953,
+        2975,
+        2984,
+        2996,
+        3005,
+        3016,
+        3030,
+        3055,
+        3075,
+        3092,
+        3101,
+        3112,
+        3121,
+        3136,
+        3140,
+        3159,
+        3172,
+        3194,
+        3203,
+        3207,
+        3217,
+        3228,
+        3237,
+        3258,
+        3278,
+        3302,
+        3319,
+        3346,
+        3368,
+        3374,
+        3413,
+        3431,
+        3445,
+        3447,
+        3462,
+        3470,
+        3474,
+        3496,
+        3522
+      ],
+      "items": [
+        {
+          "question_id": 2806,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 2827,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 2832,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2852,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2854,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2861,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 2862,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 2881,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2891,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2912,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2940,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 2953,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 2975,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2984,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 2996,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3005,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3016,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3030,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3055,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3075,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3092,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3101,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3112,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3121,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3136,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3140,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3159,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3172,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3194,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3203,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3207,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3217,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3228,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3237,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3258,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3278,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3302,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3319,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3346,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3368,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3374,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3413,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3431,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3445,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3447,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3462,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3470,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3474,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3496,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3522,
+          "category": "biology",
+          "src": "stemez-Biology"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Food Preparation and Serving Related Occupations",
+      "g_base_items": 17,
+      "preference_stratum": "reliable",
+      "capability_proxy": "generic_mmlu_pro",
+      "mapping_confidence": "none",
+      "score_tier": "generic",
+      "n": 50,
+      "n_by_category": {
+        "biology": 3,
+        "business": 3,
+        "chemistry": 5,
+        "computer science": 2,
+        "economics": 3,
+        "engineering": 4,
+        "health": 3,
+        "history": 2,
+        "law": 5,
+        "math": 6,
+        "other": 4,
+        "philosophy": 2,
+        "physics": 5,
+        "psychology": 3
+      },
+      "question_ids": [
+        217,
+        522,
+        784,
+        1363,
+        1714,
+        1800,
+        1890,
+        1958,
+        2360,
+        2637,
+        2789,
+        2886,
+        3202,
+        3441,
+        3723,
+        3878,
+        3992,
+        4544,
+        4603,
+        4725,
+        4923,
+        5197,
+        5399,
+        5678,
+        5895,
+        6353,
+        6508,
+        6597,
+        7211,
+        7486,
+        7571,
+        7832,
+        8075,
+        8262,
+        8305,
+        8740,
+        8884,
+        9256,
+        9353,
+        9437,
+        9570,
+        9713,
+        10405,
+        10559,
+        11135,
+        11182,
+        11453,
+        11579,
+        11693,
+        12229
+      ],
+      "items": [
+        {
+          "question_id": 217,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 522,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 784,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 1363,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1714,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1800,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1890,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1958,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 2360,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2637,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2789,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2886,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3202,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3441,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3723,
+          "category": "chemistry",
+          "src": "ori_mmlu-high_school_chemistry"
+        },
+        {
+          "question_id": 3878,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 3992,
+          "category": "chemistry",
+          "src": "scibench-matter"
+        },
+        {
+          "question_id": 4544,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4603,
+          "category": "chemistry",
+          "src": "ori_mmlu-high_school_chemistry"
+        },
+        {
+          "question_id": 4725,
+          "category": "history",
+          "src": "ori_mmlu-high_school_european_history"
+        },
+        {
+          "question_id": 4923,
+          "category": "history",
+          "src": "ori_mmlu-high_school_world_history"
+        },
+        {
+          "question_id": 5197,
+          "category": "other",
+          "src": "ori_mmlu-us_foreign_policy"
+        },
+        {
+          "question_id": 5399,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5678,
+          "category": "other",
+          "src": "ori_mmlu-global_facts"
+        },
+        {
+          "question_id": 5895,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 6353,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6508,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6597,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 7211,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7486,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7571,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7832,
+          "category": "math",
+          "src": "ori_mmlu-college_mathematics"
+        },
+        {
+          "question_id": 8075,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8262,
+          "category": "math",
+          "src": "ori_mmlu-elementary_mathematics"
+        },
+        {
+          "question_id": 8305,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8740,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8884,
+          "category": "math",
+          "src": "ori_mmlu-high_school_statistics"
+        },
+        {
+          "question_id": 9256,
+          "category": "physics",
+          "src": "ori_mmlu-astronomy"
+        },
+        {
+          "question_id": 9353,
+          "category": "physics",
+          "src": "stemez-Optics"
+        },
+        {
+          "question_id": 9437,
+          "category": "physics",
+          "src": "ori_mmlu-conceptual_physics"
+        },
+        {
+          "question_id": 9570,
+          "category": "physics",
+          "src": "stemez-Optics"
+        },
+        {
+          "question_id": 9713,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 10405,
+          "category": "computer science",
+          "src": "stemez-ComputerScience"
+        },
+        {
+          "question_id": 10559,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 11135,
+          "category": "philosophy",
+          "src": "ori_mmlu-moral_disputes"
+        },
+        {
+          "question_id": 11182,
+          "category": "philosophy",
+          "src": "ori_mmlu-philosophy"
+        },
+        {
+          "question_id": 11453,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11579,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11693,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 12229,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "g_base_items": 86,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "high",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "biology": 15,
+        "health": 35
+      },
+      "question_ids": [
+        2958,
+        2994,
+        3021,
+        3056,
+        3057,
+        3071,
+        3116,
+        3271,
+        3287,
+        3290,
+        3292,
+        3309,
+        3310,
+        3483,
+        3499,
+        6028,
+        6168,
+        6176,
+        6196,
+        6202,
+        6220,
+        6225,
+        6277,
+        6317,
+        6331,
+        6414,
+        6425,
+        6430,
+        6446,
+        6464,
+        6480,
+        6486,
+        6487,
+        6586,
+        6593,
+        6601,
+        6603,
+        6612,
+        6616,
+        6642,
+        6676,
+        6697,
+        6706,
+        6712,
+        6762,
+        6771,
+        6778,
+        6786,
+        6789,
+        6815
+      ],
+      "items": [
+        {
+          "question_id": 2958,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2994,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3021,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3056,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3057,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3071,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3116,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3271,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3287,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3290,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3292,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3309,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3310,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3483,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3499,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 6028,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6168,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6176,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6196,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6202,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6220,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6225,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6277,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6317,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6331,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6414,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6425,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6430,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6446,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6464,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6480,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6486,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6487,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6586,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6593,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6601,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6603,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6612,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6616,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6642,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6676,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6697,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6706,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6712,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6762,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6771,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6778,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6786,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6789,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6815,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Healthcare Support Occupations",
+      "g_base_items": 17,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "medium",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "health": 50
+      },
+      "question_ids": [
+        6007,
+        6019,
+        6024,
+        6027,
+        6049,
+        6055,
+        6086,
+        6093,
+        6097,
+        6147,
+        6155,
+        6161,
+        6200,
+        6221,
+        6229,
+        6240,
+        6245,
+        6290,
+        6299,
+        6337,
+        6339,
+        6342,
+        6357,
+        6368,
+        6377,
+        6385,
+        6410,
+        6453,
+        6491,
+        6492,
+        6500,
+        6515,
+        6527,
+        6556,
+        6560,
+        6561,
+        6589,
+        6600,
+        6641,
+        6647,
+        6684,
+        6686,
+        6713,
+        6727,
+        6732,
+        6746,
+        6776,
+        6791,
+        6795,
+        6825
+      ],
+      "items": [
+        {
+          "question_id": 6007,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6019,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6024,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6027,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6049,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6055,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6086,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6093,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6097,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6147,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6155,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6161,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6200,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6221,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6229,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6240,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6245,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6290,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6299,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6337,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6339,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6342,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6357,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6368,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6377,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6385,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6410,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6453,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6491,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6492,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6500,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6515,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6527,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6556,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6560,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6561,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6589,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6600,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6641,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6647,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6684,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6686,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6713,
+          "category": "health",
+          "src": "ori_mmlu-virology"
+        },
+        {
+          "question_id": 6727,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6732,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6746,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6776,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6791,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6795,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6825,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Installation, Maintenance, and Repair Occupations",
+      "g_base_items": 54,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "engineering": 50
+      },
+      "question_ids": [
+        11290,
+        11295,
+        11299,
+        11305,
+        11306,
+        11311,
+        11313,
+        11319,
+        11320,
+        11327,
+        11336,
+        11341,
+        11361,
+        11379,
+        11416,
+        11442,
+        11471,
+        11472,
+        11477,
+        11484,
+        11545,
+        11618,
+        11664,
+        11676,
+        11689,
+        11690,
+        11712,
+        11738,
+        11776,
+        11801,
+        11803,
+        11824,
+        11841,
+        11844,
+        11857,
+        11899,
+        11908,
+        11957,
+        11982,
+        11985,
+        11995,
+        12029,
+        12050,
+        12054,
+        12081,
+        12095,
+        12108,
+        12148,
+        12167,
+        12170
+      ],
+      "items": [
+        {
+          "question_id": 11290,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11295,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11299,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11305,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11306,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11311,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11313,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 11319,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11320,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 11327,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11336,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11341,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11361,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11379,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11416,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11442,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11471,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 11472,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 11477,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11484,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11545,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11618,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 11664,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11676,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11689,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11690,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11712,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11738,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11776,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11801,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11803,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11824,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11841,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11844,
+          "category": "engineering",
+          "src": "stemez-ElectricCircuits"
+        },
+        {
+          "question_id": 11857,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 11899,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11908,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11957,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11982,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11985,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11995,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 12029,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12050,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 12054,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12081,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 12095,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 12108,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12148,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 12167,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 12170,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Legal Occupations",
+      "g_base_items": 8,
+      "preference_stratum": "small",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "high",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "law": 50
+      },
+      "question_ids": [
+        885,
+        927,
+        931,
+        944,
+        1056,
+        1062,
+        1130,
+        1142,
+        1149,
+        1152,
+        1166,
+        1171,
+        1172,
+        1240,
+        1267,
+        1278,
+        1279,
+        1336,
+        1371,
+        1385,
+        1402,
+        1410,
+        1451,
+        1463,
+        1495,
+        1504,
+        1518,
+        1527,
+        1548,
+        1562,
+        1570,
+        1613,
+        1646,
+        1650,
+        1656,
+        1689,
+        1702,
+        1722,
+        1766,
+        1808,
+        1816,
+        1860,
+        1881,
+        1926,
+        1930,
+        1931,
+        1960,
+        1970,
+        1972,
+        1975
+      ],
+      "items": [
+        {
+          "question_id": 885,
+          "category": "law",
+          "src": "ori_mmlu-jurisprudence"
+        },
+        {
+          "question_id": 927,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 931,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 944,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1056,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1062,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1130,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1142,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1149,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1152,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1166,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1171,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1172,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1240,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1267,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1278,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1279,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1336,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1371,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1385,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1402,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1410,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1451,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1463,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1495,
+          "category": "law",
+          "src": "ori_mmlu-international_law"
+        },
+        {
+          "question_id": 1504,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1518,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1527,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1548,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1562,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1570,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1613,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1646,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1650,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1656,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1689,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1702,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1722,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1766,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1808,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1816,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1860,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1881,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1926,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1930,
+          "category": "law",
+          "src": "ori_mmlu-international_law"
+        },
+        {
+          "question_id": 1931,
+          "category": "law",
+          "src": "ori_mmlu-international_law"
+        },
+        {
+          "question_id": 1960,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1970,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1972,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1975,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Life, Physical, and Social Science Occupations",
+      "g_base_items": 60,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "high",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "biology": 15,
+        "chemistry": 15,
+        "physics": 10,
+        "psychology": 10
+      },
+      "question_ids": [
+        2095,
+        2109,
+        2196,
+        2278,
+        2507,
+        2583,
+        2625,
+        2646,
+        2730,
+        2734,
+        2830,
+        2836,
+        2974,
+        3007,
+        3012,
+        3038,
+        3153,
+        3160,
+        3171,
+        3305,
+        3323,
+        3349,
+        3353,
+        3461,
+        3466,
+        3760,
+        3793,
+        3833,
+        3847,
+        3983,
+        3989,
+        4002,
+        4015,
+        4057,
+        4086,
+        4143,
+        4205,
+        4226,
+        4485,
+        4512,
+        9267,
+        9527,
+        9738,
+        9849,
+        9945,
+        9947,
+        9990,
+        9995,
+        10250,
+        10287
+      ],
+      "items": [
+        {
+          "question_id": 2095,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2109,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2196,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2278,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2507,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2583,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2625,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2646,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2730,
+          "category": "psychology",
+          "src": "ori_mmlu-high_school_psychology"
+        },
+        {
+          "question_id": 2734,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2830,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 2836,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 2974,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3007,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3012,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3038,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3153,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3160,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3171,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3305,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3323,
+          "category": "biology",
+          "src": "ori_mmlu-high_school_biology"
+        },
+        {
+          "question_id": 3349,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3353,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3461,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3466,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3760,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3793,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3833,
+          "category": "chemistry",
+          "src": "scibench-atkins"
+        },
+        {
+          "question_id": 3847,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3983,
+          "category": "chemistry",
+          "src": "ori_mmlu-high_school_chemistry"
+        },
+        {
+          "question_id": 3989,
+          "category": "chemistry",
+          "src": "ori_mmlu-college_chemistry"
+        },
+        {
+          "question_id": 4002,
+          "category": "chemistry",
+          "src": "scibench-atkins"
+        },
+        {
+          "question_id": 4015,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4057,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 4086,
+          "category": "chemistry",
+          "src": "ori_mmlu-college_chemistry"
+        },
+        {
+          "question_id": 4143,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 4205,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 4226,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4485,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4512,
+          "category": "chemistry",
+          "src": "ori_mmlu-college_chemistry"
+        },
+        {
+          "question_id": 9267,
+          "category": "physics",
+          "src": "scibench-fund"
+        },
+        {
+          "question_id": 9527,
+          "category": "physics",
+          "src": "stemez-Physics"
+        },
+        {
+          "question_id": 9738,
+          "category": "physics",
+          "src": "ori_mmlu-conceptual_physics"
+        },
+        {
+          "question_id": 9849,
+          "category": "physics",
+          "src": "scibench-fund"
+        },
+        {
+          "question_id": 9945,
+          "category": "physics",
+          "src": "ori_mmlu-conceptual_physics"
+        },
+        {
+          "question_id": 9947,
+          "category": "physics",
+          "src": "ori_mmlu-conceptual_physics"
+        },
+        {
+          "question_id": 9990,
+          "category": "physics",
+          "src": "ori_mmlu-astronomy"
+        },
+        {
+          "question_id": 9995,
+          "category": "physics",
+          "src": "ori_mmlu-college_physics"
+        },
+        {
+          "question_id": 10250,
+          "category": "physics",
+          "src": "ori_mmlu-high_school_physics"
+        },
+        {
+          "question_id": 10287,
+          "category": "physics",
+          "src": "stemez-Optics"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Management Occupations",
+      "g_base_items": 52,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "medium",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "business": 30,
+        "economics": 20
+      },
+      "question_ids": [
+        157,
+        168,
+        175,
+        249,
+        254,
+        279,
+        322,
+        351,
+        354,
+        379,
+        404,
+        420,
+        422,
+        472,
+        519,
+        526,
+        535,
+        560,
+        564,
+        569,
+        576,
+        595,
+        637,
+        652,
+        729,
+        740,
+        791,
+        793,
+        815,
+        855,
+        6877,
+        6905,
+        6921,
+        7053,
+        7066,
+        7073,
+        7079,
+        7093,
+        7109,
+        7166,
+        7227,
+        7375,
+        7462,
+        7501,
+        7508,
+        7550,
+        7600,
+        7643,
+        7655,
+        7659
+      ],
+      "items": [
+        {
+          "question_id": 157,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 168,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 175,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 249,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 254,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 279,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 322,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 351,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 354,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 379,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 404,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 420,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 422,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 472,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 519,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 526,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 535,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 560,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 564,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 569,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 576,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 595,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 637,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 652,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 729,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 740,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 791,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 793,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 815,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 855,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 6877,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 6905,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 6921,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7053,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7066,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7073,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7079,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7093,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7109,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7166,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7227,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7375,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7462,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7501,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7508,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7550,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7600,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7643,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7655,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7659,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Office and Administrative Support Occupations",
+      "g_base_items": 63,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "business": 50
+      },
+      "question_ids": [
+        85,
+        98,
+        101,
+        127,
+        170,
+        176,
+        237,
+        238,
+        246,
+        257,
+        283,
+        287,
+        308,
+        313,
+        317,
+        321,
+        329,
+        335,
+        342,
+        349,
+        352,
+        360,
+        373,
+        434,
+        464,
+        468,
+        471,
+        497,
+        504,
+        542,
+        585,
+        591,
+        592,
+        621,
+        626,
+        660,
+        666,
+        667,
+        671,
+        703,
+        710,
+        715,
+        739,
+        742,
+        747,
+        783,
+        833,
+        836,
+        845,
+        861
+      ],
+      "items": [
+        {
+          "question_id": 85,
+          "category": "business",
+          "src": "ori_mmlu-management"
+        },
+        {
+          "question_id": 98,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 101,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 127,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 170,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 176,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 237,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 238,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 246,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 257,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 283,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 287,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 308,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 313,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 317,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 321,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 329,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 335,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 342,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 349,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 352,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 360,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 373,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 434,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 464,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 468,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 471,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 497,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 504,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 542,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 585,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 591,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 592,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 621,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 626,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 660,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 666,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 667,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 671,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 703,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 710,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 715,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 739,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 742,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 747,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 783,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 833,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 836,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 845,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 861,
+          "category": "business",
+          "src": "stemez-Business"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Personal Care and Service Occupations",
+      "g_base_items": 32,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "health": 50
+      },
+      "question_ids": [
+        6010,
+        6013,
+        6020,
+        6023,
+        6039,
+        6059,
+        6064,
+        6081,
+        6115,
+        6124,
+        6129,
+        6141,
+        6181,
+        6187,
+        6191,
+        6208,
+        6248,
+        6275,
+        6280,
+        6292,
+        6362,
+        6401,
+        6405,
+        6426,
+        6428,
+        6433,
+        6474,
+        6493,
+        6510,
+        6514,
+        6516,
+        6546,
+        6550,
+        6551,
+        6564,
+        6599,
+        6617,
+        6634,
+        6657,
+        6668,
+        6677,
+        6689,
+        6703,
+        6709,
+        6722,
+        6756,
+        6764,
+        6777,
+        6785,
+        6817
+      ],
+      "items": [
+        {
+          "question_id": 6010,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6013,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6020,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6023,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6039,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6059,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6064,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6081,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6115,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6124,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6129,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6141,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6181,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6187,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6191,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6208,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6248,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6275,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6280,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6292,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6362,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6401,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6405,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6426,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6428,
+          "category": "health",
+          "src": "ori_mmlu-anatomy"
+        },
+        {
+          "question_id": 6433,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6474,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6493,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6510,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6514,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6516,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6546,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6550,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6551,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6564,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6599,
+          "category": "health",
+          "src": "ori_mmlu-medical_genetics"
+        },
+        {
+          "question_id": 6617,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6634,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6657,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6668,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6677,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6689,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6703,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6709,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6722,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6756,
+          "category": "health",
+          "src": "ori_mmlu-professional_medicine"
+        },
+        {
+          "question_id": 6764,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 6777,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6785,
+          "category": "health",
+          "src": "ori_mmlu-human_aging"
+        },
+        {
+          "question_id": 6817,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Production Occupations",
+      "g_base_items": 108,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "chemistry": 20,
+        "engineering": 30
+      },
+      "question_ids": [
+        3550,
+        3581,
+        3636,
+        3693,
+        3724,
+        3733,
+        3745,
+        3834,
+        3890,
+        4214,
+        4311,
+        4317,
+        4436,
+        4520,
+        4528,
+        4553,
+        4615,
+        4622,
+        4640,
+        4653,
+        11383,
+        11402,
+        11483,
+        11657,
+        11699,
+        11737,
+        11748,
+        11753,
+        11811,
+        11820,
+        11821,
+        11848,
+        11890,
+        11896,
+        11920,
+        11926,
+        11976,
+        12001,
+        12015,
+        12021,
+        12022,
+        12034,
+        12041,
+        12065,
+        12122,
+        12153,
+        12174,
+        12178,
+        12191,
+        12251
+      ],
+      "items": [
+        {
+          "question_id": 3550,
+          "category": "chemistry",
+          "src": "scibench-quan"
+        },
+        {
+          "question_id": 3581,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3636,
+          "category": "chemistry",
+          "src": "ori_mmlu-college_chemistry"
+        },
+        {
+          "question_id": 3693,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3724,
+          "category": "chemistry",
+          "src": "ori_mmlu-high_school_chemistry"
+        },
+        {
+          "question_id": 3733,
+          "category": "chemistry",
+          "src": "scibench-chemmc"
+        },
+        {
+          "question_id": 3745,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3834,
+          "category": "chemistry",
+          "src": "scibench-atkins"
+        },
+        {
+          "question_id": 3890,
+          "category": "chemistry",
+          "src": "ori_mmlu-high_school_chemistry"
+        },
+        {
+          "question_id": 4214,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4311,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4317,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4436,
+          "category": "chemistry",
+          "src": "ori_mmlu-college_chemistry"
+        },
+        {
+          "question_id": 4520,
+          "category": "chemistry",
+          "src": "scibench-quan"
+        },
+        {
+          "question_id": 4528,
+          "category": "chemistry",
+          "src": "scibench-atkins"
+        },
+        {
+          "question_id": 4553,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4615,
+          "category": "chemistry",
+          "src": "scibench-atkins"
+        },
+        {
+          "question_id": 4622,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4640,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 4653,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 11383,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11402,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 11483,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 11657,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11699,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11737,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11748,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11753,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 11811,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 11820,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11821,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11848,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 11890,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 11896,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11920,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11926,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 11976,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12001,
+          "category": "engineering",
+          "src": "stemez-ElectricalMachines"
+        },
+        {
+          "question_id": 12015,
+          "category": "engineering",
+          "src": "stemez-HeatTransfer"
+        },
+        {
+          "question_id": 12021,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 12022,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 12034,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12041,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12065,
+          "category": "engineering",
+          "src": "stemez-FluidMechanics"
+        },
+        {
+          "question_id": 12122,
+          "category": "engineering",
+          "src": "ori_mmlu-electrical_engineering"
+        },
+        {
+          "question_id": 12153,
+          "category": "engineering",
+          "src": "stemez-Electromagnetics"
+        },
+        {
+          "question_id": 12174,
+          "category": "engineering",
+          "src": "stemez-MachineDesign"
+        },
+        {
+          "question_id": 12178,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        },
+        {
+          "question_id": 12191,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12251,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Protective Service Occupations",
+      "g_base_items": 29,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "medium",
+      "score_tier": "primary",
+      "n": 50,
+      "n_by_category": {
+        "law": 50
+      },
+      "question_ids": [
+        898,
+        929,
+        935,
+        963,
+        982,
+        1027,
+        1045,
+        1060,
+        1092,
+        1104,
+        1111,
+        1139,
+        1153,
+        1207,
+        1253,
+        1272,
+        1308,
+        1342,
+        1374,
+        1414,
+        1450,
+        1458,
+        1467,
+        1480,
+        1530,
+        1539,
+        1542,
+        1545,
+        1576,
+        1595,
+        1622,
+        1628,
+        1635,
+        1663,
+        1672,
+        1676,
+        1698,
+        1717,
+        1724,
+        1725,
+        1734,
+        1778,
+        1781,
+        1782,
+        1788,
+        1806,
+        1903,
+        1922,
+        1935,
+        1976
+      ],
+      "items": [
+        {
+          "question_id": 898,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 929,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 935,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 963,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 982,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1027,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1045,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1060,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1092,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1104,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1111,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1139,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1153,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1207,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1253,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1272,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1308,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1342,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1374,
+          "category": "law",
+          "src": "ori_mmlu-jurisprudence"
+        },
+        {
+          "question_id": 1414,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1450,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1458,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1467,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1480,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1530,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1539,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1542,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1545,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1576,
+          "category": "law",
+          "src": "ori_mmlu-international_law"
+        },
+        {
+          "question_id": 1595,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1622,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1628,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1635,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1663,
+          "category": "law",
+          "src": "ori_mmlu-international_law"
+        },
+        {
+          "question_id": 1672,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1676,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1698,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1717,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1724,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1725,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1734,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1778,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1781,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1782,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1788,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1806,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1903,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1922,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1935,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1976,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Sales and Related Occupations",
+      "g_base_items": 24,
+      "preference_stratum": "reliable",
+      "capability_proxy": "subject_mapped",
+      "mapping_confidence": "low",
+      "score_tier": "secondary",
+      "n": 50,
+      "n_by_category": {
+        "business": 35,
+        "economics": 15
+      },
+      "question_ids": [
+        92,
+        95,
+        117,
+        155,
+        171,
+        189,
+        339,
+        387,
+        408,
+        423,
+        438,
+        442,
+        445,
+        453,
+        462,
+        486,
+        509,
+        530,
+        548,
+        549,
+        572,
+        573,
+        607,
+        647,
+        714,
+        736,
+        760,
+        788,
+        795,
+        797,
+        805,
+        806,
+        812,
+        831,
+        846,
+        6844,
+        6870,
+        7129,
+        7167,
+        7184,
+        7190,
+        7203,
+        7238,
+        7319,
+        7352,
+        7519,
+        7527,
+        7529,
+        7538,
+        7681
+      ],
+      "items": [
+        {
+          "question_id": 92,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 95,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 117,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 155,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 171,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 189,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 339,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 387,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 408,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 423,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 438,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 442,
+          "category": "business",
+          "src": "ori_mmlu-management"
+        },
+        {
+          "question_id": 445,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 453,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 462,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 486,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 509,
+          "category": "business",
+          "src": "theoremQA-Finance"
+        },
+        {
+          "question_id": 530,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 548,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 549,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 572,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 573,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 607,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 647,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 714,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 736,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 760,
+          "category": "business",
+          "src": "ori_mmlu-marketing"
+        },
+        {
+          "question_id": 788,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 795,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 797,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 805,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 806,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 812,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 831,
+          "category": "business",
+          "src": "ori_mmlu-management"
+        },
+        {
+          "question_id": 846,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 6844,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 6870,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7129,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7167,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7184,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7190,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7203,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7238,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_microeconomics"
+        },
+        {
+          "question_id": 7319,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7352,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 7519,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7527,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7529,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7538,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7681,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        }
+      ]
+    },
+    {
+      "soc_major_title": "Transportation and Material Moving Occupations",
+      "g_base_items": 53,
+      "preference_stratum": "reliable",
+      "capability_proxy": "generic_mmlu_pro",
+      "mapping_confidence": "none",
+      "score_tier": "generic",
+      "n": 50,
+      "n_by_category": {
+        "biology": 3,
+        "business": 3,
+        "chemistry": 5,
+        "computer science": 2,
+        "economics": 3,
+        "engineering": 4,
+        "health": 3,
+        "history": 2,
+        "law": 5,
+        "math": 6,
+        "other": 4,
+        "philosophy": 2,
+        "physics": 5,
+        "psychology": 3
+      },
+      "question_ids": [
+        125,
+        606,
+        763,
+        970,
+        1181,
+        1198,
+        1271,
+        1792,
+        2088,
+        2371,
+        2430,
+        3167,
+        3183,
+        3260,
+        3571,
+        3653,
+        3707,
+        4155,
+        4392,
+        4824,
+        4830,
+        5427,
+        5463,
+        5734,
+        5833,
+        6014,
+        6140,
+        6190,
+        7147,
+        7181,
+        7225,
+        8069,
+        8379,
+        8514,
+        8824,
+        8854,
+        8953,
+        9209,
+        9490,
+        9635,
+        9732,
+        10042,
+        10432,
+        10731,
+        10840,
+        11188,
+        11362,
+        11905,
+        12185,
+        12250
+      ],
+      "items": [
+        {
+          "question_id": 125,
+          "category": "business",
+          "src": "ori_mmlu-business_ethics"
+        },
+        {
+          "question_id": 606,
+          "category": "business",
+          "src": "stemez-Business"
+        },
+        {
+          "question_id": 763,
+          "category": "business",
+          "src": "ori_mmlu-management"
+        },
+        {
+          "question_id": 970,
+          "category": "law",
+          "src": "ori_mmlu-jurisprudence"
+        },
+        {
+          "question_id": 1181,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1198,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1271,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 1792,
+          "category": "law",
+          "src": "ori_mmlu-professional_law"
+        },
+        {
+          "question_id": 2088,
+          "category": "psychology",
+          "src": "ori_mmlu-professional_psychology"
+        },
+        {
+          "question_id": 2371,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 2430,
+          "category": "psychology",
+          "src": "stemez-Psychology"
+        },
+        {
+          "question_id": 3167,
+          "category": "biology",
+          "src": "ori_mmlu-college_biology"
+        },
+        {
+          "question_id": 3183,
+          "category": "biology",
+          "src": "stemez-Genetics"
+        },
+        {
+          "question_id": 3260,
+          "category": "biology",
+          "src": "stemez-Biology"
+        },
+        {
+          "question_id": 3571,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 3653,
+          "category": "chemistry",
+          "src": "scibench-atkins"
+        },
+        {
+          "question_id": 3707,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4155,
+          "category": "chemistry",
+          "src": "stemez-PhysicalChemistry"
+        },
+        {
+          "question_id": 4392,
+          "category": "chemistry",
+          "src": "stemez-Chemistry"
+        },
+        {
+          "question_id": 4824,
+          "category": "history",
+          "src": "ori_mmlu-high_school_us_history"
+        },
+        {
+          "question_id": 4830,
+          "category": "history",
+          "src": "ori_mmlu-high_school_european_history"
+        },
+        {
+          "question_id": 5427,
+          "category": "other",
+          "src": "ori_mmlu-public_relations"
+        },
+        {
+          "question_id": 5463,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 5734,
+          "category": "other",
+          "src": "ori_mmlu-high_school_government_and_politics"
+        },
+        {
+          "question_id": 5833,
+          "category": "other",
+          "src": "ori_mmlu-miscellaneous"
+        },
+        {
+          "question_id": 6014,
+          "category": "health",
+          "src": "ori_mmlu-clinical_knowledge"
+        },
+        {
+          "question_id": 6140,
+          "category": "health",
+          "src": "ori_mmlu-college_medicine"
+        },
+        {
+          "question_id": 6190,
+          "category": "health",
+          "src": "ori_mmlu-nutrition"
+        },
+        {
+          "question_id": 7147,
+          "category": "economics",
+          "src": "stemez-Economics"
+        },
+        {
+          "question_id": 7181,
+          "category": "economics",
+          "src": "ori_mmlu-econometrics"
+        },
+        {
+          "question_id": 7225,
+          "category": "economics",
+          "src": "ori_mmlu-high_school_macroeconomics"
+        },
+        {
+          "question_id": 8069,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8379,
+          "category": "math",
+          "src": "ori_mmlu-high_school_mathematics"
+        },
+        {
+          "question_id": 8514,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8824,
+          "category": "math",
+          "src": "ori_mmlu-high_school_mathematics"
+        },
+        {
+          "question_id": 8854,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 8953,
+          "category": "math",
+          "src": "theoremQA-Math"
+        },
+        {
+          "question_id": 9209,
+          "category": "physics",
+          "src": "ori_mmlu-high_school_physics"
+        },
+        {
+          "question_id": 9490,
+          "category": "physics",
+          "src": "scibench-thermo"
+        },
+        {
+          "question_id": 9635,
+          "category": "physics",
+          "src": "ori_mmlu-conceptual_physics"
+        },
+        {
+          "question_id": 9732,
+          "category": "physics",
+          "src": "ori_mmlu-conceptual_physics"
+        },
+        {
+          "question_id": 10042,
+          "category": "physics",
+          "src": "ori_mmlu-high_school_physics"
+        },
+        {
+          "question_id": 10432,
+          "category": "computer science",
+          "src": "theoremQA-EECS"
+        },
+        {
+          "question_id": 10731,
+          "category": "computer science",
+          "src": "ori_mmlu-machine_learning"
+        },
+        {
+          "question_id": 10840,
+          "category": "philosophy",
+          "src": "ori_mmlu-logical_fallacies"
+        },
+        {
+          "question_id": 11188,
+          "category": "philosophy",
+          "src": "ori_mmlu-formal_logic"
+        },
+        {
+          "question_id": 11362,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 11905,
+          "category": "engineering",
+          "src": "stemez-Thermodynamics"
+        },
+        {
+          "question_id": 12185,
+          "category": "engineering",
+          "src": "stemez-TransportPhenomena"
+        },
+        {
+          "question_id": 12250,
+          "category": "engineering",
+          "src": "stemez-ElectronicCommunications"
+        }
+      ]
+    }
+  ]
+}

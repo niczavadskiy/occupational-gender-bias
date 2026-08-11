@@ -19,3 +19,7 @@ python-dotenv==1.0.1
 # Для metrics.py / probe_pipeline.py (W2)
 scikit-learn==1.6.1
 matplotlib==3.9.4
+
+# Для steering/ (конфиг маппинга + чтение MMLU-Pro parquet)
+PyYAML==6.0
+pyarrow==23.0.1
