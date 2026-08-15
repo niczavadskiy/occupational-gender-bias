@@ -3,7 +3,10 @@
 Statistical analysis of gender bias in **Qwen/Qwen3.5-2B-Base** on occupational
 scenarios (O\*NET-based prompts with factorial controls).
 
-**Live report:** [combined H1 · H3 · H5 · H11](https://niczavadskiy.github.io/occupational-gender-bias/)
+**Live report:**
+[combined H1 · H3 · H5 · H11](https://niczavadskiy.github.io/occupational-gender-bias/)
+[Presentation stage 1 (rus)](https://docs.google.com/presentation/d/1CAARIvW5Vv-NtOtYE1KOFtBiQKUTNF7UWEv7UMsTskY/edit?usp=sharing)
+
 
 ## What is in this repository
 
