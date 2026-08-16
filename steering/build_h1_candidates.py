@@ -177,9 +177,10 @@ def build_document(cfg: dict, cfg_path: Path) -> dict:
         by_role[c["role"]] = by_role.get(c["role"], 0) + 1
         by_family[c["family"]] = by_family.get(c["family"], 0) + 1
 
+    hyp = cfg["hypothesis"]
     return {
-        "schema": "steering.h1_candidates/v1",
-        "hypothesis": cfg["hypothesis"],
+        "schema": f"steering.{hyp}_candidates/v1",
+        "hypothesis": hyp,
         "map_version": cfg["version"],
         "map_config": cfg_path.name,
         "map_sha256": sha256_file(cfg_path),
@@ -202,8 +203,9 @@ def build_document(cfg: dict, cfg_path: Path) -> dict:
 
 
 def summary_markdown(doc: dict) -> str:
+    hyp = str(doc["hypothesis"]).upper()
     lines = [
-        f"# H1 steering candidates — `{doc['map_version']}`",
+        f"# {hyp} steering candidates — `{doc['map_version']}`",
         "",
         f"- Конфиг: `{doc['map_config']}`",
         f"- Кандидатов: **{doc['n_candidates']}** "
@@ -246,16 +248,23 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    ap.add_argument(
+        "--out-prefix",
+        default=None,
+        help="Префикс файлов (default: {hypothesis}_candidates)",
+    )
     ap.add_argument("--verify", action="store_true")
     args = ap.parse_args(argv)
 
     cfg = load_config(args.config)
     ver = cfg["version"]
+    hyp = cfg["hypothesis"]
+    prefix = args.out_prefix or f"{hyp}_candidates"
     doc = build_document(cfg, args.config)
     md = summary_markdown(doc)
 
-    json_path = args.out_dir / f"h1_candidates_{ver}.json"
-    md_path = args.out_dir / f"h1_candidates_{ver}.md"
+    json_path = args.out_dir / f"{prefix}_{ver}.json"
+    md_path = args.out_dir / f"{prefix}_{ver}.md"
 
     if args.verify:
         expected = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
@@ -275,7 +284,7 @@ def main(argv: list[str] | None = None) -> int:
     md_path.write_text(md, encoding="utf-8")
 
     print(
-        f"h1 {ver}: {doc['n_candidates']} candidates "
+        f"{hyp} {ver}: {doc['n_candidates']} candidates "
         f"(candidate {doc['n_by_role'].get('candidate', 0)}, "
         f"control {doc['n_by_role'].get('control', 0)})"
     )

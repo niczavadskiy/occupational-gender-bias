@@ -19,29 +19,35 @@ token** (после `Answer:`). Тот же хук применим к MCQ-пр�
 ```
 steering/
 ├── configs/
-│   ├── soc_mmlu_pro_map_v1.yaml        # soc_major_title ↔ MMLU-Pro
-│   └── h1_steering_candidates_v1.yaml  # сетка layer × α для H1
+│   ├── soc_mmlu_pro_map_v1.yaml           # soc_major_title ↔ MMLU-Pro
+│   ├── h1_steering_candidates_v1.yaml     # сетка layer × α для H1 (gender)
+│   └── slot_steering_candidates_v1.yaml   # сетка layer × α для slot A/B
 ├── candidates/
-│   ├── h1_candidates_v1.json           # замороженный список конфигураций
-│   └── h1_candidates_v1.md
+│   ├── h1_candidates_v1.json              # H1: замороженный список
+│   ├── h1_candidates_v1.md
+│   ├── slot_candidates_v1.json            # slot: 87 кандидатов + baseline
+│   └── slot_candidates_v1.md
 ├── samples/
-│   ├── h1_stagea_sample_v1.json        # Stage A: 95 val-семей × 4 строки
-│   └── h1_stagea_sample_v1.md
+│   ├── h1_stagea_sample_v1.json           # Stage A: 95 val-семей × 4 строки
+│   └── h1_stagea_sample_v1.md             # (тот же sample для slot)
 ├── vectors/
-│   ├── h1_vectors_v1.npz               # ŵ на слоях пояса (49 векторов)
-│   └── h1_vectors_v1.json              # c, sigma_train, диагностика
+│   ├── h1_vectors_v1.npz                  # gender ŵ на L14–20
+│   ├── h1_vectors_v1.json
+│   ├── slot_vectors_v1.npz                # slot ŵ на L16–24 (54 вектора)
+│   └── slot_vectors_v1.json
 ├── profiles/
-│   ├── mmlu_pro_domain_val_v1.json     # Stage B: 22 домена × 50 вопросов
-│   ├── mmlu_pro_domain_test_v1.json    # Stage C: те же домены, другие вопросы
-│   ├── mmlu_pro_overall_smoke_v1.json  # Stage B: 14 категорий × 40 вопросов
+│   ├── mmlu_pro_domain_val_v1.json        # Stage B: 22 домена × 50 вопросов
+│   ├── mmlu_pro_domain_test_v1.json       # Stage C: те же домены, другие вопросы
+│   ├── mmlu_pro_overall_smoke_v1.json     # Stage B: 14 категорий × 40 вопросов
 │   └── coverage_v1.md
-├── intervene.py                        # хук в residual stream + A/B скоринг
-├── run_h1_stagea.py                    # раннер Stage A
+├── intervene.py                           # хук в residual stream + A/B скоринг
+├── run_h1_stagea.py                       # Stage A: gender (θ)
+├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── build_stagea_sample.py
-├── build_h1_vectors.py
+├── build_h1_vectors.py                    # --config / --out-prefix → H1 или slot
 ├── build_mmlu_profiles.py
 ├── build_h1_candidates.py
-└── .cache/                             # parquet MMLU-Pro, веса модели (не в git)
+└── .cache/                                # parquet MMLU-Pro, веса модели (не в git)
 ```
 
 Результаты прогонов — вне `steering/`:
@@ -78,6 +84,38 @@ results/steering/stage_a/<tag>/
 python -m steering.build_h1_candidates
 python -m steering.build_h1_candidates --verify
 ```
+
+---
+
+## Slot candidates (`layer × α`)
+
+Источник: v1_rep `slot_choice` (пик L23, val bacc ≈ 94.5%). Цель — выровнять
+preference слота: `φ_i = A_i/(A_i+B_i) → 0.5` на base item. Baseline Stage A
+(H1 full): `slot_a_rate ≈ 0.76`.
+
+Конфиг: `configs/slot_steering_candidates_v1.yaml` → `candidates/slot_candidates_v1.json`
+(87 + baseline). Пояс **L19–24**, якорь **L23**. Основной вектор
+`w_slot_perp` (slot ⊥ {gender, narrative}).
+
+| семейство | n | роль |
+|---|---:|---|
+| `main_center_core` (L21–23, α до 2.0) | 42 | candidate |
+| `main_center_edge` (L19,20,24) | 18 | candidate |
+| `main_project_out` (L19–24) | 12 | candidate |
+| `mid_project_out` (L16–18) | 3 | candidate |
+| `causality_shift` / `anti_steering` / gender / random | 12 | control |
+
+Primary metric Stage A: `mean_i |φ_i − 0.5|` (и soft-версия по `p_A`). Gender
+`mean|θ−0.5|` — guardrail (flag).
+
+```powershell
+python -m steering.build_h1_candidates --config steering/configs/slot_steering_candidates_v1.yaml
+python -m steering.build_h1_vectors --config steering/configs/slot_steering_candidates_v1.yaml
+# (векторы требуют results/<run>/hidden_states.npz — только в полном репо)
+```
+
+Пересборка пишет `slot_candidates_v1.*` / `slot_vectors_v1.*` (префикс из
+`hypothesis: slot` в yaml).
 
 ---
 
@@ -120,8 +158,12 @@ python -m steering.build_stagea_sample --verify
 python -m steering.build_h1_vectors          # нужен hidden_states.npz исходного прогона
 python -m steering.build_h1_vectors --verify # пересборка без изменений
 
-# 3. Полный скрининг: 106 конфигураций × 380 строк
+# 3. Полный скрининг H1: 106 конфигураций × 380 строк
 python -m steering.run_h1_stagea --model Qwen/Qwen3.5-2B-Base --device cuda --tag full
+
+# 3b. Slot Stage A: 88 конфигураций × 380 строк (~33k forward)
+python -m steering.run_slot_stagea --model Qwen/Qwen3.5-2B-Base --device cuda `
+  --dtype float32 --tag slot_full
 ```
 
 `c` считается только на **train**-строках пробы, поэтому выбор нейтральной точки
@@ -139,12 +181,18 @@ bf16 на этой величине — того же порядка, и час�
 ### Smoke-прогон
 
 ```powershell
+# H1
 python -m steering.run_h1_stagea --model steering/.cache/model --device cpu `
   --dtype bfloat16 --limit-items 3 --tag smoke `
   --candidates main_center_core__wgperp__L16__center__a1,causality_shift__wgperp__L16__shift__b1
+
+# Slot (L23: project_out + causality shift)
+python -m steering.run_slot_stagea --model Qwen/Qwen3.5-2B-Base --device cuda `
+  --dtype float32 --limit-items 3 --tag slot_smoke `
+  --candidates main_project_out__wsperp__L23__project_out__a1,causality_shift__wsperp__L23__shift__b1,causality_shift__wsperp__L23__shift__bm1
 ```
 
-Что проверено этим прогоном (`results/steering/stage_a/smoke/`):
+Что проверено H1-smoke (`results/steering/stage_a/smoke/`):
 
 | проверка | результат |
 |---|---|
