@@ -43,6 +43,8 @@ steering/
 ├── intervene.py                           # хук в residual stream + A/B скоринг
 ├── run_h1_stagea.py                       # Stage A: gender (θ)
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
+├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
+├── run_alignment_recovery.py              # Эксп.1–3: cos(w,g), Δd, recovery
 ├── build_stagea_sample.py
 ├── build_h1_vectors.py                    # --config / --out-prefix → H1 или slot
 ├── build_mmlu_profiles.py
@@ -144,6 +146,45 @@ cap_loss = mean over domains of max(0, acc_baseline − acc_steered)
 
 На C победитель Stage B не переизбирается — только подтверждается; критерий
 capability формулируется как non-inferiority с заранее заданной δ.
+
+---
+
+## Эксп.0 — геометрия пробы (CPU)
+
+`StandardScaler` стоит перед LogReg, поэтому `coef_` не является steering-вектором.
+Проверка тождества в raw HS (модель не нужна, только `hidden_states.npz` полного
+репо с `probes/`):
+
+```powershell
+python -m steering.check_probe_geometry
+# default: gender_choice + slot_choice на L16 и L23
+```
+
+Пишет `results/steering/geometry_check/exp0/geometry_check.json`.
+Pass: `|decision_function(H) − (H w_raw + b_raw)|_max ≤ 1e-4` и cos с замороженным
+`ŵ` ≥ 0.999 (если npz векторов на месте). `c` (class midpoint) и `t_probe`
+печатаются рядом: steering center использует **c**, не порог пробы.
+
+---
+
+## Эксп.1–3 — alignment, Δd, recovery (GPU)
+
+На 25 семей × 4 строки (= 100) из того же Stage A sample, слои L16 и L23,
+float32. Считает `cos(g, ŵ)` для `d_gender = z_man − z_woman` и `d_slot = z_A − z_B`,
+сравнивает `gᵀΔh` с фактическим Δd после shift ±1 / center α=1, и смотрит, зарастает
+ли проекция на слоях ниже точки интервенции.
+
+```powershell
+python -m steering.run_alignment_recovery --model Qwen/Qwen3.5-2B-Base `
+  --device cuda --dtype float32 --tag mech_v1
+
+# 4 строки
+python -m steering.run_alignment_recovery --model Qwen/Qwen3.5-2B-Base `
+  --device cuda --dtype float32 --n-items 1 --tag mech_smoke
+```
+
+Выход: `results/steering/mech/<tag>/summary.json`, `alignment_summary.csv`,
+`delta_summary.csv`, `per_row.jsonl`.
 
 ---
 

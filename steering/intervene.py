@@ -127,7 +127,6 @@ def steered(
         yield
         return
 
-    layers = decoder_layers(model)
     handles = []
     device = next(model.parameters()).device
 
@@ -149,12 +148,46 @@ def steered(
 
     try:
         for spec in specs:
-            if spec.layer == 0:
-                target = embedding_module(model)
-            else:
-                target = layers[spec.layer - 1]
-            handles.append(target.register_forward_hook(make_hook(spec)))
+            handles.append(layer_module(model, spec.layer).register_forward_hook(make_hook(spec)))
         yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+def layer_module(model: nn.Module, layer: int) -> nn.Module:
+    if layer == 0:
+        return embedding_module(model)
+    return decoder_layers(model)[layer - 1]
+
+
+@contextlib.contextmanager
+def capture_last_token(
+    model: nn.Module,
+    layers: list[int],
+    *,
+    retain_grad_layers: list[int] | None = None,
+) -> Iterator[dict[int, torch.Tensor]]:
+    """Снимает last-token residual на указанных слоях (индексация как у HS)."""
+    store: dict[int, torch.Tensor] = {}
+    retain = set(retain_grad_layers or [])
+    handles = []
+
+    def make_hook(layer: int):
+        def hook(_module, _args, output):
+            is_tuple = isinstance(output, tuple)
+            hidden = output[0] if is_tuple else output
+            if layer in retain:
+                hidden.retain_grad()
+            store[layer] = hidden
+            return output
+
+        return hook
+
+    try:
+        for layer in layers:
+            handles.append(layer_module(model, layer).register_forward_hook(make_hook(layer)))
+        yield store
     finally:
         for h in handles:
             h.remove()
