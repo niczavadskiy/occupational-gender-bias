@@ -410,6 +410,8 @@ def main(argv: list[str] | None = None) -> int:
         load_dotenv(REPO_ROOT / ".env")
     except ImportError:
         pass
+    if os.environ.get("HF_TOKEN") and not os.environ.get("HUGGING_FACE_HUB_TOKEN"):
+        os.environ["HUGGING_FACE_HUB_TOKEN"] = os.environ["HF_TOKEN"]
 
     layers = tuple(int(x) for x in args.layers.split(",") if x.strip())
     sample = load_json(args.sample)
@@ -468,6 +470,7 @@ def main(argv: list[str] | None = None) -> int:
 
                 if done == 0 and all(float(np.linalg.norm(g_gender[L])) < 1e-18 for L in g_gender):
                     print("  WARNING: ∇h d_gender = 0 — retain_grad не сработал, alignment бесполезен")
+                alignment = {}
                 for L in layers:
                     block: dict = {
                         "||g_gender||": float(np.linalg.norm(g_gender[L])),
