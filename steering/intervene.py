@@ -174,9 +174,17 @@ def capture_last_token(
     handles = []
 
     def make_hook(layer: int):
+        earliest = min(retain) if retain else None
+
         def hook(_module, _args, output):
             is_tuple = isinstance(output, tuple)
             hidden = output[0] if is_tuple else output
+            # Веса заморожены → без leaf графа нет, retain_grad падает.
+            # Лист на самом раннем retain-слое; ниже — обычный retain_grad.
+            if retain and layer == earliest:
+                hidden = hidden.detach().requires_grad_(True)
+                store[layer] = hidden
+                return (hidden, *output[1:]) if is_tuple else hidden
             if layer in retain:
                 hidden.retain_grad()
             store[layer] = hidden
