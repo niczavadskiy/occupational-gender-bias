@@ -284,5 +284,7 @@ data/annotation/runs/**/.~lock*
 # === Steering ===
 # Векторы направлений — ~400 KB, нужны для прогонов без 1.5 GB hidden_states.npz.
 !steering/vectors/*.npz
+# INLP subspaces — ~9 MB (k=64); нужны на GPU без пересборки Phase A.
+!steering/subspaces/*.npz
 # Stage A/B/C: в git метрики и рейтинги; per_item.jsonl восстанавливается прогоном.
 results/steering/**/per_item.jsonl
