@@ -1,0 +1,192 @@
+# INLP + rank-k center: минимальная размерность линейно декодируемого
+# gender-preference subspace и его каузальность.
+#
+# Rank-1 center/shift дал behavioral null при probe val AUC .946 (L16). Две
+# конкурирующие гипотезы:
+#   H1  preference распределена по k>1 линейным направлениям — rank-1 мало;
+#   H2  линейная декодируемость не является каузально необходимой.
+# Различает их совместная динамика AUC(k) и BehaviorEffect(k).
+#
+# Phase A (CPU):   python -m steering.build_inlp_subspace
+# Phase A.5 (GPU): python -m steering.run_inlp_alignment
+# Phase B (GPU):   python -m steering.run_inlp_stagea
+
+version: v1
+hypothesis: inlp
+created: 2026-08-20
+
+source:
+  run: run_2026-06-09_12-50-33_Qwen3.5-2B-Base_v1_full_pos_shuffle
+  model_id: Qwen/Qwen3.5-2B-Base
+  probe_root: probes/v1_rep_prob
+  d_model: 2048
+  n_hidden_states: 25
+  hidden_state_index: "0 = embeddings, 1..24 = block output"
+  layer_scan: "without_abstain_p0_p1_mf_wf_gender_choice/layer_scan/results.json"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Target
+# INLP работает с тем же бинарным лейблом, что исходная classification probe:
+# gender_choice (1 = предпочтён man, 0 = woman). Между итерациями не меняется.
+# Behavioral target (d_gender) в INLP не участвует — только в Phase B.
+# ─────────────────────────────────────────────────────────────────────────────
+target: gender_choice
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Split
+# Grouping unit — scenario_family_id (soc × profession × onet_action): все 4
+# позиционных варианта одного сценария лежат в одной части. Готовый файл
+# probes/_shared/group_split_v1_scenario.json, 571/190/190 семей, seed 0.
+# ─────────────────────────────────────────────────────────────────────────────
+split:
+  file: "probes/_shared/group_split_v1_scenario.json"
+  seed: 0
+  ratios: {train: 0.6, val: 0.2, test: 0.2}
+  families: {train: 571, val: 190, test: 190}
+  inlp_train: train
+  inlp_validation: val
+  note: >-
+    На train: fit scaler, fit LogReg, направления, class midpoints.
+    На val: только held-out AUC — в построении направлений не участвует.
+    test не используется ни в Phase A, ни в Phase B (только финальный прогон
+    после выбора layer*/rank*/alpha*).
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Слои
+# Выбраны ДО INLP и ДО steering, только по исходной decodability.
+# val_roc_auc gender_choice (layer_scan): L14 .832 | L15 .904 | L16 .946 (peak)
+#   L17 .939 | L18 .935 | L19 .928 | L20 .914
+# Порог 0.9 × max = .851 → L14 не проходит; берём peak + один до + один после.
+# ─────────────────────────────────────────────────────────────────────────────
+layers:
+  candidates: [15, 16, 18]
+  peak: 16
+  auc_reference: {15: 0.9036, 16: 0.9463, 18: 0.9354}
+  selection_rule: "val_roc_auc >= 0.9 * max_layer_auc; peak + one below + one above"
+
+# Регуляризация подобрана по held-out AUC(0) на val (single fit, до INLP).
+# C=1.0 (дефолт layer_scan) интерполирует: train AUC = 1.0000 при n=2284, d=2048,
+# направление тогда наполовину память, и INLP почти не сдвигает AUC — кривая при
+# C=1.0 падает всего .946 → .912 за 16 шагов (артефакт сохранён в
+# subspaces/inlp_gender_choice_c1p0.*, воспроизводится флагом --clf-C 1.0).
+#
+#     C      L15 train/val     L16 train/val     L18 train/val
+#   1.0     1.0000 / 0.9037   1.0000 / 0.9463   1.0000 / 0.9355
+#   0.3     0.9988 / 0.9166   0.9996 / 0.9529   0.9991 / 0.9463
+#   0.1     0.9947 / 0.9271   0.9976 / 0.9579   0.9964 / 0.9540
+#   0.03    0.9858 / 0.9325   0.9928 / 0.9589   0.9908 / 0.9564   ← max val
+#   0.01    0.9749 / 0.9310   0.9853 / 0.9560   0.9830 / 0.9547
+#   0.003   0.9611 / 0.9256   0.9749 / 0.9501   0.9720 / 0.9500
+#   0.001   0.9476 / 0.9192   0.9646 / 0.9449   0.9607 / 0.9433
+#
+# C=0.03 не «ослабленная» проба: held-out AUC выше, чем при C=1.0, на всех трёх
+# слоях. Меньше памяти → w_raw ближе к сигнальному направлению.
+probe:
+  C: 0.03
+  max_iter: 10000
+  class_weight: balanced
+  selection_rule: max_val_auc_at_k0
+  scaler: refit_each_iteration
+  scaler_note: >-
+    StandardScaler обучается заново на каждой итерации: после удаления
+    направлений распределение координат меняется, старый scaler невалиден.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INLP
+# w_raw = coef_scaled / sigma  (обратный scaler) → ортогонализация против уже
+# найденных → нормировка. H ← H − (H W) Wᵀ.
+# ─────────────────────────────────────────────────────────────────────────────
+inlp:
+  # Измерено при C=0.03 и k_max=32: .959→.666 (L16), .956→.664 (L18), падение
+  # замедляется (0→16: −.18; 16→32: −.11) и chance при 32 не достигнут.
+  # k_max=64 доводит кривую до предполагаемой зоны k_chance (экстраполяция
+  # давала 60–80). Rank-64 — это 3.1% размерности, поэтому random-контроль того
+  # же ранга обязателен: без него эффект не отделить от величины возмущения.
+  k_max: 64
+  chance:
+    auc_threshold: 0.55
+    require_ci_contains: 0.5
+    n_bootstrap: 2000
+    cluster_by: scenario_family_id
+    note: >-
+      k_chance = min{k : AUC(k) <= 0.55 И 95% cluster-bootstrap CI накрывает 0.5}.
+      Буквальное AUC == 0.5 не используется из-за sampling noise. Если при
+      k_max условие не выполнено — k_chance = null, полное линейное стирание
+      не заявляется.
+  orthogonality_tolerance: 1.0e-4
+  orthogonality_note: "max |WᵀW − I| в float32; float64 при построении"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase B — rank-k center
+# h' = h − α W_k (Wᵀ h − c),  c_j = ½(mu_0j + mu_1j) на raw train-проекциях.
+# При α=1 должно выполняться Wᵀh' = c (обязательный hook-check).
+# shift в INLP не включаем: rank-k shift потребовал бы beta_1..beta_k.
+# ─────────────────────────────────────────────────────────────────────────────
+steering:
+  kind: center
+  ranks: [1, 2, 4, 8]
+  ranks_note: >-
+    k_chance добавляется автоматически; если он не достигнут — ranks
+    расширяются всеми степенями двойки до k_found и максимальный ранг НЕ
+    считается полным линейным стиранием.
+  alphas: [1.0]
+  alpha_note: >-
+    alpha фиксирован до появления воспроизводимого behavioral эффекта.
+    Сначала layer × rank, только потом alpha-sweep {0.25 .. 1.25}.
+  random_control:
+    ranks: [1, 4]
+    seeds: [0]
+    centers: train_mean_projection
+    note: >-
+      Случайное ортонормированное подпространство того же ранга (§31).
+      Расширяется по тому же правилу, что steering.ranks, поэтому при
+      недостигнутом chance контроль есть на КАЖДОМ ранге INLP — при rank-64
+      это обязательно: 3% размерности возмущают h заметно сами по себе.
+      Логируется ||Δh||, чтобы эффект нельзя было объяснить его величиной.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Behavioral metrics
+# Скоринг — z_A vs z_B, пол задаётся лейаутом строки, поэтому построчно
+# |d_gender| ≡ |d_slot|: построчное |d|-падение неотличимо от падения
+# решительности A/B. Гендерная ось выделяется усреднением по 4 лейаутам
+# семьи ДО взятия модуля (позиционный вклад сокращается).
+# ─────────────────────────────────────────────────────────────────────────────
+behavior:
+  sample: "samples/h1_stagea_sample_v1.json"
+  sample_note: "95 val-семей × 4 строки = 380 строк, та же замороженная выборка, что Stage A"
+  row_margins:
+    d_gender: "z_man − z_woman (слоты по labels строки)"
+    d_slot: "z_A − z_B"
+  primary_metric:
+    id: mean_R_family
+    formula: "R_i = |D_i^before| − |D_i^after|,  D_i = mean_layouts d_gender"
+    direction: maximize
+    note: "R>0 — preference ослабла; R<0 — усилилась"
+  secondary_metrics:
+    - id: mean_signed_delta_D
+      formula: "mean_i (D_i^after − D_i^before)"
+    - id: R_slot_family
+      formula: "|S_i^before| − |S_i^after|,  S_i = mean_layouts d_slot"
+      note: "позиционная ось — guardrail: отделяет гендерный эффект от общего сглаживания A/B"
+    - id: theta_prob_dev_reduction
+      formula: "|θ_i^before − 0.5| − |θ_i^after − 0.5|,  θ_i = mean_layouts p_man"
+      note: "H1-совместимая метрика в вероятностной шкале"
+    - id: mean_R_row
+      formula: "|d^before| − |d^after| построчно"
+      note: "вырождена по построению (см. выше) — только для сопоставимости"
+    - id: flip_rate
+      note: "secondary; отсутствие flip не означает отсутствие эффекта"
+  bootstrap:
+    n: 5000
+    cluster_by: scenario_family_id
+    ci: 0.95
+    paired: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Интерпретация (§24)
+# ─────────────────────────────────────────────────────────────────────────────
+outcomes:
+  A: "AUC → chance, поведение не меняется → decodability ≠ causal necessity"
+  B: "AUC → chance, R растёт с k → многомерный линейный каузальный компонент"
+  C: "AUC падает частично, R растёт → распределённое представление, стирание неполное"
+  D: "AUC падает частично, R ≈ 0 → до k_max каузальности не найдено (слабый вывод)"

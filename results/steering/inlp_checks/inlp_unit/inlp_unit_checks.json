@@ -1,0 +1,343 @@
+{
+  "schema": "steering.inlp_unit_checks/v1",
+  "tag": "inlp_unit",
+  "datetime": "2026-08-20T04:49:18.887277",
+  "subspaces_file": "inlp_gender_choice_v1.npz",
+  "subspaces_present": true,
+  "seed": 20260820,
+  "n_bases": 9,
+  "passed": true,
+  "tests": [
+    {
+      "name": "T1 orthonormal basis",
+      "tolerance": 0.0001,
+      "n_checked": 6,
+      "passed": true,
+      "detail": [
+        {
+          "key": "L15__W",
+          "rank": 64,
+          "max_abs_error": 4.172325134277344e-07,
+          "ok": true
+        },
+        {
+          "key": "L15__W_random_s0",
+          "rank": 64,
+          "max_abs_error": 2.384185791015625e-07,
+          "ok": true
+        },
+        {
+          "key": "L16__W",
+          "rank": 64,
+          "max_abs_error": 4.76837158203125e-07,
+          "ok": true
+        },
+        {
+          "key": "L16__W_random_s0",
+          "rank": 64,
+          "max_abs_error": 4.76837158203125e-07,
+          "ok": true
+        },
+        {
+          "key": "L18__W",
+          "rank": 64,
+          "max_abs_error": 4.172325134277344e-07,
+          "ok": true
+        },
+        {
+          "key": "L18__W_random_s0",
+          "rank": 64,
+          "max_abs_error": 4.76837158203125e-07,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "T2 projection removal",
+      "tolerance": 0.0001,
+      "passed": true,
+      "detail": [
+        {
+          "basis": "synthetic_d64_k1",
+          "rank": 1,
+          "max_abs_projection": 3.249746582945079e-09,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d64_k4",
+          "rank": 4,
+          "max_abs_projection": 1.0210419953970984e-08,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d128_k16",
+          "rank": 16,
+          "max_abs_projection": 3.1156143727451013e-08,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :1]",
+          "rank": 1,
+          "max_abs_projection": 4.3085693346434084e-10,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :4]",
+          "rank": 4,
+          "max_abs_projection": 4.216686651107096e-09,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :1]",
+          "rank": 1,
+          "max_abs_projection": 1.1499265428760452e-10,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :4]",
+          "rank": 4,
+          "max_abs_projection": 3.5487918609604027e-10,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :1]",
+          "rank": 1,
+          "max_abs_projection": 8.396838779844984e-11,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :4]",
+          "rank": 4,
+          "max_abs_projection": 4.69370267479341e-10,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "T3 center alpha=1 → Wᵀh' = c",
+      "tolerance": 0.0001,
+      "passed": true,
+      "detail_numpy": [
+        {
+          "basis": "synthetic_d64_k1",
+          "rank": 1,
+          "max_abs_error": 4.138735132386273e-09,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d64_k4",
+          "rank": 4,
+          "max_abs_error": 4.360032357375587e-08,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d128_k16",
+          "rank": 16,
+          "max_abs_error": 3.839488127432844e-08,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :1]",
+          "rank": 1,
+          "max_abs_error": 6.466587709752503e-09,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :4]",
+          "rank": 4,
+          "max_abs_error": 1.4544947135597397e-08,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :1]",
+          "rank": 1,
+          "max_abs_error": 6.258684681625937e-10,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :4]",
+          "rank": 4,
+          "max_abs_error": 5.764139832109549e-09,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :1]",
+          "rank": 1,
+          "max_abs_error": 5.456701757111659e-10,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :4]",
+          "rank": 4,
+          "max_abs_error": 9.778766171808506e-09,
+          "ok": true
+        }
+      ],
+      "detail_hook_float32": [
+        {
+          "basis": "synthetic_d64_k1",
+          "rank": 1,
+          "max_abs_error_trace": 1.1920928955078125e-07,
+          "max_abs_error_recomputed": 3.5762786865234375e-07,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d64_k4",
+          "rank": 4,
+          "max_abs_error_trace": 1.1920928955078125e-07,
+          "max_abs_error_recomputed": 1.341104507446289e-07,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d128_k16",
+          "rank": 16,
+          "max_abs_error_trace": 3.5762786865234375e-07,
+          "max_abs_error_recomputed": 3.5762786865234375e-07,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :1]",
+          "rank": 1,
+          "max_abs_error_trace": 1.7881393432617188e-07,
+          "max_abs_error_recomputed": 1.7881393432617188e-07,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :4]",
+          "rank": 4,
+          "max_abs_error_trace": 3.5762786865234375e-07,
+          "max_abs_error_recomputed": 3.5762786865234375e-07,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :1]",
+          "rank": 1,
+          "max_abs_error_trace": 0.0,
+          "max_abs_error_recomputed": 1.1920928955078125e-07,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :4]",
+          "rank": 4,
+          "max_abs_error_trace": 3.5762786865234375e-07,
+          "max_abs_error_recomputed": 4.76837158203125e-07,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :1]",
+          "rank": 1,
+          "max_abs_error_trace": 2.384185791015625e-07,
+          "max_abs_error_recomputed": 2.384185791015625e-07,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :4]",
+          "rank": 4,
+          "max_abs_error_trace": 4.76837158203125e-07,
+          "max_abs_error_recomputed": 9.5367431640625e-07,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "T4 alpha=0 → h' = h",
+      "passed": true,
+      "detail": [
+        {
+          "basis": "synthetic_d64_k1",
+          "rank": 1,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d64_k4",
+          "rank": 4,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "synthetic_d128_k16",
+          "rank": 16,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :1]",
+          "rank": 1,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "L15__W[:, :4]",
+          "rank": 4,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :1]",
+          "rank": 1,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "L16__W[:, :4]",
+          "rank": 4,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :1]",
+          "rank": 1,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        },
+        {
+          "basis": "L18__W[:, :4]",
+          "rank": 4,
+          "last_token_bitwise_identical": true,
+          "other_positions_untouched": true,
+          "ok": true
+        }
+      ]
+    },
+    {
+      "name": "T5 rank-1 compatibility",
+      "tolerance": 1e-06,
+      "passed": true,
+      "detail": [
+        {
+          "alpha": 0.25,
+          "max_abs_diff_h": 2.384185791015625e-07,
+          "max_abs_diff_s": 4.76837158203125e-07,
+          "ok": true
+        },
+        {
+          "alpha": 0.5,
+          "max_abs_diff_h": 2.384185791015625e-07,
+          "max_abs_diff_s": 4.76837158203125e-07,
+          "ok": true
+        },
+        {
+          "alpha": 1.0,
+          "max_abs_diff_h": 4.76837158203125e-07,
+          "max_abs_diff_s": 9.5367431640625e-07,
+          "ok": true
+        },
+        {
+          "alpha": 1.25,
+          "max_abs_diff_h": 4.76837158203125e-07,
+          "max_abs_diff_s": 7.152557373046875e-07,
+          "ok": true
+        }
+      ]
+    }
+  ]
+}

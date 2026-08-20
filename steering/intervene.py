@@ -5,6 +5,11 @@
 грузится один раз, кандидаты применяются по очереди через
 `with steered(model, spec): ...`.
 
+Две формы интервенции:
+    InterventionSpec — rank-1 вдоль ŵ (center / project_out / shift);
+    SubspaceSpec     — rank-k в ортонормированном W (center / project_out),
+                       используется INLP-пайплайном.
+
 Индексация слоя совпадает с hidden_states.npz исходного прогона:
     0        = выход эмбеддингов
     1..24    = выход блока L (то есть decoder_layers[L-1])
@@ -54,6 +59,42 @@ class InterventionSpec:
         raise ValueError(f"unknown intervention kind {self.kind!r}")
 
 
+@dataclass(frozen=True)
+class SubspaceSpec:
+    """Rank-k интервенция в ортонормированном подпространстве W (d × k).
+
+    center:      h' = h − α·W(Wᵀh − c)   → при α=1  Wᵀh' = c
+    project_out: h' = h − W Wᵀh          → Wᵀh' = 0
+
+    При k=1 и c=[c] эквивалентна InterventionSpec(kind="center") с тем же ŵ —
+    это regression-тест новой реализации (см. steering/check_inlp.py).
+    """
+
+    layer: int
+    W: np.ndarray  # (d, k), столбцы ортонормированы
+    c: np.ndarray  # (k,)
+    kind: str = "center"
+    alpha: float = 1.0
+    label: str = ""
+
+    def __post_init__(self) -> None:
+        if self.W.ndim != 2:
+            raise ValueError(f"W должен быть (d, k), получено {self.W.shape}")
+        if self.c.shape != (self.W.shape[1],):
+            raise ValueError(f"c {self.c.shape} не соответствует rank={self.W.shape[1]}")
+
+    @property
+    def rank(self) -> int:
+        return int(self.W.shape[1])
+
+    def expected_s_after(self, s_before: np.ndarray) -> np.ndarray:
+        if self.kind == "center":
+            return s_before - float(self.alpha) * (s_before - self.c)
+        if self.kind == "project_out":
+            return np.zeros_like(s_before)
+        raise ValueError(f"unknown subspace intervention kind {self.kind!r}")
+
+
 class ProjectionTrace:
     """Проекции s до/после по каждому вызову хука (диагностика корректности)."""
 
@@ -64,6 +105,22 @@ class ProjectionTrace:
     def clear(self) -> None:
         self.before.clear()
         self.after.clear()
+
+
+class SubspaceTrace:
+    """Wᵀh до/после + нормы возмущения по последнему вызову хука на слое."""
+
+    def __init__(self) -> None:
+        self.before: dict[int, np.ndarray] = {}
+        self.after: dict[int, np.ndarray] = {}
+        self.h_norm: dict[int, float] = {}
+        self.delta_norm: dict[int, float] = {}
+
+    def clear(self) -> None:
+        self.before.clear()
+        self.after.clear()
+        self.h_norm.clear()
+        self.delta_norm.clear()
 
 
 def decoder_layers(model: nn.Module) -> nn.ModuleList:
@@ -116,45 +173,134 @@ def _apply(h_last: torch.Tensor, spec: InterventionSpec, w: torch.Tensor) -> tup
     return new_h, s, s_after
 
 
+def _apply_subspace(
+    h_last: torch.Tensor,
+    spec: SubspaceSpec,
+    W: torch.Tensor,
+    c: torch.Tensor,
+) -> tuple[torch.Tensor, np.ndarray, np.ndarray, float, float]:
+    """new_h, Wᵀh, Wᵀh', ||h||, ||h'−h|| — нормы после квантования в dtype модели."""
+    h32 = h_last.to(torch.float32)
+    s = W.T @ h32
+    if spec.kind == "center":
+        delta_s = -float(spec.alpha) * (s - c)
+    elif spec.kind == "project_out":
+        delta_s = -s
+    else:
+        raise ValueError(f"unknown subspace intervention kind {spec.kind!r}")
+    new_h = (h32 + W @ delta_s).to(h_last.dtype)
+    new32 = new_h.to(torch.float32)
+    return (
+        new_h,
+        s.detach().cpu().numpy(),
+        (W.T @ new32).detach().cpu().numpy(),
+        float(torch.linalg.vector_norm(h32)),
+        float(torch.linalg.vector_norm(new32 - h32)),
+    )
+
+
 @contextlib.contextmanager
 def steered(
     model: nn.Module,
-    specs: list[InterventionSpec],
-    trace: ProjectionTrace | None = None,
+    specs: list[InterventionSpec | SubspaceSpec],
+    trace: ProjectionTrace | SubspaceTrace | None = None,
 ) -> Iterator[None]:
     """Вешает forward-хуки на указанные слои на время блока."""
     if not specs:
         yield
         return
 
-    layers = decoder_layers(model)
     handles = []
     device = next(model.parameters()).device
 
-    def make_hook(spec: InterventionSpec):
-        w = torch.as_tensor(spec.w, dtype=torch.float32, device=device)
+    def make_hook(spec: InterventionSpec | SubspaceSpec):
+        if isinstance(spec, SubspaceSpec):
+            W = torch.as_tensor(
+                np.ascontiguousarray(spec.W), dtype=torch.float32, device=device
+            )
+            c = torch.as_tensor(
+                np.ascontiguousarray(spec.c), dtype=torch.float32, device=device
+            )
+
+            def replace(h_last: torch.Tensor) -> torch.Tensor:
+                new_h, s_before, s_after, h_norm, d_norm = _apply_subspace(h_last, spec, W, c)
+                if trace is not None:
+                    trace.before[spec.layer] = s_before
+                    trace.after[spec.layer] = s_after
+                    trace.h_norm[spec.layer] = h_norm
+                    trace.delta_norm[spec.layer] = d_norm
+                return new_h
+
+        else:
+            w = torch.as_tensor(spec.w, dtype=torch.float32, device=device)
+
+            def replace(h_last: torch.Tensor) -> torch.Tensor:
+                new_h, s_before, s_after = _apply(h_last, spec, w)
+                if trace is not None:
+                    trace.before[spec.layer] = s_before
+                    trace.after[spec.layer] = s_after
+                return new_h
 
         def hook(_module, _args, output):
             is_tuple = isinstance(output, tuple)
             hidden = output[0] if is_tuple else output
-            new_h, s_before, s_after = _apply(hidden[0, -1, :], spec, w)
+            new_h = replace(hidden[0, -1, :])
             hidden = hidden.clone()
             hidden[0, -1, :] = new_h
-            if trace is not None:
-                trace.before[spec.layer] = s_before
-                trace.after[spec.layer] = s_after
             return (hidden, *output[1:]) if is_tuple else hidden
 
         return hook
 
     try:
         for spec in specs:
-            if spec.layer == 0:
-                target = embedding_module(model)
-            else:
-                target = layers[spec.layer - 1]
-            handles.append(target.register_forward_hook(make_hook(spec)))
+            handles.append(layer_module(model, spec.layer).register_forward_hook(make_hook(spec)))
         yield
+    finally:
+        for h in handles:
+            h.remove()
+
+
+def layer_module(model: nn.Module, layer: int) -> nn.Module:
+    if layer == 0:
+        return embedding_module(model)
+    return decoder_layers(model)[layer - 1]
+
+
+@contextlib.contextmanager
+def capture_last_token(
+    model: nn.Module,
+    layers: list[int],
+    *,
+    retain_grad_layers: list[int] | None = None,
+) -> Iterator[dict[int, torch.Tensor]]:
+    """Снимает last-token residual на указанных слоях (индексация как у HS)."""
+    store: dict[int, torch.Tensor] = {}
+    retain = set(retain_grad_layers or [])
+    handles = []
+
+    def make_hook(layer: int):
+        earliest = min(retain) if retain else None
+
+        def hook(_module, _args, output):
+            is_tuple = isinstance(output, tuple)
+            hidden = output[0] if is_tuple else output
+            # Веса заморожены → без leaf графа нет, retain_grad падает.
+            # Лист на самом раннем retain-слое; ниже — обычный retain_grad.
+            if retain and layer == earliest:
+                hidden = hidden.detach().requires_grad_(True)
+                store[layer] = hidden
+                return (hidden, *output[1:]) if is_tuple else hidden
+            if layer in retain:
+                hidden.retain_grad()
+            store[layer] = hidden
+            return output
+
+        return hook
+
+    try:
+        for layer in layers:
+            handles.append(layer_module(model, layer).register_forward_hook(make_hook(layer)))
+        yield store
     finally:
         for h in handles:
             h.remove()
