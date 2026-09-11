@@ -34,7 +34,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-CONSTRAINED_TOKENS = (" A", " B", " C")
+# Leading space → Qwen single-token ĠA…ĠJ (preference A/B/C и MMLU-Pro A–J).
+CONSTRAINED_TOKENS = tuple(f" {c}" for c in "ABCDEFGHIJ")
 
 
 @dataclass(frozen=True)
@@ -307,36 +308,54 @@ def capture_last_token(
 
 
 class Scorer:
-    """Constrained A/B(/C) скоринг — точная копия логики src/inference.py."""
+    """Constrained letter scoring — preference A/B(/C) и MMLU-Pro A–J.
+
+    Логика совпадает с src/inference.py: softmax только по valid_labels на
+    last-token logits. Токены — с ведущим пробелом (`ĠA` … `ĠJ`).
+    """
 
     def __init__(self, model: nn.Module, tokenizer) -> None:
         self.model = model
         self.tokenizer = tokenizer
-        self.tok_ids = {
-            label.strip(): tokenizer(label, add_special_tokens=False).input_ids[0]
-            for label in CONSTRAINED_TOKENS
-        }
+        self.tok_ids: dict[str, int] = {}
+        for label in CONSTRAINED_TOKENS:
+            ids = tokenizer(label, add_special_tokens=False).input_ids
+            if len(ids) != 1:
+                raise ValueError(f"ожидался 1 токен для {label!r}, получено {ids}")
+            self.tok_ids[label.strip()] = ids[0]
         self.device = next(model.parameters()).device
+
+    def _tok_id(self, label: str) -> int:
+        key = label.strip()
+        if key not in self.tok_ids:
+            ids = self.tokenizer(f" {key}", add_special_tokens=False).input_ids
+            if len(ids) != 1:
+                raise ValueError(f"ожидался 1 токен для {key!r}, получено {ids}")
+            self.tok_ids[key] = ids[0]
+        return self.tok_ids[key]
 
     @torch.no_grad()
     def score(self, prompt: str, valid_labels: list[str]) -> dict:
+        if not valid_labels:
+            raise ValueError("valid_labels пуст")
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
         out = self.model(**inputs)
         last_logits = out.logits[0, -1].float()
-        logits = {k: float(last_logits[v]) for k, v in self.tok_ids.items()}
         log_probs = F.log_softmax(last_logits, dim=0)
-        valid = torch.tensor([logits[l] for l in valid_labels])
+        label_toks = {lab: self._tok_id(lab) for lab in valid_labels}
+        logits = {lab: float(last_logits[tok]) for lab, tok in label_toks.items()}
+        valid = torch.tensor([logits[l] for l in valid_labels], dtype=torch.float32)
         probs = F.softmax(valid, dim=0).tolist()
         row = {
             "n_prompt_tokens": int(inputs["input_ids"].shape[1]),
             "choice": valid_labels[int(np.argmax(probs))],
             "valid_labels": list(valid_labels),
         }
-        for label, tok in self.tok_ids.items():
-            row[f"logit_{label}"] = logits[label]
-            row[f"logprob_vocab_{label}"] = float(log_probs[tok])
-        for label, p in zip(valid_labels, probs, strict=True):
-            row[f"prob_constrained_{label}"] = float(p)
+        for lab, tok in label_toks.items():
+            row[f"logit_{lab}"] = logits[lab]
+            row[f"logprob_vocab_{lab}"] = float(log_probs[tok])
+        for lab, p in zip(valid_labels, probs, strict=True):
+            row[f"prob_constrained_{lab}"] = float(p)
         return row
 
 
