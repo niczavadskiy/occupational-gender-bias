@@ -17,7 +17,11 @@ from sklearn.metrics import (
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 
-from probes.h11 import EvidenceMode, H11Batch, build_h11_batch
+from probes.h10 import H10Batch, H10_LAYOUT_V3_MAIN, collect_h10_v3_main_group_ids, h10_split_json_path
+from probes.h11 import EvidenceMode, H11Batch, build_h11_batch, h11_split_json_path
+from probes.h12 import H12Batch
+from probes.h13 import H13Batch, h13_split_json_path
+from probes.v1_rep import V1RepBatch, v1_split_json_path
 from probes.load_run import load_run
 from probes.paths import DEFAULT_RUN_NAME
 from probes.splits import GroupTVTSplit, get_or_create_split
@@ -29,8 +33,19 @@ REGRESSION_TARGETS = (
     "log_prob_abstain",
     "h10_st_logit",
     "h10_log_prob_st",
+    "h13_yes_logit",
+    "gender_prob",
+    "narrative_prob",
+    "slot_prob",
 )
-CLASSIFICATION_TARGETS = ("choice", "choice_abstain", "h10_choice_stereotype")
+CLASSIFICATION_TARGETS = (
+    "choice",
+    "choice_abstain",
+    "h10_choice_stereotype",
+    "gender_choice",
+    "narrative_choice",
+    "slot_choice",
+)
 
 
 def add_common_args(parser: argparse.ArgumentParser) -> None:
@@ -52,6 +67,7 @@ def add_common_args(parser: argparse.ArgumentParser) -> None:
             "h10_st_logit",
             "h10_log_prob_st",
             "h10_choice_stereotype",
+            "h13_yes_logit",
         ),
         default="log_odds",
     )
@@ -72,19 +88,45 @@ def load_probe_bundle(
     evidence_mode: EvidenceMode,
     *,
     abstain_variant: str = "without_abstain",
+    question_formats: tuple[str, ...] | None = None,
 ) -> tuple[Path, dict, H11Batch, np.ndarray]:
+    from probes.h11 import H11_QUESTION_FORMATS
+
+    qf = H11_QUESTION_FORMATS if question_formats is None else question_formats
     run_dir, meta, items, hs = load_run(run)
     batch = build_h11_batch(
-        items, evidence_mode=evidence_mode, abstain_variant=abstain_variant
+        items,
+        evidence_mode=evidence_mode,
+        abstain_variant=abstain_variant,
+        question_formats=qf,
     )
     # Materialize only selected rows as float32 (smaller peak memory than casting full hs).
     X_layers = np.asarray(hs[batch.indices], dtype=np.float32)
     return run_dir, meta, batch, X_layers
 
 
+def _v3_split_options(batch: H10Batch | H11Batch | H12Batch | H13Batch, run_dir: Path) -> dict[str, Path | str]:
+    if batch.layout != H10_LAYOUT_V3_MAIN:
+        return {}
+    if isinstance(batch, H13Batch):
+        return {
+            "split_path": h13_split_json_path(run_dir),
+            "group_key": batch.group_key_label(),
+        }
+    if isinstance(batch, H11Batch):
+        return {
+            "split_path": h11_split_json_path(run_dir, batch.layout),
+            "group_key": batch.group_key_label(),
+        }
+    return {
+        "split_path": h10_split_json_path(run_dir, batch.layout),
+        "group_key": batch.group_key_label(),
+    }
+
+
 def load_split_for_run(
     run_dir: Path,
-    batch: H11Batch,
+    batch: H11Batch | H10Batch | H12Batch | H13Batch | V1RepBatch,
     *,
     seed: int,
     train_ratio: float,
@@ -92,7 +134,15 @@ def load_split_for_run(
     test_ratio: float,
     force: bool,
 ) -> GroupTVTSplit:
-    """Split aligned to this batch's rows (family ids may repeat across evidence)."""
+    """Split aligned to this batch's rows (group ids may repeat across evidence)."""
+    extra: dict[str, Path | str] = {}
+    if isinstance(batch, V1RepBatch):
+        extra = {
+            "split_path": v1_split_json_path(run_dir),
+            "group_key": batch.group_key_label(),
+        }
+    elif isinstance(batch, (H10Batch, H11Batch, H12Batch, H13Batch)):
+        extra = _v3_split_options(batch, run_dir)
     return get_or_create_split(
         batch.scenario_family_id,
         run_dir,
@@ -101,17 +151,26 @@ def load_split_for_run(
         val_ratio=val_ratio,
         test_ratio=test_ratio,
         force=force,
+        **extra,
     )
 
 
 def load_canonical_family_split(
     run_dir: Path,
-    items_batch_all: H11Batch,
+    items_batch_all: H11Batch | H10Batch | H12Batch | H13Batch | V1RepBatch,
     **kwargs,
 ) -> GroupTVTSplit:
-    """Ensure split file lists all 75 families (use ALL evidence batch once)."""
+    """Ensure split file lists all probe groups (use ALL evidence batch once)."""
     unique = np.unique(items_batch_all.scenario_family_id)
-    return get_or_create_split(unique, run_dir, **kwargs)
+    extra: dict[str, Path | str] = {}
+    if isinstance(items_batch_all, V1RepBatch):
+        extra = {
+            "split_path": v1_split_json_path(run_dir),
+            "group_key": items_batch_all.group_key_label(),
+        }
+    elif isinstance(items_batch_all, (H10Batch, H11Batch, H12Batch, H13Batch)):
+        extra = _v3_split_options(items_batch_all, run_dir)
+    return get_or_create_split(unique, run_dir, **kwargs, **extra)
 
 
 def make_regressor(alpha: float = 1.0) -> Pipeline:
@@ -185,14 +244,36 @@ def fit_probe(
     return model
 
 
+def _probe_coef_and_intercept(model: Pipeline, *, target: str) -> tuple[np.ndarray, float]:
+    if target in CLASSIFICATION_TARGETS:
+        step = model.named_steps["clf"]
+        intercept = float(np.asarray(step.intercept_).ravel()[0])
+    else:
+        step = model.named_steps["ridge"]
+        intercept = float(np.asarray(step.intercept_).ravel()[0]) if hasattr(step, "intercept_") else 0.0
+    return np.asarray(step.coef_, dtype=np.float64).ravel(), intercept
+
+
+def raw_space_logit_params(model: Pipeline, *, target: str) -> tuple[np.ndarray, float]:
+    """Hyperplane in raw HS: decision_function(h) = h @ w_raw + b_raw.
+
+    Inverts StandardScaler: ĥ = (h − μ) / σ, so
+        w_raw,j = coef_j / σ_j
+        b_raw   = intercept − w_raw · μ
+    w_raw is *not* unit-normalized (unlike direction_w_from_probe).
+    """
+    coef, intercept = _probe_coef_and_intercept(model, target=target)
+    scaler = model.named_steps["scaler"]
+    scale = np.asarray(scaler.scale_, dtype=np.float64)
+    mean = np.asarray(scaler.mean_, dtype=np.float64)
+    w_raw = coef / np.where(scale > 0, scale, 1.0)
+    b_raw = intercept - float(w_raw @ mean)
+    return w_raw, b_raw
+
+
 def direction_w_from_probe(model: Pipeline, *, target: str) -> np.ndarray:
     """Unit-norm probe direction in raw hidden-state space (inverse scaler)."""
-    if target in CLASSIFICATION_TARGETS:
-        coef = model.named_steps["clf"].coef_.ravel()
-    else:
-        coef = model.named_steps["ridge"].coef_.ravel()
-    scale = model.named_steps["scaler"].scale_
-    w_raw = coef / np.where(scale > 0, scale, 1.0)
+    w_raw, _ = raw_space_logit_params(model, target=target)
     norm = float(np.linalg.norm(w_raw))
     if norm < 1e-8:
         return np.full_like(w_raw, np.nan, dtype=np.float64)

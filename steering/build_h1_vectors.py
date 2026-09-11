@@ -191,11 +191,13 @@ def build(cfg: dict, run_dir: Path) -> tuple[dict[str, np.ndarray], dict]:
                         entry[f"cos_with_{other}"] = float(w @ _unit(axis_w[other][layer]))
                 entries.append(entry)
 
+    hyp = cfg.get("hypothesis", "h1")
     meta = {
-        "schema": "steering.h1_vectors/v1",
+        "schema": f"steering.{hyp}_vectors/v1",
+        "hypothesis": hyp,
         "map_version": cfg["version"],
-        "map_config": DEFAULT_CONFIG.name,
-        "map_sha256": sha256_file(DEFAULT_CONFIG),
+        "map_config": None,  # заполняется в main()
+        "map_sha256": None,
         "run": cfg["source"]["run"],
         "model_id": parent_meta.get("model_id"),
         "d_model": d_model,
@@ -225,17 +227,26 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--results-root", type=Path, default=REPO_ROOT / "results")
     ap.add_argument("--out-dir", type=Path, default=DEFAULT_OUT_DIR)
+    ap.add_argument(
+        "--out-prefix",
+        default=None,
+        help="Префикс файлов (default: {hypothesis}_vectors)",
+    )
     ap.add_argument("--verify", action="store_true")
     args = ap.parse_args(argv)
 
     cfg = yaml.safe_load(args.config.read_text(encoding="utf-8"))
     run_dir = args.results_root / cfg["source"]["run"]
     arrays, meta = build(cfg, run_dir)
+    meta["map_config"] = args.config.name
+    meta["map_sha256"] = sha256_file(args.config)
     meta["arrays_sha256"] = arrays_signature(arrays)
 
     ver = cfg["version"]
-    npz_path = args.out_dir / f"h1_vectors_{ver}.npz"
-    json_path = args.out_dir / f"h1_vectors_{ver}.json"
+    hyp = cfg.get("hypothesis", "h1")
+    prefix = args.out_prefix or f"{hyp}_vectors"
+    npz_path = args.out_dir / f"{prefix}_{ver}.npz"
+    json_path = args.out_dir / f"{prefix}_{ver}.json"
     text = json.dumps(meta, ensure_ascii=False, indent=2) + "\n"
 
     if args.verify:
@@ -254,7 +265,7 @@ def main(argv: list[str] | None = None) -> int:
     np.savez(npz_path, **arrays)
     json_path.write_text(text, encoding="utf-8")
 
-    print(f"h1 vectors {ver}: {len(arrays)} векторов, слои {meta['layers']}")
+    print(f"{hyp} vectors {ver}: {len(arrays)} векторов, слои {meta['layers']}")
     for e in meta["vectors"]:
         if e["layer"] == cfg["layers"]["anchor"]:
             sep = e["separation"]
