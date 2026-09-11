@@ -125,6 +125,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--skip-baseline", action="store_true")
     ap.add_argument("--skip-preference", action="store_true")
     ap.add_argument("--skip-capability", action="store_true")
+    ap.add_argument("--skip-smoke", action="store_true", help="только domain profile")
     ap.add_argument("--limit-items", type=int, default=None, help="preference base items")
     ap.add_argument("--limit-mmlu", type=int, default=None, help="обрезать domain+smoke вместе")
     ap.add_argument(
@@ -152,11 +153,27 @@ def main(argv: list[str] | None = None) -> int:
         help="мягкий порог: кандидаты с cap_loss выше — flag, не дисквал",
     )
     args = ap.parse_args(argv)
+    return run_from_args(
+        args,
+        stage_label="Stage B slot",
+        out_subdir="stage_b",
+        schema="steering.stage_b_slot_run/v1",
+        reselect_keep=True,
+    )
+
+
+def run_from_args(
+    args: argparse.Namespace,
+    *,
+    stage_label: str,
+    out_subdir: str,
+    schema: str,
+    reselect_keep: bool,
+) -> int:
+    skip_smoke = bool(getattr(args, "skip_smoke", False))
 
     if not args.sample.exists():
-        raise SystemExit(
-            f"нет {args.sample.name}. Сначала: python -m steering.build_stageb_sample"
-        )
+        raise SystemExit(f"нет {args.sample.name}")
 
     sample = load_json(args.sample)
     cand_doc = load_json(args.candidates_file)
@@ -174,6 +191,8 @@ def main(argv: list[str] | None = None) -> int:
         keep_top=args.keep_top,
         roles=args.roles,
     )
+    if not selected:
+        raise SystemExit("пустой список кандидатов")
 
     configs: list[tuple[str, dict | None]] = []
     if not args.skip_baseline:
@@ -189,26 +208,27 @@ def main(argv: list[str] | None = None) -> int:
                 f"нет {args.mmlu_parquet}. См. README: curl MMLU-Pro parquet в steering/.cache/"
             )
         domain_profile = load_json(args.domain_profile)
-        smoke_profile = load_json(args.smoke_profile)
-        bank = load_parquet_by_ids(
-            args.mmlu_parquet, collect_profile_ids(domain_profile, smoke_profile)
-        )
+        profiles = [domain_profile]
+        if not skip_smoke:
+            smoke_profile = load_json(args.smoke_profile)
+            profiles.append(smoke_profile)
+        bank = load_parquet_by_ids(args.mmlu_parquet, collect_profile_ids(*profiles))
         domain_items = expand_domain_profile(domain_profile, bank)
-        smoke_items = expand_overall_smoke(smoke_profile, bank)
+        if not skip_smoke:
+            smoke_items = expand_overall_smoke(smoke_profile, bank)
         if args.limit_mmlu is not None:
-            # детерминированно: сначала domain, потом smoke
             take = args.limit_mmlu
             domain_items = domain_items[:take]
             rest = max(0, take - len(domain_items))
             smoke_items = smoke_items[:rest]
 
-    out_dir = args.out_root / "stage_b" / args.tag
+    out_dir = args.out_root / out_subdir / args.tag
     out_dir.mkdir(parents=True, exist_ok=True)
 
     n_pref = 0 if args.skip_preference else sum(len(i["rows"]) for i in items)
     n_cap = len(domain_items) + len(smoke_items)
     print(
-        f"Stage B slot [{args.tag}]: {len(configs)} конфигураций × "
+        f"{stage_label} [{args.tag}]: {len(configs)} конфигураций × "
         f"(pref {n_pref} + mmlu {n_cap}) = {len(configs) * (n_pref + n_cap)} forward"
     )
 
@@ -272,28 +292,30 @@ def main(argv: list[str] | None = None) -> int:
                 label=f"{cfg_id}/domain",
                 log_every=args.log_every,
             )
-            s_rows = run_mmlu(
-                scorer,
-                model,
-                smoke_items,
-                specs,
-                label=f"{cfg_id}/smoke",
-                log_every=args.log_every,
-            )
             domain_summary = summarize_domain_capability(d_rows, domain_profile)
-            smoke_summary = summarize_overall_smoke(s_rows)
             with (cdir / "mmlu_domain.jsonl").open("w", encoding="utf-8") as f:
                 for r in d_rows:
-                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            with (cdir / "mmlu_smoke.jsonl").open("w", encoding="utf-8") as f:
-                for r in s_rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
             (cdir / "capability_domain.json").write_text(
                 json.dumps(domain_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
             )
-            (cdir / "capability_smoke.json").write_text(
-                json.dumps(smoke_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-            )
+
+            if smoke_items:
+                s_rows = run_mmlu(
+                    scorer,
+                    model,
+                    smoke_items,
+                    specs,
+                    label=f"{cfg_id}/smoke",
+                    log_every=args.log_every,
+                )
+                smoke_summary = summarize_overall_smoke(s_rows)
+                with (cdir / "mmlu_smoke.jsonl").open("w", encoding="utf-8") as f:
+                    for r in s_rows:
+                        f.write(json.dumps(r, ensure_ascii=False) + "\n")
+                (cdir / "capability_smoke.json").write_text(
+                    json.dumps(smoke_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+                )
 
             if cfg_id == BASELINE_ID:
                 base_domain_summary = domain_summary
@@ -305,22 +327,32 @@ def main(argv: list[str] | None = None) -> int:
                     "n_domains_worse": 0,
                     "smoke_acc_drop": 0.0,
                 }
+                smoke_txt = (
+                    f" | smoke {smoke_summary['accuracy_micro']:.3f}" if smoke_summary else ""
+                )
+                print(f"  cap baseline domain macro {domain_summary['accuracy_macro']:.3f}{smoke_txt}")
             elif base_domain_summary is not None:
                 cap = cap_loss_vs_baseline(domain_summary, base_domain_summary)
-                smoke_drop = max(
-                    0.0,
-                    float(base_smoke_summary["accuracy_micro"])
-                    - float(smoke_summary["accuracy_micro"]),
-                )
+                if smoke_summary is not None and base_smoke_summary is not None:
+                    smoke_drop = max(
+                        0.0,
+                        float(base_smoke_summary["accuracy_micro"])
+                        - float(smoke_summary["accuracy_micro"]),
+                    )
+                else:
+                    smoke_drop = 0.0
                 cap["smoke_acc_drop"] = smoke_drop
                 (cdir / "cap_loss.json").write_text(
                     json.dumps(cap, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
                 )
+                smoke_txt = (
+                    f" | smoke {smoke_summary['accuracy_micro']:.3f} (drop {smoke_drop:.4f})"
+                    if smoke_summary
+                    else ""
+                )
                 print(
                     f"  cap_loss {cap['cap_loss']:.4f} | "
-                    f"domain macro {domain_summary['accuracy_macro']:.3f} | "
-                    f"smoke {smoke_summary['accuracy_micro']:.3f} "
-                    f"(drop {smoke_drop:.4f})"
+                    f"domain macro {domain_summary['accuracy_macro']:.3f}{smoke_txt}"
                 )
             else:
                 print("  capability: baseline ещё не посчитан — cap_loss отложен")
@@ -363,7 +395,6 @@ def main(argv: list[str] | None = None) -> int:
         ranking.append(row)
         print(f"  runtime {runtime:.1f}s")
 
-    # Если baseline не первый — досчитать cap_loss
     base_rank = next((r for r in ranking if r["config_id"] == BASELINE_ID), None)
     if base_domain_summary is not None:
         for r in ranking:
@@ -371,12 +402,16 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             cdir = out_dir / r["config_id"]
             steered_sum = load_json(cdir / "capability_domain.json")
-            smoke_sum = load_json(cdir / "capability_smoke.json")
             cap = cap_loss_vs_baseline(steered_sum, base_domain_summary)
-            smoke_drop = max(
-                0.0,
-                float(base_smoke_summary["accuracy_micro"]) - float(smoke_sum["accuracy_micro"]),
-            )
+            smoke_path = cdir / "capability_smoke.json"
+            if smoke_path.exists() and base_smoke_summary is not None:
+                smoke_sum = load_json(smoke_path)
+                smoke_drop = max(
+                    0.0,
+                    float(base_smoke_summary["accuracy_micro"]) - float(smoke_sum["accuracy_micro"]),
+                )
+            else:
+                smoke_drop = 0.0
             cap["smoke_acc_drop"] = smoke_drop
             (cdir / "cap_loss.json").write_text(
                 json.dumps(cap, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -401,36 +436,41 @@ def main(argv: list[str] | None = None) -> int:
             r["phi_reduction_vs_baseline"] = ""
             r["slot_rate_reduction_vs_baseline"] = ""
 
-    # Отбор: сначала по preference среди candidate; cap_loss — flag.
-    ranking.sort(
-        key=lambda r: (
-            r["role"] != "candidate",
-            float(r["mean_abs_phi_prob_dev"])
-            if r["mean_abs_phi_prob_dev"] != ""
-            else 1e9,
-            float(r["cap_loss"]) if r["cap_loss"] != "" else 1e9,
+    if reselect_keep:
+        ranking.sort(
+            key=lambda r: (
+                r["role"] != "candidate",
+                float(r["mean_abs_phi_prob_dev"])
+                if r["mean_abs_phi_prob_dev"] != ""
+                else 1e9,
+                float(r["cap_loss"]) if r["cap_loss"] != "" else 1e9,
+            )
         )
-    )
+        keep = [
+            r
+            for r in ranking
+            if r["role"] == "candidate" and r.get("cap_loss_flag") is not True
+        ][:3]
+        if len(keep) < 1:
+            keep = [r for r in ranking if r["role"] == "candidate"][:3]
+        keep_rule = "top by mean_abs_phi_prob_dev among candidates; cap_loss > max → flag"
+        keep_label = "keep → Stage C:"
+    else:
+        keep = [r for r in ranking if r["role"] == "candidate"]
+        keep_rule = "Stage C report: all shortlist candidates (no re-selection)"
+        keep_label = "report:"
 
     with (out_dir / "ranking.csv").open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(ranking[0].keys()))
         writer.writeheader()
         writer.writerows(ranking)
 
-    keep = [
-        r
-        for r in ranking
-        if r["role"] == "candidate" and r.get("cap_loss_flag") is not True
-    ][:3]
-    if len(keep) < 3:
-        # если все flagged — всё равно взять топ-3 по preference
-        keep = [r for r in ranking if r["role"] == "candidate"][:3]
     (out_dir / "keep.json").write_text(
         json.dumps(
             {
                 "n": len(keep),
                 "cap_loss_max": args.cap_loss_max,
-                "rule": "top by mean_abs_phi_prob_dev among candidates; cap_loss > max → flag",
+                "rule": keep_rule,
                 "candidates": [
                     {
                         "config_id": r["config_id"],
@@ -450,7 +490,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     meta = {
-        "schema": "steering.stage_b_slot_run/v1",
+        "schema": schema,
         "hypothesis": "slot",
         "tag": args.tag,
         "datetime": datetime.now().isoformat(),
@@ -462,14 +502,18 @@ def main(argv: list[str] | None = None) -> int:
             "n_base_items": len(items),
             "n_rows": n_pref,
             "limited": args.limit_items is not None,
+            "preference_skipped": args.skip_preference,
         },
         "capability": {
             "domain_profile": args.domain_profile.name if not args.skip_capability else None,
-            "smoke_profile": args.smoke_profile.name if not args.skip_capability else None,
+            "smoke_profile": (
+                args.smoke_profile.name if not args.skip_capability and not skip_smoke else None
+            ),
             "n_domain": len(domain_items),
             "n_smoke": len(smoke_items),
             "cap_loss_max": args.cap_loss_max,
             "skipped": args.skip_capability,
+            "skip_smoke": skip_smoke,
         },
         "candidates_file": args.candidates_file.name,
         "vectors_file": args.vectors.name,
@@ -479,17 +523,18 @@ def main(argv: list[str] | None = None) -> int:
         "runtime_s": round(time.time() - t_all, 1),
         "python_version": sys.version.split()[0],
         "platform": platform.platform(),
-        "primary_metric": "mean_abs_phi_prob_dev",
+        "primary_metric": "mean_abs_phi_prob_dev" if reselect_keep else "report",
         "capability_metric": "cap_loss",
         "keep": [k["config_id"] for k in keep],
+        "reselect_keep": reselect_keep,
     }
     (out_dir / "run_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
 
-    print(f"\n=== Stage B slot [{args.tag}] готово за {meta['runtime_s']:.0f}s ===")
+    print(f"\n=== {stage_label} [{args.tag}] готово за {meta['runtime_s']:.0f}s ===")
     print(f"  {out_dir}")
-    print("  keep → Stage C:")
+    print(f"  {keep_label}")
     for k in keep:
         print(
             f"    {k['config_id']}  |φ_prob|={k['mean_abs_phi_prob_dev']}  "

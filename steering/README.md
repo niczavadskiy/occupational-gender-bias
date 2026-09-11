@@ -55,6 +55,7 @@ steering/
 ├── run_h1_stagea.py                       # Stage A: gender (θ)
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── run_slot_stageb.py                     # Stage B: slot preference + cap_loss
+├── run_slot_stagec.py                     # Stage C: slot report (test + domain_test)
 ├── run_inlp_stageb.py                     # Stage B: INLP MMLU cap_loss (+opt preference)
 ├── run_inlp_stagec.py                     # Stage C: report on test remainder + domain_test
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
@@ -558,6 +559,31 @@ python -m steering.run_slot_stageb --model steering/.cache/model --device cuda `
   --dtype float32 --tag slot_b_smoke --limit-items 2 --limit-mmlu 20 `
   --candidates main_center_core__wsperp__L23__center__a2,main_project_out__wsperp__L24__project_out__a1
 ```
+
+## Как запускать Stage C (slot)
+
+Report на **test** (95 семей, seed `20260911`) + `mmlu_pro_domain_test_v1`.
+Без переизбрания — только keep Stage B.
+
+```powershell
+python -m steering.run_slot_stagec --model Qwen/Qwen3.5-2B-Base --device cuda `
+  --dtype float32 --tag slot_c_v1
+
+# Vast
+bash steering/scripts/vast_slot_stagec_and_pack.sh
+```
+
+Smoke:
+
+```powershell
+python -m steering.run_slot_stagec --device cuda --dtype float32 `
+  --tag slot_c_smoke --limit-items 2 --limit-mmlu 20 `
+  --candidates main_center_core__wslot__L23__center__a2
+```
+
+Выход: `results/steering/stage_c/<tag>/`.
+
+---
 
 ---
 

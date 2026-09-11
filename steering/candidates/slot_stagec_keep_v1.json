@@ -1,0 +1,11 @@
+{
+  "schema": "steering.slot_stagec_keep/v1",
+  "hypothesis": "slot",
+  "source": "Stage B keep slot_b_v2 (no re-selection on Stage C)",
+  "note": "Report-only on held-out test sample + mmlu_pro_domain_test.",
+  "candidates": [
+    {"id": "main_center_core__wslot__L23__center__a2", "role": "candidate", "rank_stage_b": 1},
+    {"id": "main_center_core__wsperp__L23__center__a2", "role": "candidate", "rank_stage_b": 2},
+    {"id": "main_center_core__wslot__L21__center__a2", "role": "candidate", "rank_stage_b": 3}
+  ]
+}
