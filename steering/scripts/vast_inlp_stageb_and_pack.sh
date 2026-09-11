@@ -16,6 +16,9 @@ if [[ ! -f "$PARQUET" ]]; then
   curl -L -o "$PARQUET" "$URL"
 fi
 
+# pandas.read_parquet needs an engine (pyarrow preferred)
+python -c "import pyarrow" 2>/dev/null || pip install -q pyarrow
+
 echo "=== INLP Stage B capability [$TAG] ==="
 python -m steering.run_inlp_stageb \
   --model "${MODEL:-Qwen/Qwen3.5-2B-Base}" \
