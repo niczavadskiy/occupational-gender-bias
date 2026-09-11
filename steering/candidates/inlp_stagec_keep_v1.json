@@ -1,0 +1,10 @@
+{
+  "schema": "steering.inlp_stagec_keep/v1",
+  "hypothesis": "inlp",
+  "source": "Stage B keep inlp_b_v1 (no re-selection on Stage C)",
+  "note": "Report-only: L15 k∈{8,16} α=1. Preference on test remainder; capability on domain_test.",
+  "candidates": [
+    {"id": "inlp__L15__k8__a1", "role": "candidate"},
+    {"id": "inlp__L15__k16__a1", "role": "candidate"}
+  ]
+}

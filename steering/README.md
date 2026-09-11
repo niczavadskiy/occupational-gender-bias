@@ -29,7 +29,8 @@ steering/
 │   ├── slot_candidates_v1.json            # slot: 87 кандидатов + baseline
 │   ├── slot_candidates_v1.md
 │   ├── slot_stageb_shortlist_v1.json      # Stage B: keep-top + controls
-│   └── inlp_stageb_shortlist_v1.json      # INLP Stage B: L15 k=8/16 + random
+│   ├── inlp_stageb_shortlist_v1.json      # INLP Stage B: L15 k=8/16 + random
+│   └── inlp_stagec_keep_v1.json           # INLP Stage C: report keep (no re-select)
 ├── samples/
 │   ├── h1_stagea_sample_v1.json           # Stage A: 95 val-семей × 4 строки
 │   ├── h1_stagea_sample_v1.md             # (тот же sample для slot)
@@ -55,6 +56,7 @@ steering/
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── run_slot_stageb.py                     # Stage B: slot preference + cap_loss
 ├── run_inlp_stageb.py                     # Stage B: INLP MMLU cap_loss (+opt preference)
+├── run_inlp_stagec.py                     # Stage C: report on test remainder + domain_test
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
 ├── run_alignment_recovery.py              # Эксп.1–3: cos(w,g), Δd, recovery
 ├── build_inlp_subspace.py                 # INLP Phase A: AUC(k), W_k, centers
@@ -448,6 +450,23 @@ python -m steering.run_inlp_stageb --device cuda --dtype float32 \
 Выход: `results/steering/inlp_stage_b/<tag>/` — `ranking.csv`, `keep.json`,
 per-config `cap_loss.json`. Flag при `cap_loss > 0.03` (мягкий). Preference
 пересчёт: `--with-preference` (по умолчанию выкл.).
+
+**5. Stage C (report)** — остаток test + `mmlu_pro_domain_test` (без переизбрания):
+
+```bash
+# семпл уже в репо; пересборка при наличии per_item:
+python -m steering.build_stageb_sample \
+  --stage-a steering/samples/inlp_test_sample_v1.json \
+  --out-stem inlp_stagec_sample_v1 \
+  --title "INLP Stage C sample" \
+  --capability-note "Preference Stage C; capability — mmlu_pro_domain_test_v1."
+
+python -m steering.run_inlp_stagec --device cuda --dtype float32 --tag inlp_c_v1
+# Vast: bash steering/scripts/vast_inlp_stagec_and_pack.sh
+```
+
+Выход: `results/steering/inlp_stage_c/<tag>/`. Preference + domain_test по keep
+Stage B (`inlp__L15__k8__a1`, `inlp__L15__k16__a1`).
 
 ---
 

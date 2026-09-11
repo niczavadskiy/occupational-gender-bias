@@ -149,6 +149,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--random-seeds", default="0")
     ap.add_argument("--with-preference", action="store_true")
     ap.add_argument("--skip-capability", action="store_true")
+    ap.add_argument("--skip-smoke", action="store_true", help="только domain profile, без overall_smoke")
     ap.add_argument("--skip-baseline", action="store_true")
     ap.add_argument("--limit-items", type=int, default=None)
     ap.add_argument("--limit-mmlu", type=int, default=None)
@@ -179,11 +180,30 @@ def main(argv: list[str] | None = None) -> int:
         help="мягкий порог: cap_loss выше → flag, не дисквал",
     )
     args = ap.parse_args(argv)
+    return run_from_args(
+        args,
+        stage_label="INLP Stage B",
+        out_subdir="inlp_stage_b",
+        schema="steering.stage_b_inlp_run/v1",
+        reselect_keep=True,
+    )
 
-    if args.skip_capability and not args.with_preference:
-        raise SystemExit("нужен хотя бы capability или --with-preference")
-    if args.with_preference and args.skip_baseline:
-        raise SystemExit("--with-preference требует baseline (уберите --skip-baseline)")
+
+def run_from_args(
+    args: argparse.Namespace,
+    *,
+    stage_label: str,
+    out_subdir: str,
+    schema: str,
+    reselect_keep: bool,
+) -> int:
+    with_preference = bool(getattr(args, "with_preference", False))
+    skip_smoke = bool(getattr(args, "skip_smoke", False))
+
+    if args.skip_capability and not with_preference:
+        raise SystemExit("нужен хотя бы capability или preference")
+    if with_preference and args.skip_baseline:
+        raise SystemExit("preference требует baseline (уберите --skip-baseline)")
 
     try:
         from dotenv import load_dotenv
@@ -217,12 +237,9 @@ def main(argv: list[str] | None = None) -> int:
         raise SystemExit("пустой список кандидатов")
 
     items: list[dict] = []
-    if args.with_preference:
+    if with_preference:
         if not args.sample.exists():
-            raise SystemExit(
-                f"нет {args.sample}. Для preference: python -m steering.build_stageb_sample "
-                "или укажите --sample (напр. inlp_test_sample_v1.json)"
-            )
+            raise SystemExit(f"нет {args.sample}")
         sample = load_json(args.sample)
         items = sample["items"][: args.limit_items] if args.limit_items else sample["items"]
 
@@ -235,12 +252,14 @@ def main(argv: list[str] | None = None) -> int:
                 f"нет {args.mmlu_parquet}. См. README: curl MMLU-Pro parquet в steering/.cache/"
             )
         domain_profile = load_json(args.domain_profile)
-        smoke_profile = load_json(args.smoke_profile)
-        bank = load_parquet_by_ids(
-            args.mmlu_parquet, collect_profile_ids(domain_profile, smoke_profile)
-        )
+        profiles = [domain_profile]
+        if not skip_smoke:
+            smoke_profile = load_json(args.smoke_profile)
+            profiles.append(smoke_profile)
+        bank = load_parquet_by_ids(args.mmlu_parquet, collect_profile_ids(*profiles))
         domain_items = expand_domain_profile(domain_profile, bank)
-        smoke_items = expand_overall_smoke(smoke_profile, bank)
+        if not skip_smoke:
+            smoke_items = expand_overall_smoke(smoke_profile, bank)
         if args.limit_mmlu is not None:
             take = args.limit_mmlu
             domain_items = domain_items[:take]
@@ -252,13 +271,13 @@ def main(argv: list[str] | None = None) -> int:
         configs.append((BASELINE_ID, None))
     configs += [(c["id"], c) for c in selected]
 
-    out_dir = args.out_root / "inlp_stage_b" / args.tag
+    out_dir = args.out_root / out_subdir / args.tag
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    n_pref = sum(len(i["rows"]) for i in items) if args.with_preference else 0
+    n_pref = sum(len(i["rows"]) for i in items) if with_preference else 0
     n_cap = len(domain_items) + len(smoke_items)
     print(
-        f"INLP Stage B [{args.tag}]: {len(configs)} конфигураций × "
+        f"{stage_label} [{args.tag}]: {len(configs)} конфигураций × "
         f"(pref {n_pref} + mmlu {n_cap}) = {len(configs) * (n_pref + n_cap)} forward"
     )
     print(f"  subspaces={args.subspaces.name}  candidates={[c for c, _ in configs if c != BASELINE_ID]}")
@@ -287,7 +306,7 @@ def main(argv: list[str] | None = None) -> int:
         cdir.mkdir(parents=True, exist_ok=True)
 
         pref_metrics = None
-        if args.with_preference:
+        if with_preference:
             rows = run_config(
                 scorer, model, items, spec, label=f"{cfg_id}/pref", log_every=args.log_every
             )
@@ -344,28 +363,30 @@ def main(argv: list[str] | None = None) -> int:
                 label=f"{cfg_id}/domain",
                 log_every=args.log_every,
             )
-            s_rows = run_mmlu(
-                scorer,
-                model,
-                smoke_items,
-                specs,
-                label=f"{cfg_id}/smoke",
-                log_every=args.log_every,
-            )
             domain_summary = summarize_domain_capability(d_rows, domain_profile)
-            smoke_summary = summarize_overall_smoke(s_rows)
             with (cdir / "mmlu_domain.jsonl").open("w", encoding="utf-8") as f:
                 for r in d_rows:
-                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            with (cdir / "mmlu_smoke.jsonl").open("w", encoding="utf-8") as f:
-                for r in s_rows:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
             (cdir / "capability_domain.json").write_text(
                 json.dumps(domain_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
             )
-            (cdir / "capability_smoke.json").write_text(
-                json.dumps(smoke_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
-            )
+
+            if smoke_items:
+                s_rows = run_mmlu(
+                    scorer,
+                    model,
+                    smoke_items,
+                    specs,
+                    label=f"{cfg_id}/smoke",
+                    log_every=args.log_every,
+                )
+                smoke_summary = summarize_overall_smoke(s_rows)
+                with (cdir / "mmlu_smoke.jsonl").open("w", encoding="utf-8") as f:
+                    for r in s_rows:
+                        f.write(json.dumps(r, ensure_ascii=False) + "\n")
+                (cdir / "capability_smoke.json").write_text(
+                    json.dumps(smoke_summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+                )
 
             if cfg_id == BASELINE_ID:
                 base_domain_summary = domain_summary
@@ -377,26 +398,32 @@ def main(argv: list[str] | None = None) -> int:
                     "n_domains_worse": 0,
                     "smoke_acc_drop": 0.0,
                 }
-                print(
-                    f"  cap baseline domain macro {domain_summary['accuracy_macro']:.3f} | "
-                    f"smoke {smoke_summary['accuracy_micro']:.3f}"
+                smoke_txt = (
+                    f" | smoke {smoke_summary['accuracy_micro']:.3f}" if smoke_summary else ""
                 )
+                print(f"  cap baseline domain macro {domain_summary['accuracy_macro']:.3f}{smoke_txt}")
             elif base_domain_summary is not None:
                 cap = cap_loss_vs_baseline(domain_summary, base_domain_summary)
-                smoke_drop = max(
-                    0.0,
-                    float(base_smoke_summary["accuracy_micro"])
-                    - float(smoke_summary["accuracy_micro"]),
-                )
+                if smoke_summary is not None and base_smoke_summary is not None:
+                    smoke_drop = max(
+                        0.0,
+                        float(base_smoke_summary["accuracy_micro"])
+                        - float(smoke_summary["accuracy_micro"]),
+                    )
+                else:
+                    smoke_drop = 0.0
                 cap["smoke_acc_drop"] = smoke_drop
                 (cdir / "cap_loss.json").write_text(
                     json.dumps(cap, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
                 )
+                smoke_txt = (
+                    f" | smoke {smoke_summary['accuracy_micro']:.3f} (drop {smoke_drop:.4f})"
+                    if smoke_summary
+                    else ""
+                )
                 print(
                     f"  cap_loss {cap['cap_loss']:.4f} | "
-                    f"domain macro {domain_summary['accuracy_macro']:.3f} | "
-                    f"smoke {smoke_summary['accuracy_micro']:.3f} "
-                    f"(drop {smoke_drop:.4f})"
+                    f"domain macro {domain_summary['accuracy_macro']:.3f}{smoke_txt}"
                 )
             else:
                 print("  capability: baseline ещё не посчитан — cap_loss отложен")
@@ -442,12 +469,16 @@ def main(argv: list[str] | None = None) -> int:
                 continue
             cdir = out_dir / r["config_id"]
             steered_sum = load_json(cdir / "capability_domain.json")
-            smoke_sum = load_json(cdir / "capability_smoke.json")
             cap = cap_loss_vs_baseline(steered_sum, base_domain_summary)
-            smoke_drop = max(
-                0.0,
-                float(base_smoke_summary["accuracy_micro"]) - float(smoke_sum["accuracy_micro"]),
-            )
+            smoke_path = cdir / "capability_smoke.json"
+            if smoke_path.exists() and base_smoke_summary is not None:
+                smoke_sum = load_json(smoke_path)
+                smoke_drop = max(
+                    0.0,
+                    float(base_smoke_summary["accuracy_micro"]) - float(smoke_sum["accuracy_micro"]),
+                )
+            else:
+                smoke_drop = 0.0
             cap["smoke_acc_drop"] = smoke_drop
             (cdir / "cap_loss.json").write_text(
                 json.dumps(cap, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -457,34 +488,38 @@ def main(argv: list[str] | None = None) -> int:
             r["smoke_acc_drop"] = smoke_drop
             r["cap_loss_flag"] = bool(float(cap["cap_loss"]) > args.cap_loss_max)
 
-    # Отбор: среди candidate минимизировать cap_loss; при равном — больший R_gender
-    ranking.sort(
-        key=lambda r: (
-            r["role"] != "candidate",
-            float(r["cap_loss"]) if r["cap_loss"] != "" else 1e9,
-            -(float(r["mean_R_gender"]) if r["mean_R_gender"] != "" else 0.0),
+    if reselect_keep:
+        ranking.sort(
+            key=lambda r: (
+                r["role"] != "candidate",
+                float(r["cap_loss"]) if r["cap_loss"] != "" else 1e9,
+                -(float(r["mean_R_gender"]) if r["mean_R_gender"] != "" else 0.0),
+            )
         )
-    )
+        keep = [
+            r
+            for r in ranking
+            if r["role"] == "candidate" and r.get("cap_loss_flag") is not True
+        ][:3]
+        if len(keep) < 1:
+            keep = [r for r in ranking if r["role"] == "candidate"][:3]
+        keep_rule = "candidates with cap_loss ≤ max; sort by cap_loss then −R_gender"
+    else:
+        # Stage C: не переизбираем — только отчёт по shortlist order
+        keep = [r for r in ranking if r["role"] == "candidate"]
+        keep_rule = "Stage C report: all shortlist candidates (no re-selection)"
 
     with (out_dir / "ranking.csv").open("w", encoding="utf-8", newline="") as f:
         writer = csv.DictWriter(f, fieldnames=list(ranking[0].keys()))
         writer.writeheader()
         writer.writerows(ranking)
 
-    keep = [
-        r
-        for r in ranking
-        if r["role"] == "candidate" and r.get("cap_loss_flag") is not True
-    ][:3]
-    if len(keep) < 1:
-        keep = [r for r in ranking if r["role"] == "candidate"][:3]
-
     (out_dir / "keep.json").write_text(
         json.dumps(
             {
                 "n": len(keep),
                 "cap_loss_max": args.cap_loss_max,
-                "rule": "candidates with cap_loss ≤ max; sort by cap_loss then −R_gender",
+                "rule": keep_rule,
                 "candidates": [
                     {
                         "config_id": r["config_id"],
@@ -504,7 +539,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     meta = {
-        "schema": "steering.stage_b_inlp_run/v1",
+        "schema": schema,
         "hypothesis": "inlp",
         "tag": args.tag,
         "datetime": datetime.now().isoformat(),
@@ -514,35 +549,41 @@ def main(argv: list[str] | None = None) -> int:
         "subspaces": args.subspaces.name,
         "subspaces_sha256": sub_meta.get("arrays_sha256"),
         "preference": {
-            "enabled": args.with_preference,
-            "sample": args.sample.name if args.with_preference else None,
+            "enabled": with_preference,
+            "sample": args.sample.name if with_preference else None,
             "n_base_items": len(items),
             "n_rows": n_pref,
         },
         "capability": {
             "domain_profile": args.domain_profile.name if not args.skip_capability else None,
-            "smoke_profile": args.smoke_profile.name if not args.skip_capability else None,
+            "smoke_profile": (
+                args.smoke_profile.name
+                if not args.skip_capability and not skip_smoke
+                else None
+            ),
             "n_domain": len(domain_items),
             "n_smoke": len(smoke_items),
             "cap_loss_max": args.cap_loss_max,
             "skipped": args.skip_capability,
+            "skip_smoke": skip_smoke,
         },
         "n_configs": len(configs),
         "config_ids": [c for c, _ in configs],
         "runtime_s": round(time.time() - t_all, 1),
         "python_version": sys.version.split()[0],
         "platform": platform.platform(),
-        "primary_metric": "cap_loss",
+        "primary_metric": "cap_loss" if reselect_keep else "report",
         "preference_metric": "mean_R_gender",
         "keep": [k["config_id"] for k in keep],
+        "reselect_keep": reselect_keep,
     }
     (out_dir / "run_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
     )
 
-    print(f"\n=== INLP Stage B [{args.tag}] готово за {meta['runtime_s']:.0f}s ===")
+    print(f"\n=== {stage_label} [{args.tag}] готово за {meta['runtime_s']:.0f}s ===")
     print(f"  {out_dir}")
-    print("  keep:")
+    print("  keep:" if reselect_keep else "  report:")
     for k in keep:
         print(
             f"    {k['config_id']}  cap_loss={k['cap_loss']}  "

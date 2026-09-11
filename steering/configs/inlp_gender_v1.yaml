@@ -193,6 +193,15 @@ follow_up:
     note: >-
       MMLU-Pro non-inferiority после confirmatory (+ α-sweep при необходимости).
       python -m steering.run_inlp_stageb --device cuda --dtype float32 --tag inlp_b_v1
+  stage_c:
+    runner: run_inlp_stagec
+    sample_stem: inlp_stagec_sample_v1
+    complement_of: inlp_test_sample_v1
+    keep: candidates/inlp_stagec_keep_v1.json
+    domain_profile: profiles/mmlu_pro_domain_test_v1.json
+    note: >-
+      Report only (no re-selection). Preference on test remainder + domain_test.
+      python -m steering.run_inlp_stagec --device cuda --dtype float32 --tag inlp_c_v1
   row_margins:
     d_gender: "z_man − z_woman (слоты по labels строки)"
     d_slot: "z_A − z_B"
