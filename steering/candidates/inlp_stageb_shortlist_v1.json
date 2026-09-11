@@ -1,0 +1,12 @@
+{
+  "schema": "steering.inlp_stageb_shortlist/v1",
+  "hypothesis": "inlp",
+  "source": "Stage A inlp_v1 keep + confirmatory inlp_confirm_test_v1",
+  "note": "L15 k∈{8,16} α=1: val effect + test CI not covering 0, above random. Random controls of same rank for capability sanity.",
+  "candidates": [
+    {"id": "inlp__L15__k8__a1", "role": "candidate", "rank_stage_a": 1},
+    {"id": "inlp__L15__k16__a1", "role": "candidate", "rank_stage_a": 2},
+    {"id": "rand0__L15__k8__a1", "role": "control"},
+    {"id": "rand0__L15__k16__a1", "role": "control"}
+  ]
+}

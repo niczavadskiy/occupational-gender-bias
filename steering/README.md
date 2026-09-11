@@ -27,10 +27,14 @@ steering/
 │   ├── h1_candidates_v1.json              # H1: замороженный список
 │   ├── h1_candidates_v1.md
 │   ├── slot_candidates_v1.json            # slot: 87 кандидатов + baseline
-│   └── slot_candidates_v1.md
+│   ├── slot_candidates_v1.md
+│   ├── slot_stageb_shortlist_v1.json      # Stage B: keep-top + controls
+│   └── inlp_stageb_shortlist_v1.json      # INLP Stage B: L15 k=8/16 + random
 ├── samples/
 │   ├── h1_stagea_sample_v1.json           # Stage A: 95 val-семей × 4 строки
-│   └── h1_stagea_sample_v1.md             # (тот же sample для slot)
+│   ├── h1_stagea_sample_v1.md             # (тот же sample для slot)
+│   ├── h1_stageb_sample_v1.json           # Stage B: остаток val (95 семей)
+│   └── h1_stageb_sample_v1.md
 ├── vectors/
 │   ├── h1_vectors_v1.npz                  # gender ŵ на L14–20
 │   ├── h1_vectors_v1.json
@@ -45,16 +49,21 @@ steering/
 │   ├── mmlu_pro_domain_test_v1.json       # Stage C: те же домены, другие вопросы
 │   ├── mmlu_pro_overall_smoke_v1.json     # Stage B: 14 категорий × 40 вопросов
 │   └── coverage_v1.md
-├── intervene.py                           # хук: rank-1 (InterventionSpec) + rank-k (SubspaceSpec)
+├── intervene.py                           # хук: rank-1 + rank-k; Scorer A–J
+├── mmlu_eval.py                           # промпт/скоринг MMLU-Pro под тем же хуком
 ├── run_h1_stagea.py                       # Stage A: gender (θ)
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
+├── run_slot_stageb.py                     # Stage B: slot preference + cap_loss
+├── run_inlp_stageb.py                     # Stage B: INLP MMLU cap_loss (+opt preference)
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
 ├── run_alignment_recovery.py              # Эксп.1–3: cos(w,g), Δd, recovery
 ├── build_inlp_subspace.py                 # INLP Phase A: AUC(k), W_k, centers
 ├── run_inlp_alignment.py                  # INLP Phase A.5: cos(w_j,g), rho_k
 ├── run_inlp_stagea.py                     # INLP Phase B: rank-k center, R(k)
+├── analyze_inlp_stagea.py                 # CPU post-hoc: R_gender vs R_slot, saturation
 ├── check_inlp.py                          # unit-тесты rank-k интервенции
 ├── build_stagea_sample.py
+├── build_stageb_sample.py                 # остаток val после Stage A
 ├── build_h1_vectors.py                    # --config / --out-prefix → H1 или slot
 ├── build_mmlu_profiles.py
 ├── build_h1_candidates.py
@@ -69,7 +78,17 @@ results/steering/stage_a/<tag>/
 ├── ranking.csv                         # строка на конфигурацию
 └── <config_id>/
     ├── per_item.jsonl                  # 380 строк: логиты, choice, s_before/s_after
-    └── metrics.json                    # θ, per_soc, guardrail-rates, hook_check
+    └── metrics.json                    # θ/φ, per_soc, guardrail-rates, hook_check
+
+results/steering/stage_b/<tag>/
+├── run_meta.json
+├── ranking.csv                         # preference + cap_loss
+├── keep.json                           # 1–3 кандидата → Stage C
+└── <config_id>/
+    ├── preference_*.json(l)
+    ├── capability_domain.json / mmlu_domain.jsonl
+    ├── capability_smoke.json / mmlu_smoke.jsonl
+    └── cap_loss.json
 ```
 
 ---
@@ -359,6 +378,77 @@ Phase A и Phase B работают на probe-val. `test`-семьи не уч�
 слоя, ни в выборе `k`, ни в выборе α — выборка для них строится только после
 фиксации `layer*/rank*/alpha*`.
 
+### Follow-up после `inlp_v1` (шаги 1–3)
+
+Кандидат по val + A.5: **L15, k∈{8,16}, α=1**. L16 не подтверждаем.
+
+**1. CPU post-hoc** — `R_gender` vs `R_slot`, насыщение, vs random:
+
+```bash
+# с артефакта Vast (скопировать ranking.csv в results/.../inlp_v1/)
+python -m steering.analyze_inlp_stagea \
+  --run-dir results/steering/inlp_stage_a/inlp_v1 \
+  --layers 15 --focus-ranks 8,16 --with-soc
+
+# без полного каталога — fixture из лога Vast
+python -m steering.analyze_inlp_stagea --layers 15,16,18 --focus-ranks 8,16
+```
+
+**2. Confirmatory на test** (нужен `per_item.jsonl` исходного run):
+
+```bash
+# заморозить 95 test-семей (seed отдельный от val)
+python -m steering.build_stagea_sample \
+  --source-split test --n-base-items 95 --seed 20260821 \
+  --out-stem inlp_test_sample_v1
+
+# 4 конфига × ~380 строк (~3–4 мин @ 8 row/s)
+python -m steering.run_inlp_stagea \
+  --model Qwen/Qwen3.5-2B-Base --device cuda --dtype float32 \
+  --sample steering/samples/inlp_test_sample_v1.json \
+  --layers 15 --ranks 8,16 --alphas 1.0 \
+  --tag inlp_confirm_test_v1
+```
+
+Критерий успеха: на test INLP `R_gender` CI не накрывает 0 и заметно выше
+random того же k (как на val L15).
+
+**3. α-sweep** — только если п.2 держится:
+
+```bash
+python -m steering.run_inlp_stagea \
+  --model Qwen/Qwen3.5-2B-Base --device cuda --dtype float32 \
+  --sample steering/samples/inlp_test_sample_v1.json \
+  --layers 15 --ranks 8,16 \
+  --alphas 0.25,0.5,0.75,1.0,1.25 \
+  --no-random-control \
+  --tag inlp_alpha_L15_v1
+```
+
+`--ranks` теперь ограничивает и random-контроль (иначе сетка раздувается до
+всех степеней двойки из Phase A). Capability / MMLU — после успешного 2–3.
+
+**4. Capability (Stage B)** — `cap_loss` на `mmlu_pro_domain_val` + `overall_smoke`:
+
+```bash
+# parquet один раз (если ещё нет)
+curl -L -o steering/.cache/mmlu_pro_test.parquet \
+  "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet"
+
+# shortlist L15 k=8,16 + random (~5 × 1660 MMLU forwards)
+python -m steering.run_inlp_stageb \
+  --model Qwen/Qwen3.5-2B-Base --device cuda --dtype float32 \
+  --tag inlp_b_v1
+
+# smoke
+python -m steering.run_inlp_stageb --device cuda --dtype float32 \
+  --tag inlp_b_smoke --limit-mmlu 20 --candidates inlp__L15__k8__a1
+```
+
+Выход: `results/steering/inlp_stage_b/<tag>/` — `ranking.csv`, `keep.json`,
+per-config `cap_loss.json`. Flag при `cap_loss > 0.03` (мягкий). Preference
+пересчёт: `--with-preference` (по умолчанию выкл.).
+
 ---
 
 ## Как запускать Stage A
@@ -417,6 +507,38 @@ python -m steering.run_slot_stagea --model Qwen/Qwen3.5-2B-Base --device cuda `
 
 Скорость на CPU — ~0.15 строк/с, то есть полный скрининг (≈40 тыс. forward)
 осмысленно гонять только на GPU.
+
+---
+
+## Как запускать Stage B (slot)
+
+Preference на **остатке val** (95 семей вне Stage A) + capability на
+`mmlu_pro_domain_val_v1` (1100) и `overall_smoke` (560). Primary ranking —
+`mean_abs_phi_prob_dev`; `cap_loss` — one-sided drop vs baseline (flag при
+`--cap-loss-max`, дефолт 0.03). В `keep.json` — до 3 кандидатов для Stage C.
+
+```powershell
+# 1. Остаток val (один раз; verify после)
+python -m steering.build_stageb_sample
+python -m steering.build_stageb_sample --verify
+
+# 2. Полный Stage B по shortlist из Stage A (~13 конфигов × ~2040 forward)
+python -m steering.run_slot_stageb --model Qwen/Qwen3.5-2B-Base --device cuda `
+  --dtype float32 --tag slot_b_v1
+
+# или топ-15 из ranking.csv Stage A
+python -m steering.run_slot_stageb --model Qwen/Qwen3.5-2B-Base --device cuda `
+  --dtype float32 --tag slot_b_v1 `
+  --from-ranking results/steering/stage_a/slot_full/ranking.csv --keep-top 15
+```
+
+Smoke (CPU/GPU, урезанный MMLU):
+
+```powershell
+python -m steering.run_slot_stageb --model steering/.cache/model --device cuda `
+  --dtype float32 --tag slot_b_smoke --limit-items 2 --limit-mmlu 20 `
+  --candidates main_center_core__wsperp__L23__center__a2,main_project_out__wsperp__L24__project_out__a1
+```
 
 ---
 

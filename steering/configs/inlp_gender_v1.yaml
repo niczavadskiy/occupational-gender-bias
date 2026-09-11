@@ -154,6 +154,45 @@ steering:
 behavior:
   sample: "samples/h1_stagea_sample_v1.json"
   sample_note: "95 val-семей × 4 строки = 380 строк, та же замороженная выборка, что Stage A"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Follow-up после Phase B (val): шаги 1–3
+# 1) CPU post-hoc: python -m steering.analyze_inlp_stagea --layers 15 --focus-ranks 8,16
+# 2) Confirmatory на test (после фиксации L15 k∈{8,16}):
+#      build sample → run_inlp_stagea --layers 15 --ranks 8,16 --alphas 1.0
+# 3) α-sweep только если confirmatory держит эффект:
+#      --layers 15 --ranks 8,16 --alphas 0.25,0.5,0.75,1.0,1.25 --no-random-control
+# ─────────────────────────────────────────────────────────────────────────────
+follow_up:
+  candidate:
+    layer: 15
+    ranks: [8, 16]
+    alpha: 1.0
+  confirmatory:
+    sample_stem: inlp_test_sample_v1
+    source_split: test
+    n_base_items: 95
+    seed: 20260821
+    tag: inlp_confirm_test_v1
+    note: >-
+      test не участвовал в выборе слоя/ранга. Сетка: L15 × {8,16} × α=1
+      × (INLP + random) = 4 конфигурации × ~380 строк.
+  alpha_sweep:
+    tag: inlp_alpha_L15_v1
+    alphas: [0.25, 0.5, 0.75, 1.0, 1.25]
+    no_random_control: true
+    note: >-
+      Random уже есть в confirmatory при α=1; здесь только INLP по α.
+  capability:
+    status: ready
+    runner: run_inlp_stageb
+    shortlist: candidates/inlp_stageb_shortlist_v1.json
+    domain_profile: profiles/mmlu_pro_domain_val_v1.json
+    smoke_profile: profiles/mmlu_pro_overall_smoke_v1.json
+    cap_loss_max: 0.03
+    note: >-
+      MMLU-Pro non-inferiority после confirmatory (+ α-sweep при необходимости).
+      python -m steering.run_inlp_stageb --device cuda --dtype float32 --tag inlp_b_v1
   row_margins:
     d_gender: "z_man − z_woman (слоты по labels строки)"
     d_slot: "z_A − z_B"
