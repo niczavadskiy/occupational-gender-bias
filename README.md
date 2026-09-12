@@ -1,7 +1,13 @@
-# Occupational Gender Bias — Analysis & Report
+# Occupational Gender Bias — Qwen3.5-2B-Base
 
 Statistical analysis of gender bias in **Qwen/Qwen3.5-2B-Base** on occupational
 scenarios (O\*NET-based prompts with factorial controls).
+
+Корень репозитория — 2B. Другие модели: [`experiments/`](experiments/)
+(сейчас [`experiments/qwen35-4b-base/`](experiments/qwen35-4b-base/)).
+
+**Vast / Jupyter (4B, без SSH):** [`notebooks/vast_qwen35_4b_h1h3.ipynb`](notebooks/vast_qwen35_4b_h1h3.ipynb)  
+Датасет input: [`data/v1/`](data/v1/) (45648 items).
 
 **Live report:**
 [combined H1 · H3 · H5 · H11](https://niczavadskiy.github.io/occupational-gender-bias/)

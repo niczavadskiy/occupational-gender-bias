@@ -14,3 +14,6 @@ hidden_states.npz
 results/steering/**/per_item.jsonl
 .cache/
 steering/.cache/
+
+# Local factorial junction (points at ../repo/data)
+experiments/*/data/

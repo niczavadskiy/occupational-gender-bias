@@ -1,0 +1,340 @@
+# soc_major_title (O*NET / SOC major group) ↔ MMLU-Pro category mapping.
+#
+# Источник правды для доменного capability-контроля в steering-экспериментах
+# (Stage B / Stage C). Профили вопросов (steering/profiles/*.json) собираются
+# из этого конфига скриптом steering/build_mmlu_profiles.py и замораживаются;
+# сам конфиг менять только с bump'ом version (v1 → v2), иначе прошлые прогоны
+# перестают быть сравнимыми.
+#
+# Принцип: тестируются ВСЕ 22 домена, ни один не исключается. Разница в качестве
+# прокси выражена тиром, а не выбрасыванием домена из оценки:
+#
+#   capability_proxy: subject_mapped    — вопросы берутся из профильных категорий
+#   capability_proxy: generic_mmlu_pro  — прокси нет, берётся выборка из всего
+#                                         MMLU-Pro (пропорционально размеру категорий)
+#
+#   score_tier: primary   — subject_mapped + confidence high/medium
+#   score_tier: secondary — subject_mapped + confidence low (прокси натянут)
+#   score_tier: generic   — generic_mmlu_pro (общая эрудиция вместо доменной)
+#
+# Поля домена:
+#   soc_major_title      — точное значение поля per_item.jsonl
+#   g_base_items         — число base items (soc × profession × onet_action) в срезе
+#                          main/choice/without_abstain run'а v1_full_pos_shuffle
+#   preference_stratum   — reliable | small: надёжна ли страта preference (G ≥ 15);
+#                          на capability не влияет, влияет на трактовку пары
+#                          «preference ↔ capability»
+#   mmlu_pro_categories  — категории MMLU-Pro (пусто ⇒ generic_mmlu_pro)
+#   category_weights     — доля вопросов домена на категорию (сумма = 1.0)
+#   mapping_confidence   — high | medium | low | none
+#   proxy_note           — чем именно прокси хорош или плох
+
+version: v1
+created: 2026-08-09
+changelog:
+  - "2026-08-09 draft: 9 доменов в score, 13 исключены."
+  - >-
+    2026-08-09 amend (до первого прогона): исключений нет. Домены без прокси
+    получают generic-выборку из всего MMLU-Pro, low-confidence домены остаются
+    со своим subject-маппингом в тире secondary.
+
+benchmark:
+  dataset: TIGER-Lab/MMLU-Pro
+  revision: main
+  # Профили строятся ТОЛЬКО из split=test (12032 вопроса). Split=validation (70 шт.,
+  # 5 на категорию) зарезервирован под few-shot CoT префиксы и в профили не попадает.
+  split: test
+  categories:
+    - biology
+    - business
+    - chemistry
+    - computer science
+    - economics
+    - engineering
+    - health
+    - history
+    - law
+    - math
+    - other
+    - philosophy
+    - physics
+    - psychology
+
+sampling:
+  # Равное n на домен: capability-score — macro-average по доменам, поэтому
+  # крупный/лучше покрытый домен не должен получать больший вес.
+  n_per_soc: 50
+  # Страховка: если из пула не удалось набрать столько вопросов, сборка падает —
+  # молча уменьшать домен нельзя, иначе домены становятся несравнимыми.
+  min_n_per_soc: 25
+  # Вопрос используется не более одного раза во всех доменах и обоих профилях:
+  # val и test строго не пересекаются, домены не дублируют друг друга.
+  disjoint_across_domains: true
+  disjoint_across_profiles: true
+  master_seed: 20260809
+  profiles:
+    val: {role: "Stage B — отбор кандидатов"}
+    test: {role: "Stage C — подтверждение на held-out"}
+  # Домены с capability_proxy: generic_mmlu_pro. Доли категорий не заданы в
+  # конфиге — они берутся пропорционально размеру категорий в split=test, то есть
+  # выборка повторяет состав бенчмарка целиком.
+  generic:
+    allocation: proportional_to_category_size
+  # Общий (не доменный) smoke-профиль: равное n на каждую категорию MMLU-Pro,
+  # не пересекается с доменными профилями. Полный MMLU-Pro (все 12032) на Stage C
+  # прогоняется без заморозки id.
+  overall_smoke:
+    n_per_category: 40
+    seed_offset: 1000
+
+scoring:
+  # Штрафуется только просадка относительно baseline (α=0), рост не поощряется:
+  #   cap_loss = mean over domains of max(0, acc_baseline − acc_steered)
+  penalty: one_sided_drop
+  aggregate: macro_average_over_domains
+  # Headline-число считается по всем 22 доменам; дополнительно отчёт приводит
+  # сабсредние по тирам, чтобы было видно, где просадка реальная доменная, а где
+  # это общая деградация модели.
+  headline: all_domains
+  report_breakdown: [primary, secondary, generic]
+  caveat: >-
+    Домены тира generic измеряют общую эрудицию, а не знания профессии: их
+    просадка дублирует overall-capability и не является доменным свидетельством.
+    Тир secondary — натянутый прокси: просадка там означает «модель хуже отвечает
+    на смежную академическую дисциплину», а не «потеряла профессиональные знания».
+
+domains:
+  - soc_major_title: Architecture and Engineering Occupations
+    g_base_items: 66
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [engineering, physics, math]
+    category_weights: {engineering: 0.5, physics: 0.25, math: 0.25}
+    mapping_confidence: high
+    score_tier: primary
+    proxy_note: "Прямое совпадение предмета: инженерия плюс её физико-математическая база."
+
+  - soc_major_title: Computer and Mathematical Occupations
+    g_base_items: 30
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [computer science, math]
+    category_weights: {computer science: 0.6, math: 0.4}
+    mapping_confidence: high
+    score_tier: primary
+    proxy_note: "Прямое совпадение предмета."
+
+  - soc_major_title: Life, Physical, and Social Science Occupations
+    g_base_items: 60
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [biology, chemistry, physics, psychology]
+    category_weights: {biology: 0.3, chemistry: 0.3, physics: 0.2, psychology: 0.2}
+    mapping_confidence: high
+    score_tier: primary
+    proxy_note: "Домен покрывает все четыре естественно-научные категории напрямую."
+
+  - soc_major_title: Healthcare Practitioners and Technical Occupations
+    g_base_items: 86
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [health, biology]
+    category_weights: {health: 0.7, biology: 0.3}
+    mapping_confidence: high
+    score_tier: primary
+    proxy_note: "health в MMLU-Pro — клинические вопросы уровня практикующего врача."
+
+  - soc_major_title: Business and Financial Operations Occupations
+    g_base_items: 49
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [business, economics]
+    category_weights: {business: 0.6, economics: 0.4}
+    mapping_confidence: high
+    score_tier: primary
+    proxy_note: "Прямое совпадение предмета."
+
+  - soc_major_title: Legal Occupations
+    g_base_items: 8
+    preference_stratum: small
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [law]
+    category_weights: {law: 1.0}
+    mapping_confidence: high
+    score_tier: primary
+    proxy_note: >-
+      Маппинг надёжный, но G=8 < 15: capability мерить можно, а вот связывать её
+      с preference по этому домену нельзя — страта слишком мала.
+
+  - soc_major_title: Healthcare Support Occupations
+    g_base_items: 17
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [health]
+    category_weights: {health: 1.0}
+    mapping_confidence: medium
+    score_tier: primary
+    proxy_note: >-
+      health — уровень практикующего врача, для support-ролей планка завышена;
+      единственный релевантный прокси.
+
+  - soc_major_title: Educational Instruction and Library Occupations
+    g_base_items: 60
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [psychology, philosophy]
+    category_weights: {psychology: 0.6, philosophy: 0.4}
+    mapping_confidence: medium
+    score_tier: primary
+    proxy_note: >-
+      Прокси через педагогическую психологию и гуманитарную подготовку;
+      предметной «педагогики» в MMLU-Pro нет.
+
+  - soc_major_title: Management Occupations
+    g_base_items: 52
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [business, economics]
+    category_weights: {business: 0.6, economics: 0.4}
+    mapping_confidence: medium
+    score_tier: primary
+    proxy_note: >-
+      Тот же пул, что у Business and Financial Operations, но вопросы не
+      пересекаются (disjoint_across_domains) — оценки независимы.
+
+  - soc_major_title: Protective Service Occupations
+    g_base_items: 29
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [law]
+    category_weights: {law: 1.0}
+    mapping_confidence: medium
+    score_tier: primary
+    proxy_note: >-
+      law — юриспруденция, а не полевые процедуры; слабый, но содержательно
+      связанный прокси.
+
+  - soc_major_title: Community and Social Service Occupations
+    g_base_items: 14
+    preference_stratum: small
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [psychology, philosophy]
+    category_weights: {psychology: 0.7, philosophy: 0.3}
+    mapping_confidence: medium
+    score_tier: primary
+    proxy_note: "Социальная работа опирается на психологию и этику; G=14 < 15."
+
+  - soc_major_title: Production Occupations
+    g_base_items: 108
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [engineering, chemistry]
+    category_weights: {engineering: 0.6, chemistry: 0.4}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Производственные операции ≠ инженерная теория; прокси смежный, не прямой."
+
+  - soc_major_title: Construction and Extraction Occupations
+    g_base_items: 61
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [engineering]
+    category_weights: {engineering: 1.0}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Работа по инструкции; engineering-вопросы про другую часть предметной области."
+
+  - soc_major_title: Installation, Maintenance, and Repair Occupations
+    g_base_items: 54
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [engineering]
+    category_weights: {engineering: 1.0}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Прикладной ремонт; ближайшая академическая дисциплина — engineering."
+
+  - soc_major_title: Office and Administrative Support Occupations
+    g_base_items: 63
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [business]
+    category_weights: {business: 1.0}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Административные процедуры лишь частично пересекаются с business."
+
+  - soc_major_title: Sales and Related Occupations
+    g_base_items: 24
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [business, economics]
+    category_weights: {business: 0.7, economics: 0.3}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Продажи как навык слабо отражены в академических business-вопросах."
+
+  - soc_major_title: Arts, Design, Entertainment, Sports, and Media Occupations
+    g_base_items: 43
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [other, history, philosophy]
+    category_weights: {other: 0.6, history: 0.2, philosophy: 0.2}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: >-
+      Категория other — сборная солянка; вместе с history и philosophy даёт
+      гуманитарный фон, но не творческие навыки.
+
+  - soc_major_title: Personal Care and Service Occupations
+    g_base_items: 32
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [health]
+    category_weights: {health: 1.0}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Уход и сервис ≠ клиническая медицина, но предметно ближе всего к health."
+
+  - soc_major_title: Farming, Fishing, and Forestry Occupations
+    g_base_items: 17
+    preference_stratum: reliable
+    capability_proxy: subject_mapped
+    mmlu_pro_categories: [biology]
+    category_weights: {biology: 1.0}
+    mapping_confidence: low
+    score_tier: secondary
+    proxy_note: "Полевые сельхозработы ≠ академическая биология, но предмет смежный."
+
+  - soc_major_title: Transportation and Material Moving Occupations
+    g_base_items: 53
+    preference_stratum: reliable
+    capability_proxy: generic_mmlu_pro
+    mmlu_pro_categories: []
+    category_weights: {}
+    mapping_confidence: none
+    score_tier: generic
+    proxy_note: >-
+      Академического аналога нет: вождение и логистика операций не покрываются ни
+      одной категорией. Берём срез всего MMLU-Pro — проверяем, что интервенция не
+      ломает модель вообще, раз доменное знание проверить нечем.
+
+  - soc_major_title: Food Preparation and Serving Related Occupations
+    g_base_items: 17
+    preference_stratum: reliable
+    capability_proxy: generic_mmlu_pro
+    mmlu_pro_categories: []
+    category_weights: {}
+    mapping_confidence: none
+    score_tier: generic
+    proxy_note: "Академического аналога нет; срез всего MMLU-Pro."
+
+  - soc_major_title: Building and Grounds Cleaning and Maintenance Occupations
+    g_base_items: 8
+    preference_stratum: small
+    capability_proxy: generic_mmlu_pro
+    mmlu_pro_categories: []
+    category_weights: {}
+    mapping_confidence: none
+    score_tier: generic
+    proxy_note: "Академического аналога нет; срез всего MMLU-Pro. G=8 < 15."

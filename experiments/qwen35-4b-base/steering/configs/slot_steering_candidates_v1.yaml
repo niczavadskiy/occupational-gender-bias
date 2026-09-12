@@ -1,0 +1,236 @@
+# Slot steering: сетка кандидатов (layer × α) для выравнивания preference слота A/B.
+#
+# Источник сигнала: v1_rep probe `slot_choice` (не классический H11).
+# Best layer L23, val bacc ≈ 94.5%, test ≈ 96.1%.
+#
+# Цель: P(A) ≈ P(B)  →  φ_i = A_i/(A_i+B_i) → 0.5 на base item.
+# Baseline Stage A (H1 full): slot_a_rate ≈ 0.76 — явный перекос к A.
+#
+# Кандидаты:
+#   python -m steering.build_h1_candidates --config steering/configs/slot_steering_candidates_v1.yaml \
+#       --out-prefix slot_candidates
+# Векторы:
+#   python -m steering.build_h1_vectors --config steering/configs/slot_steering_candidates_v1.yaml \
+#       --out-prefix slot_vectors
+
+version: v1
+hypothesis: slot
+created: 2026-08-16
+
+source:
+  run: TBD_after_qwen35_4b_inference
+  probe_root: probes/v1_rep_prob
+  model_id: Qwen/Qwen3.5-4B-Base
+  d_model: 2560
+  n_hidden_states: 33
+  # Пояс слоёв ниже — шаблон с 2B (якорь L23); пересобрать после layer-scan 4B.
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  slugs:
+    gender: without_abstain_p0_p1_mf_wf_gender_choice
+    narrative: without_abstain_p0_p1_mf_wf_narrative_choice
+    slot: without_abstain_p0_p1_mf_wf_slot_choice
+  weights_npz: "compare_directions/compare_directions_{target}_weights.npz"
+  weights_key: w_raw
+  layer_scan: "layer_scan/results.json"
+  split:
+    file: "probes/_shared/group_split_v1_scenario.json"
+    families: {train: 571, val: 190, test: 190}
+    note: >-
+      Направления обучены на train. Stage A — тот же val-sample, что и H1
+      (h1_stagea_sample_v1.json), чтобы сравнивать сайты на одной выборке.
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  note: >-
+    Та же точка, что H1. Slot-проба снималась с last token HS.
+
+vectors:
+  - id: w_slot_perp
+    short: wsperp
+    role: candidate
+    kind: probe_direction_orthogonalized
+    base: slot
+    orthogonalize_against: [gender, narrative]
+    description: >-
+      Основной кандидат: slot ⊥ {gender, narrative} на том же слое.
+
+  - id: w_slot
+    short: wslot
+    role: candidate
+    kind: probe_direction
+    base: slot
+    description: Сырое направление LogReg slot_choice (аблация к w_slot_perp).
+
+  - id: w_gender
+    short: wg
+    role: control
+    kind: probe_direction
+    base: gender
+    description: "Контроль: чужая ось не должна выравнивать slot."
+
+  - id: w_random
+    short: wrand
+    role: control
+    kind: random_unit
+    seeds: [0, 1, 2]
+    description: Null-контроль — случайное unit-направление (3 seed).
+
+interventions:
+  - id: center
+    formula: "h' = h − α·(s − c)·ŵ"
+    reference_c: class_midpoint_train
+    reference_note: >-
+      c = mid-point mean(s|A) и mean(s|B) только на train пробы slot_choice.
+      α>0 тянет к нейтрали слота; α<0 — anti-steering.
+    alphas: [0.25, 0.5, 0.75, 1.0]
+
+  - id: project_out
+    formula: "h' = h − s·ŵ"
+    reference_c: origin
+    reference_note: Полное удаление компоненты вдоль оси.
+    alphas: [1.0]
+
+  - id: shift
+    formula: "h' = h + β·σ_train·ŵ"
+    scale: train_projection_std
+    reference_note: >-
+      Константный сдвиг — контроль каузальности.
+      ±β обязаны разводить slot_a_rate / φ̄ в разные стороны.
+    betas: [-2.0, -1.0, -0.5, 0.5, 1.0, 2.0]
+
+# val bacc slot_choice: L19 .93 | L20 .93 | L21 .94 | L22 .93 | L23 .945 | L24 .93
+# L16 уже ~0.91, но пик — поздние слои (в отличие от gender L16).
+layers:
+  belt: [19, 20, 21, 22, 23, 24]
+  core: [21, 22, 23]
+  edge: [19, 20, 24]
+  mid: [16, 17, 18]
+  anchor: 23
+  note: >-
+    Пояс L19–L24 вокруг пика L23. Mid L16–18 — одна полоса project_out
+    (сравнение с gender-поясом).
+
+families:
+  - id: main_center_core
+    enabled: true
+    role: candidate
+    vectors: [w_slot_perp, w_slot]
+    layers: core
+    intervention: center
+    alphas: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+    description: "Ядро L21–23, полная шкала α. 2 × 3 × 7 = 42."
+
+  - id: main_center_edge
+    enabled: true
+    role: candidate
+    vectors: [w_slot_perp, w_slot]
+    layers: edge
+    intervention: center
+    alphas: [0.5, 1.0, 1.5]
+    description: "Края пояса. 2 × 3 × 3 = 18."
+
+  - id: main_project_out
+    enabled: true
+    role: candidate
+    vectors: [w_slot_perp, w_slot]
+    layers: belt
+    intervention: project_out
+    description: "Полное удаление оси на поясе. 2 × 6 = 12."
+
+  - id: mid_project_out
+    enabled: true
+    role: candidate
+    vectors: [w_slot_perp]
+    layers: mid
+    intervention: project_out
+    description: "Ранний пояс L16–18 (как у gender). 3."
+
+  - id: causality_shift
+    enabled: true
+    role: control
+    vectors: [w_slot_perp]
+    layers: [23]
+    intervention: shift
+    description: "Знаковый sanity на L23: ±β разводят slot_a_rate. 6."
+
+  - id: anti_steering
+    enabled: true
+    role: control
+    vectors: [w_slot_perp]
+    layers: [23]
+    intervention: center
+    alphas: [-0.5, -1.0]
+    description: "Усиление |s−c|: |φ−0.5| должно вырасти. 2."
+
+  - id: control_gender
+    enabled: true
+    role: control
+    vectors: [w_gender]
+    layers: [23]
+    intervention: project_out
+    description: "Специфичность: gender-ось не выравнивает slot. 1."
+
+  - id: control_random
+    enabled: true
+    role: control
+    vectors: [w_random]
+    layers: [23]
+    intervention: project_out
+    description: "Null: 3 random seeds. 3."
+
+  - id: multilayer_band
+    enabled: false
+    role: candidate
+    vectors: [w_slot_perp]
+    layers: [21, 22, 23]
+    intervention: center
+    alphas: [0.5, 1.0]
+    apply_to_all_layers_at_once: true
+    description: >-
+      Одновременная интервенция на трёх слоях. Off до однослойного сигнала.
+
+baseline:
+  id: baseline
+  description: Без интервенции. φ̄_before и capability baseline.
+
+screening:
+  stage: A
+  sample:
+    source_split: val
+    n_base_items: 95
+    sample_file: h1_stagea_sample_v1.json
+    stratify_by: soc_major_title
+    rows_per_item: 4
+    seed: 20260809
+    note: >-
+      Тот же frozen sample, что H1 Stage A — сравнение на идентичных 95 семьях.
+  forwards_per_candidate: 380
+
+  primary_metric:
+    id: mean_abs_phi_dev
+    formula: "mean_i |φ_i − 0.5|, φ_i = A_i/(A_i+B_i) по base item"
+    direction: minimize
+    note: Нейтральность слота ПОСЛЕ интервенции.
+
+  secondary_metrics:
+    - id: abs_slot_a_rate_dev
+      formula: "|slot_a_rate − 0.5|"
+    - id: reduction_vs_baseline
+      formula: "mean_abs_phi_dev(baseline) − mean_abs_phi_dev(candidate)"
+    - id: mean_abs_theta_prob_dev
+      formula: "gender guardrail: mean |θ_prob − 0.5|"
+
+  guardrails:
+    mode: flag
+    gender_mean_abs_theta_prob_shift_max: 0.01
+    narrative_choice_rate_shift_pp_max: 10
+    note: >-
+      Slot-steering не должен сильно двигать gender preference.
+      Stage A только flag.
+
+  keep_top: 15
+  keep_rule: >-
+    Топ по primary среди role=candidate. Контроли: random ≈ baseline;
+    shift ±β расходятся по знаку slot_a_rate; anti_steering увеличивает
+    mean_abs_phi_dev. Иначе сетка не годится.

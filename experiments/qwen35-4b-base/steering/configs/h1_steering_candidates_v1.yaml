@@ -1,0 +1,260 @@
+# H1 steering: сетка кандидатов (layer × α) для выравнивания gender preference.
+#
+# Цель: P(man) ≈ P(woman) в каждом домене профессии
+# (θ_i = M_i/(M_i+W_i) → 0.5 на base item). Bias по доменам разнонаправлен
+# (Transportation θ≈0.64, Food Preparation θ≈0.40), поэтому базовое семейство
+# гасит проекцию к нейтрали, а не добавляет константный сдвиг.
+#
+# Кандидаты разворачиваются скриптом:
+#   python -m steering.build_h1_candidates
+# → steering/candidates/h1_candidates_v1.json
+
+version: v1
+hypothesis: h1
+created: 2026-08-09
+
+source:
+  run: TBD_after_qwen35_4b_inference
+  probe_root: probes/v1_rep_prob
+  model_id: Qwen/Qwen3.5-4B-Base
+  d_model: 2560
+  n_hidden_states: 33
+  # Индекс HS в hidden_states.npz: 0 = embeddings, 1..32 = выход блока L.
+  # Пояс слоёв ниже — шаблон с 2B; пересобрать после layer-scan 4B.
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  slugs:
+    gender: without_abstain_p0_p1_mf_wf_gender_choice
+    narrative: without_abstain_p0_p1_mf_wf_narrative_choice
+    slot: without_abstain_p0_p1_mf_wf_slot_choice
+  # Направления на ВСЕ слои: compare_directions, ключ w_raw (25, 2048), unit-norm.
+  weights_npz: "compare_directions/compare_directions_{target}_weights.npz"
+  weights_key: w_raw
+  layer_scan: "layer_scan/results.json"
+  split:
+    file: "probes/_shared/group_split_v1_scenario.json"
+    families: {train: 571, val: 190, test: 190}
+    note: >-
+      Направления обучены на train. Stage A/B — только val, Stage C — test.
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  note: >-
+    Интервенция там же, где снимался HS (last token после "Answer:").
+    Та же точка для MCQ MMLU-Pro.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Направления
+# ─────────────────────────────────────────────────────────────────────────────
+vectors:
+  - id: w_gender_perp
+    short: wgperp
+    role: candidate
+    kind: probe_direction_orthogonalized
+    base: gender
+    orthogonalize_against: [narrative, slot]
+    description: >-
+      Основной кандидат: gender ⊥ {narrative, slot} на том же слое.
+      Test bacc падает с 86.9% до 84.3% — сигнал почти целиком свой.
+
+  - id: w_gender
+    short: wg
+    role: candidate
+    kind: probe_direction
+    base: gender
+    description: Сырое направление LogReg gender_choice (аблация к w_gender_perp).
+
+  - id: w_narrative
+    short: wnarr
+    role: control
+    kind: probe_direction
+    base: narrative
+    description: "Контроль: гасим не ту ось — preference меняться не должно."
+
+  - id: w_slot
+    short: wslot
+    role: control
+    kind: probe_direction
+    base: slot
+    description: "Контроль: ось выбора слота A/B."
+
+  - id: w_random
+    short: wrand
+    role: control
+    kind: random_unit
+    seeds: [0, 1, 2]
+    description: Null-контроль — случайное unit-направление (3 seed).
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Типы интервенции
+# s = h·ŵ; ŵ unit-norm.
+# center: s' = (1−α)s + α c  →  α·(s−c) = скаляр «сколько смещения снять»
+# ─────────────────────────────────────────────────────────────────────────────
+interventions:
+  - id: center
+    formula: "h' = h − α·(s − c)·ŵ"
+    reference_c: class_midpoint_train
+    reference_note: >-
+      c = mid-point mean(s|man) и mean(s|woman) только на train пробы.
+      α>0 тянет к нейтрали; α=1 сажает s на c; α>1 зеркалит за c;
+      α<0 усиливает |s−c| (anti-steering).
+    # Дефолт для семейств без override; core/edge задают свой список.
+    alphas: [0.25, 0.5, 0.75, 1.0]
+
+  - id: project_out
+    formula: "h' = h − s·ŵ"
+    reference_c: origin
+    reference_note: >-
+      Полное удаление компоненты вдоль оси (эквивалент center с c=0, α=1).
+      Жёстче mid-point center: убирает и общий сдвиг среза вдоль ŵ.
+    alphas: [1.0]
+
+  - id: shift
+    formula: "h' = h + β·σ_train·ŵ"
+    scale: train_projection_std
+    reference_note: >-
+      Константный сдвиг — контроль каузальности, не equalize.
+      ±β обязаны разводить P(man) в разные стороны.
+    betas: [-1.0, -0.5, 0.5, 1.0]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Слои
+# val bacc gender_choice: L14 .74 | L15 .82 | L16 .87 | L17–18 .86 | L19 .85 | L20 .84
+# ─────────────────────────────────────────────────────────────────────────────
+layers:
+  belt: [14, 15, 16, 17, 18, 19, 20]
+  core: [15, 16, 17, 18]
+  edge: [14, 19, 20]
+  anchor: 16
+  note: >-
+    Пояс L14–L20: скачок сигнала на L15–16 и плато. Ранние L1–13 (~0.65–0.71)
+    и поздние L21–24 — только если пояс не даст эффекта (новая версия конфига).
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Семейства (декартовы произведения)
+# alphas / betas в family переопределяют список из interventions.*
+# ─────────────────────────────────────────────────────────────────────────────
+families:
+  - id: main_center_core
+    enabled: true
+    role: candidate
+    vectors: [w_gender_perp, w_gender]
+    layers: core
+    intervention: center
+    alphas: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
+    description: >-
+      Ядро пояса: полная шкала α включая overshoot (>1).
+      Если минимум |θ−0.5| за α=1 — линейный readout не покрывает весь каузальный путь.
+      2 × 4 × 7 = 56.
+
+  - id: main_center_edge
+    enabled: true
+    role: candidate
+    vectors: [w_gender_perp, w_gender]
+    layers: edge
+    intervention: center
+    alphas: [0.25, 0.5, 0.75, 1.0]
+    description: "Края пояса: базовая шкала α. 2 × 3 × 4 = 24."
+
+  - id: main_project_out
+    enabled: true
+    role: candidate
+    vectors: [w_gender_perp, w_gender]
+    layers: belt
+    intervention: project_out
+    description: "Полное удаление оси на каждом слое пояса. 2 × 7 = 14."
+
+  - id: causality_shift
+    enabled: true
+    role: control
+    vectors: [w_gender_perp]
+    layers: [16]
+    intervention: shift
+    description: "Знаковый sanity на L16: ±β разводят P(man). 4."
+
+  - id: anti_steering
+    enabled: true
+    role: control
+    vectors: [w_gender_perp]
+    layers: [16]
+    intervention: center
+    alphas: [-0.5, -1.0]
+    description: >-
+      Усиление |s−c|: preference по доменам должно уйти дальше от 0.5
+      (двусторонний anti-equalize). Более прямая проверка каузальности при
+      разнонаправленном bias, чем константный shift. 2.
+
+  - id: control_other_axes
+    enabled: true
+    role: control
+    vectors: [w_narrative, w_slot]
+    layers: [16]
+    intervention: project_out
+    description: "Специфичность: чужая ось не выравнивает preference. 2."
+
+  - id: control_random
+    enabled: true
+    role: control
+    vectors: [w_random]
+    layers: [16]
+    intervention: project_out
+    description: "Null: 3 random seeds. 3."
+
+  - id: multilayer_band
+    enabled: false
+    role: candidate
+    vectors: [w_gender_perp]
+    layers: [15, 16, 17]
+    intervention: center
+    alphas: [0.5, 1.0]
+    apply_to_all_layers_at_once: true
+    description: >-
+      Одновременная интервенция на трёх слоях. Off: Stage A — однослойный
+      скрининг; включать, если однослойных мало.
+
+baseline:
+  id: baseline
+  description: >-
+    Без интервенции на той же выборке. Не кандидат: θ̄_before и capability baseline.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Stage A — скрининг
+# ─────────────────────────────────────────────────────────────────────────────
+screening:
+  stage: A
+  sample:
+    source_split: val
+    n_base_items: 95
+    fraction_of_all_groups: 0.10
+    stratify_by: soc_major_title
+    rows_per_item: 4
+    seed: 20260809
+    note: >-
+      95 из 190 val-семей ≈ 10% всех 951. Вторая половина val — Stage B.
+  forwards_per_candidate: 380
+
+  primary_metric:
+    id: mean_abs_theta_dev
+    formula: "mean_i |θ_i − 0.5|, θ_i = M_i/(M_i+W_i) по base item"
+    direction: minimize
+    note: >-
+      Нейтральность ПОСЛЕ интервенции. Не «Δ_до − Δ_после → 0» (это null).
+
+  secondary_metrics:
+    - id: abs_theta_bar_dev
+      formula: "|θ̄ − 0.5|"
+    - id: reduction_vs_baseline
+      formula: "mean_abs_theta_dev(baseline) − mean_abs_theta_dev(candidate)"
+
+  guardrails:
+    mode: flag
+    slot_choice_rate_shift_pp_max: 10
+    narrative_choice_rate_shift_pp_max: 10
+    note: >-
+      Stage A только flag. Дисквалификация — на Stage B.
+
+  keep_top: 15
+  keep_rule: >-
+    Топ по primary_metric среди role=candidate. Контроли не ранжируются, но
+    обязаны: random ≈ baseline; shift ±β расходятся по знаку;
+    anti_steering увеличивает mean_abs_theta_dev. Иначе сетка не годится.
