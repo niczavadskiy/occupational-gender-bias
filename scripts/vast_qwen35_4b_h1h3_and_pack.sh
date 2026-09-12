@@ -9,13 +9,16 @@
 #   v1_full_pos_shuffle  (no_evidence, 15216)  → H1 + H11 probes
 #   highlight-h3-full    (all evidence, 45648) → H3 + H5
 #
-# Usage on Vast (after clone of Bias--subspaces-in-LLM):
+# Usage on Vast (после clone niczavadskiy/occupational-gender-bias):
+#   export HF_TOKEN=hf_xxx
 #   bash scripts/vast_qwen35_4b_h1h3_and_pack.sh
 #
-# Or via vast_run.sh:
-#   MODEL=Qwen/Qwen3.5-4B-Base DISK=120 KEEP=1 \
+# Or via vast_run.sh (с локальной машины с vastai CLI):
+#   HF_TOKEN=hf_xxx DISK=120 KEEP=1 \
 #   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_qwen35_4b_h1h3_and_pack.sh' \
 #   bash scripts/vast_run.sh
+#
+# Jupyter (без SSH): notebooks/vast_qwen35_4b_h1h3.ipynb
 # ---------------------------------------------------------------------------
 set -euo pipefail
 

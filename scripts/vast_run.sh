@@ -2,55 +2,53 @@
 # ---------------------------------------------------------------------------
 # Полный lifecycle Vast-инстанса: поиск → аренда → SSH → (опц.) прогон → destroy.
 #
-# Решает ручную возню: фильтр по CUDA вшит (cuda_vers>=MIN_CUDA), образ вшит,
-# инстанс ГАРАНТИРОВАННО удаляется на выходе (trap), даже если упало посередине.
-#
-# Требования (один раз):
+# Требования (один раз на машине, с которой запускаете скрипт):
 #   pip install --upgrade vastai
-#   vastai set api-key <КЛЮЧ>            # https://cloud.vast.ai/account/  (раздел API)
-#   # и добавить свой ~/.ssh/id_*.pub в аккаунт Vast (Account → SSH Keys),
-#   # либо скрипт сам зальёт через VAST_SSH_PUBKEY (см. ниже).
+#   vastai set api-key <КЛЮЧ>            # https://cloud.vast.ai/account/
+#   # SSH-ключ в аккаунте Vast (Account → SSH Keys)
+#
+# Репо на инстансе: niczavadskiy/occupational-gender-bias (public, branch main).
+# GH_TOKEN не обязателен. HF_TOKEN нужен для скачивания модели с Hugging Face.
 #
 # Примеры:
-#   # 1) только посмотреть кандидатов, ничего не арендуя:
+#   # 1) только посмотреть кандидатов:
 #   DRY=1 bash scripts/vast_run.sh
 #
-#   # 2) арендовать самый дешёвый подходящий, отдать SSH-команду и НЕ удалять:
-#   KEEP=1 bash scripts/vast_run.sh
+#   # 2) арендовать, отдать SSH и НЕ удалять:
+#   KEEP=1 HF_TOKEN=hf_xxx bash scripts/vast_run.sh
 #
-#   # 3) арендовать, прогнать inference 5400 и удалить инстанс по завершении:
-#   #    (inference.py пишет в $RESULTS_DIR = /workspace/results, НЕ в repo/results!)
-#   HF_TOKEN=$(cat ~/.cache/huggingface/token) GH_TOKEN=$(gh auth token) \
-#   REMOTE_CMD='bash scripts/setup_instance.sh && \
-#       python3 src/prepare_factorial.py data/factorial_v2_with_gender.csv && \
-#       python3 src/inference.py --items_file data/factorial_v2_with_gender.prepared.jsonl --run_tag factorial_v2_5400 && \
-#       python3 src/upload_to_hf.py /workspace/results/run_*factorial_v2_5400*' \
+#   # 3) Qwen3.5-4B H1·H3 полный прогон + pack (рекомендуется KEEP=1):
+#   HF_TOKEN=hf_xxx DISK=120 KEEP=1 \
+#   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_qwen35_4b_h1h3_and_pack.sh' \
 #   bash scripts/vast_run.sh
 #
-# Параметры (env, со значениями по умолчанию):
-GPU="${GPU:-RTX_3090}"               # gpu_name в терминах Vast
-MIN_CUDA="${MIN_CUDA:-12.8}"         # минимальная версия CUDA драйвера хоста (образ cu128)
-DISK="${DISK:-60}"                   # ГБ диска (образ 6.5 + модель 4 + npz + запас)
-MAX_DPH="${MAX_DPH:-0.40}"           # потолок $/час
-MIN_RELIAB="${MIN_RELIAB:-0.98}"     # минимальная reliability
+# Параметры (env):
+GPU="${GPU:-RTX_3090}"
+MIN_CUDA="${MIN_CUDA:-12.8}"
+DISK="${DISK:-120}"                   # 4B + HS: лучше ≥120
+MAX_DPH="${MAX_DPH:-0.40}"
+MIN_RELIAB="${MIN_RELIAB:-0.98}"
 IMAGE="${IMAGE:-sportsprogrammerhunter/bias-subspaces-env:latest}"
-BRANCH="${BRANCH:-qwen_2b_experiments_olya}"
-LABEL="${LABEL:-bias-subspaces}"
-REMOTE_CMD="${REMOTE_CMD:-}"         # что выполнить на инстансе (пусто → только SSH-инфо)
-KEEP="${KEEP:-0}"                    # 1 → не удалять инстанс на выходе
-DRY="${DRY:-0}"                      # 1 → только поиск, без аренды
+REPO="${REPO:-niczavadskiy/occupational-gender-bias}"
+REPO_DIR="${REPO_DIR:-occupational-gender-bias}"
+BRANCH="${BRANCH:-main}"
+LABEL="${LABEL:-occupational-gender-bias}"
+REMOTE_CMD="${REMOTE_CMD:-}"
+KEEP="${KEEP:-0}"
+DRY="${DRY:-0}"
 # ---------------------------------------------------------------------------
 set -euo pipefail
 command -v vastai >/dev/null || { echo "нет vastai → pip install --upgrade vastai"; exit 1; }
 PYJSON='import sys,json; d=json.load(sys.stdin)'
 
-# Токены: -e на кастомном образе НЕ доходит до ssh-сессии (Vast не пишет их в
-# /etc/environment для не-своих образов) → пробрасываем env прямо в команды.
+# Токены: -e на кастомном образе часто НЕ доходит до ssh-сессии →
+# пробрасываем env прямо в remote-команды.
 HF_TOKEN="${HF_TOKEN:-}"; GH_TOKEN="${GH_TOKEN:-}"
-RESULTS_DIR="${RESULTS_DIR:-/workspace/results}"   # куда inference.py пишет run'ы
+RESULTS_DIR="${RESULTS_DIR:-/workspace/results}"
 RENV="export RESULTS_DIR='$RESULTS_DIR'"
-[ -n "$HF_TOKEN" ] && RENV="$RENV; export HF_TOKEN='$HF_TOKEN'"   # нужен и для inference (иначе rate-limit на скачивании модели), и для upload
+[ -n "$HF_TOKEN" ] && RENV="$RENV; export HF_TOKEN='$HF_TOKEN'"
 [ -n "$GH_TOKEN" ] && RENV="$RENV; export GH_TOKEN='$GH_TOKEN'"
+RENV="$RENV; export BRANCH='$BRANCH'; export REPO='$REPO'; export REPO_DIR='$REPO_DIR'"
 
 QUERY="gpu_name=${GPU} num_gpus=1 cuda_vers>=${MIN_CUDA} disk_space>=${DISK} \
 reliability>${MIN_RELIAB} dph<${MAX_DPH} rentable=true verified=true"
@@ -70,6 +68,10 @@ OFFER_ID="$(printf '%s' "$OFFERS" | python3 -c "$PYJSON; print(d[0]['id'])")"
 echo "    выбран самый дешёвый: $OFFER_ID"
 [ "$DRY" = "1" ] && { echo "DRY=1 — выходим без аренды"; exit 0; }
 
+if [ -z "$HF_TOKEN" ]; then
+  echo "WARN: HF_TOKEN пуст — модель с Hub может не скачаться / rate-limit"
+fi
+
 echo "=== [2] аренда инстанса ($IMAGE, disk ${DISK}GB) ==="
 ENVOPT="--shm-size=8g"
 [ -n "${HF_TOKEN:-}" ] && ENVOPT="$ENVOPT -e HF_TOKEN=$HF_TOKEN"
@@ -80,7 +82,6 @@ IID="$(printf '%s' "$CREATE" | python3 -c "$PYJSON; print(d.get('new_contract') 
 [ -z "$IID" ] || [ "$IID" = "None" ] && { echo "create не вернул id: $CREATE"; exit 1; }
 echo "    instance id: $IID"
 
-# --- уборка: destroy ТОЛЬКО при успехе; при ошибке инстанс остаётся для разбора ---
 SUCCESS=0; SSHCMD=""
 cleanup() {
   if [ "$KEEP" = "1" ]; then
@@ -90,7 +91,7 @@ cleanup() {
     echo "=== [destroy] успех → удаляю инстанс $IID ==="
     vastai destroy instance "$IID" -y || echo "  WARN: destroy не прошёл — снеси: vastai destroy instance $IID -y"
   else
-    echo "=== ⚠️ ОШИБКА → инстанс $IID ОСТАВЛЕН для разбора (GPU не горит, если stopped) ==="
+    echo "=== ⚠️ ОШИБКА → инстанс $IID ОСТАВЛЕН для разбора ==="
     echo "    reconnect: ${SSHCMD:-(ssh не готов)}"
     echo "    снести:    vastai destroy instance $IID -y"
   fi
@@ -117,18 +118,23 @@ SSHCMD="ssh -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30 -o Ser
 echo "=== [4] инстанс готов ==="
 echo "    SSH:  $SSHCMD"
 
-echo "=== [4.5] bootstrap: clone репо (если on-start ещё не склонировал) ==="
-# $RENV экспортит GH_TOKEN на инстансе; затем \$GH_TOKEN раскрывается там же в URL
+echo "=== [4.5] bootstrap: clone $REPO ($BRANCH) ==="
+# публичный клон без токена; если задан GH_TOKEN — с auth (private / rate-limit)
 $SSHCMD "$RENV
-cd /workspace && { [ -d Bias--subspaces-in-LLM/.git ] || \
-  git clone --depth 1 --branch $BRANCH \
-    https://\$GH_TOKEN@github.com/olyamasaeva/Bias--subspaces-in-LLM.git; }" \
-  || { echo "clone не прошёл (GH_TOKEN передан?)"; exit 1; }
+cd /workspace
+if [ ! -d \"\$REPO_DIR/.git\" ]; then
+  if [ -n \"\${GH_TOKEN:-}\" ]; then
+    git clone --depth 1 --branch \"\$BRANCH\" \"https://\${GH_TOKEN}@github.com/\${REPO}.git\" \"\$REPO_DIR\"
+  else
+    git clone --depth 1 --branch \"\$BRANCH\" \"https://github.com/\${REPO}.git\" \"\$REPO_DIR\"
+  fi
+fi
+" || { echo "clone не прошёл"; exit 1; }
 
 if [ -n "$REMOTE_CMD" ]; then
   echo "=== [5] выполняю REMOTE_CMD на инстансе (в репо, с токенами в env) ==="
   if $SSHCMD "$RENV
-cd /workspace/Bias--subspaces-in-LLM && $REMOTE_CMD"; then
+cd /workspace/\$REPO_DIR && $REMOTE_CMD"; then
     SUCCESS=1; echo "=== REMOTE_CMD успешно завершён ==="
   else
     echo "=== REMOTE_CMD упал (rc=$?) — инстанс оставляю для разбора ==="
@@ -136,4 +142,5 @@ cd /workspace/Bias--subspaces-in-LLM && $REMOTE_CMD"; then
 else
   KEEP=1
   echo "    REMOTE_CMD пуст — инстанс оставлен. Подключайся: $SSHCMD"
+  echo "    репо: /workspace/$REPO_DIR"
 fi

@@ -13,7 +13,15 @@
 
 Нужен только **HF_TOKEN** (скачать модель). GitHub-токен не нужен для публичного клона.
 
-Опционально (SSH / shell): `scripts/vast_qwen35_4b_h1h3_and_pack.sh`
+Опционально (SSH / `vastai` CLI с локальной машины):
+
+```bash
+HF_TOKEN=hf_xxx DISK=120 KEEP=1 \
+REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_qwen35_4b_h1h3_and_pack.sh' \
+bash scripts/vast_run.sh
+```
+
+Репо: `niczavadskiy/occupational-gender-bias` @ `main`. `GH_TOKEN` не нужен (публичный).
 
 Время: порядка нескольких часов на 3090 (6×~15–25 мин + merge).
 
