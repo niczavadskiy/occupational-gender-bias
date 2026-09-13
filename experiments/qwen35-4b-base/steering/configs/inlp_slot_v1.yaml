@@ -1,0 +1,111 @@
+# INLP + rank-k center — Qwen3.5-4B-Base / slot_choice
+#
+# Тот же INLP-протокол, что gender (`inlp_gender_v1.yaml`), target = slot_choice.
+# На 2B slot шёл через probe-direction stages; здесь добавляем INLP-стадии
+# для сопоставимости «многомерное линейное стирание» на обеих осях 4B.
+#
+# Phase A: python -m steering.build_inlp_subspace --config <this> \
+#            --results-root experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack \
+#            --out-dir experiments/qwen35-4b-base/steering/subspaces
+
+version: v1
+hypothesis: inlp_slot
+created: 2026-09-13
+model_scale: qwen35_4b
+
+source:
+  run: run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle
+  results_root_hint: experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack
+  model_id: Qwen/Qwen3.5-4B-Base
+  probe_root: probes/v1_rep_prob
+  d_model: 2560
+  n_hidden_states: 33
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  layer_scan: "without_abstain_p0_p1_mf_wf_slot_choice/layer_scan/results.json"
+
+target: slot_choice
+
+split:
+  file: "probes/_shared/group_split_v1_scenario.json"
+  seed: 0
+  ratios: {train: 0.6, val: 0.2, test: 0.2}
+  families: {train: 571, val: 190, test: 190}
+  inlp_train: train
+  inlp_validation: val
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Слои (4B layer_scan slot_choice)
+# val_bacc: L26 .942 | L27 .949 | L29 .957 | L30 .960 (peak) | L31 .958 | L32 .948
+# val_roc_auc: L29 .994 (чуть выше), L30 .993, L31 .993
+# Peak для steering/INLP = L30 (bacc; совпадает с extract_direction).
+# Кандидаты: L29–L31 (плато ≥.957). НЕ L19–24 с 2B.
+# ─────────────────────────────────────────────────────────────────────────────
+layers:
+  candidates: [29, 30, 31]
+  peak: 30
+  auc_reference: {29: 0.9942, 30: 0.9933, 31: 0.9931}
+  bacc_reference: {29: 0.9573, 30: 0.9604, 31: 0.9582}
+  selection_rule: "late-layer slot plateau; peak bacc L30 ±1"
+
+probe:
+  C: 0.03
+  max_iter: 10000
+  class_weight: balanced
+  selection_rule: max_val_auc_at_k0
+  scaler: refit_each_iteration
+  needs_retune_note: >-
+    Slot bacc ≈ .96 при C=1.0 в layer_scan; для INLP всё равно нужен C-sweep
+    (интерполяция при d=2560). Старт C=0.03 как у gender.
+
+inlp:
+  k_max: 64
+  chance:
+    auc_threshold: 0.55
+    require_ci_contains: 0.5
+    n_bootstrap: 2000
+    cluster_by: scenario_family_id
+  orthogonality_tolerance: 1.0e-4
+
+steering:
+  kind: center
+  ranks: [1, 2, 4, 8]
+  alphas: [1.0]
+  random_control:
+    ranks: [1, 4]
+    seeds: [0]
+    centers: train_mean_projection
+
+behavior:
+  sample: "samples/h1_stagea_sample_v1.json"
+  sample_note: >-
+    Тот же val sample, что gender/H1 Stage A — сравнение осей на одних семьях.
+  primary_metric_note: >-
+    Phase B для slot: primary = mean_R_slot_family (выравнивание |d_slot|);
+    R_gender — guardrail (не должен сильно падать при slot-INLP).
+
+follow_up:
+  candidate:
+    layer: 30
+    ranks: [8, 16]
+    alpha: 1.0
+  confirmatory:
+    sample_stem: inlp_slot_test_sample_4b_v1
+    source_split: test
+    n_base_items: 95
+    seed: 20260913
+    tag: inlp_slot_confirm_test_4b_v1
+  capability:
+    status: pending_configs
+    runner: run_inlp_stageb
+    shortlist: candidates/inlp_slot_stageb_shortlist_4b_v1.json
+    cap_loss_max: 0.03
+  stage_c:
+    runner: run_inlp_stagec
+    sample_stem: inlp_slot_stagec_sample_4b_v1
+    keep: candidates/inlp_slot_stagec_keep_4b_v1.json
+
+outcomes:
+  A: "AUC → chance, φ не меняется → slot decodability ≠ causal"
+  B: "AUC → chance, R_slot растёт с k → многомерный линейный slot-компонент"
+  C: "частичное падение AUC + рост R_slot → распределённый slot"
+  D: "AUC↓, R_slot≈0 → до k_max каузальности не видно"

@@ -10,3 +10,10 @@ Occupational factorial **не копируется** сюда.
 | Local junction | `data/` → `repo/data` |
 
 Счётчики: without_abstain=11412, with_abstain=34236, families=951, total=45648.
+
+## Steering / INLP
+
+Конфиги, артефакты и Vast-скрипты: [`steering/STEERING.md`](steering/STEERING.md).  
+Run для HS/probes: `results/qwen35_4b_h1h3_pack/run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle/`.
+
+Собрано в `steering/`: `candidates/`, `vectors/`, `subspaces/`, `samples/`, `scripts/`.

@@ -1,29 +1,28 @@
 # Slot steering: сетка кандидатов (layer × α) для выравнивания preference слота A/B.
 #
-# Источник сигнала: v1_rep probe `slot_choice` (не классический H11).
-# Best layer L23, val bacc ≈ 94.5%, test ≈ 96.1%.
+# Источник: v1_rep probe `slot_choice`. 4B peak L30 (val bacc ≈ .960).
 #
 # Цель: P(A) ≈ P(B)  →  φ_i = A_i/(A_i+B_i) → 0.5 на base item.
-# Baseline Stage A (H1 full): slot_a_rate ≈ 0.76 — явный перекос к A.
 #
-# Кандидаты:
-#   python -m steering.build_h1_candidates --config steering/configs/slot_steering_candidates_v1.yaml \
-#       --out-prefix slot_candidates
-# Векторы:
-#   python -m steering.build_h1_vectors --config steering/configs/slot_steering_candidates_v1.yaml \
-#       --out-prefix slot_vectors
+# Кандидаты / векторы (из repo, пути к 4B pack):
+#   python -m steering.build_h1_candidates --config .../slot_steering_candidates_v1.yaml \
+#     --results-root experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack \
+#     --out-prefix slot_candidates
+#   python -m steering.build_h1_vectors --config ... \
+#     --results-root ... --out-prefix slot_vectors
 
 version: v1
 hypothesis: slot
-created: 2026-08-16
+created: 2026-09-13
+model_scale: qwen35_4b
 
 source:
-  run: TBD_after_qwen35_4b_inference
+  run: run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle
+  results_root_hint: experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack
   probe_root: probes/v1_rep_prob
   model_id: Qwen/Qwen3.5-4B-Base
   d_model: 2560
   n_hidden_states: 33
-  # Пояс слоёв ниже — шаблон с 2B (якорь L23); пересобрать после layer-scan 4B.
   hidden_state_index: "0 = embeddings, 1..32 = block output"
   slugs:
     gender: without_abstain_p0_p1_mf_wf_gender_choice
@@ -36,14 +35,13 @@ source:
     file: "probes/_shared/group_split_v1_scenario.json"
     families: {train: 571, val: 190, test: 190}
     note: >-
-      Направления обучены на train. Stage A — тот же val-sample, что и H1
-      (h1_stagea_sample_v1.json), чтобы сравнивать сайты на одной выборке.
+      Stage A — тот же val-sample, что H1 (h1_stagea_sample_v1.json), чтобы
+      сравнивать сайты на одной выборке.
 
 hook:
   site: residual_stream_hidden_state
   positions: last_prompt_token
-  note: >-
-    Та же точка, что H1. Slot-проба снималась с last token HS.
+  note: Та же точка, что H1. Slot-проба снималась с last token HS.
 
 vectors:
   - id: w_slot_perp
@@ -82,7 +80,6 @@ interventions:
     reference_c: class_midpoint_train
     reference_note: >-
       c = mid-point mean(s|A) и mean(s|B) только на train пробы slot_choice.
-      α>0 тянет к нейтрали слота; α<0 — anti-steering.
     alphas: [0.25, 0.5, 0.75, 1.0]
 
   - id: project_out
@@ -99,17 +96,21 @@ interventions:
       ±β обязаны разводить slot_a_rate / φ̄ в разные стороны.
     betas: [-2.0, -1.0, -0.5, 0.5, 1.0, 2.0]
 
-# val bacc slot_choice: L19 .93 | L20 .93 | L21 .94 | L22 .93 | L23 .945 | L24 .93
-# L16 уже ~0.91, но пик — поздние слои (в отличие от gender L16).
+# ─────────────────────────────────────────────────────────────────────────────
+# Слои — 4B slot_choice layer_scan
+# val_bacc: L26 .942 | L27 .949 | L29 .957 | L30 .960 (peak) | L31 .958 | L32 .948
+# mid = gender-пояс L22–25 — cross-site control (как mid L16–18 на 2B).
+# НЕ копировать L19–24 / якорь L23 с 2B.
+# ─────────────────────────────────────────────────────────────────────────────
 layers:
-  belt: [19, 20, 21, 22, 23, 24]
-  core: [21, 22, 23]
-  edge: [19, 20, 24]
-  mid: [16, 17, 18]
-  anchor: 23
+  belt: [27, 28, 29, 30, 31, 32]
+  core: [29, 30, 31]
+  edge: [27, 28, 32]
+  mid: [22, 23, 24, 25]
+  anchor: 30
   note: >-
-    Пояс L19–L24 вокруг пика L23. Mid L16–18 — одна полоса project_out
-    (сравнение с gender-поясом).
+    Пояс L27–L32 вокруг пика L30. Mid = gender-core 4B: project_out на «чужом»
+    глубинном диапазоне для сравнения сайтов.
 
 families:
   - id: main_center_core
@@ -119,7 +120,7 @@ families:
     layers: core
     intervention: center
     alphas: [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 2.0]
-    description: "Ядро L21–23, полная шкала α. 2 × 3 × 7 = 42."
+    description: "Ядро L29–31, полная шкала α. 2 × 3 × 7 = 42."
 
   - id: main_center_edge
     enabled: true
@@ -144,21 +145,21 @@ families:
     vectors: [w_slot_perp]
     layers: mid
     intervention: project_out
-    description: "Ранний пояс L16–18 (как у gender). 3."
+    description: "Gender-пояс L22–25 (cross-site). 4."
 
   - id: causality_shift
     enabled: true
     role: control
     vectors: [w_slot_perp]
-    layers: [23]
+    layers: [30]
     intervention: shift
-    description: "Знаковый sanity на L23: ±β разводят slot_a_rate. 6."
+    description: "Знаковый sanity на L30: ±β разводят slot_a_rate. 6."
 
   - id: anti_steering
     enabled: true
     role: control
     vectors: [w_slot_perp]
-    layers: [23]
+    layers: [30]
     intervention: center
     alphas: [-0.5, -1.0]
     description: "Усиление |s−c|: |φ−0.5| должно вырасти. 2."
@@ -167,7 +168,7 @@ families:
     enabled: true
     role: control
     vectors: [w_gender]
-    layers: [23]
+    layers: [30]
     intervention: project_out
     description: "Специфичность: gender-ось не выравнивает slot. 1."
 
@@ -175,7 +176,7 @@ families:
     enabled: true
     role: control
     vectors: [w_random]
-    layers: [23]
+    layers: [30]
     intervention: project_out
     description: "Null: 3 random seeds. 3."
 
@@ -183,12 +184,11 @@ families:
     enabled: false
     role: candidate
     vectors: [w_slot_perp]
-    layers: [21, 22, 23]
+    layers: [29, 30, 31]
     intervention: center
     alphas: [0.5, 1.0]
     apply_to_all_layers_at_once: true
-    description: >-
-      Одновременная интервенция на трёх слоях. Off до однослойного сигнала.
+    description: Одновременная интервенция на трёх слоях. Off до однослойного сигнала.
 
 baseline:
   id: baseline

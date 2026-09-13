@@ -1,0 +1,128 @@
+# INLP + rank-k center — Qwen3.5-4B-Base / gender_choice
+#
+# Порт протокола 2B (repo/steering/configs/inlp_gender_v1.yaml) на 4B.
+# Слои выбраны ДО INLP по 4B layer_scan (не перенос L15/16/18 с 2B).
+#
+# Phase A (CPU):   python -m steering.build_inlp_subspace --config <this> \
+#                    --results-root experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack \
+#                    --out-dir experiments/qwen35-4b-base/steering/subspaces
+# Phase A.5 (GPU): python -m steering.run_inlp_alignment --config <this> ...
+# Phase B (GPU):   python -m steering.run_inlp_stagea --config <this> ...
+
+version: v1
+hypothesis: inlp
+created: 2026-09-13
+model_scale: qwen35_4b
+
+source:
+  run: run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle
+  # Запуск из корня occupational-gender-bias:
+  #   --results-root experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack
+  results_root_hint: experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack
+  model_id: Qwen/Qwen3.5-4B-Base
+  probe_root: probes/v1_rep_prob
+  d_model: 2560
+  n_hidden_states: 33
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  layer_scan: "without_abstain_p0_p1_mf_wf_gender_choice/layer_scan/results.json"
+
+target: gender_choice
+
+split:
+  file: "probes/_shared/group_split_v1_scenario.json"
+  seed: 0
+  ratios: {train: 0.6, val: 0.2, test: 0.2}
+  families: {train: 571, val: 190, test: 190}
+  inlp_train: train
+  inlp_validation: val
+  note: >-
+    Тот же group split, что probes (seed 0). train → fit; val → held-out AUC;
+    test только после фиксации layer*/rank*/alpha*.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Слои (4B layer_scan gender_choice, 2026-09-13)
+# val_bacc: L18 .822 | L20 .863 | L22 .867 | L23 .874 | L24 .875 (peak)
+#   L25 .871 | L26 .864 | …
+# val_roc_auc peak L24 .954; L23 .951; L25 .941
+# Правило как у 2B: peak + один ниже + один выше (все ≫ 0.9×max).
+# НЕ L15/16/18: на 4B mid-depth gender ещё слаб (L16 bacc .75).
+# ─────────────────────────────────────────────────────────────────────────────
+layers:
+  candidates: [23, 24, 25]
+  peak: 24
+  auc_reference: {23: 0.9511, 24: 0.9542, 25: 0.9406}
+  bacc_reference: {23: 0.8741, 24: 0.8745, 25: 0.8707}
+  selection_rule: "peak val_roc_auc / val_bacc + one adjacent; 4B late-layer plateau"
+
+# C=0.03 перенесён как стартовый с 2B (там max val AUC при d=2048).
+# На d=2560 обязателен короткий C-sweep {1.0, 0.1, 0.03, 0.01} на L24
+# до фиксации subspace (см. STEERING.md). Пока C=0.03 — гипотеза «меньше памяти».
+probe:
+  C: 0.03
+  max_iter: 10000
+  class_weight: balanced
+  selection_rule: max_val_auc_at_k0
+  scaler: refit_each_iteration
+  needs_retune_note: >-
+    Переподобрать C на 4B до заявки k_chance; при C=1.0 риск train AUC=1.0
+    (n_train≈2284 < d=2560 → интерполяция ещё сильнее, чем на 2B).
+
+inlp:
+  # 64 / 2560 ≈ 2.5% dim (на 2B было 64/2048 ≈ 3.1%). Протокол тот же;
+  # если k_chance не достигнут — не заявлять полное стирание (как в 2B).
+  k_max: 64
+  chance:
+    auc_threshold: 0.55
+    require_ci_contains: 0.5
+    n_bootstrap: 2000
+    cluster_by: scenario_family_id
+  orthogonality_tolerance: 1.0e-4
+
+steering:
+  kind: center
+  ranks: [1, 2, 4, 8]
+  alphas: [1.0]
+  alpha_note: >-
+    Сначала layer × rank при α=1; α-sweep только после воспроизводимого эффекта.
+  random_control:
+    ranks: [1, 4]
+    seeds: [0]
+    centers: train_mean_projection
+
+behavior:
+  sample: "samples/h1_stagea_sample_v1.json"
+  sample_note: >-
+    Переиспользовать тот же 95×4 val sample, что 2B H1 Stage A, если файл
+    доступен; иначе пересобрать build_stagea_sample от 4B val split.
+
+follow_up:
+  candidate:
+    # Provisional = peak; переписать после Phase B val ranking.
+    layer: 24
+    ranks: [8, 16]
+    alpha: 1.0
+  confirmatory:
+    sample_stem: inlp_test_sample_v1_4b
+    source_split: test
+    n_base_items: 95
+    seed: 20260913
+    tag: inlp_confirm_test_4b_v1
+  alpha_sweep:
+    tag: inlp_alpha_L24_4b_v1
+    alphas: [0.25, 0.5, 0.75, 1.0, 1.25]
+    no_random_control: true
+  capability:
+    status: pending_configs
+    runner: run_inlp_stageb
+    shortlist: candidates/inlp_stageb_shortlist_4b_v1.json
+    cap_loss_max: 0.03
+  stage_c:
+    runner: run_inlp_stagec
+    sample_stem: inlp_stagec_sample_4b_v1
+    keep: candidates/inlp_stagec_keep_4b_v1.json
+
+outcomes:
+  A: "AUC → chance, поведение не меняется → decodability ≠ causal necessity"
+  B: "AUC → chance, R растёт с k → многомерный линейный каузальный компонент"
+  C: "AUC падает частично, R растёт → распределённое представление"
+  D: "AUC падает частично, R ≈ 0 → до k_max каузальности не найдено"

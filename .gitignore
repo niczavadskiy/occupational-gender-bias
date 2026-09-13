@@ -10,7 +10,11 @@ per_item.jsonl
 hidden_states.npz
 
 # === Steering ===
+# Track compact vector/subspace npz (not hidden_states).
 !steering/vectors/*.npz
+!steering/subspaces/*.npz
+!experiments/*/steering/vectors/*.npz
+!experiments/*/steering/subspaces/*.npz
 results/steering/**/per_item.jsonl
 .cache/
 steering/.cache/
