@@ -3,7 +3,8 @@
 Конфиги в `configs/`. Runners — в корне репо `steering/` (`run_inlp_stagea/b/c`, `intervene` с `SubspaceSpec`).
 HS run: `results/qwen35_4b_h1h3_pack/run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle/`.
 
-**INLP на Vast (A→B→C gender+slot):** см. [`INLP_VAST.md`](INLP_VAST.md).
+**INLP на Vast (A→B→C gender+slot):** см. [`INLP_VAST.md`](INLP_VAST.md).  
+Предпочтительно: `scripts/vast_inlp_stage{a,b,c}_both_and_pack.sh` (gender → slot).
 
 ## Артефакты
 

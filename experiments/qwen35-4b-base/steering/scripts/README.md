@@ -10,22 +10,19 @@ Need `HF_TOKEN` for the model.
 | `vast_h1_stagea_and_pack.sh` | `h1_4b_a_v1` |
 | `vast_slot_stagea_and_pack.sh` | `slot_4b_a_v1` |
 
-## INLP Stage A → B → C (gender + slot)
+## INLP Stage A → B → C (gender then slot)
 
-Order **per axis** (gender then slot, or parallel on two GPUs):
+**One command per stage** (sequential gender → slot):
 
-1. **Stage A** — preference grid → writes `stageb_shortlist.json` (auto)  
-2. **Stage B** — `--from-stage-a` → MMLU; writes `stagec_keep.json` (auto)  
-3. **Stage C** — `--from-stage-b` → held-out report  
-
-| Script | Default tag |
+| Script | What it runs |
 |---|---|
-| `vast_inlp_gender_stagea_and_pack.sh` | `inlp_gender_4b_a_v1` |
-| `vast_inlp_slot_stagea_and_pack.sh` | `inlp_slot_4b_a_v1` |
-| `vast_inlp_gender_stageb_and_pack.sh` | `inlp_gender_4b_b_v2` (from Stage A shortlist) |
-| `vast_inlp_slot_stageb_and_pack.sh` | `inlp_slot_4b_b_v2` |
-| `vast_inlp_gender_stagec_and_pack.sh` | `inlp_gender_4b_c_v2` (from Stage B keep) |
-| `vast_inlp_slot_stagec_and_pack.sh` | `inlp_slot_4b_c_v2` |
+| `vast_inlp_stagea_both_and_pack.sh` | gender A → slot A |
+| `vast_inlp_stageb_both_and_pack.sh` | gender B → slot B |
+| `vast_inlp_stagec_both_and_pack.sh` | gender C → slot C |
+| `vast_inlp_all_stages_both_and_pack.sh` | A → B → C (full) |
+
+Per-axis (resume/debug): `vast_inlp_{gender,slot}_stage{a,b,c}_and_pack.sh`  
+Defaults: A `*_a_v1`; B/C `*_b_v2` / `*_c_v2` with auto shortlist/keep.
 
 Module: `python -m steering.inlp_shortlist from-stage-a|from-stage-b ...`
 

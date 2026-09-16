@@ -40,40 +40,27 @@ python -m steering.run_inlp_stagea --model "$MODEL" --device cuda --dtype float3
   --primary-axis slot --out-root "$OUT" --tag inlp_slot_4b_smoke
 ```
 
-## 2. Stage A (full) — preference
+## 2–4. Preferred: gender → slot in one command per stage
 
 ```bash
-# tmux recommended; ~hours each (3 layers × ranks × 380 rows)
-bash "$STEER/scripts/vast_inlp_gender_stagea_and_pack.sh"
-# → /workspace/inlp_gender_stage_a_inlp_gender_4b_a_v1.tar.gz
-
-bash "$STEER/scripts/vast_inlp_slot_stagea_and_pack.sh"
-# → /workspace/inlp_slot_stage_a_inlp_slot_4b_a_v1.tar.gz
+# tmux recommended
+bash "$STEER/scripts/vast_inlp_stagea_both_and_pack.sh"   # gender A, then slot A
+bash "$STEER/scripts/vast_inlp_stageb_both_and_pack.sh"   # gender B, then slot B (auto shortlist)
+bash "$STEER/scripts/vast_inlp_stagec_both_and_pack.sh"   # gender C, then slot C (auto keep)
 ```
 
-Download packs. Stage A now writes `stageb_shortlist.json` automatically
-(winning layer by max R among CI>0 & above random; top-3 ranks + rand0).
-
-## 3. Stage B — capability (MMLU), auto from Stage A
+Or entire pipeline (many GPU-hours):
 
 ```bash
-# reads $OUT_ROOT/inlp_stage_a/<a_tag>/stageb_shortlist.json via --from-stage-a
-# writes stagec_keep.json for Stage C; tags *_b_v2
-bash "$STEER/scripts/vast_inlp_gender_stageb_and_pack.sh"
-bash "$STEER/scripts/vast_inlp_slot_stageb_and_pack.sh"
+bash "$STEER/scripts/vast_inlp_all_stages_both_and_pack.sh"
 ```
 
-If Stage A was downloaded with a nested folder, set:
-`STAGE_A_DIR=/path/to/.../inlp_gender_4b_a_v1`
+Per-axis scripts remain for resume/debug (`vast_inlp_gender_*`, `vast_inlp_slot_*`).
 
-## 4. Stage C — held-out report, auto from Stage B
+Stage A writes `stageb_shortlist.json` automatically (winning layer by max R among CI>0 & above random; top-3 + rand0). Stage B writes `stagec_keep.json`.
 
-```bash
-# reads stagec_keep.json via --from-stage-b; tags *_c_v2
-bash "$STEER/scripts/vast_inlp_gender_stagec_and_pack.sh"
-bash "$STEER/scripts/vast_inlp_slot_stagec_and_pack.sh"
-```
-
+If Stage A was unpacked with a nested folder, set e.g.  
+`STAGE_A_DIR=/path/to/inlp_gender_4b_a_v1` before Stage B (gender script); same idea for slot.
 ## Outputs locally
 
 ```text
