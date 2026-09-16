@@ -51,45 +51,47 @@ bash "$STEER/scripts/vast_inlp_slot_stagea_and_pack.sh"
 # → /workspace/inlp_slot_stage_a_inlp_slot_4b_a_v1.tar.gz
 ```
 
-Download packs. Inspect `ranking.csv` (already done for A):
-- gender: **L23** k∈{16,32,64} (L24 provisional was null)
-- slot: **L31** k∈{8,16,32} (beats L30 at matched k)
+Download packs. Stage A now writes `stageb_shortlist.json` automatically
+(winning layer by max R among CI>0 & above random; top-3 ranks + rand0).
 
-Shortlists are fixed from Stage A (2026-09-16):
-- `candidates/inlp_gender_stageb_shortlist_4b_v1.json` → L23 k16/32/64 + rand
-- `candidates/inlp_slot_stageb_shortlist_4b_v1.json` → L31 k8/16/32 + rand  
-(push or scp onto the instance before B)
-
-Legacy packs `*_b_v1` / `*_c_v1` used provisional peak layers; keep them for comparison. New runs use **`*_v2`**.
-
-## 3. Stage B — capability (MMLU)
+## 3. Stage B — capability (MMLU), auto from Stage A
 
 ```bash
-# defaults: gender L23 k16,32,64 → tag inlp_gender_4b_b_v2
-#           slot   L31 k8,16,32  → tag inlp_slot_4b_b_v2
+# reads $OUT_ROOT/inlp_stage_a/<a_tag>/stageb_shortlist.json via --from-stage-a
+# writes stagec_keep.json for Stage C; tags *_b_v2
 bash "$STEER/scripts/vast_inlp_gender_stageb_and_pack.sh"
 bash "$STEER/scripts/vast_inlp_slot_stageb_and_pack.sh"
 ```
 
-Keep winners with `cap_loss ≤ 0.03`. Freeze keep files from `keep.json`:
-- `candidates/inlp_gender_stagec_keep_4b_v1.json`
-- `candidates/inlp_slot_stagec_keep_4b_v1.json`
+If Stage A was downloaded with a nested folder, set:
+`STAGE_A_DIR=/path/to/.../inlp_gender_4b_a_v1`
 
-## 4. Stage C — held-out report
+## 4. Stage C — held-out report, auto from Stage B
 
 ```bash
-# after freezing keep from B v2
-bash "$STEER/scripts/vast_inlp_gender_stagec_and_pack.sh"   # → inlp_gender_4b_c_v2
-bash "$STEER/scripts/vast_inlp_slot_stagec_and_pack.sh"     # → inlp_slot_4b_c_v2
+# reads stagec_keep.json via --from-stage-b; tags *_c_v2
+bash "$STEER/scripts/vast_inlp_gender_stagec_and_pack.sh"
+bash "$STEER/scripts/vast_inlp_slot_stagec_and_pack.sh"
 ```
 
 ## Outputs locally
 
 ```text
-experiments/qwen35-4b-base/results/steering/inlp_stage_a/   # a_v1 unchanged
-experiments/qwen35-4b-base/results/steering/inlp_stage_b/   # b_v1 (old) + b_v2 (rerun)
-experiments/qwen35-4b-base/results/steering/inlp_stage_c/   # c_v1 (old) + c_v2 (rerun)
+experiments/qwen35-4b-base/results/steering/inlp_stage_a/<tag>/stageb_shortlist.json
+experiments/qwen35-4b-base/results/steering/inlp_stage_b/<tag>/stagec_keep.json
 ```
+
+Manual CLI (optional):
+
+```bash
+python -m steering.inlp_shortlist from-stage-a --ranking .../ranking.csv --primary-axis gender --out shortlist.json
+python -m steering.inlp_shortlist from-stage-b --keep .../keep.json --out stagec_keep.json
+```
+
+## Notes
+
+- Legacy `*_b_v1` / `*_c_v1` = provisional peak (L24/L30); keep for comparison.
+- Auto A→B may pick L31 k16/32/64 (top R) even if you previously preferred k8.
 
 ## Notes
 

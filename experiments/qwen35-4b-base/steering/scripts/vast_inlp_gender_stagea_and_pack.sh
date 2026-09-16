@@ -34,4 +34,5 @@ OUT=/workspace/inlp_gender_stage_a_${TAG}.tar.gz
 tar -czf "$OUT" -C "$OUT_ROOT/inlp_stage_a" "$TAG"
 ls -lh "$OUT"
 echo "DONE. Download: $OUT"
-echo "Next: update candidates/inlp_gender_stageb_shortlist_4b_v1.json from ranking.csv"
+echo "Next: Stage B auto-reads $OUT_ROOT/inlp_stage_a/$TAG/stageb_shortlist.json"
+echo "  bash $STEER_DIR/scripts/vast_inlp_gender_stageb_and_pack.sh"

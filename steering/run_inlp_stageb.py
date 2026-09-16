@@ -78,13 +78,39 @@ def load_shortlist(path: Path) -> list[dict]:
         if isinstance(c, str):
             out.append({"id": c, "role": "candidate"})
         else:
+            cid = c.get("id") or c.get("config_id")
+            if not cid:
+                raise SystemExit(f"shortlist entry without id/config_id: {c}")
             out.append(
                 {
-                    "id": c["id"],
+                    "id": cid,
                     "role": c.get("role", "candidate"),
                 }
             )
     return out
+
+
+def apply_grid_from_shortlist(args: argparse.Namespace, shortlist_path: Path) -> None:
+    """Если shortlist содержит grid или id — выставить layers/ranks/alphas."""
+    from steering.inlp_shortlist import layers_ranks_alphas_from_ids, load_json as _lj, shortlist_entry_ids
+
+    doc = _lj(shortlist_path)
+    grid = doc.get("grid") or {}
+    ids = shortlist_entry_ids(doc)
+    layers, ranks, alphas = layers_ranks_alphas_from_ids(ids)
+    if grid.get("layers"):
+        layers = [int(x) for x in grid["layers"]]
+    if grid.get("ranks"):
+        ranks = [int(x) for x in grid["ranks"]]
+    if grid.get("alphas"):
+        alphas = [float(x) for x in grid["alphas"]]
+    if layers:
+        args.layers = ",".join(str(x) for x in layers)
+    if ranks:
+        args.ranks = ",".join(str(x) for x in ranks)
+    if alphas:
+        args.alphas = ",".join(str(x) for x in alphas)
+    print(f"  grid from shortlist: layers={args.layers} ranks={args.ranks} alphas={args.alphas}")
 
 
 def select_configs(
@@ -140,6 +166,12 @@ def main(argv: list[str] | None = None) -> int:
         help="только при --with-preference",
     )
     ap.add_argument("--shortlist", type=Path, default=DEFAULT_SHORTLIST)
+    ap.add_argument(
+        "--from-stage-a",
+        type=Path,
+        default=None,
+        help="директория Stage A run: взять stageb_shortlist.json и выставить layers/ranks/alphas",
+    )
     ap.add_argument("--candidates", default=None, help="config_id через запятую")
     ap.add_argument("--roles", default=None, help="фильтр role: candidate,control")
     ap.add_argument("--layers", default="15")
@@ -179,6 +211,13 @@ def main(argv: list[str] | None = None) -> int:
         default=0.03,
         help="мягкий порог: cap_loss выше → flag, не дисквал",
     )
+    ap.add_argument(
+        "--write-stagec-keep",
+        type=Path,
+        default=None,
+        help="куда писать auto Stage C keep (default при Stage B: <out>/stagec_keep.json)",
+    )
+    ap.add_argument("--no-auto-stagec-keep", action="store_true")
     args = ap.parse_args(argv)
     return run_from_args(
         args,
@@ -204,6 +243,45 @@ def run_from_args(
         raise SystemExit("нужен хотя бы capability или preference")
     if with_preference and args.skip_baseline:
         raise SystemExit("preference требует baseline (уберите --skip-baseline)")
+
+    # Auto-chain: Stage A dir → shortlist + grid
+    from_stage_a = getattr(args, "from_stage_a", None)
+    if from_stage_a is not None and not args.candidates:
+        stage_a_dir = Path(from_stage_a)
+        auto_sl = stage_a_dir / "stageb_shortlist.json"
+        if not auto_sl.exists():
+            # build on the fly from ranking if Stage A predated auto-shortlist
+            ranking_csv = stage_a_dir / "ranking.csv"
+            if not ranking_csv.exists():
+                raise SystemExit(f"--from-stage-a: нет {auto_sl} и {ranking_csv}")
+            from steering.inlp_shortlist import (
+                read_ranking_csv,
+                select_stageb_from_ranking,
+                write_json as _wj,
+            )
+
+            meta_a = load_json(stage_a_dir / "run_meta.json") if (stage_a_dir / "run_meta.json").exists() else {}
+            axis = meta_a.get("primary_axis", "gender")
+            doc = select_stageb_from_ranking(read_ranking_csv(ranking_csv), primary_axis=axis)
+            _wj(auto_sl, doc)
+            print(f"  built missing shortlist from ranking → {auto_sl}")
+        args.shortlist = auto_sl
+        apply_grid_from_shortlist(args, auto_sl)
+
+    from_stage_b = getattr(args, "from_stage_b", None)
+    if from_stage_b is not None and not args.candidates:
+        stage_b_dir = Path(from_stage_b)
+        auto_keep = stage_b_dir / "stagec_keep.json"
+        if not auto_keep.exists():
+            keep_json = stage_b_dir / "keep.json"
+            if not keep_json.exists():
+                raise SystemExit(f"--from-stage-b: нет {auto_keep} и {keep_json}")
+            from steering.inlp_shortlist import select_stagec_from_keep, write_json as _wj
+
+            _wj(auto_keep, select_stagec_from_keep(load_json(keep_json)))
+            print(f"  built missing stagec_keep from keep.json → {auto_keep}")
+        args.shortlist = auto_keep
+        apply_grid_from_shortlist(args, auto_keep)
 
     try:
         from dotenv import load_dotenv
@@ -538,6 +616,16 @@ def run_from_args(
         encoding="utf-8",
     )
 
+    stagec_keep_path = None
+    if reselect_keep and not getattr(args, "no_auto_stagec_keep", False):
+        from steering.inlp_shortlist import select_stagec_from_keep, write_json as write_keep_json
+
+        keep_doc = load_json(out_dir / "keep.json")
+        stagec_doc = select_stagec_from_keep(keep_doc)
+        stagec_doc["source"] = f"auto from Stage B [{args.tag}] keep.json"
+        stagec_keep_path = getattr(args, "write_stagec_keep", None) or (out_dir / "stagec_keep.json")
+        write_keep_json(Path(stagec_keep_path), stagec_doc)
+
     meta = {
         "schema": schema,
         "hypothesis": "inlp",
@@ -576,6 +664,7 @@ def run_from_args(
         "preference_metric": "mean_R_gender",
         "keep": [k["config_id"] for k in keep],
         "reselect_keep": reselect_keep,
+        "stagec_keep": str(stagec_keep_path) if stagec_keep_path else None,
     }
     (out_dir / "run_meta.json").write_text(
         json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
@@ -589,6 +678,8 @@ def run_from_args(
             f"    {k['config_id']}  cap_loss={k['cap_loss']}  "
             f"R_gender={k['mean_R_gender']}  smoke_drop={k['smoke_acc_drop']}"
         )
+    if stagec_keep_path:
+        print(f"  auto Stage C keep → {stagec_keep_path}")
     return 0
 
 

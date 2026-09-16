@@ -1,25 +1,84 @@
 {
   "schema": "steering.inlp_stageb_shortlist/v1",
-  "hypothesis": "inlp_slot",
-  "model_scale": "qwen35_4b",
-  "source": "inlp_slot_4b_a_v1/ranking.csv (2026-09-16)",
-  "note": "Stage A winners by mean_R_slot. L31 > L30 at matched k; take L31 k∈{8,16,32} + random. (k64≈k32 on R, heavier AUC hit — omit from B unless needed.)",
+  "source": "auto from experiments\\qwen35-4b-base\\results\\steering\\inlp_stage_a\\inlp_stage_a\\inlp_slot_4b_a_v1\\ranking.csv",
+  "primary_axis": "slot",
   "selection": {
-    "primary": "mean_R_slot",
-    "rejected_provisional": ["inlp__L30__k8__a1", "inlp__L30__k16__a1"],
-    "rejected_reason": "valid but not top: R_slot≈0.16–0.18 vs L31≈0.21–0.24; L30 already reported in inlp_slot_4b_{b,c}_v1",
-    "stage_a_metrics": {
-      "inlp__L31__k8__a1": {"mean_R_slot": 0.212, "auc_after": 0.966},
-      "inlp__L31__k16__a1": {"mean_R_slot": 0.228, "auc_after": 0.879},
-      "inlp__L31__k32__a1": {"mean_R_slot": 0.243, "auc_after": 0.732}
-    }
+    "rule": "winning layer by max R among CI>min & above random; top ranks on that layer",
+    "winning_layer": 31,
+    "layer_scores": {
+      "29": 0.2102436718187834,
+      "30": 0.2027233224166067,
+      "31": 0.24330135144685444
+    },
+    "max_candidates": 3,
+    "min_ci_lo": 0.0,
+    "require_above_random": true,
+    "exclude_auc_at_or_below": null,
+    "chosen": [
+      {
+        "id": "inlp__L31__k64__a1",
+        "R": 0.24330135144685444,
+        "ci_lo": 0.19343192539717022,
+        "auc_after": 0.5654869969113243,
+        "random_R": 0.0007383095590691817
+      },
+      {
+        "id": "inlp__L31__k32__a1",
+        "R": 0.24300583789223118,
+        "ci_lo": 0.19294193035677862,
+        "auc_after": 0.7318510833942422,
+        "random_R": 0.004390417902093185
+      },
+      {
+        "id": "inlp__L31__k16__a1",
+        "R": 0.2277063670911287,
+        "ci_lo": 0.17950965674299943,
+        "auc_after": 0.8787635866361729,
+        "random_R": 0.0023656518835770456
+      }
+    ],
+    "n_eligible": 21,
+    "n_rejected": 0
+  },
+  "grid": {
+    "layers": [
+      31
+    ],
+    "ranks": [
+      16,
+      32,
+      64
+    ],
+    "alphas": [
+      1.0
+    ]
   },
   "candidates": [
-    {"id": "inlp__L31__k8__a1", "role": "candidate"},
-    {"id": "inlp__L31__k16__a1", "role": "candidate"},
-    {"id": "inlp__L31__k32__a1", "role": "candidate"},
-    {"id": "rand0__L31__k8__a1", "role": "control"},
-    {"id": "rand0__L31__k16__a1", "role": "control"},
-    {"id": "rand0__L31__k32__a1", "role": "control"}
-  ]
+    {
+      "id": "inlp__L31__k64__a1",
+      "role": "candidate"
+    },
+    {
+      "id": "inlp__L31__k32__a1",
+      "role": "candidate"
+    },
+    {
+      "id": "inlp__L31__k16__a1",
+      "role": "candidate"
+    },
+    {
+      "id": "rand0__L31__k64__a1",
+      "role": "control"
+    },
+    {
+      "id": "rand0__L31__k32__a1",
+      "role": "control"
+    },
+    {
+      "id": "rand0__L31__k16__a1",
+      "role": "control"
+    }
+  ],
+  "hypothesis": "inlp_slot",
+  "model_scale": "qwen35_4b"
 }

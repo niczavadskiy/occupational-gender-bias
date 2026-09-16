@@ -45,6 +45,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--subspaces", type=Path, default=DEFAULT_SUBSPACES)
     ap.add_argument("--sample", type=Path, default=DEFAULT_SAMPLE)
     ap.add_argument("--shortlist", type=Path, default=DEFAULT_SHORTLIST)
+    ap.add_argument(
+        "--from-stage-b",
+        type=Path,
+        default=None,
+        help="директория Stage B run: взять stagec_keep.json (или keep.json) и выставить grid",
+    )
     ap.add_argument("--candidates", default=None)
     ap.add_argument("--roles", default="candidate", help="default: только candidate (без random)")
     ap.add_argument("--layers", default="15")
@@ -100,6 +106,9 @@ def main(argv: list[str] | None = None) -> int:
     args.no_random_control = not args.with_random_control
     if args.with_random_control and args.roles == "candidate":
         args.roles = None
+    # Stage C does not re-export keep
+    args.no_auto_stagec_keep = True
+    args.from_stage_a = None
 
     return run_from_args(
         args,

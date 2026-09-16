@@ -1,25 +1,84 @@
 {
   "schema": "steering.inlp_stageb_shortlist/v1",
-  "hypothesis": "inlp_gender",
-  "model_scale": "qwen35_4b",
-  "source": "inlp_gender_4b_a_v1/ranking.csv (2026-09-16)",
-  "note": "Stage A winners by mean_R_gender (CI>0, ≫ random). Peak-probe L24 was null (R≈0.004); causal signal on adjacent L23, rising with k. k16/32/64 + matching random controls.",
+  "source": "auto from experiments\\qwen35-4b-base\\results\\steering\\inlp_stage_a\\inlp_stage_a\\inlp_gender_4b_a_v1\\ranking.csv",
+  "primary_axis": "gender",
   "selection": {
-    "primary": "mean_R_gender",
-    "rejected_provisional": ["inlp__L24__k8__a1", "inlp__L24__k16__a1"],
-    "rejected_reason": "R≈0.003–0.004 ≈ random; not causal on preference",
-    "stage_a_metrics": {
-      "inlp__L23__k16__a1": {"mean_R_gender": 0.0207, "ci": [0.0166, 0.0250], "auc_after": 0.769},
-      "inlp__L23__k32__a1": {"mean_R_gender": 0.0326, "ci": [0.0250, 0.0407], "auc_after": 0.663},
-      "inlp__L23__k64__a1": {"mean_R_gender": 0.0416, "ci": [0.0310, 0.0531], "auc_after": 0.555}
-    }
+    "rule": "winning layer by max R among CI>min & above random; top ranks on that layer",
+    "winning_layer": 23,
+    "layer_scores": {
+      "23": 0.041580933018734584,
+      "24": 0.0054748735929790295,
+      "25": 0.0052383774205258015
+    },
+    "max_candidates": 3,
+    "min_ci_lo": 0.0,
+    "require_above_random": true,
+    "exclude_auc_at_or_below": null,
+    "chosen": [
+      {
+        "id": "inlp__L23__k64__a1",
+        "R": 0.041580933018734584,
+        "ci_lo": 0.031023232121216625,
+        "auc_after": 0.5551378533032773,
+        "random_R": 0.005815184743780839
+      },
+      {
+        "id": "inlp__L23__k32__a1",
+        "R": 0.03257746445505243,
+        "ci_lo": 0.0249748979116741,
+        "auc_after": 0.6634437315762095,
+        "random_R": 0.0030191095251786084
+      },
+      {
+        "id": "inlp__L23__k16__a1",
+        "R": 0.0206900722102115,
+        "ci_lo": 0.01659487197273656,
+        "auc_after": 0.7686145309519681,
+        "random_R": 0.0007673138066342002
+      }
+    ],
+    "n_eligible": 17,
+    "n_rejected": 4
+  },
+  "grid": {
+    "layers": [
+      23
+    ],
+    "ranks": [
+      16,
+      32,
+      64
+    ],
+    "alphas": [
+      1.0
+    ]
   },
   "candidates": [
-    {"id": "inlp__L23__k16__a1", "role": "candidate"},
-    {"id": "inlp__L23__k32__a1", "role": "candidate"},
-    {"id": "inlp__L23__k64__a1", "role": "candidate"},
-    {"id": "rand0__L23__k16__a1", "role": "control"},
-    {"id": "rand0__L23__k32__a1", "role": "control"},
-    {"id": "rand0__L23__k64__a1", "role": "control"}
-  ]
+    {
+      "id": "inlp__L23__k64__a1",
+      "role": "candidate"
+    },
+    {
+      "id": "inlp__L23__k32__a1",
+      "role": "candidate"
+    },
+    {
+      "id": "inlp__L23__k16__a1",
+      "role": "candidate"
+    },
+    {
+      "id": "rand0__L23__k64__a1",
+      "role": "control"
+    },
+    {
+      "id": "rand0__L23__k32__a1",
+      "role": "control"
+    },
+    {
+      "id": "rand0__L23__k16__a1",
+      "role": "control"
+    }
+  ],
+  "hypothesis": "inlp_gender",
+  "model_scale": "qwen35_4b"
 }

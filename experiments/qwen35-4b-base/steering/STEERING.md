@@ -10,8 +10,8 @@ HS run: `results/qwen35_4b_h1h3_pack/run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_
 | Путь | Содержимое |
 |---|---|
 | `candidates/h1_*.json`, `slot_*.json` | probe-direction grids |
-| `candidates/inlp_*_stageb_shortlist_4b_v1.json` | Stage B shortlist **from Stage A ranking** (gender L23; slot L31) |
-| `candidates/inlp_*_stagec_keep_4b_v1.json` | Stage C keep (freeze after B v2) |
+| `candidates/inlp_*_stageb_shortlist_4b_v1.json` | mirrored auto shortlist (also in Stage A `stageb_shortlist.json`) |
+| `candidates/inlp_*_stagec_keep_4b_v1.json` | mirrored auto keep (also in Stage B `stagec_keep.json`) |
 | `vectors/*.npz` | probe directions |
 | `subspaces/inlp_*_choice_v1.*` | INLP W/centers |
 | `samples/` | stage A/B/C frozen samples |

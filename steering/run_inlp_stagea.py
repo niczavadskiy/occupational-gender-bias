@@ -443,6 +443,24 @@ def main(argv: list[str] | None = None) -> int:
         default="auto",
         help="primary R-метрика: gender (D) или slot (S); auto — из subspaces.target",
     )
+    ap.add_argument(
+        "--write-stageb-shortlist",
+        type=Path,
+        default=None,
+        help="куда писать auto Stage B shortlist (default: <out>/stageb_shortlist.json)",
+    )
+    ap.add_argument(
+        "--no-auto-shortlist",
+        action="store_true",
+        help="не писать stageb_shortlist.json в конце Stage A",
+    )
+    ap.add_argument("--shortlist-max-candidates", type=int, default=3)
+    ap.add_argument(
+        "--shortlist-exclude-auc-at-or-below",
+        type=float,
+        default=None,
+        help="опц. отсев near-chance AUC при авто-shortlist (напр. 0.55)",
+    )
     args = ap.parse_args(argv)
 
     try:
@@ -629,11 +647,27 @@ def main(argv: list[str] | None = None) -> int:
         role_ord = 0 if r["role"] == "candidate" else 1
         return (role_ord, -float(primary or 0), r["layer"], r["rank"])
 
-    write_csv(out_dir / "ranking.csv", sorted(ranking, key=_rank_key))
+    ranking_sorted = sorted(ranking, key=_rank_key)
+    write_csv(out_dir / "ranking.csv", ranking_sorted)
     write_csv(
         out_dir / "auc_vs_behavior.csv",
         auc_vs_behavior(sub_meta, ranking),
     )
+
+    shortlist_path = None
+    shortlist_doc = None
+    if not args.no_auto_shortlist:
+        from steering.inlp_shortlist import select_stageb_from_ranking, write_json as write_shortlist_json
+
+        shortlist_doc = select_stageb_from_ranking(
+            ranking_sorted,
+            primary_axis=primary_axis,
+            max_candidates=args.shortlist_max_candidates,
+            exclude_auc_at_or_below=args.shortlist_exclude_auc_at_or_below,
+        )
+        shortlist_path = args.write_stageb_shortlist or (out_dir / "stageb_shortlist.json")
+        shortlist_doc["source"] = f"auto from Stage A [{args.tag}] ranking.csv"
+        write_shortlist_json(shortlist_path, shortlist_doc)
 
     meta = {
         "schema": "steering.inlp_stage_a/v1",
@@ -658,6 +692,10 @@ def main(argv: list[str] | None = None) -> int:
         "config_ids": [BASELINE_ID] + [c["id"] for c in configs],
         "bootstrap": {"n": args.n_bootstrap, "seed": args.bootstrap_seed, "cluster_by": "scenario_family_id"},
         "primary_metric": "mean_R_family = mean_i (|D_i^before| − |D_i^after|), D_i = mean_layouts d_gender",
+        "stageb_shortlist": str(shortlist_path) if shortlist_path else None,
+        "stageb_shortlist_ids": (
+            [c["id"] for c in shortlist_doc["candidates"]] if shortlist_doc else None
+        ),
         "runtime_s": round(time.time() - t_all, 1),
         "python_version": sys.version.split()[0],
         "platform": platform.platform(),
@@ -675,6 +713,11 @@ def main(argv: list[str] | None = None) -> int:
             f"  {r['layer']:>5}  {r['rank']:>4}   {auc}   {r['mean_R_gender']:+.4f}   "
             f"[{r['ci_lo']:+.4f},{r['ci_hi']:+.4f}]   {r['flip_rate']:.1%}  {r['role']}"
         )
+    if shortlist_doc and shortlist_path:
+        print(f"\n  auto Stage B shortlist → {shortlist_path}")
+        print(f"    winning L{shortlist_doc['selection']['winning_layer']}  grid={shortlist_doc['grid']}")
+        for c in shortlist_doc["candidates"]:
+            print(f"    {c['role']:9} {c['id']}")
     return 0
 
 

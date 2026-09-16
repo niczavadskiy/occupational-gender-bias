@@ -1,15 +1,14 @@
 #!/usr/bin/env bash
-# Qwen3.5-4B — INLP gender Stage B (MMLU capability) + pack.
+# Qwen3.5-4B — INLP gender Stage B from auto Stage A shortlist + pack.
 set -euo pipefail
 
 STEER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 REPO="${REPO:-/workspace/occupational-gender-bias}"
 MODEL="${MODEL:-Qwen/Qwen3.5-4B-Base}"
 TAG="${TAG:-inlp_gender_4b_b_v2}"
-LAYERS="${LAYERS:-23}"
-RANKS="${RANKS:-16,32,64}"
-ALPHAS="${ALPHAS:-1.0}"
-SHORTLIST="${SHORTLIST:-$STEER_DIR/candidates/inlp_gender_stageb_shortlist_4b_v1.json}"
+STAGE_A_TAG="${STAGE_A_TAG:-inlp_gender_4b_a_v1}"
+OUT_ROOT="${OUT_ROOT:-$STEER_DIR/../results/steering}"
+STAGE_A_DIR="${STAGE_A_DIR:-$OUT_ROOT/inlp_stage_a/$STAGE_A_TAG}"
 PARQUET="${PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
 URL="https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet"
 
@@ -17,7 +16,6 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 cd "$REPO"
 
 SUB="$STEER_DIR/subspaces/inlp_gender_choice_v1.npz"
-OUT_ROOT="${OUT_ROOT:-$STEER_DIR/../results/steering}"
 
 mkdir -p "$REPO/steering/.cache"
 if [[ ! -f "$PARQUET" ]]; then
@@ -26,21 +24,39 @@ if [[ ! -f "$PARQUET" ]]; then
 fi
 python -c "import pyarrow" 2>/dev/null || pip install -q pyarrow
 
-for f in "$SUB" "$SHORTLIST"; do
-  test -f "$f" || { echo "MISSING $f"; exit 1; }
-done
+test -f "$SUB" || { echo "MISSING $SUB"; exit 1; }
+test -d "$STAGE_A_DIR" || { echo "MISSING Stage A dir $STAGE_A_DIR"; exit 1; }
 
-echo "=== INLP gender Stage B 4B [$TAG] ==="
+# Ensure shortlist exists (builds from ranking if needed)
+if [[ ! -f "$STAGE_A_DIR/stageb_shortlist.json" ]]; then
+  echo "=== build stageb_shortlist from Stage A ranking ==="
+  python -m steering.inlp_shortlist from-stage-a \
+    --ranking "$STAGE_A_DIR/ranking.csv" \
+    --primary-axis gender \
+    --hypothesis inlp_gender --model-scale qwen35_4b \
+    --out "$STAGE_A_DIR/stageb_shortlist.json"
+fi
+# Mirror into candidates/ for git-friendly artifact
+cp -f "$STAGE_A_DIR/stageb_shortlist.json" \
+  "$STEER_DIR/candidates/inlp_gender_stageb_shortlist_4b_v1.json"
+
+echo "=== INLP gender Stage B 4B [$TAG] from $STAGE_A_DIR ==="
 python -m steering.run_inlp_stageb \
   --model "$MODEL" --device cuda --dtype float32 \
   --subspaces "$SUB" \
-  --shortlist "$SHORTLIST" \
-  --layers "$LAYERS" --ranks "$RANKS" --alphas "$ALPHAS" \
+  --from-stage-a "$STAGE_A_DIR" \
   --out-root "$OUT_ROOT" --tag "$TAG" --log-every 100 \
   "$@"
+
+# Mirror Stage C keep
+STAGE_B_DIR="$OUT_ROOT/inlp_stage_b/$TAG"
+if [[ -f "$STAGE_B_DIR/stagec_keep.json" ]]; then
+  cp -f "$STAGE_B_DIR/stagec_keep.json" \
+    "$STEER_DIR/candidates/inlp_gender_stagec_keep_4b_v1.json"
+fi
 
 OUT=/workspace/inlp_gender_stage_b_${TAG}.tar.gz
 tar -czf "$OUT" -C "$OUT_ROOT/inlp_stage_b" "$TAG"
 ls -lh "$OUT"
 echo "DONE. Download: $OUT"
-echo "Next: freeze winners into candidates/inlp_gender_stagec_keep_4b_v1.json"
+echo "Next: bash $STEER_DIR/scripts/vast_inlp_gender_stagec_and_pack.sh"
