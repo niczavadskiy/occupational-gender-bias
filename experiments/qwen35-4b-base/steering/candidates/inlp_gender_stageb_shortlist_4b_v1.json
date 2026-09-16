@@ -1,0 +1,13 @@
+{
+  "schema": "steering.inlp_stageb_shortlist/v1",
+  "hypothesis": "inlp_gender",
+  "model_scale": "qwen35_4b",
+  "source": "provisional from inlp_gender_v1.yaml follow_up; REPLACE after Stage A ranking",
+  "note": "Peak L24; ranks 8,16 α=1 + matching random controls. After Stage A: keep top by mean_R_gender with CI>0 and above random.",
+  "candidates": [
+    {"id": "inlp__L24__k8__a1", "role": "candidate", "provisional": true},
+    {"id": "inlp__L24__k16__a1", "role": "candidate", "provisional": true},
+    {"id": "rand0__L24__k8__a1", "role": "control"},
+    {"id": "rand0__L24__k16__a1", "role": "control"}
+  ]
+}

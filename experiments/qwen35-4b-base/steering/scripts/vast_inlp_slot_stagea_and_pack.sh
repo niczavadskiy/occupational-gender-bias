@@ -1,15 +1,13 @@
 #!/usr/bin/env bash
-# Qwen3.5-4B-Base — INLP slot Stage A + pack.
+# Qwen3.5-4B — INLP slot Stage A + pack.
 set -euo pipefail
 
 STEER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-REPO="${REPO:-$(pwd)}"
+REPO="${REPO:-/workspace/occupational-gender-bias}"
 MODEL="${MODEL:-Qwen/Qwen3.5-4B-Base}"
 TAG="${TAG:-inlp_slot_4b_a_v1}"
-DEVICE="${DEVICE:-cuda}"
-DTYPE="${DTYPE:-float32}"
 LAYERS="${LAYERS:-29,30,31}"
-RANKS="${RANKS:-1,2,4,8}"
+RANKS="${RANKS:-1,2,4,8,16,32,64}"
 ALPHAS="${ALPHAS:-1.0}"
 
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
@@ -20,26 +18,20 @@ SAMPLE="$STEER_DIR/samples/h1_stagea_sample_v1.json"
 OUT_ROOT="${OUT_ROOT:-$STEER_DIR/../results/steering}"
 
 for f in "$SUB" "$SAMPLE"; do
-  test -f "$f" || { echo "MISSING $f — run build_artifacts.sh first"; exit 1; }
+  test -f "$f" || { echo "MISSING $f"; exit 1; }
 done
 
 echo "=== INLP slot Stage A 4B [$TAG] L=$LAYERS ranks=$RANKS ==="
 python -m steering.run_inlp_stagea \
-  --model "$MODEL" \
-  --device "$DEVICE" \
-  --dtype "$DTYPE" \
-  --subspaces "$SUB" \
-  --sample "$SAMPLE" \
-  --layers "$LAYERS" \
-  --ranks "$RANKS" \
-  --alphas "$ALPHAS" \
-  --out-root "$OUT_ROOT" \
-  --tag "$TAG" \
-  --log-every 100 \
+  --model "$MODEL" --device cuda --dtype float32 \
+  --subspaces "$SUB" --sample "$SAMPLE" \
+  --layers "$LAYERS" --ranks "$RANKS" --alphas "$ALPHAS" \
+  --primary-axis slot \
+  --out-root "$OUT_ROOT" --tag "$TAG" --log-every 100 \
   "$@"
 
 OUT=/workspace/inlp_slot_stage_a_${TAG}.tar.gz
-tar -czf "$OUT" -C "$OUT_ROOT/inlp_stage_a" "$TAG" 2>/dev/null \
-  || tar -czf "$OUT" -C "$OUT_ROOT" "inlp_stage_a/$TAG"
+tar -czf "$OUT" -C "$OUT_ROOT/inlp_stage_a" "$TAG"
 ls -lh "$OUT"
 echo "DONE. Download: $OUT"
+echo "Next: update candidates/inlp_slot_stageb_shortlist_4b_v1.json from ranking.csv (mean_R_slot)"

@@ -5,6 +5,11 @@
 грузится один раз, кандидаты применяются по очереди через
 `with steered(model, spec): ...`.
 
+Две формы интервенции:
+    InterventionSpec — rank-1 вдоль ŵ (center / project_out / shift);
+    SubspaceSpec     — rank-k в ортонормированном W (center / project_out),
+                       используется INLP-пайплайном.
+
 Индексация слоя совпадает с hidden_states.npz исходного прогона:
     0        = выход эмбеддингов
     1..24    = выход блока L (то есть decoder_layers[L-1])
@@ -29,7 +34,8 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 
-CONSTRAINED_TOKENS = (" A", " B", " C")
+# Leading space → Qwen single-token ĠA…ĠJ (preference A/B/C и MMLU-Pro A–J).
+CONSTRAINED_TOKENS = tuple(f" {c}" for c in "ABCDEFGHIJ")
 
 
 @dataclass(frozen=True)
@@ -54,6 +60,42 @@ class InterventionSpec:
         raise ValueError(f"unknown intervention kind {self.kind!r}")
 
 
+@dataclass(frozen=True)
+class SubspaceSpec:
+    """Rank-k интервенция в ортонормированном подпространстве W (d × k).
+
+    center:      h' = h − α·W(Wᵀh − c)   → при α=1  Wᵀh' = c
+    project_out: h' = h − W Wᵀh          → Wᵀh' = 0
+
+    При k=1 и c=[c] эквивалентна InterventionSpec(kind="center") с тем же ŵ —
+    это regression-тест новой реализации (см. steering/check_inlp.py).
+    """
+
+    layer: int
+    W: np.ndarray  # (d, k), столбцы ортонормированы
+    c: np.ndarray  # (k,)
+    kind: str = "center"
+    alpha: float = 1.0
+    label: str = ""
+
+    def __post_init__(self) -> None:
+        if self.W.ndim != 2:
+            raise ValueError(f"W должен быть (d, k), получено {self.W.shape}")
+        if self.c.shape != (self.W.shape[1],):
+            raise ValueError(f"c {self.c.shape} не соответствует rank={self.W.shape[1]}")
+
+    @property
+    def rank(self) -> int:
+        return int(self.W.shape[1])
+
+    def expected_s_after(self, s_before: np.ndarray) -> np.ndarray:
+        if self.kind == "center":
+            return s_before - float(self.alpha) * (s_before - self.c)
+        if self.kind == "project_out":
+            return np.zeros_like(s_before)
+        raise ValueError(f"unknown subspace intervention kind {self.kind!r}")
+
+
 class ProjectionTrace:
     """Проекции s до/после по каждому вызову хука (диагностика корректности)."""
 
@@ -64,6 +106,22 @@ class ProjectionTrace:
     def clear(self) -> None:
         self.before.clear()
         self.after.clear()
+
+
+class SubspaceTrace:
+    """Wᵀh до/после + нормы возмущения по последнему вызову хука на слое."""
+
+    def __init__(self) -> None:
+        self.before: dict[int, np.ndarray] = {}
+        self.after: dict[int, np.ndarray] = {}
+        self.h_norm: dict[int, float] = {}
+        self.delta_norm: dict[int, float] = {}
+
+    def clear(self) -> None:
+        self.before.clear()
+        self.after.clear()
+        self.h_norm.clear()
+        self.delta_norm.clear()
 
 
 def decoder_layers(model: nn.Module) -> nn.ModuleList:
@@ -116,11 +174,37 @@ def _apply(h_last: torch.Tensor, spec: InterventionSpec, w: torch.Tensor) -> tup
     return new_h, s, s_after
 
 
+def _apply_subspace(
+    h_last: torch.Tensor,
+    spec: SubspaceSpec,
+    W: torch.Tensor,
+    c: torch.Tensor,
+) -> tuple[torch.Tensor, np.ndarray, np.ndarray, float, float]:
+    """new_h, Wᵀh, Wᵀh', ||h||, ||h'−h|| — нормы после квантования в dtype модели."""
+    h32 = h_last.to(torch.float32)
+    s = W.T @ h32
+    if spec.kind == "center":
+        delta_s = -float(spec.alpha) * (s - c)
+    elif spec.kind == "project_out":
+        delta_s = -s
+    else:
+        raise ValueError(f"unknown subspace intervention kind {spec.kind!r}")
+    new_h = (h32 + W @ delta_s).to(h_last.dtype)
+    new32 = new_h.to(torch.float32)
+    return (
+        new_h,
+        s.detach().cpu().numpy(),
+        (W.T @ new32).detach().cpu().numpy(),
+        float(torch.linalg.vector_norm(h32)),
+        float(torch.linalg.vector_norm(new32 - h32)),
+    )
+
+
 @contextlib.contextmanager
 def steered(
     model: nn.Module,
-    specs: list[InterventionSpec],
-    trace: ProjectionTrace | None = None,
+    specs: list[InterventionSpec | SubspaceSpec],
+    trace: ProjectionTrace | SubspaceTrace | None = None,
 ) -> Iterator[None]:
     """Вешает forward-хуки на указанные слои на время блока."""
     if not specs:
@@ -130,18 +214,40 @@ def steered(
     handles = []
     device = next(model.parameters()).device
 
-    def make_hook(spec: InterventionSpec):
-        w = torch.as_tensor(spec.w, dtype=torch.float32, device=device)
+    def make_hook(spec: InterventionSpec | SubspaceSpec):
+        if isinstance(spec, SubspaceSpec):
+            W = torch.as_tensor(
+                np.ascontiguousarray(spec.W), dtype=torch.float32, device=device
+            )
+            c = torch.as_tensor(
+                np.ascontiguousarray(spec.c), dtype=torch.float32, device=device
+            )
+
+            def replace(h_last: torch.Tensor) -> torch.Tensor:
+                new_h, s_before, s_after, h_norm, d_norm = _apply_subspace(h_last, spec, W, c)
+                if trace is not None:
+                    trace.before[spec.layer] = s_before
+                    trace.after[spec.layer] = s_after
+                    trace.h_norm[spec.layer] = h_norm
+                    trace.delta_norm[spec.layer] = d_norm
+                return new_h
+
+        else:
+            w = torch.as_tensor(spec.w, dtype=torch.float32, device=device)
+
+            def replace(h_last: torch.Tensor) -> torch.Tensor:
+                new_h, s_before, s_after = _apply(h_last, spec, w)
+                if trace is not None:
+                    trace.before[spec.layer] = s_before
+                    trace.after[spec.layer] = s_after
+                return new_h
 
         def hook(_module, _args, output):
             is_tuple = isinstance(output, tuple)
             hidden = output[0] if is_tuple else output
-            new_h, s_before, s_after = _apply(hidden[0, -1, :], spec, w)
+            new_h = replace(hidden[0, -1, :])
             hidden = hidden.clone()
             hidden[0, -1, :] = new_h
-            if trace is not None:
-                trace.before[spec.layer] = s_before
-                trace.after[spec.layer] = s_after
             return (hidden, *output[1:]) if is_tuple else hidden
 
         return hook
@@ -202,36 +308,54 @@ def capture_last_token(
 
 
 class Scorer:
-    """Constrained A/B(/C) скоринг — точная копия логики src/inference.py."""
+    """Constrained letter scoring — preference A/B(/C) и MMLU-Pro A–J.
+
+    Логика совпадает с src/inference.py: softmax только по valid_labels на
+    last-token logits. Токены — с ведущим пробелом (`ĠA` … `ĠJ`).
+    """
 
     def __init__(self, model: nn.Module, tokenizer) -> None:
         self.model = model
         self.tokenizer = tokenizer
-        self.tok_ids = {
-            label.strip(): tokenizer(label, add_special_tokens=False).input_ids[0]
-            for label in CONSTRAINED_TOKENS
-        }
+        self.tok_ids: dict[str, int] = {}
+        for label in CONSTRAINED_TOKENS:
+            ids = tokenizer(label, add_special_tokens=False).input_ids
+            if len(ids) != 1:
+                raise ValueError(f"ожидался 1 токен для {label!r}, получено {ids}")
+            self.tok_ids[label.strip()] = ids[0]
         self.device = next(model.parameters()).device
+
+    def _tok_id(self, label: str) -> int:
+        key = label.strip()
+        if key not in self.tok_ids:
+            ids = self.tokenizer(f" {key}", add_special_tokens=False).input_ids
+            if len(ids) != 1:
+                raise ValueError(f"ожидался 1 токен для {key!r}, получено {ids}")
+            self.tok_ids[key] = ids[0]
+        return self.tok_ids[key]
 
     @torch.no_grad()
     def score(self, prompt: str, valid_labels: list[str]) -> dict:
+        if not valid_labels:
+            raise ValueError("valid_labels пуст")
         inputs = self.tokenizer(prompt, return_tensors="pt").to(self.device)
         out = self.model(**inputs)
         last_logits = out.logits[0, -1].float()
-        logits = {k: float(last_logits[v]) for k, v in self.tok_ids.items()}
         log_probs = F.log_softmax(last_logits, dim=0)
-        valid = torch.tensor([logits[l] for l in valid_labels])
+        label_toks = {lab: self._tok_id(lab) for lab in valid_labels}
+        logits = {lab: float(last_logits[tok]) for lab, tok in label_toks.items()}
+        valid = torch.tensor([logits[l] for l in valid_labels], dtype=torch.float32)
         probs = F.softmax(valid, dim=0).tolist()
         row = {
             "n_prompt_tokens": int(inputs["input_ids"].shape[1]),
             "choice": valid_labels[int(np.argmax(probs))],
             "valid_labels": list(valid_labels),
         }
-        for label, tok in self.tok_ids.items():
-            row[f"logit_{label}"] = logits[label]
-            row[f"logprob_vocab_{label}"] = float(log_probs[tok])
-        for label, p in zip(valid_labels, probs, strict=True):
-            row[f"prob_constrained_{label}"] = float(p)
+        for lab, tok in label_toks.items():
+            row[f"logit_{lab}"] = logits[lab]
+            row[f"logprob_vocab_{lab}"] = float(log_probs[tok])
+        for lab, p in zip(valid_labels, probs, strict=True):
+            row[f"prob_constrained_{lab}"] = float(p)
         return row
 
 

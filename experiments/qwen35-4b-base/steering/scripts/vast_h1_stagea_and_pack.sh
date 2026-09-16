@@ -2,18 +2,17 @@
 # Qwen3.5-4B-Base — H1 Stage A (gender equalize) + pack.
 #
 # Prerequisites on Vast:
-#   - cloned inference repo (Bias--subspaces-in-LLM) with PYTHONPATH / cwd = repo
-#   - this experiment tree mounted or copied (configs/candidates/vectors/samples)
-#   - HF_TOKEN for gated model if needed
+#   - public repo niczavadskiy/occupational-gender-bias (HF_TOKEN for model)
+#   - artifacts under experiments/qwen35-4b-base/steering/
 #
 # Usage:
-#   export STEER=/path/to/experiments/qwen35-4b-base/steering
-#   export REPO=/workspace/Bias--subspaces-in-LLM
+#   export REPO=/workspace/occupational-gender-bias
+#   export STEER=$REPO/experiments/qwen35-4b-base/steering
 #   bash "$STEER/scripts/vast_h1_stagea_and_pack.sh"
 set -euo pipefail
 
 STEER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-REPO="${REPO:-$(pwd)}"
+REPO="${REPO:-/workspace/occupational-gender-bias}"
 MODEL="${MODEL:-Qwen/Qwen3.5-4B-Base}"
 TAG="${TAG:-h1_4b_a_v1}"
 DEVICE="${DEVICE:-cuda}"

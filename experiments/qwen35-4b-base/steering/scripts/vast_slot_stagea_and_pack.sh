@@ -3,7 +3,7 @@
 set -euo pipefail
 
 STEER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
-REPO="${REPO:-$(pwd)}"
+REPO="${REPO:-/workspace/occupational-gender-bias}"
 MODEL="${MODEL:-Qwen/Qwen3.5-4B-Base}"
 TAG="${TAG:-slot_4b_a_v1}"
 DEVICE="${DEVICE:-cuda}"

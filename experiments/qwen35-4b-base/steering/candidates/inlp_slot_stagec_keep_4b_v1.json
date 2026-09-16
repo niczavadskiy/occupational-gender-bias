@@ -1,0 +1,11 @@
+{
+  "schema": "steering.inlp_stagec_keep/v1",
+  "hypothesis": "inlp_slot",
+  "model_scale": "qwen35_4b",
+  "source": "provisional = Stage B shortlist candidates only; freeze after Stage B keep",
+  "note": "Report-only. Update ids to Stage B keep winners before Stage C.",
+  "candidates": [
+    {"id": "inlp__L30__k8__a1", "role": "candidate"},
+    {"id": "inlp__L30__k16__a1", "role": "candidate"}
+  ]
+}
