@@ -2,12 +2,24 @@
   "schema": "steering.inlp_stageb_shortlist/v1",
   "hypothesis": "inlp_slot",
   "model_scale": "qwen35_4b",
-  "source": "provisional from inlp_slot_v1.yaml follow_up; REPLACE after Stage A ranking",
-  "note": "Peak L30; ranks 8,16 α=1 + random. After Stage A: keep top by mean_R_slot.",
+  "source": "inlp_slot_4b_a_v1/ranking.csv (2026-09-16)",
+  "note": "Stage A winners by mean_R_slot. L31 > L30 at matched k; take L31 k∈{8,16,32} + random. (k64≈k32 on R, heavier AUC hit — omit from B unless needed.)",
+  "selection": {
+    "primary": "mean_R_slot",
+    "rejected_provisional": ["inlp__L30__k8__a1", "inlp__L30__k16__a1"],
+    "rejected_reason": "valid but not top: R_slot≈0.16–0.18 vs L31≈0.21–0.24; L30 already reported in inlp_slot_4b_{b,c}_v1",
+    "stage_a_metrics": {
+      "inlp__L31__k8__a1": {"mean_R_slot": 0.212, "auc_after": 0.966},
+      "inlp__L31__k16__a1": {"mean_R_slot": 0.228, "auc_after": 0.879},
+      "inlp__L31__k32__a1": {"mean_R_slot": 0.243, "auc_after": 0.732}
+    }
+  },
   "candidates": [
-    {"id": "inlp__L30__k8__a1", "role": "candidate", "provisional": true},
-    {"id": "inlp__L30__k16__a1", "role": "candidate", "provisional": true},
-    {"id": "rand0__L30__k8__a1", "role": "control"},
-    {"id": "rand0__L30__k16__a1", "role": "control"}
+    {"id": "inlp__L31__k8__a1", "role": "candidate"},
+    {"id": "inlp__L31__k16__a1", "role": "candidate"},
+    {"id": "inlp__L31__k32__a1", "role": "candidate"},
+    {"id": "rand0__L31__k8__a1", "role": "control"},
+    {"id": "rand0__L31__k16__a1", "role": "control"},
+    {"id": "rand0__L31__k32__a1", "role": "control"}
   ]
 }

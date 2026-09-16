@@ -10,8 +10,8 @@ HS run: `results/qwen35_4b_h1h3_pack/run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_
 | Путь | Содержимое |
 |---|---|
 | `candidates/h1_*.json`, `slot_*.json` | probe-direction grids |
-| `candidates/inlp_*_stageb_shortlist_4b_v1.json` | provisional Stage B (edit after A) |
-| `candidates/inlp_*_stagec_keep_4b_v1.json` | provisional Stage C keep |
+| `candidates/inlp_*_stageb_shortlist_4b_v1.json` | Stage B shortlist **from Stage A ranking** (gender L23; slot L31) |
+| `candidates/inlp_*_stagec_keep_4b_v1.json` | Stage C keep (freeze after B v2) |
 | `vectors/*.npz` | probe directions |
 | `subspaces/inlp_*_choice_v1.*` | INLP W/centers |
 | `samples/` | stage A/B/C frozen samples |
@@ -19,7 +19,9 @@ HS run: `results/qwen35_4b_h1h3_pack/run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_
 
 ## Слои (не с 2B)
 
-| Target | Peak | INLP layers | Steering belt |
-|---|---|---|---|
-| gender | L24 | 23–25 | 20–26 |
-| slot | L30 | 29–31 | 27–32 |
+| Target | Peak (probe) | INLP Stage A grid | B/C shortlist (from A) | Steering belt |
+|---|---|---|---|---|
+| gender | L24 | 23–25 | **L23** k16/32/64 | 20–26 |
+| slot | L30 | 29–31 | **L31** k8/16/32 | 27–32 |
+
+`*_b_v1`/`*_c_v1` = provisional peak (L24/L30). Re-run as **`*_v2`** with ranking shortlists.

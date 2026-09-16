@@ -2,12 +2,24 @@
   "schema": "steering.inlp_stageb_shortlist/v1",
   "hypothesis": "inlp_gender",
   "model_scale": "qwen35_4b",
-  "source": "provisional from inlp_gender_v1.yaml follow_up; REPLACE after Stage A ranking",
-  "note": "Peak L24; ranks 8,16 α=1 + matching random controls. After Stage A: keep top by mean_R_gender with CI>0 and above random.",
+  "source": "inlp_gender_4b_a_v1/ranking.csv (2026-09-16)",
+  "note": "Stage A winners by mean_R_gender (CI>0, ≫ random). Peak-probe L24 was null (R≈0.004); causal signal on adjacent L23, rising with k. k16/32/64 + matching random controls.",
+  "selection": {
+    "primary": "mean_R_gender",
+    "rejected_provisional": ["inlp__L24__k8__a1", "inlp__L24__k16__a1"],
+    "rejected_reason": "R≈0.003–0.004 ≈ random; not causal on preference",
+    "stage_a_metrics": {
+      "inlp__L23__k16__a1": {"mean_R_gender": 0.0207, "ci": [0.0166, 0.0250], "auc_after": 0.769},
+      "inlp__L23__k32__a1": {"mean_R_gender": 0.0326, "ci": [0.0250, 0.0407], "auc_after": 0.663},
+      "inlp__L23__k64__a1": {"mean_R_gender": 0.0416, "ci": [0.0310, 0.0531], "auc_after": 0.555}
+    }
+  },
   "candidates": [
-    {"id": "inlp__L24__k8__a1", "role": "candidate", "provisional": true},
-    {"id": "inlp__L24__k16__a1", "role": "candidate", "provisional": true},
-    {"id": "rand0__L24__k8__a1", "role": "control"},
-    {"id": "rand0__L24__k16__a1", "role": "control"}
+    {"id": "inlp__L23__k16__a1", "role": "candidate"},
+    {"id": "inlp__L23__k32__a1", "role": "candidate"},
+    {"id": "inlp__L23__k64__a1", "role": "candidate"},
+    {"id": "rand0__L23__k16__a1", "role": "control"},
+    {"id": "rand0__L23__k32__a1", "role": "control"},
+    {"id": "rand0__L23__k64__a1", "role": "control"}
   ]
 }

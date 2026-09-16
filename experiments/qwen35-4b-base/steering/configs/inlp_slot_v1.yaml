@@ -85,9 +85,11 @@ behavior:
 
 follow_up:
   candidate:
-    layer: 30
-    ranks: [8, 16]
+    # Fixed 2026-09-16 from inlp_slot_4b_a_v1: L31 > L30 at matched k.
+    layer: 31
+    ranks: [8, 16, 32]
     alpha: 1.0
+    note: "L30 k8/16 already in *_v1 results; B/C retarget L31 as *_v2."
   confirmatory:
     sample_stem: inlp_slot_test_sample_4b_v1
     source_split: test
@@ -95,14 +97,16 @@ follow_up:
     seed: 20260913
     tag: inlp_slot_confirm_test_4b_v1
   capability:
-    status: pending_configs
+    status: shortlist_from_stage_a
     runner: run_inlp_stageb
     shortlist: candidates/inlp_slot_stageb_shortlist_4b_v1.json
+    tag: inlp_slot_4b_b_v2
     cap_loss_max: 0.03
   stage_c:
     runner: run_inlp_stagec
     sample_stem: inlp_slot_stagec_sample_4b_v1
     keep: candidates/inlp_slot_stagec_keep_4b_v1.json
+    tag: inlp_slot_4b_c_v2
 
 outcomes:
   A: "AUC → chance, φ не меняется → slot decodability ≠ causal"

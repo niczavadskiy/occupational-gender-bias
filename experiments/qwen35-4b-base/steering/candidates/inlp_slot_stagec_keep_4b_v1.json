@@ -2,10 +2,11 @@
   "schema": "steering.inlp_stagec_keep/v1",
   "hypothesis": "inlp_slot",
   "model_scale": "qwen35_4b",
-  "source": "provisional = Stage B shortlist candidates only; freeze after Stage B keep",
-  "note": "Report-only. Update ids to Stage B keep winners before Stage C.",
+  "source": "provisional = Stage B shortlist candidates; freeze after inlp_slot_4b_b_v2 keep.json",
+  "note": "Do not run Stage C until Stage B v2 finishes. Replace with cap_loss≤0.03 winners.",
   "candidates": [
-    {"id": "inlp__L30__k8__a1", "role": "candidate"},
-    {"id": "inlp__L30__k16__a1", "role": "candidate"}
+    {"id": "inlp__L31__k8__a1", "role": "candidate"},
+    {"id": "inlp__L31__k16__a1", "role": "candidate"},
+    {"id": "inlp__L31__k32__a1", "role": "candidate"}
   ]
 }

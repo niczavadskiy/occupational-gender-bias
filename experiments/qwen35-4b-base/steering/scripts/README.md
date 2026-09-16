@@ -15,18 +15,18 @@ Need `HF_TOKEN` for the model.
 Order **per axis** (gender then slot, or parallel on two GPUs):
 
 1. **Stage A** — preference on val sample, full rank grid  
-2. Download ranking → **edit shortlist** JSON (or keep provisional L24/L30 k∈{8,16})  
-3. **Stage B** — MMLU capability on shortlist  
-4. Freeze **keep** JSON → **Stage C** — held-out preference + domain_test
+2. Shortlists fixed from A ranking (gender **L23** k16/32/64; slot **L31** k8/16/32)  
+3. **Stage B** — MMLU on shortlist → tags `*_b_v2`  
+4. Freeze **keep** JSON → **Stage C** → tags `*_c_v2`
 
 | Script | Default tag |
 |---|---|
 | `vast_inlp_gender_stagea_and_pack.sh` | `inlp_gender_4b_a_v1` |
 | `vast_inlp_slot_stagea_and_pack.sh` | `inlp_slot_4b_a_v1` |
-| `vast_inlp_gender_stageb_and_pack.sh` | `inlp_gender_4b_b_v1` |
-| `vast_inlp_slot_stageb_and_pack.sh` | `inlp_slot_4b_b_v1` |
-| `vast_inlp_gender_stagec_and_pack.sh` | `inlp_gender_4b_c_v1` |
-| `vast_inlp_slot_stagec_and_pack.sh` | `inlp_slot_4b_c_v1` |
+| `vast_inlp_gender_stageb_and_pack.sh` | `inlp_gender_4b_b_v2` (L23) |
+| `vast_inlp_slot_stageb_and_pack.sh` | `inlp_slot_4b_b_v2` (L31) |
+| `vast_inlp_gender_stagec_and_pack.sh` | `inlp_gender_4b_c_v2` |
+| `vast_inlp_slot_stagec_and_pack.sh` | `inlp_slot_4b_c_v2` |
 
 Smoke before full Stage A:
 

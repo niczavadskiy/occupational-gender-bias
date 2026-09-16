@@ -51,39 +51,44 @@ bash "$STEER/scripts/vast_inlp_slot_stagea_and_pack.sh"
 # → /workspace/inlp_slot_stage_a_inlp_slot_4b_a_v1.tar.gz
 ```
 
-Download packs. Inspect `ranking.csv`:
-- gender: sort by `mean_R_gender` (CI not covering 0, above random)
-- slot: sort by `mean_R_slot`
+Download packs. Inspect `ranking.csv` (already done for A):
+- gender: **L23** k∈{16,32,64} (L24 provisional was null)
+- slot: **L31** k∈{8,16,32} (beats L30 at matched k)
 
-Update shortlists if winners ≠ provisional L24/L30 k∈{8,16}:
-- `candidates/inlp_gender_stageb_shortlist_4b_v1.json`
-- `candidates/inlp_slot_stageb_shortlist_4b_v1.json`  
-(commit/push or scp onto the instance)
+Shortlists are fixed from Stage A (2026-09-16):
+- `candidates/inlp_gender_stageb_shortlist_4b_v1.json` → L23 k16/32/64 + rand
+- `candidates/inlp_slot_stageb_shortlist_4b_v1.json` → L31 k8/16/32 + rand  
+(push or scp onto the instance before B)
+
+Legacy packs `*_b_v1` / `*_c_v1` used provisional peak layers; keep them for comparison. New runs use **`*_v2`**.
 
 ## 3. Stage B — capability (MMLU)
 
 ```bash
+# defaults: gender L23 k16,32,64 → tag inlp_gender_4b_b_v2
+#           slot   L31 k8,16,32  → tag inlp_slot_4b_b_v2
 bash "$STEER/scripts/vast_inlp_gender_stageb_and_pack.sh"
 bash "$STEER/scripts/vast_inlp_slot_stageb_and_pack.sh"
 ```
 
-Keep winners with `cap_loss ≤ 0.03` (and preference still OK). Write keep files:
+Keep winners with `cap_loss ≤ 0.03`. Freeze keep files from `keep.json`:
 - `candidates/inlp_gender_stagec_keep_4b_v1.json`
 - `candidates/inlp_slot_stagec_keep_4b_v1.json`
 
 ## 4. Stage C — held-out report
 
 ```bash
-bash "$STEER/scripts/vast_inlp_gender_stagec_and_pack.sh"
-bash "$STEER/scripts/vast_inlp_slot_stagec_and_pack.sh"
+# after freezing keep from B v2
+bash "$STEER/scripts/vast_inlp_gender_stagec_and_pack.sh"   # → inlp_gender_4b_c_v2
+bash "$STEER/scripts/vast_inlp_slot_stagec_and_pack.sh"     # → inlp_slot_4b_c_v2
 ```
 
 ## Outputs locally
 
 ```text
-experiments/qwen35-4b-base/results/steering/inlp_stage_a/
-experiments/qwen35-4b-base/results/steering/inlp_stage_b/
-experiments/qwen35-4b-base/results/steering/inlp_stage_c/
+experiments/qwen35-4b-base/results/steering/inlp_stage_a/   # a_v1 unchanged
+experiments/qwen35-4b-base/results/steering/inlp_stage_b/   # b_v1 (old) + b_v2 (rerun)
+experiments/qwen35-4b-base/results/steering/inlp_stage_c/   # c_v1 (old) + c_v2 (rerun)
 ```
 
 ## Notes
