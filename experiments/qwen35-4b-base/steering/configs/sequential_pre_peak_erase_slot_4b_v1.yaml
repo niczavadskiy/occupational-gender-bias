@@ -1,0 +1,43 @@
+# Sequential pre-peak erase — slot_prob (4B)
+#
+# Peak ~L30 from 4B slot_choice layer_scan; stub until real slot_prob scan.
+
+version: v1
+axis: slot
+target: slot_prob
+primary_metric: R_slot
+
+model: Qwen/Qwen3.5-4B-Base
+
+layer_scan:
+  path: null
+  metric: auto
+
+# Stub ascent into L30 (late plateau L26–32).
+auc_curve:
+  24: 0.55
+  25: 0.65
+  26: 0.75
+  27: 0.82
+  28: 0.88
+  29: 0.93
+  30: 0.97
+  31: 0.96
+  32: 0.94
+
+ascent_pool:
+  tau: 0.38
+  gamma: 0.25
+  chance: 0.0
+  min_prev_auc_for_knee: 0.05
+  max_pool: 8
+
+ranks: [4, 8, 16]
+alphas: [1.0]
+synergy_min: 0.005
+k_max_fit: 32
+ridge_alpha: 1.0
+chance_corr: 0.15
+clf_C: 0.03
+
+sample: experiments/qwen35-4b-base/steering/samples/h1_stagea_sample_v1.json

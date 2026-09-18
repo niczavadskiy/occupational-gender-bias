@@ -1,0 +1,28 @@
+# Classical peak INLP — slot_prob (4B)
+# Live Phase A layers = choice peak belt [29,30,31].
+
+version: v1
+hypothesis: inlp_slot_prob_4b
+target: slot_prob
+model: Qwen/Qwen3.5-4B-Base
+
+layers:
+  candidates: [29, 30, 31]
+  peak: 30
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+steering:
+  kind: center
+  ranks: [4, 8, 16]
+  alphas: [1.0]
+
+behavior:
+  sample: samples/h1_stagea_sample_v1.json
+  primary_axis: slot
