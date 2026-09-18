@@ -1,0 +1,51 @@
+# Sequential pre-peak erase — slot (2B)
+#
+# Peak slot_choice ≈ L23 (val bacc ~94.5%). Full layer_scan JSON may be absent
+# locally; provide `layer_scan.path` when available, or keep `auc_curve` stub
+# below (replace with real scan before serious runs).
+
+version: v1
+axis: slot
+target: slot_choice
+primary_metric: R_slot
+
+model: Qwen/Qwen3.5-2B-Base
+
+layer_scan:
+  path: null
+  metric: val_roc_auc
+
+# Stub curve (illustrative ascent into L23). Replace via --layer-scan or real path.
+auc_curve:
+  8: 0.62
+  9: 0.65
+  10: 0.68
+  11: 0.72
+  12: 0.78
+  13: 0.84
+  14: 0.88
+  15: 0.91
+  16: 0.94
+  17: 0.955
+  18: 0.97
+  19: 0.98
+  20: 0.985
+  21: 0.988
+  22: 0.990
+  23: 0.993
+  24: 0.990
+
+ascent_pool:
+  tau: 0.38
+  gamma: 0.25
+  chance: 0.5
+  min_prev_auc_for_knee: 0.65
+  max_pool: 8
+
+ranks: [4, 8, 16]
+alphas: [1.0]
+synergy_min: 0.005
+k_max_fit: 32
+clf_C: 0.03
+
+sample: steering/samples/h1_stagea_sample_v1.json

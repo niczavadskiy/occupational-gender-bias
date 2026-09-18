@@ -1,0 +1,28 @@
+# Sequential pre-peak erase — gender (2B)
+
+version: v1
+axis: gender
+target: gender_choice
+primary_metric: R_gender
+
+model: Qwen/Qwen3.5-2B-Base
+
+layer_scan:
+  path: results/v1_full_pos_shuffle/probes/h11_gender_choice/layer_scan/results.json
+  metric: val_roc_auc
+
+ascent_pool:
+  tau: 0.38
+  gamma: 0.25
+  chance: 0.5
+  min_prev_auc_for_knee: 0.65
+  max_pool: 8
+
+# ranks screened on first_hit and later hits
+ranks: [4, 8, 16]
+alphas: [1.0]
+synergy_min: 0.005
+k_max_fit: 32
+clf_C: 0.03
+
+sample: steering/samples/h1_stagea_sample_v1.json
