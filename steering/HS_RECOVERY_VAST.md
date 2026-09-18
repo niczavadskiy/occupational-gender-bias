@@ -10,9 +10,18 @@ Torch: image default OK if `numpy<2`. Setup всегда чинит env:
 bash scripts/setup_instance.sh   # → ensure_steering_env (numpy<2 + transformers)
 ```
 
-Pinned: `scripts/requirements-vast.txt` (`numpy>=1.26,<2`, `transformers>=4.50`).
+Pinned: `scripts/requirements-vast.txt` (`numpy>=1.26,<2`, `transformers>=4.50`,
+`flash-linear-attention`, `causal-conv1d`).
 `ensure_steering_env` снимает битый `torchaudio` (ломает `AutoModelForCausalLM` для
 Qwen3.5). Оставить audio: `KEEP_TORCHAUDIO=1`.
+
+Если в логе Qwen: `causal_conv1d` / `flash-linear-attention` falling back — вручную:
+
+```bash
+export PY="$(cat /tmp/occupational_steering_py 2>/dev/null || echo /opt/conda/bin/python)"
+"$PY" -m pip install -U flash-linear-attention causal-conv1d
+```
+
 Не ставь корневой `requirements.txt` с `numpy>=2` на Vast.
 
 ## Быстрый путь (свежий инстанс)
