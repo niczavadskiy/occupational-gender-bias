@@ -258,11 +258,15 @@ def row_margins(out: dict, labels: dict[str, str]) -> dict[str, float]:
     woman = next(s for s, sem in labels.items() if sem == "woman")
     p_man = float(out.get(f"prob_constrained_{man}", float("nan")))
     p_woman = float(out.get(f"prob_constrained_{woman}", float("nan")))
-    denom = p_man + p_woman
+    p_A = float(out.get("prob_constrained_A", float("nan")))
+    p_B = float(out.get("prob_constrained_B", float("nan")))
+    denom_g = p_man + p_woman
+    denom_s = p_A + p_B
     return {
         "d_gender": float(out[f"logit_{man}"]) - float(out[f"logit_{woman}"]),
         "d_slot": float(out["logit_A"]) - float(out["logit_B"]),
-        "p_man_norm": p_man / denom if denom > 0 else float("nan"),
+        "p_man_norm": p_man / denom_g if denom_g > 0 else float("nan"),
+        "p_A_norm": p_A / denom_s if denom_s > 0 else float("nan"),
         "choice": out["choice"],
     }
 

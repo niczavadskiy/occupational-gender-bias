@@ -79,7 +79,7 @@ def load_config(path: Path) -> dict:
 
 
 def curve_from_config(cfg: dict, *, layer_scan_override: Path | None) -> tuple[dict[int, float], str]:
-    metric = str((cfg.get("layer_scan") or {}).get("metric") or "val_roc_auc")
+    metric = str((cfg.get("layer_scan") or {}).get("metric") or "auto")
     if layer_scan_override is not None:
         return load_auc_curve(layer_scan_override, metric=metric), metric
     ls = cfg.get("layer_scan") or {}
@@ -89,7 +89,7 @@ def curve_from_config(cfg: dict, *, layer_scan_override: Path | None) -> tuple[d
     if cfg.get("auc_curve"):
         return {int(k): float(v) for k, v in cfg["auc_curve"].items()}, metric
     raise SystemExit(
-        "нет AUC: укажите layer_scan.path, --layer-scan, или auc_curve в yaml"
+        "нет AUC/R²: укажите layer_scan.path, --layer-scan, или auc_curve в yaml"
     )
 
 
@@ -156,6 +156,9 @@ def fit_pool_subspaces(
     solver: str,
     clf_C: float,
     seed: int,
+    task: str = "classification",
+    ridge_alpha: float = 1.0,
+    chance_corr: float = 0.15,
 ) -> tuple[dict[str, np.ndarray], list[dict]]:
     train_fams, test_fams = family_split(list(families), seed=seed, train_frac=0.7)
     arrays: dict[str, np.ndarray] = {}
@@ -175,6 +178,9 @@ def fit_pool_subspaces(
             max_iter=2000,
             chance_auc=0.55,
             seed=seed + L,
+            task=task,
+            ridge_alpha=ridge_alpha,
+            chance_corr=chance_corr,
         )
         W, c = fit["W"], fit["centers"]
         arrays[f"L{L}__W"] = W
@@ -182,9 +188,11 @@ def fit_pool_subspaces(
         k = int(W.shape[1])
         Wr = random_orthonormal(W.shape[0], k, rng).astype(np.float32)
         train_mask = np.array([fid in train_fams for fid in families])
+        from steering.build_conditional_inlp_subspace import _bin_y_for_centers
+
         cr = subspace_centers(
             np.asarray(H_by_L[L][train_mask], dtype=np.float64),
-            y[train_mask],
+            _bin_y_for_centers(y[train_mask], task),
             Wr.astype(np.float64),
         ).astype(np.float32)
         arrays[f"L{L}__W_random_s0"] = Wr
@@ -196,9 +204,11 @@ def fit_pool_subspaces(
                 "k_chance": fit["k_chance"],
                 "auc_curve": fit["auc_curve"],
                 "solver": fit["solver"],
+                "task": fit.get("task", task),
             }
         )
-        print(f"    k_found={k}  AUC(0)={fit['auc_curve'][0]:.3f}  k_chance={fit['k_chance']}")
+        sc0 = fit["auc_curve"][0] if fit["auc_curve"] else float("nan")
+        print(f"    k_found={k}  score(0)={sc0:.3f}  k_chance={fit['k_chance']}  task={task}")
     return arrays, details
 
 
@@ -234,20 +244,26 @@ def main(argv: list[str] | None = None) -> int:
     cfg = load_config(cfg_path)
 
     axis = str(cfg.get("axis", "gender"))
-    target = str(cfg.get("target", "gender_choice"))
+    target = str(cfg.get("target", "gender_prob"))
     primary = "slot" if axis == "slot" or "slot" in str(cfg.get("primary_metric", "")) else "gender"
     model_id = args.model or cfg.get("model") or "Qwen/Qwen3.5-2B-Base"
+    is_prob = target in ("gender_prob", "slot_prob", "narrative_prob")
+    task = "regression" if is_prob else "classification"
 
     curve, metric = curve_from_config(cfg, layer_scan_override=resolve_path(args.layer_scan))
-    ap_cfg = cfg.get("ascent_pool") or {}
+    ap_cfg = dict(cfg.get("ascent_pool") or {})
+    if is_prob and "chance" not in ap_cfg:
+        ap_cfg["chance"] = 0.0
+    if is_prob and "min_prev_auc_for_knee" not in ap_cfg:
+        ap_cfg["min_prev_auc_for_knee"] = 0.05
     pool_res = detect_ascent_pool(
         curve,
         tau=float(ap_cfg.get("tau", 0.38)),
         gamma=float(ap_cfg.get("gamma", 0.25)),
-        chance=float(ap_cfg.get("chance", 0.5)),
-        metric=metric,
+        chance=float(ap_cfg.get("chance", 0.5 if not is_prob else 0.0)),
+        metric=metric if metric != "auto" else ("val_r2" if is_prob else "val_roc_auc"),
         max_pool=int(ap_cfg.get("max_pool", 8)),
-        min_prev_auc_for_knee=float(ap_cfg.get("min_prev_auc_for_knee", 0.65)),
+        min_prev_auc_for_knee=float(ap_cfg.get("min_prev_auc_for_knee", 0.65 if not is_prob else 0.05)),
     )
 
     out_dir = args.out_root / "sequential_pre_peak" / args.tag
@@ -290,12 +306,19 @@ def main(argv: list[str] | None = None) -> int:
     pool = list(pool_res.pool)
     max_hits = args.max_hits if args.max_hits is not None else len(pool)
 
-    solver = "logistic"
-    try:
-        import sklearn  # noqa: F401
-    except ImportError:
-        solver = "mean_diff"
-        print("sklearn missing → mean_diff")
+    solver = "ridge" if task == "regression" else "logistic"
+    if solver == "logistic":
+        try:
+            import sklearn  # noqa: F401
+        except ImportError:
+            solver = "mean_diff"
+            print("sklearn missing → mean_diff")
+    else:
+        try:
+            import sklearn  # noqa: F401
+        except ImportError:
+            solver = "mean_diff"
+            print("sklearn missing → mean_diff (binarized halves)")
 
     print(f"\n[1] load {model_id}...")
     t0 = time.time()
@@ -311,12 +334,21 @@ def main(argv: list[str] | None = None) -> int:
     )
     H_by_L = stack_hs(hs_lists)
     families = np.array([r["scenario_family_id"] for r in rows], dtype=np.int64)
-    if target == "slot_choice":
-        y = np.array([r["y_slot"] for r in rows], dtype=np.int32)
+    if target in ("slot_prob", "slot_choice"):
+        if target == "slot_prob":
+            y = np.array([r.get("p_A_norm", float("nan")) for r in rows], dtype=np.float64)
+        else:
+            y = np.array([r["y_slot"] for r in rows], dtype=np.float64)
     else:
-        y = np.array([r["y_gender"] for r in rows], dtype=np.int32)
+        if target == "gender_prob":
+            y = np.array([r.get("p_man_norm", float("nan")) for r in rows], dtype=np.float64)
+        else:
+            y = np.array([r["y_gender"] for r in rows], dtype=np.float64)
+    if not np.isfinite(y).all():
+        n_bad = int((~np.isfinite(y)).sum())
+        raise SystemExit(f"target={target}: {n_bad} non-finite labels — check capture probs")
 
-    print(f"\n[3] fit INLP on pool (baseline HS, target={target})...")
+    print(f"\n[3] fit INLP on pool (baseline HS, target={target}, task={task})...")
     arrays, fit_details = fit_pool_subspaces(
         H_by_L=H_by_L,
         y=y,
@@ -326,6 +358,9 @@ def main(argv: list[str] | None = None) -> int:
         solver=solver,
         clf_C=clf_C,
         seed=args.seed,
+        task=task,
+        ridge_alpha=float(cfg.get("ridge_alpha", 1.0)),
+        chance_corr=float(cfg.get("chance_corr", 0.15)),
     )
     npz_path = out_dir / f"inlp_prepeak_{target}_{args.tag}.npz"
     meta_sub = {

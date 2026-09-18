@@ -46,7 +46,7 @@ class AscentPoolResult:
 def load_auc_curve(
     path: Path,
     *,
-    metric: str = "val_roc_auc",
+    metric: str = "auto",
     min_layer: int | None = None,
     max_layer: int | None = None,
 ) -> dict[int, float]:
@@ -55,24 +55,33 @@ def load_auc_curve(
 
     raw = json.loads(path.read_text(encoding="utf-8"))
     curve: dict[int, float] = {}
+    resolved_metric = metric
 
     if isinstance(raw, dict) and "layers" in raw and isinstance(raw["layers"], list):
+        # prefer regression metric for gender_prob / slot_prob scans
+        if metric == "auto":
+            sample = raw["layers"][0] if raw["layers"] else {}
+            for cand in ("val_r2", "val_roc_auc", "val_balanced_accuracy", "val_pearson_r"):
+                if cand in sample:
+                    resolved_metric = cand
+                    break
+            else:
+                resolved_metric = "val_roc_auc"
         for row in raw["layers"]:
             L = int(row["layer"])
-            if metric not in row:
-                # fallbacks
-                for alt in ("val_balanced_accuracy", "val_accuracy", "roc_auc", "auc"):
+            key = resolved_metric
+            if key not in row:
+                for alt in ("val_r2", "val_roc_auc", "val_balanced_accuracy", "roc_auc", "auc"):
                     if alt in row:
-                        metric = alt
+                        key = alt
                         break
-            if metric not in row:
+            if key not in row:
                 continue
-            curve[L] = float(row[metric])
+            curve[L] = float(row[key])
     elif isinstance(raw, dict) and "auc_curve" in raw:
         for k, v in raw["auc_curve"].items():
             curve[int(k)] = float(v)
     elif isinstance(raw, dict):
-        # flat {"12": 0.77, ...} or {"L12": ...}
         for k, v in raw.items():
             if k in ("metric", "schema", "note"):
                 continue

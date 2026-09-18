@@ -88,6 +88,18 @@ def residualize(H: np.ndarray, w: np.ndarray) -> np.ndarray:
     return H - np.outer(H @ w, w)
 
 
+def fit_direction_mean_diff(H_tr: np.ndarray, y_tr: np.ndarray) -> np.ndarray:
+    y = y_tr.astype(int)
+    pos, neg = H_tr[y == 1], H_tr[y == 0]
+    if len(pos) == 0 or len(neg) == 0:
+        raise ValueError("mean_diff needs both classes")
+    w = pos.mean(axis=0) - neg.mean(axis=0)
+    n = float(np.linalg.norm(w))
+    if n < 1e-12:
+        raise ValueError("zero mean_diff")
+    return w / n
+
+
 def fit_direction_logistic(H_tr: np.ndarray, y_tr: np.ndarray, C: float, max_iter: int) -> np.ndarray:
     from sklearn.linear_model import LogisticRegression
     from sklearn.pipeline import Pipeline
@@ -119,16 +131,39 @@ def fit_direction_logistic(H_tr: np.ndarray, y_tr: np.ndarray, C: float, max_ite
     return w_raw / n
 
 
-def fit_direction_mean_diff(H_tr: np.ndarray, y_tr: np.ndarray) -> np.ndarray:
-    y = y_tr.astype(int)
-    pos, neg = H_tr[y == 1], H_tr[y == 0]
-    if len(pos) == 0 or len(neg) == 0:
-        raise ValueError("mean_diff needs both classes")
-    w = pos.mean(axis=0) - neg.mean(axis=0)
-    n = float(np.linalg.norm(w))
+def fit_direction_ridge(H_tr: np.ndarray, y_tr: np.ndarray, alpha: float) -> np.ndarray:
+    from sklearn.linear_model import Ridge
+    from sklearn.pipeline import Pipeline
+    from sklearn.preprocessing import StandardScaler
+
+    pipe = Pipeline(
+        [
+            ("scaler", StandardScaler()),
+            ("ridge", Ridge(alpha=alpha)),
+        ]
+    )
+    pipe.fit(H_tr, y_tr.astype(np.float64))
+    scaler: StandardScaler = pipe.named_steps["scaler"]
+    ridge: Ridge = pipe.named_steps["ridge"]
+    coef_scaled = np.asarray(ridge.coef_, dtype=np.float64).ravel()
+    scale = np.asarray(scaler.scale_, dtype=np.float64)
+    w_raw = coef_scaled / np.maximum(scale, 1e-12)
+    n = float(np.linalg.norm(w_raw))
     if n < 1e-12:
-        raise ValueError("zero mean_diff")
-    return w / n
+        raise ValueError("zero ridge direction")
+    return w_raw / n
+
+
+def _val_score(scores: np.ndarray, y: np.ndarray, *, task: str) -> float:
+    """ROC-AUC (classification) or Pearson r (regression)."""
+    y = np.asarray(y, dtype=np.float64)
+    scores = np.asarray(scores, dtype=np.float64)
+    if task == "regression":
+        if len(y) < 2 or float(np.std(y)) < 1e-12 or float(np.std(scores)) < 1e-12:
+            return float("nan")
+        return float(np.corrcoef(y, scores)[0, 1])
+    # classification
+    return roc_auc(scores, y.astype(np.int32))
 
 
 def inlp_on_layer(
@@ -144,40 +179,57 @@ def inlp_on_layer(
     max_iter: int,
     chance_auc: float,
     seed: int,
+    task: str = "classification",
+    ridge_alpha: float = 1.0,
+    chance_corr: float = 0.15,
 ) -> dict:
     train = np.array([fid in train_fams for fid in families])
     val = np.array([fid in test_fams for fid in families])
     H_tr = np.asarray(H[train], dtype=np.float64).copy()
     H_va = np.asarray(H[val], dtype=np.float64).copy()
     H_tr_raw = H_tr.copy()
-    y_tr = y[train].astype(int)
-    y_va = y[val].astype(int)
+    y_tr = y[train]
+    y_va = y[val]
+    if task == "classification":
+        y_tr = y_tr.astype(int)
+        y_va = y_va.astype(int)
 
     directions: list[np.ndarray] = []
     auc_curve: list[float] = []
     k_chance: int | None = None
     method = solver
+    stop_thr = float(chance_corr if task == "regression" else chance_auc)
 
     for j in range(k_max + 1):
-        # score current residual
         try:
-            if solver == "logistic":
-                w_score = fit_direction_logistic(H_tr, y_tr, clf_C, max_iter)
+            if task == "regression":
+                if solver == "mean_diff":
+                    # continuous mean-diff: high vs low half
+                    med = float(np.median(y_tr))
+                    y_bin = (y_tr >= med).astype(int)
+                    w_score = fit_direction_mean_diff(H_tr, y_bin)
+                else:
+                    w_score = fit_direction_ridge(H_tr, y_tr, ridge_alpha)
+                    method = "ridge"
+            elif solver == "logistic":
+                w_score = fit_direction_logistic(H_tr, y_tr.astype(int), clf_C, max_iter)
             else:
-                w_score = fit_direction_mean_diff(H_tr, y_tr)
-            auc = roc_auc(H_va @ w_score, y_va)
+                w_score = fit_direction_mean_diff(H_tr, y_tr.astype(int))
+            score = _val_score(H_va @ w_score, y_va, task=task)
         except Exception:
-            auc = float("nan")
+            score = float("nan")
             w_score = None
-        auc_curve.append(float(auc) if np.isfinite(auc) else float("nan"))
+        auc_curve.append(float(score) if np.isfinite(score) else float("nan"))
 
-        if np.isfinite(auc) and auc <= chance_auc:
-            k_chance = j
-            break
+        # regression: stop when |corr| small; classification: AUC near chance
+        if np.isfinite(score):
+            done = abs(score) <= stop_thr if task == "regression" else score <= stop_thr
+            if done:
+                k_chance = j
+                break
         if j == k_max or w_score is None:
             break
 
-        # orthogonalize against already found
         w = w_score.copy()
         if directions:
             Wprev = np.stack(directions, axis=1)
@@ -191,11 +243,10 @@ def inlp_on_layer(
         H_va = residualize(H_va, w)
 
     if not directions:
-        # at least one random-ish fallback so Stage A can still run smoke
         rng = np.random.default_rng(seed)
         d = H.shape[1]
         W = random_orthonormal(d, 1, rng)
-        centers = subspace_centers(H_tr_raw, y_tr, W)
+        centers = subspace_centers(H_tr_raw, _bin_y_for_centers(y_tr, task), W)
         return {
             "W": W.astype(np.float32),
             "centers": centers.astype(np.float32),
@@ -203,11 +254,12 @@ def inlp_on_layer(
             "k_found": 1,
             "k_chance": k_chance,
             "solver": method,
+            "task": task,
             "note": "no direction extracted; placeholder rank-1 random",
         }
 
     W = np.stack(directions, axis=1)
-    centers = subspace_centers(H_tr_raw, y_tr, W)
+    centers = subspace_centers(H_tr_raw, _bin_y_for_centers(y_tr, task), W)
     return {
         "W": W.astype(np.float32),
         "centers": centers.astype(np.float32),
@@ -215,7 +267,15 @@ def inlp_on_layer(
         "k_found": int(W.shape[1]),
         "k_chance": k_chance,
         "solver": method,
+        "task": task,
     }
+
+
+def _bin_y_for_centers(y: np.ndarray, task: str) -> np.ndarray:
+    y = np.asarray(y, dtype=np.float64)
+    if task == "regression":
+        return (y >= 0.5).astype(int)
+    return y.astype(int)
 
 
 def layers_from_shortlist(path: Path, *, axis_filter: set[str] | None) -> list[int]:

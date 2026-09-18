@@ -2,10 +2,15 @@
 
 New pipeline (orthogonal to post-hook [`SEQUENTIAL_ERASE.md`](SEQUENTIAL_ERASE.md)).
 
-**Idea:** causal sites often sit on the **AUC ascent up to the peak**, not only
+**Idea:** causal sites often sit on the **AUC/R² ascent up to the peak**, not only
 after the first keep. Take the ascent pool from the curve shape, start INLP at
 the **earliest** layer in the pool, then add later pool layers while synergy
 holds.
+
+**Targets (default):** `gender_prob` (p_man) and `slot_prob` (p_A) — continuous
+labels from constrained probs at capture time. Fit uses **Ridge** INLP; pool
+metric prefers `val_r2`. Hard `gender_choice` / `slot_choice` are not the
+default for this pipeline.
 
 ## Ascent pool (flexible, not fixed top‑K)
 
@@ -18,8 +23,9 @@ From layer_scan `val_roc_auc` (or config `auc_curve`):
 4. Knee (γ) logged for diagnostics; early L0→L1 spikes ignored via
    `min_prev_auc_for_knee`
 
-Defaults (`τ=0.38`, `γ=0.25`) recover **gender 2B pool `{13,14,15,16}`**
-(peak L16) from `h11_gender_choice` layer_scan.
+Defaults (`τ=0.38`, `γ=0.25`, `chance=0` for R²) recover an ascent into the
+prob peak. Point `layer_scan.path` at a real `gender_prob` / `slot_prob`
+`layer_scan/results.json` when available (metric auto → `val_r2`).
 
 ## Commands
 
