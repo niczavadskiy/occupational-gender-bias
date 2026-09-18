@@ -1,0 +1,35 @@
+# Classical INLP on slot_prob (p_A) — 2B live Phase A + Stage A.
+#
+# Vast (no frozen HS):
+#   python -m steering.build_inlp_live_subspace --target slot_prob --layers 20,21,22,23 --tag v1
+#   python -m steering.run_inlp_stagea --subspaces steering/subspaces/inlp_slot_prob_v1.npz \
+#     --primary-axis slot ...
+#
+# Full repo with hidden_states.npz:
+#   python -m steering.build_inlp_subspace --config steering/configs/inlp_slot_prob_v1.yaml
+
+version: v1
+hypothesis: inlp_slot_prob
+target: slot_prob
+model: Qwen/Qwen3.5-2B-Base
+
+layers:
+  candidates: [20, 21, 22, 23]
+  peak: 23
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+steering:
+  kind: center
+  ranks: [4, 8, 16]
+  alphas: [1.0]
+
+behavior:
+  sample: samples/h1_stagea_sample_v1.json
+  primary_axis: slot

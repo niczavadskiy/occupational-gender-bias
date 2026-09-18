@@ -1,0 +1,34 @@
+# Classical INLP on gender_prob (p_man) — 2B live Phase A + Stage A.
+#
+# Vast (no frozen HS):
+#   python -m steering.build_inlp_live_subspace --target gender_prob --layers 14,15,16 --tag v1
+#   python -m steering.run_inlp_stagea --subspaces steering/subspaces/inlp_gender_prob_v1.npz ...
+#
+# Full repo with hidden_states.npz:
+#   python -m steering.build_inlp_subspace --config steering/configs/inlp_gender_prob_v1.yaml
+
+version: v1
+hypothesis: inlp_gender_prob
+target: gender_prob
+model: Qwen/Qwen3.5-2B-Base
+
+layers:
+  candidates: [14, 15, 16]
+  peak: 16
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+steering:
+  kind: center
+  ranks: [4, 8, 16]
+  alphas: [1.0]
+
+behavior:
+  sample: samples/h1_stagea_sample_v1.json
+  primary_axis: gender
