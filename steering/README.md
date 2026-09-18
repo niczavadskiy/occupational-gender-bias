@@ -45,6 +45,7 @@ steering/
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
 ├── run_alignment_recovery.py              # Эксп.1–3: cos(w,g), Δd, recovery
+├── run_hs_recovery_auc.py                 # Method 3: AUC/HS after single-layer erase
 ├── build_stagea_sample.py
 ├── build_h1_vectors.py                    # --config / --out-prefix → H1 или slot
 ├── build_mmlu_profiles.py
@@ -62,6 +63,35 @@ results/steering/stage_a/<tag>/
     ├── per_item.jsonl                  # 380 строк: логиты, choice, s_before/s_after
     └── metrics.json                    # θ, per_soc, guardrail-rates, hook_check
 ```
+
+---
+
+## Method 3 — HS / AUC recovery (после erase на одном слое)
+
+Интервенция на одном слое (probe center или INLP k), затем last-token HS на
+поясе слоёв ниже. На каждом ℓ′: ROC-AUC `gender_choice` (y из frozen
+`baseline_choice` в sample) для baseline vs steered.
+
+- **frozen ŵ** — если есть `w_gender_perp__Lℓ` в vector bank  
+- **mean_diff** — направление `mean(h|y=1)−mean(h|y=0)` fit только на baseline
+  train-семьях; тем же w скорим test baseline и steered (без refit)
+
+```powershell
+# 2B keep: INLP L15 k16
+python -m steering.run_hs_recovery_auc --model Qwen/Qwen3.5-2B-Base `
+  --device cuda --dtype float32 --mode inlp --intervene-layer 15 --rank 16 `
+  --subspaces steering/subspaces/inlp_gender_choice_v1.npz `
+  --read-layers 15,16,17,18,19,20,21,22,23,24 --tag hs_rec_l15k16
+
+# probe center (нужен h1_vectors_v1.npz)
+python -m steering.run_hs_recovery_auc --model Qwen/Qwen3.5-2B-Base `
+  --device cuda --dtype float32 --mode probe --intervene-layer 15 `
+  --vector-id w_gender_perp --alpha 1 --tag hs_rec_probe_l15
+```
+
+Выход: `results/steering/hs_recovery/<tag>/summary.json`, `by_layer.csv`,
+`per_row_pref.jsonl`. Recovery ≈ AUC на intervene-слое падает, на более глубоких
+снова растёт к baseline.
 
 ---
 
