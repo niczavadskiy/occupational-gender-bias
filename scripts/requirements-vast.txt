@@ -1,0 +1,15 @@
+# Vast / GPU steering stack (pin for bias-subspaces-env + conda images).
+# Root requirements.txt may say numpy>=2 — do NOT use that on Vast.
+#
+#   python -m pip install -r scripts/requirements-vast.txt
+#
+numpy>=1.26,<2
+transformers>=4.50
+accelerate
+huggingface_hub
+python-dotenv
+PyYAML
+scipy
+pandas
+# torch/torchvision: leave image default unless broken; then:
+#   pip install -U 'torch>=2.5' torchvision

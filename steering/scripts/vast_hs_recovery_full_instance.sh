@@ -2,22 +2,10 @@
 # ---------------------------------------------------------------------------
 # Полный lifecycle на НОВОМ Vast-инстансе: setup → smoke → full HS recovery → pack.
 #
-# После SSH на инстанс:
-#
 #   export HF_TOKEN=hf_xxx
-#   curl -fsSL ...   # или:
-#   bash -c "$(cat <<'EOF'
-#   ... этот файл ...
-#   EOF
-#   )"
-#
-# Обычно:
-#   export HF_TOKEN=hf_xxx
-#   bash scripts/setup_instance.sh          # clone repo
-#   # если этот скрипт ещё не в origin — scp его + subspaces
 #   bash steering/scripts/vast_hs_recovery_full_instance.sh
 #
-# Env: SKIP_SMOKE=1  SKIP_FULL=1  BRANCH TAG MODEL ...
+# Env: SKIP_SMOKE=1  SKIP_FULL=1  BRANCH TAG MODEL UPGRADE_TORCH PY
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
@@ -49,16 +37,15 @@ export REPO
 cd "$REPO"
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
-if [ -f scripts/setup_instance.sh ]; then
-  echo "=== [1b] setup_instance (PULL_CACHE=0) ==="
-  PULL_CACHE=0 bash scripts/setup_instance.sh || true
-fi
-
-echo "=== [2] pip extras (if needed) ==="
-PY="${PY:-python3}"
-command -v "$PY" >/dev/null 2>&1 || PY=python
-"$PY" -c "import torch,transformers" 2>/dev/null || \
-  "$PY" -m pip install -q 'torch>=2.5' transformers accelerate huggingface_hub python-dotenv PyYAML
+echo "=== [2] setup_instance + steering env ==="
+# setup_instance сам зовёт ensure_steering_env (numpy<2, transformers)
+PULL_CACHE=0 bash scripts/setup_instance.sh
+# shellcheck disable=SC1091
+source "$REPO/scripts/ensure_steering_env.sh"
+# PY уже выставлен setup'ом; на всякий случай ещё раз (SKIP_PIP — deps уже стоят)
+SKIP_PIP=1 ensure_steering_env
+export PY
+export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 echo "=== [3] artifact check ==="
 need=(
@@ -78,11 +65,7 @@ for f in "${need[@]}"; do
   fi
 done
 if [ "$miss" = "1" ]; then
-  echo ""
-  echo "Файлы не в origin/$BRANCH. С локальной машины:"
-  echo "  scp steering/run_hs_recovery_auc.py root@HOST:$REPO/steering/"
-  echo "  scp -r steering/subspaces root@HOST:$REPO/steering/"
-  echo "  scp steering/scripts/vast_hs_recovery_*.sh root@HOST:$REPO/steering/scripts/"
+  echo "Файлы не в origin/$BRANCH — git pull / push subspaces + runner."
   exit 1
 fi
 
@@ -106,13 +89,13 @@ chmod +x steering/scripts/vast_hs_recovery_auc_and_pack.sh
 
 if [ "$SKIP_SMOKE" != "1" ]; then
   echo "=== [4] SMOKE (2 families, L15/16/18) ==="
-  SMOKE=1 TAG="${TAG:-hs_rec_l15k16}" MODEL="$MODEL" \
+  PY="$PY" SMOKE=1 TAG="${TAG:-hs_rec_l15k16}" MODEL="$MODEL" REPO="$REPO" \
     bash steering/scripts/vast_hs_recovery_auc_and_pack.sh
 fi
 
 if [ "$SKIP_FULL" != "1" ]; then
   echo "=== [5] FULL (95 families, L15–24) ==="
-  SMOKE=0 TAG="${TAG:-hs_rec_l15k16}" MODEL="$MODEL" \
+  PY="$PY" SMOKE=0 TAG="${TAG:-hs_rec_l15k16}" MODEL="$MODEL" REPO="$REPO" \
     bash steering/scripts/vast_hs_recovery_auc_and_pack.sh
 fi
 

@@ -41,19 +41,40 @@ SUB="$REPO/steering/subspaces/inlp_gender_choice_v1.npz"
 SAMPLE="$REPO/steering/samples/h1_stagea_sample_v1.json"
 VEC="$REPO/steering/vectors/h1_vectors_v1.npz"
 OUT_ROOT="${OUT_ROOT:-$REPO/results/steering}"
-PY="${PY:-python3}"
-command -v "$PY" >/dev/null 2>&1 || PY=python
 
-echo "=== deps check ==="
+# Тот же PY, что setup / ensure_steering_env (venv → conda → python3)
+if [ -z "${PY:-}" ]; then
+  if [ -f /tmp/occupational_steering_py ]; then
+    PY="$(cat /tmp/occupational_steering_py)"
+  fi
+fi
+if [ -z "${PY:-}" ] || { [ ! -x "$PY" ] && ! command -v "$PY" >/dev/null 2>&1; }; then
+  for c in /venv/main/bin/python /opt/conda/bin/python python3 python; do
+    if [ -x "$c" ] || command -v "$c" >/dev/null 2>&1; then
+      PY=$c
+      break
+    fi
+  done
+fi
+export PY
+echo "=== deps check (PY=$PY) ==="
+# если env ещё не чинили на этой машине — починить
+if ! "$PY" -c "import numpy,torch,transformers; assert int(numpy.__version__.split('.')[0]) < 2" 2>/dev/null; then
+  echo "  env broken/incomplete → ensure_steering_env"
+  # shellcheck disable=SC1091
+  source "$REPO/scripts/ensure_steering_env.sh"
+  ensure_steering_env
+  PY="$(cat /tmp/occupational_steering_py)"
+  export PY
+fi
 "$PY" - <<'PY'
-import importlib.util, os, sys
-need = ["torch", "transformers", "numpy"]
-miss = [m for m in need if importlib.util.find_spec(m) is None]
-if miss:
-    print("MISSING:", miss, file=sys.stderr)
-    sys.exit(1)
+import os, sys
+import numpy as np
 import torch
-print("torch", torch.__version__, "cuda", torch.cuda.is_available())
+print("numpy", np.__version__, "torch", torch.__version__, "cuda", torch.cuda.is_available())
+if int(np.__version__.split(".")[0]) >= 2:
+    print("FAIL numpy>=2", file=sys.stderr)
+    sys.exit(1)
 if not torch.cuda.is_available() and os.environ.get("DEVICE", "cuda") == "cuda":
     print("WARN: CUDA unavailable", file=sys.stderr)
 PY

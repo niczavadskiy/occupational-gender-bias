@@ -4,7 +4,14 @@
 артефакты `steering/subspaces/inlp_gender_choice_v1.npz` + `run_hs_recovery_auc.py`
 (должны быть в `main` после push).
 
-Torch: `torch>=2.5`, `float32`, CUDA.
+Torch: image default OK if `numpy<2`. Setup всегда чинит env:
+
+```bash
+bash scripts/setup_instance.sh   # → ensure_steering_env (numpy<2 + transformers)
+```
+
+Pinned: `scripts/requirements-vast.txt` (`numpy>=1.26,<2`, `transformers>=4.50`).
+Не ставь корневой `requirements.txt` с `numpy>=2` на Vast.
 
 ## Быстрый путь (свежий инстанс)
 
