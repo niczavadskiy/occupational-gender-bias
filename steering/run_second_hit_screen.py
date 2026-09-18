@@ -263,6 +263,62 @@ def metric_row(tag: str, meta: dict, metrics: dict) -> dict:
     }
 
 
+def _write_ranking_csv(path: Path, ranking: list[dict]) -> None:
+    if not ranking:
+        return
+    keys: list[str] = []
+    seen: set[str] = set()
+    for r in ranking:
+        for k in r:
+            if k not in seen:
+                seen.add(k)
+                keys.append(k)
+    with path.open("w", encoding="utf-8", newline="") as f:
+        w = csv.DictWriter(f, fieldnames=keys, restval="")
+        w.writeheader()
+        for r in ranking:
+            w.writerow(r)
+
+
+def build_shortlist(ranking: list[dict], *, synergy_min: float) -> list[dict]:
+    shortlist = []
+    s0_slot = ranking[0]["R_slot"] if ranking else 0.0
+    for row in ranking:
+        if row.get("condition") != "stacked_on_S0":
+            continue
+        syn = float(row.get("synergy_R_gender", 0) or 0)
+        ok = False
+        reason = []
+        if row["axis"] == "gender" and syn >= synergy_min and row["R_gender_ci_lo"] > 0:
+            ok = True
+            reason.append(f"gender_synergy={syn:.4f}")
+        if row["axis"] == "slot":
+            if row["R_slot"] - s0_slot >= synergy_min:
+                ok = True
+                reason.append(f"slot_R_gain={row['R_slot'] - s0_slot:.4f}")
+            if syn >= synergy_min:
+                ok = True
+                reason.append(f"gender_synergy={syn:.4f}")
+        if row["axis"] == "random":
+            continue
+        if ok:
+            shortlist.append(
+                {
+                    "id": row["id"].replace("__stack", ""),
+                    "axis": row["axis"],
+                    "layer": row["layer"],
+                    "mode": row["mode"],
+                    "R_gender_stack": row["R_gender"],
+                    "synergy_R_gender": syn,
+                    "R_slot_stack": row["R_slot"],
+                    "reason": "; ".join(reason),
+                    "next": "conditional_inlp_stage_a" if row["axis"] == "gender" else "stacked_slot_stage_a",
+                }
+            )
+    shortlist.sort(key=lambda x: (-float(x["synergy_R_gender"]), -float(x["R_slot_stack"])))
+    return shortlist
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", default="Qwen/Qwen3.5-2B-Base")
@@ -288,7 +344,16 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--tag", default="second_hit_v1")
     ap.add_argument("--log-every", type=int, default=40)
     ap.add_argument("--synergy-min", type=float, default=0.005, help="min R_stack - R_base to shortlist")
+    ap.add_argument(
+        "--finalize-from",
+        type=Path,
+        default=None,
+        help="только пересобрать shortlist/summary из ranking.csv (без модели)",
+    )
     args = ap.parse_args(argv)
+
+    if args.finalize_from is not None:
+        return finalize_from_dir(args.finalize_from, synergy_min=args.synergy_min, tag=args.tag)
 
     try:
         from dotenv import load_dotenv
@@ -419,61 +484,19 @@ def main(argv: list[str] | None = None) -> int:
                 "alone": alone_cache.get(cid),
             }
         )
+        # checkpoint after each candidate (crash-safe)
+        (out_dir / "detail.json").write_text(
+            json.dumps(results_detail, indent=2, default=str) + "\n", encoding="utf-8"
+        )
+        _write_ranking_csv(out_dir / "ranking.csv", ranking)
         print(
             f"  stack R_gender={R_stack:.4f}  synergy vs S0={synergy:+.4f}  "
             f"R_slot={stack_row['R_slot']:.4f}"
         )
 
-    # shortlist: stacked beats S0 on primary axis for that candidate
-    shortlist = []
-    for row in ranking:
-        if row.get("condition") != "stacked_on_S0":
-            continue
-        syn = float(row.get("synergy_R_gender", 0))
-        # gender candidates: need gender synergy; slot: also accept large R_slot gain vs S0
-        ok = False
-        reason = []
-        if row["axis"] == "gender" and syn >= args.synergy_min and row["R_gender_ci_lo"] > 0:
-            ok = True
-            reason.append(f"gender_synergy={syn:.4f}")
-        if row["axis"] == "slot":
-            # slot win: stacked R_slot > S0 R_slot + margin, or gender synergy
-            s0_slot = ranking[0]["R_slot"]
-            if row["R_slot"] - s0_slot >= args.synergy_min:
-                ok = True
-                reason.append(f"slot_R_gain={row['R_slot'] - s0_slot:.4f}")
-            if syn >= args.synergy_min:
-                ok = True
-                reason.append(f"gender_synergy={syn:.4f}")
-        if row["axis"] == "random":
-            continue
-        if ok:
-            shortlist.append(
-                {
-                    "id": row["id"].replace("__stack", ""),
-                    "axis": row["axis"],
-                    "layer": row["layer"],
-                    "mode": row["mode"],
-                    "R_gender_stack": row["R_gender"],
-                    "synergy_R_gender": syn,
-                    "R_slot_stack": row["R_slot"],
-                    "reason": "; ".join(reason),
-                    "next": "conditional_inlp_stage_a" if row["axis"] == "gender" else "stacked_slot_stage_a",
-                }
-            )
-
-    shortlist.sort(key=lambda x: (-float(x["synergy_R_gender"]), -float(x["R_slot_stack"])))
-
-    # write CSV
+    # shortlist + artifacts (JSON first, then CSV — crash-safe)
+    shortlist = build_shortlist(ranking, synergy_min=args.synergy_min)
     csv_path = out_dir / "ranking.csv"
-    if ranking:
-        keys = list(ranking[0].keys())
-        with csv_path.open("w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=keys)
-            w.writeheader()
-            for r in ranking:
-                w.writerow(r)
-
     summary = {
         "schema": "steering.second_hit_screen/v1",
         "tag": args.tag,
@@ -499,8 +522,11 @@ def main(argv: list[str] | None = None) -> int:
         ),
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    (out_dir / "shortlist.json").write_text(json.dumps({"shortlist": shortlist, "base": summary["base"]}, indent=2) + "\n", encoding="utf-8")
+    (out_dir / "shortlist.json").write_text(
+        json.dumps({"shortlist": shortlist, "base": summary["base"]}, indent=2) + "\n", encoding="utf-8"
+    )
     (out_dir / "detail.json").write_text(json.dumps(results_detail, indent=2, default=str) + "\n", encoding="utf-8")
+    _write_ranking_csv(csv_path, ranking)
 
     print("\n=== shortlist ===")
     if not shortlist:
@@ -512,6 +538,64 @@ def main(argv: list[str] | None = None) -> int:
         )
     print(f"\nwrote {csv_path}")
     print(f"wrote {out_dir / 'shortlist.json'}")
+    return 0
+
+
+def finalize_from_dir(out_dir: Path, *, synergy_min: float, tag: str) -> int:
+    """Rebuild shortlist/summary from checkpoint ranking.csv (no GPU)."""
+    csv_path = out_dir / "ranking.csv"
+    if not csv_path.is_file():
+        raise SystemExit(f"MISSING {csv_path} — нужен checkpoint после прогона")
+    ranking: list[dict] = []
+    with csv_path.open(encoding="utf-8", newline="") as f:
+        for row in csv.DictReader(f):
+            for k in (
+                "R_gender",
+                "R_gender_ci_lo",
+                "R_gender_ci_hi",
+                "R_slot",
+                "synergy_R_gender",
+                "R_alone",
+                "synergy_vs_sum",
+                "layer",
+            ):
+                if k in row and row[k] not in ("", None):
+                    try:
+                        row[k] = float(row[k]) if k != "layer" else int(float(row[k]))
+                    except ValueError:
+                        pass
+            ranking.append(row)
+    if not ranking:
+        raise SystemExit(f"пустой {csv_path}")
+    shortlist = build_shortlist(ranking, synergy_min=synergy_min)
+    s0 = next((r for r in ranking if r.get("condition") == "alone" and r.get("axis") == "base"), ranking[0])
+    base = {
+        "layer": int(s0.get("layer", 15)),
+        "rank": 16,
+        "alpha": 1.0,
+        "R_gender": float(s0.get("R_gender", float("nan"))),
+    }
+    summary = {
+        "schema": "steering.second_hit_screen/v1",
+        "tag": tag,
+        "datetime": datetime.now().isoformat(),
+        "finalized_from": str(csv_path),
+        "base": base,
+        "synergy_min": synergy_min,
+        "shortlist": shortlist,
+        "n_ranking_rows": len(ranking),
+    }
+    (out_dir / "summary.json").write_text(json.dumps(summary, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    (out_dir / "shortlist.json").write_text(
+        json.dumps({"shortlist": shortlist, "base": base}, indent=2) + "\n", encoding="utf-8"
+    )
+    _write_ranking_csv(csv_path, ranking)
+    print(f"finalized {out_dir}: {len(shortlist)} shortlist from {len(ranking)} ranking rows")
+    for s in shortlist:
+        print(
+            f"  L{s['layer']} {s['axis']:6s} {s['mode']:20s}  "
+            f"synergy={s['synergy_R_gender']:+.4f}  R_slot={s['R_slot_stack']:.4f}"
+        )
     return 0
 
 
