@@ -11,6 +11,9 @@ python-dotenv
 PyYAML
 scipy
 pandas
+# Qwen3.5 kernels (faster; without them transformers falls back to slow PyTorch refs):
+flash-linear-attention
+causal-conv1d
 # torch/torchvision: leave image default unless broken; then:
 #   pip install -U 'torch>=2.5' torchvision
 # torchaudio: do NOT pin — broken ABI breaks Qwen3.5 import.

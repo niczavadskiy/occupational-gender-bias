@@ -8,7 +8,7 @@
 #   bash scripts/ensure_steering_env.sh
 #   export PY="$(cat /tmp/occupational_steering_py)"
 #
-# Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  REPO
+# Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  SKIP_FLA=1  REPO
 # ---------------------------------------------------------------------------
 
 STEERING_ENV_PY_FILE="${STEERING_ENV_PY_FILE:-/tmp/occupational_steering_py}"
@@ -106,6 +106,23 @@ ensure_steering_env() {
 
   fix_torchaudio
 
+  # Qwen3.5: flash-linear-attention + causal-conv1d (optional; slow fallback if missing)
+  if [ "${SKIP_PIP:-0}" != "1" ] && [ "${SKIP_FLA:-0}" != "1" ]; then
+    echo "  pip: flash-linear-attention + causal-conv1d (best-effort)…"
+    if ! "$PY" -c "import flash_linear_attn" 2>/dev/null && ! "$PY" -c "import fla" 2>/dev/null; then
+      "$PY" -m pip install -U flash-linear-attention || \
+        echo "  WARN: flash-linear-attention install failed — slow chunk_gated_delta_rule fallback"
+    else
+      echo "  flash-linear-attention: already importable"
+    fi
+    if ! "$PY" -c "import causal_conv1d" 2>/dev/null; then
+      "$PY" -m pip install -U causal-conv1d || \
+        echo "  WARN: causal-conv1d install failed — slow causal_conv1d_fn fallback"
+    else
+      echo "  causal-conv1d: already importable"
+    fi
+  fi
+
   echo "  sanity import…"
   if ! "$PY" - <<'PY'
 import importlib
@@ -146,6 +163,21 @@ print(
     f"  OK numpy={np.__version__} torch={torch.__version__} "
     f"cuda={torch.cuda.is_available()} transformers={transformers.__version__}"
 )
+for name, mods in (
+    ("flash-linear-attention", ("fla", "flash_linear_attn")),
+    ("causal-conv1d", ("causal_conv1d",)),
+):
+    ok = False
+    for m in mods:
+        try:
+            importlib.import_module(m)
+            print(f"  OK optional {name} ({m})")
+            ok = True
+            break
+        except Exception:
+            continue
+    if not ok:
+        print(f"  WARN optional missing: {name} (slow PyTorch fallback)")
 if not torch.cuda.is_available():
     print("  WARN: CUDA unavailable", file=sys.stderr)
 PY
