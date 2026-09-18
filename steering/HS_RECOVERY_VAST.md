@@ -11,6 +11,8 @@ bash scripts/setup_instance.sh   # → ensure_steering_env (numpy<2 + transforme
 ```
 
 Pinned: `scripts/requirements-vast.txt` (`numpy>=1.26,<2`, `transformers>=4.50`).
+`ensure_steering_env` снимает битый `torchaudio` (ломает `AutoModelForCausalLM` для
+Qwen3.5). Оставить audio: `KEEP_TORCHAUDIO=1`.
 Не ставь корневой `requirements.txt` с `numpy>=2` на Vast.
 
 ## Быстрый путь (свежий инстанс)

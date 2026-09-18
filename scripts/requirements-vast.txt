@@ -13,3 +13,5 @@ scipy
 pandas
 # torch/torchvision: leave image default unless broken; then:
 #   pip install -U 'torch>=2.5' torchvision
+# torchaudio: do NOT pin — broken ABI breaks Qwen3.5 import.
+# ensure_steering_env.sh uninstalls broken torchaudio by default (text-only).

@@ -2,16 +2,13 @@
 # ---------------------------------------------------------------------------
 # Общее Vast-окружение для steering / inference.
 #
-# numpy>=2 ломает torch на bias-subspaces-env / conda; часто нет transformers.
-# Этот скрипт выбирает интерпретатор и ставит pinned deps.
+# numpy>=2 ломает torch на bias-subspaces-env / conda; часто нет transformers;
+# битый torchaudio ломает import Qwen3.5 (transformers → audio_utils).
 #
 #   bash scripts/ensure_steering_env.sh
 #   export PY="$(cat /tmp/occupational_steering_py)"
 #
-# Из другого скрипта (source — без set -e на caller):
-#   source scripts/ensure_steering_env.sh && ensure_steering_env
-#
-# Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  REPO
+# Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  REPO
 # ---------------------------------------------------------------------------
 
 STEERING_ENV_PY_FILE="${STEERING_ENV_PY_FILE:-/tmp/occupational_steering_py}"
@@ -31,6 +28,46 @@ resolve_steering_py() {
     fi
   done
   echo "python3"
+}
+
+# Text-only steering: drop broken torchaudio (default). KEEP_TORCHAUDIO=1 → matching wheel.
+fix_torchaudio() {
+  if "$PY" - <<'PY' 2>/dev/null
+import torchaudio
+from torchaudio._extension import _IS_TORCHAUDIO_EXT_AVAILABLE
+# force load native lib path used by transformers
+import torchaudio
+print("ok")
+PY
+  then
+    echo "  torchaudio: import OK"
+    return 0
+  fi
+
+  echo "  torchaudio: broken or ABI mismatch with torch"
+  if [ "${KEEP_TORCHAUDIO:-0}" = "1" ]; then
+    echo "  KEEP_TORCHAUDIO=1 → reinstall matching torchaudio…"
+    local ver cuda tag idx
+    ver="$("$PY" -c "import torch; print(torch.__version__.split('+')[0])")"
+    cuda="$("$PY" -c "import torch; print(torch.version.cuda or '')")"
+    case "$cuda" in
+      12.4*|12.5*|12.6*) tag=cu124 ;;
+      12.1*|12.2*|12.3*) tag=cu121 ;;
+      11.8*) tag=cu118 ;;
+      *) tag=cu121 ;;
+    esac
+    idx="https://download.pytorch.org/whl/${tag}"
+    echo "  pip install torchaudio==$ver index=$idx"
+    "$PY" -m pip uninstall -y torchaudio >/dev/null 2>&1 || true
+    if ! "$PY" -m pip install -U "torchaudio==${ver}" --index-url "$idx"; then
+      echo "  matching wheel failed → uninstall torchaudio (text-only OK)"
+      "$PY" -m pip uninstall -y torchaudio >/dev/null 2>&1 || true
+    fi
+  else
+    echo "  uninstall torchaudio (Qwen text load не требует audio; set KEEP_TORCHAUDIO=1 to keep)"
+    "$PY" -m pip uninstall -y torchaudio >/dev/null 2>&1 || true
+  fi
+  return 0
 }
 
 ensure_steering_env() {
@@ -67,8 +104,11 @@ ensure_steering_env() {
     echo "  SKIP_PIP=1"
   fi
 
+  fix_torchaudio
+
   echo "  sanity import…"
   if ! "$PY" - <<'PY'
+import importlib
 import sys
 import numpy as np
 
@@ -82,6 +122,25 @@ if int(np.__version__.split(".")[0]) >= 2:
 
 import torch
 import transformers
+from transformers import AutoModelForCausalLM  # noqa: F401
+
+# Qwen3.5 pulls modeling → processing_utils → audio_utils → torchaudio
+for mod in (
+    "transformers.models.qwen3_5.modeling_qwen3_5",
+    "transformers.models.qwen2.modeling_qwen2",
+):
+    try:
+        importlib.import_module(mod)
+        print(f"  model import OK: {mod}")
+        break
+    except ModuleNotFoundError:
+        continue
+    except Exception as e:
+        msg = f"{type(e).__name__}: {e}"
+        if "torchaudio" in msg or "libtorchaudio" in msg:
+            print(f"FAIL torchaudio path: {msg}", file=sys.stderr)
+            sys.exit(3)
+        raise
 
 print(
     f"  OK numpy={np.__version__} torch={torch.__version__} "
@@ -96,6 +155,24 @@ PY
       echo "  retry: force numpy<2…"
       "$PY" -m pip install -U --force-reinstall 'numpy>=1.26,<2' || return 1
       "$PY" -c "import numpy,torch,transformers; print('retry OK', numpy.__version__, torch.__version__, transformers.__version__, torch.cuda.is_available())" || return 1
+    elif [ "$rc" = "3" ]; then
+      echo "  retry: strip torchaudio…"
+      "$PY" -m pip uninstall -y torchaudio >/dev/null 2>&1 || true
+      "$PY" - <<'PY' || return 1
+import importlib
+import transformers
+from transformers import AutoModelForCausalLM  # noqa: F401
+for mod in (
+    "transformers.models.qwen3_5.modeling_qwen3_5",
+    "transformers.models.qwen2.modeling_qwen2",
+):
+    try:
+        importlib.import_module(mod)
+        print("retry OK", mod, transformers.__version__)
+        break
+    except ModuleNotFoundError:
+        continue
+PY
     else
       return "$rc"
     fi
@@ -103,7 +180,6 @@ PY
   return 0
 }
 
-# Прямой запуск: bash scripts/ensure_steering_env.sh
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
   ensure_steering_env
   exit $?
