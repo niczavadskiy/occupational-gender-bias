@@ -46,6 +46,17 @@ steering/
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
 ├── run_alignment_recovery.py              # Эксп.1–3: cos(w,g), Δd, recovery
 ├── run_hs_recovery_auc.py                 # Method 3: AUC/HS after single-layer erase
+├── run_second_hit_screen.py               # Sequential: L15 + second site screen
+├── build_conditional_inlp_subspace.py     # INLP on HS under S0
+├── run_stacked_inlp_stagea.py             # Stage A with S0 always on
+├── scripts/
+│   ├── vast_hs_recovery_auc_and_pack.sh   # runner + tar pack
+│   ├── vast_hs_recovery_full_instance.sh  # fresh Vast: clone → smoke → full → pack
+│   ├── vast_second_hit_and_pack.sh
+│   ├── vast_conditional_inlp_stagea_and_pack.sh
+│   └── vast_sequential_erase_full_instance.sh
+├── HS_RECOVERY_VAST.md                    # инструкция Vast
+├── SEQUENTIAL_ERASE.md                    # multi-site erase protocol
 ├── build_stagea_sample.py
 ├── build_h1_vectors.py                    # --config / --out-prefix → H1 или slot
 ├── build_mmlu_profiles.py
@@ -65,6 +76,19 @@ results/steering/stage_a/<tag>/
 ```
 
 ---
+
+## Sequential multi-site erase
+
+После method 3: second-hit под S₀=L15k16 → conditional INLP на HS под S₀ →
+stacked Stage A. См. [`SEQUENTIAL_ERASE.md`](SEQUENTIAL_ERASE.md).
+
+```bash
+# Vast (полный гейт)
+bash steering/scripts/vast_sequential_erase_full_instance.sh
+# или по фазам
+bash steering/scripts/vast_second_hit_and_pack.sh
+bash steering/scripts/vast_conditional_inlp_stagea_and_pack.sh
+```
 
 ## Method 3 — HS / AUC recovery (после erase на одном слое)
 
