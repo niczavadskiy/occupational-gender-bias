@@ -46,9 +46,14 @@ python -m steering.run_sequential_pre_peak_erase \
 Vast:
 
 ```bash
-bash steering/scripts/vast_sequential_pre_peak_and_pack.sh
-# AXIS=gender|slot|both  SMOKE=1  TAG=...
+cd /workspace/occupational-gender-bias   # корень репо (не вложенный clone)
+git pull origin main
+export HF_TOKEN=hf_xxx
+SMOKE=1 AXIS=gender bash steering/scripts/vast_sequential_pre_peak_and_pack.sh
+# AXIS=gender|slot|both
 ```
+
+Скрипт сам выставляет `REPO` от пути к `steering/scripts/…` (ловлет nested clone).
 
 ## Outputs
 

@@ -3,13 +3,32 @@
 # sequential_pre_peak_erase on Vast (gender and/or slot) + pack.
 #
 #   export HF_TOKEN=hf_xxx
+#   cd /workspace && git clone https://github.com/niczavadskiy/occupational-gender-bias.git
+#   cd occupational-gender-bias && git pull
 #   bash steering/scripts/vast_sequential_pre_peak_and_pack.sh
 #
 # Env: AXIS=gender|slot|both  SMOKE TAG MODEL REPO
 # ---------------------------------------------------------------------------
 set -euo pipefail
 
-REPO="${REPO:-/workspace/occupational-gender-bias}"
+# Resolve repo from this script's location (avoids nested
+# /workspace/occupational-gender-bias/occupational-gender-bias and stale REPO=).
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_FROM_SCRIPT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+if [ -n "${REPO:-}" ]; then
+  :
+elif [ -f "$REPO_FROM_SCRIPT/steering/configs/sequential_pre_peak_erase_gender_2b_v1.yaml" ]; then
+  REPO="$REPO_FROM_SCRIPT"
+elif [ -f /workspace/occupational-gender-bias/steering/configs/sequential_pre_peak_erase_gender_2b_v1.yaml ]; then
+  REPO=/workspace/occupational-gender-bias
+elif [ -f /workspace/occupational-gender-bias/occupational-gender-bias/steering/configs/sequential_pre_peak_erase_gender_2b_v1.yaml ]; then
+  REPO=/workspace/occupational-gender-bias/occupational-gender-bias
+  echo "WARN: nested clone detected → REPO=$REPO"
+else
+  REPO="$REPO_FROM_SCRIPT"
+fi
+
 MODEL="${MODEL:-Qwen/Qwen3.5-2B-Base}"
 AXIS="${AXIS:-both}"
 TAG="${TAG:-prepeak_v1}"
@@ -19,6 +38,16 @@ DTYPE="${DTYPE:-float32}"
 
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 cd "$REPO"
+echo "REPO=$REPO"
+
+CFG_GENDER="$REPO/steering/configs/sequential_pre_peak_erase_gender_2b_v1.yaml"
+if [ ! -f "$CFG_GENDER" ]; then
+  echo "MISSING $CFG_GENDER"
+  echo "  → git pull origin main  (need commit with sequential_pre_peak_erase)"
+  echo "  → or: export REPO=/path/to/occupational-gender-bias"
+  ls -la "$REPO/steering/configs" 2>/dev/null || true
+  exit 1
+fi
 
 if [ -n "${HF_TOKEN:-}" ] && [ -z "${HUGGING_FACE_HUB_TOKEN:-}" ]; then
   export HUGGING_FACE_HUB_TOKEN="$HF_TOKEN"
