@@ -11,9 +11,10 @@ python-dotenv
 PyYAML
 scipy
 pandas
-# Qwen3.5 kernels (faster; without them transformers falls back to slow PyTorch refs):
+# Qwen3.5 kernels: faster path. causal-conv1d is NOT a hard dep —
+# building it from source fails on CUDA 12.x images (wheel looks for cu13/torch 2.14).
+# ensure_steering_env.sh installs both best-effort; missing → slow PyTorch fallback.
 flash-linear-attention
-causal-conv1d
 # torch/torchvision: leave image default unless broken; then:
 #   pip install -U 'torch>=2.5' torchvision
 # torchaudio: do NOT pin — broken ABI breaks Qwen3.5 import.

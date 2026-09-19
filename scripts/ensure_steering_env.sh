@@ -88,6 +88,8 @@ ensure_steering_env() {
 
     echo "  pip: numpy<2 + transformers (без -q — прогресс виден)…"
     if [ -n "$req" ]; then
+      # causal-conv1d must not be on this list: a failed source build would abort
+      # the whole env even though Qwen3.5 can run with the slow PyTorch fallback.
       "$PY" -m pip install -U -r "$req" || return 1
     else
       "$PY" -m pip install -U \

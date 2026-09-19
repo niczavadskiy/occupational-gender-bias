@@ -42,6 +42,7 @@ cd "$REPO"
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 echo "=== [2] setup_instance + steering env ==="
+# SKIP_PIP=1 if torch/transformers already good (avoids causal-conv1d source build).
 PULL_CACHE=0 bash scripts/setup_instance.sh
 # shellcheck disable=SC1091
 source "$REPO/scripts/ensure_steering_env.sh"

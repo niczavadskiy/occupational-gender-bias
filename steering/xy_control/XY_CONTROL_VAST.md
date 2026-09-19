@@ -21,3 +21,11 @@ SKIP_FULL=1 bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
 Pack: `/workspace/xy_control_stage_a_<tag>.tar.gz`
 
 MMLU smoke на полном прогоне: `MMLU=smoke`.
+
+Если `setup_instance` падает на сборке `causal-conv1d` (CUDA mismatch), env
+уже достаточный — повторите с `SKIP_PIP=1`:
+
+```bash
+export SKIP_PIP=1
+bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
+```
