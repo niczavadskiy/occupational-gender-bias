@@ -123,4 +123,6 @@ python -m steering.xy_control.run_stagea --device cuda --mmlu smoke --tag xy_2b_
 ```bash
 export HF_TOKEN=hf_xxx
 bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
+# 4B:
+bash steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh
 ```

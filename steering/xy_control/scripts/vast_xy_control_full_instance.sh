@@ -56,6 +56,8 @@ need=(
   steering/xy_control/build_vectors.py
   steering/xy_control/run_stagea.py
   steering/xy_control/scripts/vast_xy_control_stagea_and_pack.sh
+  steering/xy_control/configs/xy_control_${SCALE}_v1.yaml
+  steering/xy_control/candidates/xy_control_${SCALE}_candidates_v1.json
   steering/samples/h1_stagea_sample_v1.json
 )
 miss=0
@@ -73,6 +75,7 @@ if [ "$miss" = "1" ]; then
 fi
 
 chmod +x steering/xy_control/scripts/vast_xy_control_stagea_and_pack.sh
+chmod +x steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh 2>/dev/null || true
 
 if [ "$SKIP_SMOKE" != "1" ]; then
   echo "=== [4] SMOKE (3 families, ±α on anchor) ==="
