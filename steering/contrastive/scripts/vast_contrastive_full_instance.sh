@@ -55,10 +55,12 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 echo "=== [3] artifact check ==="
 need=(
   steering/contrastive/build_vectors.py
+  steering/contrastive/analyze_rank.py
   steering/contrastive/run_stagea.py
   steering/contrastive/candidates/contrastive_gender_${SCALE}_candidates_v1.json
   steering/samples/h1_stagea_sample_v1.json
   steering/contrastive/scripts/vast_contrastive_stagea_and_pack.sh
+  steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
 )
 miss=0
 for f in "${need[@]}"; do
@@ -75,6 +77,7 @@ if [ "$miss" = "1" ]; then
 fi
 
 chmod +x steering/contrastive/scripts/vast_contrastive_stagea_and_pack.sh
+chmod +x steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
 
 if [ "$SKIP_SMOKE" != "1" ]; then
   echo "=== [4] SMOKE (3 families, 2 candidates) ==="

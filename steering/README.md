@@ -44,8 +44,10 @@ steering/
 ├── contrastive/                           # mean-diff v = μ_M − μ_F, center steering
 │   ├── configs/                           # 2B L14–20 / 4B L20–26
 │   ├── candidates/                        # замороженный каталог
-│   ├── build_vectors.py                   # live HS → v̂, c
-│   └── run_stagea.py                      # обёртка H1 Stage A
+│   ├── build_vectors.py                   # live HS → v̂, c (+ capture)
+│   ├── analyze_rank.py                    # per-SOC PCA / V_k
+│   ├── run_stagea.py                      # обёртка H1 Stage A
+│   └── run_pca_stagea.py                  # bake-off rank-k vs v_G
 ├── run_h1_stagea.py                       # Stage A: gender (θ)
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
@@ -97,6 +99,7 @@ choice модели; интервенция — H1 `center` \(h'=h-\alpha(s-c)\h
 ```powershell
 python -m steering.contrastive.build_candidates
 python -m steering.contrastive.build_vectors --device cuda
+python -m steering.contrastive.analyze_rank --device cuda
 python -m steering.contrastive.run_stagea --device cuda --tag contrastive_2b_a_v1
 ```
 
@@ -105,6 +108,8 @@ Vast (2B): [`contrastive/CONTRASTIVE_VAST.md`](contrastive/CONTRASTIVE_VAST.md),
 ```bash
 export HF_TOKEN=hf_xxx
 bash steering/contrastive/scripts/vast_contrastive_full_instance.sh
+# только спектр D / V_k (без сетки 46):
+bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
 ```
 
 ---

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Contrastive mean-diff Stage A + pack.
+# Live capture → contrastive v_G + stratified rank PCA (no Stage A preference grid).
 #
 #   export HF_TOKEN=hf_xxx
-#   bash steering/contrastive/scripts/vast_contrastive_stagea_and_pack.sh
+#   bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
 #
-# Env: SCALE=2b|4b  SMOKE=1  TAG MODEL N_ITEMS DEVICE DTYPE
+# Env: SCALE=2b|4b  SMOKE=1  RUN_PCA_STAGEA=1  TAG MODEL N_ITEMS DEVICE DTYPE
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -15,14 +15,10 @@ REPO="${REPO:-$(cd "$STEER/.." && pwd)}"
 SCALE="${SCALE:-2b}"
 if [ "$SCALE" = "4b" ]; then
   MODEL="${MODEL:-Qwen/Qwen3.5-4B-Base}"
-  ANCHOR_CAND="main_center_core__vmd__L23__center__a1"
-  ANTI_CAND="anti_steering__vmd__L23__center__am1"
 else
   MODEL="${MODEL:-Qwen/Qwen3.5-2B-Base}"
-  ANCHOR_CAND="main_center_core__vmd__L16__center__a1"
-  ANTI_CAND="anti_steering__vmd__L16__center__am1"
 fi
-TAG="${TAG:-contrastive_${SCALE}_a_v1}"
+TAG="${TAG:-v1}"
 DEVICE="${DEVICE:-cuda}"
 DTYPE="${DTYPE:-float32}"
 SMOKE="${SMOKE:-0}"
@@ -61,29 +57,21 @@ if [ -f "$REPO/scripts/ensure_steering_env.sh" ]; then
 fi
 
 VEC_FLAGS=()
-STAGE_FLAGS=()
 if [ "$SMOKE" = "1" ]; then
-  N_ITEMS="${N_ITEMS:-3}"
+  N_ITEMS="${N_ITEMS:-8}"
   TAG="${TAG}_smoke"
-  STAGE_FLAGS+=(--limit-items "$N_ITEMS" --candidates "$ANCHOR_CAND,$ANTI_CAND")
 fi
-if [ -n "$N_ITEMS" ] && [ "$SMOKE" != "1" ]; then
-  VEC_FLAGS+=(--n-items "$N_ITEMS")
-  STAGE_FLAGS+=(--limit-items "$N_ITEMS")
-fi
-if [ "$SMOKE" = "1" ]; then
+if [ -n "$N_ITEMS" ]; then
   VEC_FLAGS+=(--n-items "$N_ITEMS")
 fi
 
-echo "=== contrastive candidates [$SCALE] ==="
-"$PY" -m steering.contrastive.build_candidates --scale "$SCALE"
-
-echo "=== contrastive vectors [$SCALE] model=$MODEL ==="
+echo "=== contrastive vectors [$SCALE] ==="
 "$PY" -m steering.contrastive.build_vectors \
   --scale "$SCALE" \
   --model "$MODEL" \
   --device "$DEVICE" \
   --dtype "$DTYPE" \
+  --tag "$TAG" \
   "${VEC_FLAGS[@]}"
 
 echo "=== contrastive rank PCA [$SCALE] ==="
@@ -92,44 +80,24 @@ echo "=== contrastive rank PCA [$SCALE] ==="
   --model "$MODEL" \
   --device "$DEVICE" \
   --dtype "$DTYPE" \
+  --tag "$TAG" \
   "${VEC_FLAGS[@]}"
 
-if [ "${RUN_PCA_STAGEA:-0}" = "1" ] && [ "$SMOKE" != "1" ]; then
-  echo "=== contrastive PCA Stage A [pca_${SCALE}_a_v1] ==="
+if [ "${RUN_PCA_STAGEA:-0}" = "1" ]; then
+  echo "=== PCA Stage A ==="
   "$PY" -m steering.contrastive.run_pca_stagea \
     --scale "$SCALE" \
     --model "$MODEL" \
     --device "$DEVICE" \
     --dtype "$DTYPE" \
-    --tag "pca_${SCALE}_a_v1"
+    --subspaces "$REPO/steering/subspaces/contrastive_pca_${SCALE}_${TAG}.npz" \
+    --tag "pca_${SCALE}_a_${TAG}"
 fi
 
-echo "=== contrastive Stage A [$TAG] ==="
-"$PY" -m steering.contrastive.run_stagea \
-  --scale "$SCALE" \
-  --model "$MODEL" \
-  --device "$DEVICE" \
-  --dtype "$DTYPE" \
-  --tag "$TAG" \
-  "${STAGE_FLAGS[@]}" \
-  "$@"
-
-OUT_ROOT="$REPO/results/steering/contrastive"
-OUT="/workspace/contrastive_stage_a_${TAG}.tar.gz"
-tar -czf "$OUT" -C "$OUT_ROOT/stage_a" "$TAG"
+OUT="/workspace/contrastive_rank_${SCALE}_${TAG}.tar.gz"
+tar -czf "$OUT" -C "$REPO" \
+  steering/contrastive/rank \
+  steering/subspaces/contrastive_pca_${SCALE}_${TAG}.npz \
+  steering/subspaces/contrastive_pca_${SCALE}_${TAG}.json
 ls -lh "$OUT"
-RANK_MD="$REPO/steering/contrastive/rank"
-if [ -d "$RANK_MD" ]; then
-  RANK_OUT="/workspace/contrastive_rank_${SCALE}_${TAG}.tar.gz"
-  tar -czf "$RANK_OUT" -C "$REPO/steering/contrastive" rank
-  ls -lh "$RANK_OUT"
-fi
-if [ "${RUN_PCA_STAGEA:-0}" = "1" ]; then
-  PCA_ROOT="$REPO/results/steering/contrastive_pca/inlp_stage_a"
-  PCA_TAG="pca_${SCALE}_a_v1"
-  if [ -d "$PCA_ROOT/$PCA_TAG" ]; then
-    tar -czf "/workspace/contrastive_pca_stage_a_${PCA_TAG}.tar.gz" -C "$PCA_ROOT" "$PCA_TAG"
-    ls -lh "/workspace/contrastive_pca_stage_a_${PCA_TAG}.tar.gz"
-  fi
-fi
 echo "DONE. Download: $OUT"

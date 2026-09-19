@@ -30,13 +30,18 @@ steering/contrastive/
 ├── candidates/
 │   ├── contrastive_gender_2b_candidates_v1.json
 │   └── contrastive_gender_4b_candidates_v1.json
-├── vectors/                               # npz после build_vectors (не в git)
+├── vectors/                               # v̂ npz после build_vectors
+├── captures/                              # last-token HS dump (не в git)
+├── rank/                                  # спектр D + вердикт (json/md)
 ├── build_candidates.py
-├── build_vectors.py                       # live HS → v̂, c
+├── build_vectors.py                       # live HS → v̂, c (+ capture)
+├── analyze_rank.py                        # per-SOC PCA, shuffle-null, V_k
 ├── run_stagea.py                          # обёртка run_h1_stagea
+├── run_pca_stagea.py                      # Stage A bake-off k=1..4 vs random
 ├── CONTRASTIVE_VAST.md
 └── scripts/
     ├── vast_contrastive_stagea_and_pack.sh
+    ├── vast_contrastive_rank_and_pack.sh
     └── vast_contrastive_full_instance.sh
 ```
 
@@ -102,3 +107,37 @@ bash steering/contrastive/scripts/vast_contrastive_full_instance.sh
 - `auc_train` / `auc_test` — разделяет ли \(s=h\cdot\hat v\) live-choice
 - `cos_with_w_gender` — если рядом лежит H1 npz; ≈1 значит mean-diff ≈ проба
 - `separation` — зазор средних проекций на train
+
+## Rank PCA — одно ли направление?
+
+\(v_G\) — первый момент. Чтобы не предполагать одномерность, собираем матрицу
+**per-SOC** контрастов на train-семьях (не per-row):
+
+\[
+d_s=\mathrm{mean}(h\mid s,y=M)-\mathrm{mean}(h\mid s,y=F),\qquad
+D=\begin{bmatrix}d_{s_1}\\ \vdots\\ d_{s_n}\end{bmatrix}
+\]
+
+Дальше: uncentered SVD (PC1 должен совпасть с \(v_G\)); **unit-row centered**
+PCA + shuffle \(y\) внутри страты (null). Если угловой спектр не выше null —
+гипотеза одного направления жива. Если 1–3 компоненты над null — пишем
+\(V_k=[v_G,\mathrm{PC}_1^\perp,\ldots]\) и гоняем Stage A center
+\(h'=h-\alpha V(V^\top h-c)\). k=1 в этом базисе **есть** contrastive \(v_G\).
+
+```powershell
+python -m steering.contrastive.test_rank
+python -m steering.contrastive.analyze_rank --device cuda
+python -m steering.contrastive.run_pca_stagea --device cuda --tag pca_2b_a_v1
+```
+
+Если capture уже снят `build_vectors`, `analyze_rank` подхватит его без GPU.
+Переснять: `--recapture`. Vast только диагностика (без сетки 46):
+
+```bash
+bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
+RUN_PCA_STAGEA=1 bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
+```
+
+Выход: `steering/contrastive/rank/*.md`, `steering/subspaces/contrastive_pca_{scale}_{tag}.npz`.
+Смотреть `verdict`, `cos(PC1, v_G)`, таблицу SOC, и в Stage A `mean_R_gender`
+для k=1 vs k=2..4 vs random того же ранга.

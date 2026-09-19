@@ -11,8 +11,15 @@ bash scripts/setup_instance.sh
 
 Не ставь корневой `requirements.txt` с `numpy>=2` на Vast.
 
-Полный прогон: live HS → mean-diff \(\hat v,c\) → Stage A (46 кандидатов + baseline)
+Полный прогон: live HS → mean-diff \(\hat v,c\) → rank PCA \(D\) → Stage A (46 кандидатов + baseline)
 на `h1_stagea_sample_v1.json` (95 семей × 4). Модель: `Qwen/Qwen3.5-2B-Base`.
+
+Только спектр / \(V_k\) (без сетки 46):
+
+```bash
+bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
+RUN_PCA_STAGEA=1 bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
+```
 
 ## Если репо уже есть на инстансе
 
@@ -77,6 +84,8 @@ SCALE=2b bash steering/contrastive/scripts/vast_contrastive_stagea_and_pack.sh
 | `steering/contrastive/candidates/contrastive_gender_2b_candidates_v1.json` | сетка 46 + baseline |
 | `steering/samples/h1_stagea_sample_v1.json` | 95 val-семей × 4 |
 | `steering/contrastive/vectors/contrastive_gender_2b_vectors_v1.npz` | пишется на инстансе |
+| `steering/contrastive/rank/contrastive_gender_2b_rank_v1.md` | спектр D, вердикт 1D vs subspace |
+| `steering/subspaces/contrastive_pca_2b_v1.npz` | \(V_k\) для Stage A (k=1 ≡ \(v_G\)) |
 
 Выход: `results/steering/contrastive/stage_a/<tag>/` → pack  
 `/workspace/contrastive_stage_a_contrastive_2b_a_v1.tar.gz`.

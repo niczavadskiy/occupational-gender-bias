@@ -8,6 +8,7 @@ venv/
 *.log
 per_item.jsonl
 hidden_states.npz
+steering/contrastive/captures/
 
 # === Steering ===
 # Track compact vector/subspace npz (not hidden_states).

@@ -33,6 +33,7 @@ import numpy as np
 import yaml
 
 from steering.build_conditional_inlp_subspace import arrays_signature, fit_direction_mean_diff
+from steering.contrastive.capture_io import save_capture
 from steering.intervene import Scorer, capture_last_token, load_model
 from steering.run_hs_recovery_auc import family_split, gender_choice_y, pick_items, roc_auc, row_margins
 from steering.run_inlp_stagea import load_json
@@ -131,6 +132,8 @@ def capture_live(
                     "id": src["id"],
                     "scenario_family_id": item["scenario_family_id"],
                     "soc_major_title": item["soc_major_title"],
+                    "context_order": src.get("context_order"),
+                    "position_variant": src.get("position_variant"),
                     "y_live": y_live,
                     "y_frozen": y_frozen,
                     **margins,
@@ -256,6 +259,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--probe-vectors", type=Path, nargs="*", default=None)
     ap.add_argument("--out-dir", type=Path, default=HERE / "vectors")
     ap.add_argument("--tag", default=None, help="suffix instead of version (default: yaml version)")
+    ap.add_argument(
+        "--save-capture",
+        type=Path,
+        default=None,
+        help="npz last-token HS (default: contrastive/captures/…_capture_{ver}.npz)",
+    )
+    ap.add_argument("--no-save-capture", action="store_true")
     ap.add_argument("--log-every", type=int, default=40)
     args = ap.parse_args(argv)
 
@@ -305,6 +315,24 @@ def main(argv: list[str] | None = None) -> int:
         f"  rows={len(rows)}  train_fams={len(train_fams)}  test_fams={len(test_fams)}  "
         f"y pos={int(y.sum())}/{len(y)}  live≡frozen={agree_rate:.3f}"
     )
+
+    if not args.no_save_capture:
+        cap_path = args.save_capture or (
+            HERE / "captures" / f"contrastive_gender_{scale}_capture_{args.tag or cfg['version']}.npz"
+        )
+        save_capture(
+            cap_path,
+            H_by_L=H_by_L,
+            rows=rows,
+            meta={
+                "schema": "steering.contrastive_capture/v1",
+                "scale": scale,
+                "model_id": model_id,
+                "sample": str(sample_path),
+                "map_version": args.tag or cfg["version"],
+            },
+        )
+        print(f"  capture → {cap_path}")
 
     probe_paths = args.probe_vectors
     if probe_paths is None:
