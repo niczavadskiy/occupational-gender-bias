@@ -12,6 +12,7 @@ hidden_states.npz
 # === Steering ===
 # Track compact vector/subspace npz (not hidden_states).
 !steering/vectors/*.npz
+!steering/contrastive/vectors/*.npz
 !steering/subspaces/*.npz
 !experiments/*/steering/vectors/*.npz
 !experiments/*/steering/subspaces/*.npz

@@ -1,0 +1,994 @@
+{
+  "schema": "steering.contrastive_candidates/v1",
+  "hypothesis": "contrastive",
+  "map_version": "v1",
+  "map_config": "contrastive_gender_2b_v1.yaml",
+  "map_sha256": "b3f21441e317111c819f6dcdfa2ccf47ea95336b8083a60a1ac5ff9bd79dc917",
+  "source": {
+    "model_id": "Qwen/Qwen3.5-2B-Base",
+    "d_model": 2048,
+    "n_hidden_states": 25,
+    "hidden_state_index": "0 = embeddings, 1..24 = block output",
+    "sample": "samples/h1_stagea_sample_v1.json",
+    "label": "live_choice",
+    "label_note": "y=1 iff argmax constrained P(y|x) на live forward попал в слот \"man\". Не gold-гендер профессии и не frozen baseline_choice 2B-прогона.",
+    "split": {
+      "train_frac": 0.7,
+      "seed": 0,
+      "note": "v и c считаются только на train-семьях captured sample. Stage A гоняется на всём sample (как INLP live)."
+    }
+  },
+  "hook": {
+    "site": "residual_stream_hidden_state",
+    "positions": "last_prompt_token",
+    "note": "Интервенция там же, где снимается HS (last token после \"Answer:\")."
+  },
+  "vectors": [
+    {
+      "id": "v_mean_diff",
+      "short": "vmd",
+      "role": "candidate",
+      "kind": "mean_diff",
+      "description": "Unit mean-diff: mean(h|man) − mean(h|woman) на train-семьях. Классы взвешены поровну (сначала среднее группы, потом вычитание)."
+    },
+    {
+      "id": "v_random",
+      "short": "vrand",
+      "role": "control",
+      "kind": "random_unit",
+      "seeds": [
+        0,
+        1,
+        2
+      ],
+      "description": "Null-контроль — случайное unit-направление (3 seed)."
+    }
+  ],
+  "interventions": [
+    {
+      "id": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "reference_c": "class_midpoint_train",
+      "reference_note": "c = mid-point mean(s|man) и mean(s|woman) только на train. α>0 тянет к нейтрали; α=1 сажает s на c; α<0 — anti-steering.",
+      "alphas": [
+        0.25,
+        0.5,
+        0.75,
+        1.0
+      ]
+    },
+    {
+      "id": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "reference_c": "origin",
+      "reference_note": "Полное удаление компоненты вдоль v̂ (center с c=0, α=1).",
+      "alphas": [
+        1.0
+      ]
+    },
+    {
+      "id": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "scale": "train_projection_std",
+      "reference_note": "Константный сдвиг — контроль, не equalize. Оба знака обязаны развести P(man) в разные стороны.",
+      "betas": [
+        -1.0,
+        -0.5,
+        0.5,
+        1.0
+      ]
+    }
+  ],
+  "layers": {
+    "belt": [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "core": [
+      15,
+      16,
+      17,
+      18
+    ],
+    "edge": [
+      14,
+      19,
+      20
+    ],
+    "anchor": 16,
+    "note": "Тот же пояс, что H1 на 2B (скачок gender_choice на L15–16)."
+  },
+  "baseline": {
+    "id": "baseline",
+    "description": "Без интервенции на той же выборке."
+  },
+  "screening": {
+    "stage": "A",
+    "sample": {
+      "source_split": "val",
+      "n_base_items": 95,
+      "fraction_of_all_groups": 0.1,
+      "stratify_by": "soc_major_title",
+      "rows_per_item": 4,
+      "seed": 20260809
+    },
+    "forwards_per_candidate": 380,
+    "primary_metric": {
+      "id": "mean_abs_theta_dev",
+      "formula": "mean_i |θ_i − 0.5|, θ_i = M_i/(M_i+W_i) по base item",
+      "direction": "minimize"
+    },
+    "secondary_metrics": [
+      {
+        "id": "abs_theta_bar_dev",
+        "formula": "|θ̄ − 0.5|"
+      },
+      {
+        "id": "reduction_vs_baseline",
+        "formula": "mean_abs_theta_dev(baseline) − mean_abs_theta_dev(candidate)"
+      }
+    ],
+    "guardrails": {
+      "mode": "flag",
+      "slot_choice_rate_shift_pp_max": 10,
+      "narrative_choice_rate_shift_pp_max": 10
+    },
+    "keep_top": 10,
+    "keep_rule": "Топ по primary_metric среди role=candidate. random ≈ baseline; shift ±β расходятся по знаку; anti_steering увеличивает mean_abs_theta_dev."
+  },
+  "n_candidates": 46,
+  "n_by_role": {
+    "candidate": 37,
+    "control": 9
+  },
+  "n_by_family": {
+    "anti_steering": 2,
+    "causality_shift": 4,
+    "control_random": 3,
+    "main_center_core": 24,
+    "main_center_edge": 6,
+    "main_project_out": 7
+  },
+  "forwards_estimate": {
+    "per_candidate": 380,
+    "total_with_baseline": 17860
+  },
+  "candidates": [
+    {
+      "id": "main_center_core__vmd__L15__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L16__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L17__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L18__center__a0p25",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.25,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L15__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L16__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L17__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L18__center__a0p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L15__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L16__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L17__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L18__center__a0p75",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.75,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L15__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L16__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L17__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L18__center__a1",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L15__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L16__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L17__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L18__center__a1p5",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L15__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L16__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L17__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_core__vmd__L18__center__a2",
+      "family": "main_center_core",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 2.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__vmd__L14__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__vmd__L19__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__vmd__L20__center__a0p5",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__vmd__L14__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__vmd__L19__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_center_edge__vmd__L20__center__a1",
+      "family": "main_center_edge",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": 1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L14__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        14
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L15__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        15
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L16__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L17__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        17
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L18__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        18
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L19__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        19
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "main_project_out__vmd__L20__project_out__a1",
+      "family": "main_project_out",
+      "role": "candidate",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        20
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null
+    },
+    {
+      "id": "causality_shift__vmd__L16__shift__bm1",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": -1.0,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "causality_shift__vmd__L16__shift__bm0p5",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": -0.5,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "causality_shift__vmd__L16__shift__b0p5",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": 0.5,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "causality_shift__vmd__L16__shift__b1",
+      "family": "causality_shift",
+      "role": "control",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "shift",
+      "formula": "h' = h + β·σ_train·ŵ",
+      "beta": 1.0,
+      "reference_c": null,
+      "scale": "train_projection_std"
+    },
+    {
+      "id": "anti_steering__vmd__L16__center__am0p5",
+      "family": "anti_steering",
+      "role": "control",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": -0.5,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "anti_steering__vmd__L16__center__am1",
+      "family": "anti_steering",
+      "role": "control",
+      "vector_id": "v_mean_diff",
+      "vector_kind": "mean_diff",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "center",
+      "formula": "h' = h − α·(s − c)·ŵ",
+      "alpha": -1.0,
+      "reference_c": "class_midpoint_train",
+      "scale": null
+    },
+    {
+      "id": "control_random__vrand__L16__project_out__a1__s0",
+      "family": "control_random",
+      "role": "control",
+      "vector_id": "v_random",
+      "vector_kind": "random_unit",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null,
+      "random_seed": 0
+    },
+    {
+      "id": "control_random__vrand__L16__project_out__a1__s1",
+      "family": "control_random",
+      "role": "control",
+      "vector_id": "v_random",
+      "vector_kind": "random_unit",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null,
+      "random_seed": 1
+    },
+    {
+      "id": "control_random__vrand__L16__project_out__a1__s2",
+      "family": "control_random",
+      "role": "control",
+      "vector_id": "v_random",
+      "vector_kind": "random_unit",
+      "vector_base": null,
+      "orthogonalize_against": [],
+      "layers": [
+        16
+      ],
+      "apply_to_all_layers_at_once": false,
+      "intervention": "project_out",
+      "formula": "h' = h − s·ŵ",
+      "alpha": 1.0,
+      "reference_c": "origin",
+      "scale": null,
+      "random_seed": 2
+    }
+  ]
+}

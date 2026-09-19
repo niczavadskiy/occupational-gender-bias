@@ -41,6 +41,11 @@ steering/
 │   ├── mmlu_pro_overall_smoke_v1.json     # Stage B: 14 категорий × 40 вопросов
 │   └── coverage_v1.md
 ├── intervene.py                           # хук в residual stream + A/B скоринг
+├── contrastive/                           # mean-diff v = μ_M − μ_F, center steering
+│   ├── configs/                           # 2B L14–20 / 4B L20–26
+│   ├── candidates/                        # замороженный каталог
+│   ├── build_vectors.py                   # live HS → v̂, c
+│   └── run_stagea.py                      # обёртка H1 Stage A
 ├── run_h1_stagea.py                       # Stage A: gender (θ)
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
@@ -77,6 +82,29 @@ results/steering/stage_a/<tag>/
 └── <config_id>/
     ├── per_item.jsonl                  # 380 строк: логиты, choice, s_before/s_after
     └── metrics.json                    # θ, per_soc, guardrail-rates, hook_check
+```
+
+---
+
+## Contrastive (mean-diff) steering
+
+Отдельный каталог: [`contrastive/README.md`](contrastive/README.md).
+
+Направление \(v=\mathrm{mean}(h\mid y=M)-\mathrm{mean}(h\mid y=F)\) по **live**
+choice модели; интервенция — H1 `center` \(h'=h-\alpha(s-c)\hat v\). Сетка 46
+кандидатов (2B и 4B), Stage A на том же sample, что H1.
+
+```powershell
+python -m steering.contrastive.build_candidates
+python -m steering.contrastive.build_vectors --device cuda
+python -m steering.contrastive.run_stagea --device cuda --tag contrastive_2b_a_v1
+```
+
+Vast (2B): [`contrastive/CONTRASTIVE_VAST.md`](contrastive/CONTRASTIVE_VAST.md), ноутбук [`notebooks/vast_contrastive_2b.ipynb`](../notebooks/vast_contrastive_2b.ipynb).
+
+```bash
+export HF_TOKEN=hf_xxx
+bash steering/contrastive/scripts/vast_contrastive_full_instance.sh
 ```
 
 ---
