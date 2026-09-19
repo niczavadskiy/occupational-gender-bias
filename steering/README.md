@@ -48,6 +48,12 @@ steering/
 │   ├── analyze_rank.py                    # per-SOC PCA / V_k
 │   ├── run_stagea.py                      # обёртка H1 Stage A
 │   └── run_pca_stagea.py                  # bake-off rank-k vs v_G
+├── xy_control/                            # paired XY-control: v = mean(h_gender − h_XY)
+│   ├── data/                              # X=man, Y=woman paired prompts
+│   ├── mapping.py
+│   ├── build_dataset.py
+│   ├── build_vectors.py                   # paired last-token HS → v̂_raw
+│   └── run_stagea.py                      # add: h' = h − α v̂
 ├── run_h1_stagea.py                       # Stage A: gender (θ)
 ├── run_slot_stagea.py                     # Stage A: slot (φ)
 ├── check_probe_geometry.py                # Эксп.0: scaler → raw hyperplane
@@ -110,6 +116,28 @@ export HF_TOKEN=hf_xxx
 bash steering/contrastive/scripts/vast_contrastive_full_instance.sh
 # только спектр D / V_k (без сетки 46):
 bash steering/contrastive/scripts/vast_contrastive_rank_and_pack.sh
+```
+
+---
+
+## XY-control (gender-conditioned activation direction)
+
+Отдельный каталог: [`xy_control/README.md`](xy_control/README.md).
+
+Парный контраст промптов, маппинг **X = man, Y = woman**:
+
+\[
+v_{\mathrm{raw}}=\mathrm{mean}_i\bigl(h^{\mathrm{gender}}_i-h^{\mathrm{XY}}_i\bigr)
+\]
+
+Интервенция `add`: \(h'=h-\alpha\hat v\) на last prompt token. Не путать с
+contrastive \(v=\mu_M-\mu_F\) по live-choice.
+
+```powershell
+python -m steering.xy_control.build_dataset
+python -m steering.xy_control.build_candidates
+python -m steering.xy_control.build_vectors --device cuda
+python -m steering.xy_control.run_stagea --device cuda --tag xy_2b_a_v1
 ```
 
 ---

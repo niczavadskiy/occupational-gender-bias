@@ -6,9 +6,11 @@
 `with steered(model, spec): ...`.
 
 Две формы интервенции:
-    InterventionSpec — rank-1 вдоль ŵ (center / project_out / shift);
+    InterventionSpec — rank-1 вдоль ŵ (center / project_out / shift / add);
     SubspaceSpec     — rank-k в ортонормированном W (center / project_out),
                        используется INLP-пайплайном.
+
+    add: h' = h − α ŵ  (константный сдвиг; α<0 усиливает компоненту).
 
 Индексация слоя совпадает с hidden_states.npz исходного прогона:
     0        = выход эмбеддингов
@@ -44,7 +46,7 @@ class InterventionSpec:
 
     layer: int
     w: np.ndarray
-    kind: str  # center | project_out | shift
+    kind: str  # center | project_out | shift | add
     alpha: float | None = None
     beta: float | None = None
     c: float = 0.0
@@ -57,6 +59,9 @@ class InterventionSpec:
             return np.zeros_like(s_before)
         if self.kind == "shift":
             return s_before + float(self.beta) * self.sigma
+        if self.kind == "add":
+            # h' = h − α ŵ  →  s' = s − α  при ||ŵ||=1
+            return s_before - float(self.alpha)
         raise ValueError(f"unknown intervention kind {self.kind!r}")
 
 
@@ -167,6 +172,8 @@ def _apply(h_last: torch.Tensor, spec: InterventionSpec, w: torch.Tensor) -> tup
         delta = -s
     elif spec.kind == "shift":
         delta = float(spec.beta) * spec.sigma
+    elif spec.kind == "add":
+        delta = -float(spec.alpha)
     else:
         raise ValueError(f"unknown intervention kind {spec.kind!r}")
     new_h = (h32 + delta * w).to(h_last.dtype)

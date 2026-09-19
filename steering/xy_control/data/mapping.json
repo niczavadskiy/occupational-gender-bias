@@ -1,0 +1,12 @@
+{
+  "schema": "steering.xy_control_mapping/v1",
+  "mapping": {
+    "X": "man",
+    "Y": "woman"
+  },
+  "gender_to_xy": {
+    "man": "X",
+    "woman": "Y"
+  },
+  "note": "X always denotes the man candidate, Y the woman candidate. Position swap (p0/p1) and mention order (man_first/woman_first) are preserved, so A. Y / B. X is the p1 counterpart of A. man / B. woman."
+}

@@ -9,11 +9,13 @@ venv/
 per_item.jsonl
 hidden_states.npz
 steering/contrastive/captures/
+steering/xy_control/captures/
 
 # === Steering ===
 # Track compact vector/subspace npz (not hidden_states).
 !steering/vectors/*.npz
 !steering/contrastive/vectors/*.npz
+!steering/xy_control/vectors/*.npz
 !steering/subspaces/*.npz
 !experiments/*/steering/vectors/*.npz
 !experiments/*/steering/subspaces/*.npz

@@ -1,0 +1,49 @@
+{
+  "schema": "steering.xy_control_index/v1",
+  "mapping": {
+    "X": "man",
+    "Y": "woman"
+  },
+  "splits": [
+    {
+      "split_name": "stagea",
+      "role": "fit",
+      "file": "xy_pairs_stagea_v1.json",
+      "jsonl": "xy_pairs_stagea_v1.jsonl",
+      "n_base_items": 95,
+      "n_pairs": 380,
+      "source_sample": "h1_stagea_sample_v1.json",
+      "sha256": "28df86f81585737e3d78373b2648e4f752d9097b78590c4b0e533ee675151445"
+    },
+    {
+      "split_name": "stageb",
+      "role": "val",
+      "file": "xy_pairs_stageb_v1.json",
+      "jsonl": "xy_pairs_stageb_v1.jsonl",
+      "n_base_items": 95,
+      "n_pairs": 380,
+      "source_sample": "h1_stageb_sample_v1.json",
+      "sha256": "8b871799ec93168b96b7a669d5d3db39ae8e9c82bf2a0af0335d4fc56fef67a9"
+    },
+    {
+      "split_name": "test",
+      "role": "test",
+      "file": "xy_pairs_test_v1.json",
+      "jsonl": "xy_pairs_test_v1.jsonl",
+      "n_base_items": 95,
+      "n_pairs": 380,
+      "source_sample": "inlp_test_sample_v1.json",
+      "sha256": "c492f6d622af79e99dd8926c7b02851a8d93166539abb70db212895eb2496caa"
+    },
+    {
+      "split_name": "stagec",
+      "role": "test_complement",
+      "file": "xy_pairs_stagec_v1.json",
+      "jsonl": "xy_pairs_stagec_v1.jsonl",
+      "n_base_items": 95,
+      "n_pairs": 380,
+      "source_sample": "inlp_stagec_sample_v1.json",
+      "sha256": "a69ead8c12415572dd449ebd1447eb5efed29f870c16843a512f4ccb1b52d439"
+    }
+  ]
+}

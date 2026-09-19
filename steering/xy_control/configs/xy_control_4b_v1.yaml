@@ -1,0 +1,127 @@
+# Gender-conditioned activation steering via XY-control, Qwen3.5-4B-Base.
+#
+# Пояс не копировать с 2B: gender_choice на 4B плато L20–26, якорь L23.
+
+version: v1
+hypothesis: xy_control
+scale: 4b
+created: 2026-09-19
+
+source:
+  model_id: Qwen/Qwen3.5-4B-Base
+  d_model: 2560
+  n_hidden_states: 33
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  mapping: {X: man, "Y": woman}
+  fit_sample: data/xy_pairs_stagea_v1.json
+  eval_sample: data/xy_pairs_stagea_v1.json
+  label: paired_xy_control
+  label_note: >-
+    d_i = last-token HS(gendered prompt) − last-token HS(XY prompt) for the
+    same row. v_raw is the mean of d_i on train families.
+  split:
+    train_frac: 0.70
+    val_frac: 0.15
+    test_frac: 0.15
+    seed: 0
+    note: >-
+      v_raw is fit only on train families of the fit sample.
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  note: >-
+    Capture and intervention are the same site: last token after "Answer:".
+
+vectors:
+  - id: v_raw
+    short: vraw
+    role: candidate
+    kind: paired_mean_diff
+    description: >-
+      Unit mean of paired differences d_i = h_gender − h_XY on train families.
+
+  - id: v_random
+    short: vrand
+    role: control
+    kind: random_unit
+    seeds: [0, 1, 2]
+    description: Null-контроль — случайное unit-направление (3 seed).
+
+interventions:
+  - id: add
+    formula: "h' = h − α·v̂"
+    reference_c: none
+    reference_note: >-
+      Additive shift along the unit gender-conditioned direction.
+      α>0 is hypothesized debiasing (h − αv); α<0 is the opposite sign.
+    alphas: [-2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0]
+
+layers:
+  belt: [20, 21, 22, 23, 24, 25, 26]
+  core: [21, 22, 23, 24]
+  edge: [20, 25, 26]
+  anchor: 23
+  note: >-
+    Пояс H1/INLP/contrastive на 4B. Anchor L23.
+
+families:
+  - id: main_add_core
+    enabled: true
+    role: candidate
+    vectors: [v_raw]
+    layers: core
+    intervention: add
+    alphas: [-2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0]
+    description: "Ядро пояса, полная шкала α включая оба знака. 4 × 8 = 32."
+
+  - id: main_add_edge
+    enabled: true
+    role: candidate
+    vectors: [v_raw]
+    layers: edge
+    intervention: add
+    alphas: [-1.0, -0.5, 0.5, 1.0]
+    description: "Края пояса, прореженная шкала. 3 × 4 = 12."
+
+  - id: control_random
+    enabled: true
+    role: control
+    vectors: [v_random]
+    layers: [23]
+    intervention: add
+    alphas: [1.0]
+    description: "Null: 3 random seeds на якоре, α=1. 3."
+
+baseline:
+  id: baseline
+  description: Без интервенции на той же выборке (α=0).
+
+screening:
+  stage: A
+  sample:
+    source_split: val
+    n_base_items: 95
+    fraction_of_all_groups: 0.10
+    stratify_by: soc_major_title
+    rows_per_item: 4
+    seed: 20260809
+  forwards_per_candidate: 380
+  primary_metric:
+    id: gender_gap
+    formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"
+    direction: reduce_abs
+  secondary_metrics:
+    - id: mean_abs_delta
+      formula: "mean_i |Δ_i| after layout average"
+    - id: p_delta_positive
+      formula: "P(Δ_i > 0)"
+    - id: slot_gap
+      formula: "mean_i mean_layouts (z_A − z_B)  # guardrail"
+  guardrails:
+    mode: flag
+    slot_choice_rate_shift_pp_max: 10
+  keep_top: 10
+  keep_rule: >-
+    Среди role=candidate: наибольшее |gender_gap| reduction при
+    неотрицательном (или меньшем) slot-gap сдвиге. random ≈ baseline.
