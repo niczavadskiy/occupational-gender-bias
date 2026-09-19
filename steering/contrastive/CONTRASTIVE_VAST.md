@@ -14,16 +14,34 @@ bash scripts/setup_instance.sh
 Полный прогон: live HS → mean-diff \(\hat v,c\) → Stage A (46 кандидатов + baseline)
 на `h1_stagea_sample_v1.json` (95 семей × 4). Модель: `Qwen/Qwen3.5-2B-Base`.
 
-## Свежий инстанс (один скрипт)
+## Если репо уже есть на инстансе
+
+Не клонируйте заново. Подтяните `main` и запускайте из корня репо:
+
+```bash
+export HF_TOKEN=hf_xxx
+
+cd /workspace/occupational-gender-bias
+git fetch --depth 1 origin main
+git checkout main
+git reset --hard origin/main
+
+ls steering/contrastive/scripts/vast_contrastive_full_instance.sh
+bash steering/contrastive/scripts/vast_contrastive_full_instance.sh
+```
+
+`reset --hard` нужен, чтобы подтянуть каталог `steering/contrastive/` (коммит `c8dd3a3`).
+Локальные правки на инстансе сотрутся.
+
+## Свежий инстанс (пустой /workspace)
 
 ```bash
 export HF_TOKEN=hf_xxx
 
 cd /workspace
 git clone --depth 1 https://github.com/niczavadskiy/occupational-gender-bias.git || true
-cd occupational-gender-bias && git pull
+cd occupational-gender-bias && git pull origin main
 
-# smoke (3 семьи) → full → pack /workspace/contrastive_stage_a_*.tar.gz
 bash steering/contrastive/scripts/vast_contrastive_full_instance.sh
 ```
 
