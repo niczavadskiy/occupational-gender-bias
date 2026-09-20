@@ -37,7 +37,9 @@ cd "$REPO"
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 echo "=== [2] setup_instance + steering env ==="
-# SKIP_PIP=1 if torch/transformers already good (avoids causal-conv1d source build).
+# SKIP_PIP=1 if torch/transformers already good.
+# SKIP_FLA=1 skips flash-linear-attention + causal-conv1d pip (source builds hang).
+export SKIP_FLA="${SKIP_FLA:-1}"
 PULL_CACHE=0 bash scripts/setup_instance.sh
 # shellcheck disable=SC1091
 source "$REPO/scripts/ensure_steering_env.sh"

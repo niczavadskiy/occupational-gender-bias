@@ -1,6 +1,7 @@
 # Vast: XY-control
 
-Нужен `HF_TOKEN` (Hub). Если `setup_instance` падает на `causal-conv1d`:
+Нужен `HF_TOKEN` (Hub). `causal-conv1d` по умолчанию **не ставится**
+(source build на Vast зависает). Уже стоящие torch/transformers достаточны:
 `SKIP_PIP=1`.
 
 Полный пул: 951 семьи × 4 layout. Сплит **внутри каждого SOC** 70/15/15.
@@ -53,5 +54,5 @@ MMLU smoke на полном глобальном прогоне: `MMLU=smoke`.
 
 ```bash
 export SKIP_PIP=1
-bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
+SCALES=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
 ```

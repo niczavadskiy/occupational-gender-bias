@@ -8,7 +8,8 @@
 #   bash scripts/ensure_steering_env.sh
 #   export PY="$(cat /tmp/occupational_steering_py)"
 #
-# Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  SKIP_FLA=1  REPO
+# Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  SKIP_FLA=1
+#      INSTALL_CAUSAL_CONV1D=1  REPO
 # ---------------------------------------------------------------------------
 
 STEERING_ENV_PY_FILE="${STEERING_ENV_PY_FILE:-/tmp/occupational_steering_py}"
@@ -118,8 +119,14 @@ ensure_steering_env() {
       echo "  flash-linear-attention: already importable"
     fi
     if ! "$PY" -c "import causal_conv1d" 2>/dev/null; then
-      "$PY" -m pip install -U causal-conv1d || \
-        echo "  WARN: causal-conv1d install failed — slow causal_conv1d_fn fallback"
+      # Source tarball (1.7.0) compiles CUDA kernels and often hangs or ABI-mismatches
+      # on Vast. Qwen3.5 already has a slow PyTorch fallback.
+      if [ "${INSTALL_CAUSAL_CONV1D:-0}" = "1" ]; then
+        "$PY" -m pip install -U causal-conv1d || \
+          echo "  WARN: causal-conv1d install failed — slow causal_conv1d_fn fallback"
+      else
+        echo "  skip causal-conv1d source build (set INSTALL_CAUSAL_CONV1D=1 to try)"
+      fi
     else
       echo "  causal-conv1d: already importable"
     fi
