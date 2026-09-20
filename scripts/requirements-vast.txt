@@ -11,9 +11,11 @@ python-dotenv
 PyYAML
 scipy
 pandas
+pyarrow
 # Qwen3.5 kernels: faster path. causal-conv1d is NOT a hard dep —
 # building it from source fails on CUDA 12.x images (wheel looks for cu13/torch 2.14).
-# ensure_steering_env.sh installs both best-effort; missing → slow PyTorch fallback.
+# ensure_steering_env installs FLA best-effort and skips causal-conv1d source builds;
+# missing causal-conv1d → slow PyTorch fallback.
 flash-linear-attention
 # torch/torchvision: leave image default unless broken; then:
 #   pip install -U 'torch>=2.5' torchvision

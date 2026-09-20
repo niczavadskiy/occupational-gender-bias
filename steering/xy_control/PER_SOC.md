@@ -102,3 +102,39 @@ bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
 Только smoke: `SKIP_FULL=1`. `SKIP_PIP=1`, если `causal-conv1d` не собирается.
 
 Pack: `/workspace/xy_control_per_soc_<tag>.tar.gz` (результаты + векторы).
+
+## Stage B / C
+
+Stage A выше использует `val` для GenderGap и замораживает не больше двух
+кандидатов на SOC:
+
+- `best_id` — максимальное уменьшение \(|GenderGap|\);
+- `best_prior_id` — лучший кандидат со знаком α из H1-prior (если отличается).
+
+Stage B **не считает GenderGap на val повторно**. Он проверяет эти кандидаты на
+50 вопросах соответствующего SOC из `mmlu_pro_domain_val_v1`. Порог
+`cap_loss=max(0, acc_baseline-acc_steered)` по умолчанию 0.03. Среди прошедших
+берётся минимальный `cap_loss`; при равенстве — prior. Если не прошёл никто,
+для SOC замораживается identity.
+
+Stage C не переизбирает кандидата:
+
+- preference: `test` семьи того же SOC;
+- capability: дизъюнктный `mmlu_pro_domain_test_v1`;
+- результат: только confirmatory report.
+
+На том же Vast-инстансе после Stage A:
+
+```bash
+# 2B
+SCALES=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+
+# 4B
+SCALES=4b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+```
+
+Выходы разделены по модели и стадии:
+
+- `results/steering/xy_control/stage_b/xy_<scale>_per_soc_b_v1/`
+- `results/steering/xy_control/stage_c/xy_<scale>_per_soc_c_v1/`
+- `/workspace/xy_control_per_soc_stage_bc_<scale>_v1.tar.gz`

@@ -32,6 +32,28 @@ SKIP_FULL=1 bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instan
 Pack: `/workspace/xy_control_per_soc_<tag>.tar.gz`  
 (результаты + `v_raw` npz). Протокол: [`PER_SOC.md`](PER_SOC.md).
 
+### Per-SOC Stage B/C после Stage A
+
+Запускать на том же инстансе: Stage B читает `summary.csv`, domain rankings и
+векторы Stage A. B проверяет `best + best_prior` на MMLU-Pro `domain_val`;
+C подтверждает замороженный winner на test-семьях и `domain_test`.
+
+```bash
+# только 2B
+SCALES=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+
+# только 4B
+SCALES=4b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+
+# обе по очереди
+bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+```
+
+Packs:
+
+- `/workspace/xy_control_per_soc_stage_bc_2b_v1.tar.gz`
+- `/workspace/xy_control_per_soc_stage_bc_4b_v1.tar.gz`
+
 ## Глобальный Stage A (один \(v\) на все домены)
 
 ```bash
