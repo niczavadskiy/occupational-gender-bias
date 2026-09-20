@@ -120,8 +120,16 @@ Stage B **не считает GenderGap на val повторно**. Он про
 Stage C не переизбирает кандидата:
 
 - preference: `test` семьи того же SOC;
-- capability: дизъюнктный `mmlu_pro_domain_test_v1`;
+- capability: дизъюнктный `mmlu_pro_domain_test_xy_250_v2` — **250** held-out
+  вопросов на каждый FDR SOC (13 доменов), без пересечения с Stage B val этих SOC;
 - результат: только confirmatory report.
+
+Пересборка Stage C MMLU-профиля:
+
+```powershell
+python -m steering.xy_control.build_stagec_mmlu_profile
+python -m steering.xy_control.build_stagec_mmlu_profile --verify
+```
 
 Для воспроизводимости Stage A копирует использованный `xy_pairs_full_v1.json`
 в каталог запуска и записывает его SHA-256 в metadata векторов. Перед Stage C

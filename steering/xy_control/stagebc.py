@@ -55,7 +55,8 @@ MODEL_BY_SCALE = {
 }
 PROFILE_BY_STAGE = {
     "b": STEERING_DIR / "profiles" / "mmlu_pro_domain_val_v1.json",
-    "c": STEERING_DIR / "profiles" / "mmlu_pro_domain_test_v1.json",
+    # FDR SOC union × 250 held-out; disjoint from Stage B domain_val for those SOCs.
+    "c": STEERING_DIR / "profiles" / "mmlu_pro_domain_test_xy_250_v2.json",
 }
 
 

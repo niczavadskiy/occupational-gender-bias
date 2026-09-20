@@ -41,7 +41,8 @@ steering/xy_control/
 ├── run_stagea.py         # add-steering + GenderGap (глобальный)
 ├── run_per_soc.py        # стиринг только FDR-значимых SOC
 ├── run_per_soc_stageb.py # best+prior → MMLU-Pro domain_val → freeze
-├── run_per_soc_stagec.py # frozen winner → test + MMLU-Pro domain_test
+├── run_per_soc_stagec.py # frozen winner → test + MMLU-Pro domain_test_xy_250
+├── build_stagec_mmlu_profile.py  # 250 held-out MMLU ids per FDR SOC
 └── scripts/
 ```
 

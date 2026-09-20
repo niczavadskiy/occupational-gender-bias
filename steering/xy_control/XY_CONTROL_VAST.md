@@ -36,7 +36,8 @@ Pack: `/workspace/xy_control_per_soc_<tag>.tar.gz`
 
 Запускать на том же инстансе: Stage B читает `summary.csv`, domain rankings и
 векторы Stage A. B проверяет `best + best_prior` на MMLU-Pro `domain_val`;
-C подтверждает замороженный winner на test-семьях и `domain_test`.
+C подтверждает замороженный winner на test-семьях и
+`mmlu_pro_domain_test_xy_250_v2` (250 held-out вопросов на FDR SOC).
 
 Обновлённый Stage A также сохраняет точный `xy_pairs_full_v1.json` в своём
 каталоге результатов. Stage C использует только эту копию, сверяет SHA-256 и
