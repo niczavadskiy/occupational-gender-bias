@@ -111,13 +111,60 @@ def catalog_markdown(doc: dict) -> str:
     return "\n".join(lines)
 
 
+def source_csvs_present() -> bool:
+    return all(path.is_file() for path in SOC_CSV.values())
+
+
+def validate_frozen(doc: dict) -> None:
+    if doc.get("schema") != "steering.xy_control_soc_fdr/v1":
+        raise ValueError(f"bad schema {doc.get('schema')}")
+    for scale in ("2b", "4b"):
+        block = doc["scales"][scale]
+        steer = block["steer"]
+        skip = block["skip"]
+        if int(block["n_steer"]) != len(steer) or int(block["n_skip"]) != len(skip):
+            raise ValueError(f"{scale}: n_steer/n_skip mismatch")
+        if not steer:
+            raise ValueError(f"{scale}: empty steer list")
+        slugs = [d["slug"] for d in steer]
+        if len(slugs) != len(set(slugs)):
+            raise ValueError(f"{scale}: slug collision")
+        titles = {d["soc_major_title"] for d in steer}
+        if titles & {d["soc_major_title"] for d in skip}:
+            raise ValueError(f"{scale}: steer/skip overlap")
+
+
+def verify_frozen() -> int:
+    if not CATALOG_JSON.is_file() or not CATALOG_MD.is_file():
+        print("MISSING catalog files")
+        return 1
+    on_disk = json.loads(CATALOG_JSON.read_text(encoding="utf-8"))
+    try:
+        validate_frozen(on_disk)
+    except (KeyError, TypeError, ValueError) as exc:
+        print(f"INVALID frozen catalog: {exc}")
+        return 1
+    print(
+        "OK — frozen SOC-FDR catalog "
+        f"(2B steer {on_disk['scales']['2b']['n_steer']}, "
+        f"4B steer {on_disk['scales']['4b']['n_steer']})"
+    )
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--verify", action="store_true")
     args = ap.parse_args(argv)
 
+    if args.verify and not source_csvs_present():
+        missing = [p.as_posix() for p in SOC_CSV.values() if not p.is_file()]
+        print("source H1 SOC CSVs not present — checking frozen catalog")
+        for name in missing:
+            print(f"  missing {name}")
+        return verify_frozen()
+
     doc = _jsonable(build_catalog())
-    # freeze datetime on verify by comparing without datetime
     md = catalog_markdown(doc)
     payload = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
 

@@ -18,6 +18,13 @@ def test_catalog_rebuilds() -> None:
     assert build_main(["--verify"]) == 0
 
 
+def test_frozen_catalog_loads() -> None:
+    catalog = load_catalog()
+    assert catalog["schema"] == "steering.xy_control_soc_fdr/v1"
+    assert catalog["scales"]["2b"]["n_steer"] == 10
+    assert catalog["scales"]["4b"]["n_steer"] == 10
+
+
 def test_union_rule_and_polarity() -> None:
     catalog = load_catalog()
     two = catalog["scales"]["2b"]
@@ -77,6 +84,7 @@ def test_slug_and_alpha_prior() -> None:
 def main() -> int:
     tests = [
         test_catalog_rebuilds,
+        test_frozen_catalog_loads,
         test_union_rule_and_polarity,
         test_select_domain_union,
         test_slug_and_alpha_prior,
