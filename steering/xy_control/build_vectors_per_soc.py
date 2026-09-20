@@ -31,7 +31,13 @@ from steering.xy_control.build_vectors import CONFIG_BY_SCALE, capture_pair, sha
 from steering.xy_control.capture_io import load_pair_capture, save_pair_capture
 from steering.xy_control.domains import CATALOG_JSON, load_catalog
 from steering.xy_control.mapping import MAPPING
-from steering.xy_control.paired_sample import filter_soc, load_pooled_items
+from steering.xy_control.paired_sample import (
+    FULL_SPLIT,
+    dataset_provenance,
+    filter_soc,
+    load_pooled_items,
+    split_path,
+)
 from steering.xy_control.per_soc import (
     fit_domain_vectors,
     plan_domain_splits,
@@ -115,6 +121,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.max_domains is not None:
         steer = steer[: args.max_domains]
 
+    dataset_meta = dataset_provenance(split_path(FULL_SPLIT))
     pooled = load_pooled_items()
     soc_pool: list[dict] = []
     seen_fids: set[int] = set()
@@ -282,6 +289,7 @@ def main(argv: list[str] | None = None) -> int:
         "hidden_state_index": cfg["source"]["hidden_state_index"],
         "layers": layers,
         "mapping": dict(MAPPING),
+        **dataset_meta,
         "n_capture_rows": len(rows),
         "train_frac": train_frac,
         "val_frac": val_frac,

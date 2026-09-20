@@ -4,7 +4,7 @@
 # Requires the completed Stage A directory and vectors on the same Vast instance.
 #   SCALE=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_and_pack.sh
 #
-# Env: SCALE=2b|4b DEVICE DTYPE CAP_LOSS_MAX=0.03 SMOKE=1
+# Env: SCALE=2b|4b DEVICE DTYPE CAP_LOSS_MAX=0.03 SMOKE=1 RUN_STAGE_B=0
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -22,6 +22,7 @@ DEVICE="${DEVICE:-cuda}"
 DTYPE="${DTYPE:-float32}"
 CAP_LOSS_MAX="${CAP_LOSS_MAX:-0.03}"
 SMOKE="${SMOKE:-0}"
+RUN_STAGE_B="${RUN_STAGE_B:-1}"
 STAGE_A_TAG="${STAGE_A_TAG:-xy_${SCALE}_per_soc_v1}"
 B_TAG="${B_TAG:-xy_${SCALE}_per_soc_b_v1}"
 C_TAG="${C_TAG:-xy_${SCALE}_per_soc_c_v1}"
@@ -31,6 +32,8 @@ if [ "$SMOKE" = "1" ]; then
 fi
 STAGE_A_DIR="${STAGE_A_DIR:-$REPO/results/steering/xy_control/per_soc/$STAGE_A_TAG}"
 MMLU_PARQUET="${MMLU_PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
+XY_DATA="${XY_DATA:-$STAGE_A_DIR/xy_pairs_full_v1.json}"
+STAGEC_KEEP="${STAGEC_KEEP:-$REPO/results/steering/xy_control/stage_b/$B_TAG/stagec_keep.json}"
 
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 cd "$REPO"
@@ -46,6 +49,11 @@ export PY
 if [ ! -f "$STAGE_A_DIR/summary.csv" ]; then
   echo "Missing Stage A: $STAGE_A_DIR/summary.csv"
   echo "Run/download per-SOC Stage A first."
+  exit 1
+fi
+if [ ! -f "$XY_DATA" ]; then
+  echo "Missing frozen Stage A XY dataset: $XY_DATA"
+  echo "Rerun Stage A with the updated pipeline; Stage C must not use a regenerated dataset."
   exit 1
 fi
 
@@ -68,7 +76,8 @@ B_FLAGS=(
 C_FLAGS=(
   --scale "$SCALE" --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE"
   --stage-a-dir "$STAGE_A_DIR" --mmlu-parquet "$MMLU_PARQUET"
-  --stagec-keep "$REPO/results/steering/xy_control/stage_b/$B_TAG/stagec_keep.json"
+  --xy-data "$XY_DATA"
+  --stagec-keep "$STAGEC_KEEP"
   --tag "$C_TAG"
 )
 if [ "$SMOKE" = "1" ]; then
@@ -76,8 +85,15 @@ if [ "$SMOKE" = "1" ]; then
   C_FLAGS+=(--limit-mmlu 3 --limit-items 2)
 fi
 
-echo "=== XY-control per-SOC Stage B [$SCALE] ==="
-"$PY" -m steering.xy_control.run_per_soc_stageb "${B_FLAGS[@]}"
+if [ "$RUN_STAGE_B" = "1" ]; then
+  echo "=== XY-control per-SOC Stage B [$SCALE] ==="
+  "$PY" -m steering.xy_control.run_per_soc_stageb "${B_FLAGS[@]}"
+elif [ ! -f "$STAGEC_KEEP" ]; then
+  echo "Missing existing Stage B keep file: $STAGEC_KEEP"
+  exit 1
+else
+  echo "=== reuse existing Stage B keep [$SCALE]: $STAGEC_KEEP ==="
+fi
 
 echo "=== XY-control per-SOC Stage C [$SCALE] ==="
 "$PY" -m steering.xy_control.run_per_soc_stagec "${C_FLAGS[@]}"
@@ -86,8 +102,10 @@ OUT="/workspace/xy_control_per_soc_stage_bc_${SCALE}_v1.tar.gz"
 if [ "$SMOKE" = "1" ]; then
   OUT="/workspace/xy_control_per_soc_stage_bc_${SCALE}_v1_smoke.tar.gz"
 fi
-tar -czf "$OUT" -C "$REPO" \
-  "results/steering/xy_control/stage_b/$B_TAG" \
-  "results/steering/xy_control/stage_c/$C_TAG"
+tar_args=( -czf "$OUT" -C "$REPO" "results/steering/xy_control/stage_c/$C_TAG" )
+if [ -d "$REPO/results/steering/xy_control/stage_b/$B_TAG" ]; then
+  tar_args+=( "results/steering/xy_control/stage_b/$B_TAG" )
+fi
+tar "${tar_args[@]}"
 ls -lh "$OUT"
 echo "DONE. Download: $OUT"

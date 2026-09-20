@@ -32,7 +32,13 @@ from steering.xy_control.build_vectors_per_soc import _load_dotenv, _probe_paths
 from steering.xy_control.capture_io import load_pair_capture, save_pair_capture
 from steering.xy_control.domains import CATALOG_JSON, load_catalog
 from steering.xy_control.mapping import MAPPING
-from steering.xy_control.paired_sample import filter_soc, load_pooled_items
+from steering.xy_control.paired_sample import (
+    FULL_SPLIT,
+    dataset_provenance,
+    filter_soc,
+    load_pooled_items,
+    split_path,
+)
 from steering.xy_control.per_soc import (
     eval_ids_for_split,
     expand_soc_candidates,
@@ -107,6 +113,8 @@ def run_scale(args: argparse.Namespace, scale: str) -> Path:
     elif args.max_domains is not None:
         steer = steer[: args.max_domains]
 
+    dataset_path = split_path(FULL_SPLIT)
+    dataset_meta = dataset_provenance(dataset_path)
     pooled = load_pooled_items()
     n_items = args.limit_items if args.limit_items is not None else (3 if args.smoke else None)
 
@@ -175,6 +183,18 @@ def run_scale(args: argparse.Namespace, scale: str) -> Path:
     if reuse_vectors:
         print(f"\n[{scale}] reuse vectors {vectors_path}")
         vec_meta = json.loads(vectors_path.with_suffix(".json").read_text(encoding="utf-8"))
+        expected_dataset_sha = vec_meta.get("xy_dataset_sha256")
+        if not expected_dataset_sha:
+            raise SystemExit(
+                f"{vectors_path.with_suffix('.json')} has no xy_dataset_sha256; "
+                "rebuild Stage A vectors with the frozen XY dataset"
+            )
+        if expected_dataset_sha != dataset_meta["xy_dataset_sha256"]:
+            raise SystemExit(
+                "XY dataset mismatch for reused vectors:\n"
+                f"  vectors expect {expected_dataset_sha}\n"
+                f"  current dataset {dataset_meta['xy_dataset_sha256']} ({dataset_path})"
+            )
         with np.load(vectors_path) as z:
             vectors = {k: np.asarray(z[k], dtype=np.float32) for k in z.files}
         calib = {e["key"]: e for e in vec_meta["vectors"]}
@@ -275,6 +295,7 @@ def run_scale(args: argparse.Namespace, scale: str) -> Path:
             "map_sha256": sha256_file(cfg_path),
             "layers": layers,
             "mapping": dict(MAPPING),
+            **dataset_meta,
             "n_vectors": len(vectors),
             "arrays_sha256": arrays_signature(vectors) if vectors else "",
             "vectors": list(calib.values()),
@@ -496,6 +517,7 @@ def run_scale(args: argparse.Namespace, scale: str) -> Path:
         "n_domains_skipped": len(skip_rows),
         "vectors_file": str(vectors_path),
         "vectors_sha256": vec_meta.get("arrays_sha256"),
+        **dataset_meta,
         "runtime_s": round(time.time() - t_all, 1),
         "python_version": sys.version.split()[0],
         "platform": platform.platform(),
@@ -506,6 +528,7 @@ def run_scale(args: argparse.Namespace, scale: str) -> Path:
     for src in (vectors_path, vectors_path.with_suffix(".json")):
         if src.is_file():
             shutil.copy2(src, out_root / src.name)
+    shutil.copy2(dataset_path, out_root / dataset_path.name)
     print(f"\n=== per-SOC [{tag}] {len(summaries)} steered, {len(skip_rows)} skipped  {meta['runtime_s']:.0f}s ===")
     print(f"  {out_root}")
     for s in summaries:

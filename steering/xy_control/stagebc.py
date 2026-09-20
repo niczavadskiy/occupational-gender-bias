@@ -36,7 +36,13 @@ from steering.mmlu_eval import (
 from steering.run_inlp_stagea import behavioral_metrics, family_aggregate
 from steering.xy_control.domains import CATALOG_JSON, load_catalog
 from steering.xy_control.mapping import MAPPING
-from steering.xy_control.paired_sample import filter_soc, load_pooled_items
+from steering.xy_control.paired_sample import (
+    FULL_SPLIT,
+    dataset_provenance,
+    filter_soc,
+    load_items_file,
+    split_path,
+)
 from steering.xy_control.per_soc import eval_ids_for_split, make_candidate
 from steering.xy_control.run_stagea import filter_items, gap_block, run_config
 
@@ -185,6 +191,82 @@ def load_vectors(path: Path) -> tuple[dict[str, np.ndarray], dict[str, dict], di
         vectors = {key: np.asarray(z[key], dtype=np.float32) for key in z.files}
     calib = {entry["key"]: entry for entry in meta["vectors"]}
     return vectors, calib, meta
+
+
+def resolve_xy_dataset(stage_a_dir: Path, override: Path | None) -> Path:
+    if override is not None:
+        path = override
+    else:
+        staged = stage_a_dir / split_path(FULL_SPLIT).name
+        path = staged if staged.is_file() else split_path(FULL_SPLIT)
+    if not path.is_file():
+        raise SystemExit(f"XY preference dataset missing: {path}")
+    return path
+
+
+def validate_stagec_preference_pool(
+    pooled: list[dict],
+    vec_meta: dict,
+    keep_domains: list[dict],
+    dataset_path: Path,
+) -> dict:
+    """Require the exact Stage A dataset and every frozen Stage C test ID."""
+    provenance = dataset_provenance(dataset_path)
+    expected_sha = vec_meta.get("xy_dataset_sha256")
+    if not expected_sha:
+        raise SystemExit(
+            "vector metadata has no xy_dataset_sha256; rerun Stage A so Stage C "
+            "can prove it uses the same preference dataset"
+        )
+
+    problems: list[str] = []
+    if provenance["xy_dataset_sha256"] != expected_sha:
+        problems.append(
+            "dataset SHA-256 differs: "
+            f"vectors={expected_sha}, current={provenance['xy_dataset_sha256']}"
+        )
+    expected_ids_sha = vec_meta.get("xy_dataset_family_ids_sha256")
+    if expected_ids_sha and provenance["xy_dataset_family_ids_sha256"] != expected_ids_sha:
+        problems.append(
+            "family-ID SHA-256 differs: "
+            f"vectors={expected_ids_sha}, current={provenance['xy_dataset_family_ids_sha256']}"
+        )
+
+    split_meta = {d["slug"]: d for d in vec_meta.get("domains", [])}
+    all_locations = {
+        int(item["scenario_family_id"]): str(item.get("soc_major_title") or "")
+        for item in pooled
+    }
+    for entry in keep_domains:
+        slug = entry["slug"]
+        title = entry["soc_major_title"]
+        if slug not in split_meta:
+            problems.append(f"{slug}: split metadata missing")
+            continue
+        expected = {int(x) for x in split_meta[slug]["test_family_ids"]}
+        present = {
+            int(item["scenario_family_id"])
+            for item in pooled
+            if item.get("soc_major_title") == title
+        }
+        missing = sorted(expected - present)
+        if missing:
+            wrong_soc = [fid for fid in missing if fid in all_locations]
+            sample = ", ".join(str(fid) for fid in missing[:8])
+            detail = f"{slug}: missing {len(missing)}/{len(expected)} test IDs ({sample})"
+            if wrong_soc:
+                detail += f"; {len(wrong_soc)} IDs exist under another SOC"
+            problems.append(detail)
+
+    if problems:
+        raise SystemExit(
+            "Stage C preference holdout validation failed before model loading.\n"
+            f"Dataset: {dataset_path}\n  - "
+            + "\n  - ".join(problems)
+            + "\nUse the xy_pairs_full_v1.json copied into the matching Stage A directory, "
+            "or rerun Stage A with the current frozen dataset."
+        )
+    return provenance
 
 
 def candidate_from_entry(domain: dict, entry: dict) -> dict:
@@ -370,9 +452,13 @@ def stage_c(args: argparse.Namespace) -> Path:
     vectors_path = resolve_vectors(args.stage_a_dir, args.scale, args.vectors)
     vectors, calib, vec_meta = load_vectors(vectors_path)
     split_meta = {d["slug"]: d for d in vec_meta["domains"]}
+    dataset_path = resolve_xy_dataset(args.stage_a_dir, args.xy_data)
+    pooled = load_items_file(dataset_path)
+    dataset_meta = validate_stagec_preference_pool(
+        pooled, vec_meta, keep["domains"], dataset_path
+    )
     profile = load_json(args.domain_profile)
     bank = load_parquet_by_ids(args.mmlu_parquet, collect_profile_ids(profile))
-    pooled = load_pooled_items()
 
     out_dir = args.out_root / "stage_c" / args.tag
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -476,6 +562,7 @@ def stage_c(args: argparse.Namespace) -> Path:
     write_json(out_dir / "stagec_keep.json", keep)
     shutil.copy2(vectors_path, out_dir / vectors_path.name)
     shutil.copy2(vectors_path.with_suffix(".json"), out_dir / vectors_path.with_suffix(".json").name)
+    shutil.copy2(dataset_path, out_dir / dataset_path.name)
     write_json(
         out_dir / "run_meta.json",
         {
@@ -484,6 +571,8 @@ def stage_c(args: argparse.Namespace) -> Path:
             "scale": args.scale,
             "model": args.model,
             "profile": str(args.domain_profile),
+            "xy_dataset": str(dataset_path),
+            **dataset_meta,
             "preference_split": "test",
             "selection": "none; frozen Stage B keep",
             "n_domains": len(summary),
@@ -523,6 +612,12 @@ def parser(stage: str) -> argparse.ArgumentParser:
         ap.add_argument("--cap-loss-max", type=float, default=0.03)
     else:
         ap.add_argument("--stagec-keep", type=Path, required=True)
+        ap.add_argument(
+            "--xy-data",
+            type=Path,
+            default=None,
+            help="Exact Stage A xy_pairs_full_v1.json; defaults to the copy in --stage-a-dir.",
+        )
         ap.add_argument("--limit-items", type=int, default=None)
     return ap
 

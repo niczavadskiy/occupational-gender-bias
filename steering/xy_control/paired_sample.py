@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import hashlib
+import json
 from pathlib import Path
 
 from steering.run_inlp_stagea import load_json
@@ -17,18 +19,52 @@ def split_path(name: str, data_dir: Path | None = None) -> Path:
     return (data_dir or DATA_DIR) / f"xy_pairs_{name}_v1.json"
 
 
-def load_full_items(data_dir: Path | None = None) -> list[dict]:
-    path = split_path(FULL_SPLIT, data_dir)
-    if not path.is_file():
-        raise FileNotFoundError(f"{path} — python -m steering.xy_control.build_dataset")
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def dataset_provenance(path: Path) -> dict:
     doc = load_json(path)
-    items = []
+    items = doc["items"]
+    ids = [int(item["scenario_family_id"]) for item in items]
+    if len(ids) != len(set(ids)):
+        raise ValueError(f"duplicate scenario_family_id in {path}")
+    ids_payload = json.dumps(sorted(ids), separators=(",", ":")).encode("ascii")
+    return {
+        "xy_dataset_file": path.name,
+        "xy_dataset_sha256": sha256_file(path),
+        "xy_dataset_family_ids_sha256": hashlib.sha256(ids_payload).hexdigest(),
+        "xy_dataset_n_families": len(ids),
+    }
+
+
+def load_items_file(path: Path) -> list[dict]:
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    doc = load_json(path)
+    items: list[dict] = []
+    seen: set[int] = set()
     for item in doc["items"]:
+        fid = int(item["scenario_family_id"])
+        if fid in seen:
+            raise ValueError(f"duplicate scenario_family_id {fid} in {path}")
+        seen.add(fid)
         row = dict(item)
         row["xy_split"] = FULL_SPLIT
         items.append(row)
     items.sort(key=lambda it: int(it["scenario_family_id"]))
     return items
+
+
+def load_full_items(data_dir: Path | None = None) -> list[dict]:
+    path = split_path(FULL_SPLIT, data_dir)
+    if not path.is_file():
+        raise FileNotFoundError(f"{path} — python -m steering.xy_control.build_dataset")
+    return load_items_file(path)
 
 
 def load_pooled_items(

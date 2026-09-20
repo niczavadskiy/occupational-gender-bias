@@ -38,6 +38,25 @@ Pack: `/workspace/xy_control_per_soc_<tag>.tar.gz`
 векторы Stage A. B проверяет `best + best_prior` на MMLU-Pro `domain_val`;
 C подтверждает замороженный winner на test-семьях и `domain_test`.
 
+Обновлённый Stage A также сохраняет точный `xy_pairs_full_v1.json` в своём
+каталоге результатов. Stage C использует только эту копию, сверяет SHA-256 и
+проверяет наличие **всех** замороженных test family IDs до загрузки модели.
+Затронутые старые Stage A артефакты без dataset hash можно мигрировать CPU-only:
+
+```bash
+python -m steering.xy_control.migrate_stagea \
+  --stage-a-dir results/steering/xy_control/per_soc/xy_2b_per_soc_v1 --scale 2b
+python -m steering.xy_control.migrate_stagea \
+  --stage-a-dir results/steering/xy_control/per_soc/xy_4b_per_soc_v1 --scale 4b
+```
+
+Если валидный `stagec_keep.json` уже есть, повторяется только C:
+
+```bash
+RUN_STAGE_B=0 SCALES=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+RUN_STAGE_B=0 SCALES=4b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+```
+
 ```bash
 # только 2B
 SCALES=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh

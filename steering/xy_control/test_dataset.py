@@ -89,10 +89,14 @@ def test_layout_b_woman_first() -> None:
 
 
 def test_full_without_abstain_pairs() -> None:
-    from steering.xy_control.h1_families import build_without_abstain_items
+    from steering.xy_control.h1_families import build_without_abstain_items, family_key
+    from steering.xy_control.paired_sample import load_full_items
 
     items = build_without_abstain_items()
     assert len(items) == 951
+    frozen_ids = {family_key(item): int(item["scenario_family_id"]) for item in load_full_items()}
+    rebuilt_ids = {family_key(item): int(item["scenario_family_id"]) for item in items}
+    assert rebuilt_ids == frozen_ids
     n_rows = 0
     layouts = set()
     for item in items:
@@ -212,6 +216,42 @@ def test_split_is_inside_each_soc() -> None:
         assert set(meta["test_family_ids"]) <= test
 
 
+def test_legacy_stagea_migration_reconstructs_splits() -> None:
+    from steering.xy_control.migrate_stagea import legacy_xy_document, validate_splits
+
+    doc = legacy_xy_document()
+    ids = [int(item["scenario_family_id"]) for item in doc["items"]]
+    assert len(ids) == 951 and len(set(ids)) == 951
+    assert max(ids) > 3880
+
+    title = str(doc["items"][0]["soc_major_title"])
+    domain_ids = [
+        int(item["scenario_family_id"])
+        for item in doc["items"]
+        if item["soc_major_title"] == title
+    ]
+    vector_meta = {
+        "domains": [
+            {
+                "slug": "toy",
+                "n_families": len(domain_ids),
+                "train_family_ids": domain_ids[:-2],
+                "val_family_ids": domain_ids[-2:-1],
+                "test_family_ids": domain_ids[-1:],
+            }
+        ],
+        "vectors": [{"slug": "toy", "soc_major_title": title}],
+    }
+    assert validate_splits(doc, vector_meta)["n_domains"] == 1
+    vector_meta["domains"][0]["test_family_ids"] = [999999]
+    try:
+        validate_splits(doc, vector_meta)
+    except ValueError as exc:
+        assert "do not match vector splits" in str(exc)
+    else:
+        raise AssertionError("migration accepted a mismatched legacy split")
+
+
 def main() -> int:
     tests = [
         test_fixed_mapping,
@@ -226,6 +266,7 @@ def main() -> int:
         test_stagea_sample_pairs,
         test_v_raw_is_mean_of_paired_diffs,
         test_split_is_inside_each_soc,
+        test_legacy_stagea_migration_reconstructs_splits,
     ]
     failed = 0
     for fn in tests:

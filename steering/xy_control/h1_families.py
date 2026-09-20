@@ -15,23 +15,14 @@ INFERENCE_FILES = (
     REPO_ROOT / "data" / "v1" / "inference_items_v1_man_first.jsonl",
     REPO_ROOT / "data" / "v1" / "inference_items_v1_woman_first.jsonl",
 )
-GROUP_SPLIT = (
-    REPO_ROOT
-    / "experiments"
-    / "qwen35-4b-base"
-    / "results"
-    / "qwen35_4b_h1h3_pack"
-    / "run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle"
-    / "probes"
-    / "_shared"
-    / "group_split_v1_scenario.json"
-)
 LEGACY_SAMPLES = (
     STEERING_DIR / "samples" / "h1_stagea_sample_v1.json",
     STEERING_DIR / "samples" / "h1_stageb_sample_v1.json",
     STEERING_DIR / "samples" / "inlp_test_sample_v1.json",
     STEERING_DIR / "samples" / "inlp_stagec_sample_v1.json",
 )
+FROZEN_FULL_DATASET = HERE / "data" / "xy_pairs_full_v1.json"
+FAMILY_ID_REFERENCES = (*LEGACY_SAMPLES, FROZEN_FULL_DATASET)
 
 SLICE = {
     "task": "main",
@@ -86,7 +77,7 @@ def load_inference_rows(paths: tuple[Path, ...] | None = None) -> list[dict[str,
 
 def known_family_ids(sample_paths: tuple[Path, ...] | None = None) -> dict[tuple[str, str, str], int]:
     mapping: dict[tuple[str, str, str], int] = {}
-    for path in sample_paths or LEGACY_SAMPLES:
+    for path in sample_paths or FAMILY_ID_REFERENCES:
         if not path.is_file():
             continue
         doc = json.loads(path.read_text(encoding="utf-8"))
@@ -100,16 +91,13 @@ def known_family_ids(sample_paths: tuple[Path, ...] | None = None) -> dict[tuple
     return mapping
 
 
-def unused_split_ids(used: set[int], split_path: Path | None = None) -> list[int]:
-    path = split_path or GROUP_SPLIT
-    if not path.is_file():
-        return []
-    doc = json.loads(path.read_text(encoding="utf-8"))
-    all_ids = sorted(int(k) for k in doc.get("group_to_split", {}))
-    return [i for i in all_ids if i not in used]
-
-
 def assign_family_ids(keys: list[tuple[str, str, str]]) -> dict[tuple[str, str, str], int]:
+    """Preserve frozen IDs; assign any genuinely new families deterministically.
+
+    The committed full XY dataset is the authoritative ID map. Do not derive
+    IDs from optional experiment artifacts: those are absent on clean Vast
+    checkouts and previously made Stage A IDs differ from Stage C IDs.
+    """
     known = known_family_ids()
     assigned: dict[tuple[str, str, str], int] = {}
     used = set()
@@ -120,13 +108,12 @@ def assign_family_ids(keys: list[tuple[str, str, str]]) -> dict[tuple[str, str, 
             used.add(known[key])
         else:
             missing.append(key)
-    leftover = unused_split_ids(used)
-    if len(leftover) < len(missing):
-        nxt = (max(used) + 1) if used else 1
-        while len(leftover) < len(missing):
-            if nxt not in used and nxt not in leftover:
-                leftover.append(nxt)
-            nxt += 1
+    leftover: list[int] = []
+    nxt = (max(used) + 1) if used else 1
+    while len(leftover) < len(missing):
+        if nxt not in used:
+            leftover.append(nxt)
+        nxt += 1
     for key, fid in zip(sorted(missing), leftover):
         assigned[key] = fid
         used.add(fid)

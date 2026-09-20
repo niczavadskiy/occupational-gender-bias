@@ -123,6 +123,28 @@ Stage C не переизбирает кандидата:
 - capability: дизъюнктный `mmlu_pro_domain_test_v1`;
 - результат: только confirmatory report.
 
+Для воспроизводимости Stage A копирует использованный `xy_pairs_full_v1.json`
+в каталог запуска и записывает его SHA-256 в metadata векторов. Перед Stage C
+проверяются SHA-256 и полное покрытие `test_family_ids` по каждому SOC; любое
+расхождение останавливает запуск до загрузки модели. Артефакты Stage A без
+dataset hash можно мигрировать без GPU, если они получены затронутым Vast-run:
+
+```bash
+python -m steering.xy_control.migrate_stagea \
+  --stage-a-dir results/steering/xy_control/per_soc/xy_2b_per_soc_v1 --scale 2b
+python -m steering.xy_control.migrate_stagea \
+  --stage-a-dir results/steering/xy_control/per_soc/xy_4b_per_soc_v1 --scale 4b
+```
+
+Мигратор CPU-only восстанавливает старую схему ID, требует точного совпадения
+всех train/val/test IDs с metadata и только после этого добавляет dataset hash.
+С существующим `stagec_keep.json` можно не повторять Stage B:
+
+```bash
+RUN_STAGE_B=0 SCALES=2b \
+  bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_full_instance.sh
+```
+
 На том же Vast-инстансе после Stage A:
 
 ```bash
