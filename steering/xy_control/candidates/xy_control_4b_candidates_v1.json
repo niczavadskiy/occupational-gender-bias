@@ -3,7 +3,7 @@
   "hypothesis": "xy_control",
   "map_version": "v1",
   "map_config": "xy_control_4b_v1.yaml",
-  "map_sha256": "ca4127518c977679f06ad84c13138441544627ae3afa4324ec4e840002273144",
+  "map_sha256": "16cc62f8574209f1bfbbcf7c37a52f55ddcef38e949522d875dca30124539381",
   "source": {
     "model_id": "Qwen/Qwen3.5-4B-Base",
     "d_model": 2560,
@@ -13,8 +13,8 @@
       "X": "man",
       "Y": "woman"
     },
-    "fit_sample": "data/xy_pairs_stagea_v1.json",
-    "eval_sample": "data/xy_pairs_stagea_v1.json",
+    "fit_sample": "data/xy_pairs_full_v1.json",
+    "eval_sample": "data/xy_pairs_full_v1.json",
     "label": "paired_xy_control",
     "label_note": "d_i = last-token HS(gendered prompt) − last-token HS(XY prompt) for the same row. v_raw is the mean of d_i on train families.",
     "split": {
@@ -22,7 +22,8 @@
       "val_frac": 0.15,
       "test_frac": 0.15,
       "seed": 0,
-      "note": "v_raw is fit only on train families of the fit sample."
+      "stratify_by": "soc_major_title",
+      "note": "70/15/15 inside each soc_major_title (not a global shuffle). train (~667): fit v_raw, then h' = h − αv̂. val (~142): Stage A GenderGap after steering. test (~142): locked until α/layer chosen. XY prompts are not scored."
     }
   },
   "hook": {
@@ -100,14 +101,15 @@
   "screening": {
     "stage": "A",
     "sample": {
-      "source_split": "val",
-      "n_base_items": 95,
-      "fraction_of_all_groups": 0.1,
+      "source_split": "all",
+      "n_base_items": 951,
+      "n_eval_families": 142,
+      "fraction_of_all_groups": 1.0,
       "stratify_by": "soc_major_title",
       "rows_per_item": 4,
-      "seed": 20260809
+      "seed": 0
     },
-    "forwards_per_candidate": 380,
+    "forwards_per_candidate": 568,
     "primary_metric": {
       "id": "gender_gap",
       "formula": "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))",
@@ -145,8 +147,8 @@
     "main_add_edge": 12
   },
   "forwards_estimate": {
-    "per_candidate": 380,
-    "total_with_baseline": 18240
+    "per_candidate": 568,
+    "total_with_baseline": 27264
   },
   "candidates": [
     {

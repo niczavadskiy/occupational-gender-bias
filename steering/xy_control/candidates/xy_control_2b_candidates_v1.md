@@ -2,7 +2,7 @@
 
 - Конфиг: `xy_control_2b_v1.yaml`
 - Кандидатов: **47** (candidate 44, control 3) + baseline
-- Forward estimate Stage A: **18240** (380 × n+1)
+- Forward estimate Stage A: **27264** (568 × n+1)
 - Hook: `residual_stream_hidden_state`, `last_prompt_token`
 
 ## По семействам

@@ -1,15 +1,42 @@
-# Vast: XY-control Stage A
+# Vast: XY-control
+
+Нужен `HF_TOKEN` (Hub). Если `setup_instance` падает на `causal-conv1d`:
+`SKIP_PIP=1`.
+
+Полный пул: 951 семьи × 4 layout. Сплит **внутри каждого SOC** 70/15/15.
+Stage A по умолчанию — GenderGap на **val**. test не трогать, пока не выбран α.
+
+## Per-SOC (FDR-значимые домены)
+
+2B затем 4B, у каждого SOC свой \(v_{\mathrm{raw}}\):
 
 ```bash
 export HF_TOKEN=hf_xxx
-cd /workspace/occupational-gender-bias && git pull
-bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
+bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
 ```
 
-4B (Qwen3.5-4B-Base, пояс L20–26, якорь L23):
+Только 2B / только 4B:
+
+```bash
+SCALES=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
+bash steering/xy_control/scripts/vast_xy_control_per_soc_4b_full_instance.sh
+```
+
+Только smoke (1 домен, якорь, \(\alpha=\pm 1\)):
+
+```bash
+SKIP_FULL=1 bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
+```
+
+Pack: `/workspace/xy_control_per_soc_<tag>.tar.gz`  
+(результаты + `v_raw` npz). Протокол: [`PER_SOC.md`](PER_SOC.md).
+
+## Глобальный Stage A (один \(v\) на все домены)
 
 ```bash
 export HF_TOKEN=hf_xxx
+bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
+# 4B:
 bash steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh
 ```
 
@@ -17,20 +44,14 @@ bash steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh
 
 ```bash
 SKIP_FULL=1 bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
-# 4B:
 SKIP_FULL=1 bash steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh
 ```
 
 Pack: `/workspace/xy_control_stage_a_<tag>.tar.gz`
 
-MMLU smoke на полном прогоне: `MMLU=smoke`.
-
-Если `setup_instance` падает на сборке `causal-conv1d` (CUDA mismatch), env
-уже достаточный — повторите с `SKIP_PIP=1`:
+MMLU smoke на полном глобальном прогоне: `MMLU=smoke`.
 
 ```bash
 export SKIP_PIP=1
-bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
-# 4B:
-SKIP_PIP=1 bash steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh
+bash steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh
 ```

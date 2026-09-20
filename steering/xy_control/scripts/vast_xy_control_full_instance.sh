@@ -58,7 +58,8 @@ need=(
   steering/xy_control/scripts/vast_xy_control_stagea_and_pack.sh
   steering/xy_control/configs/xy_control_${SCALE}_v1.yaml
   steering/xy_control/candidates/xy_control_${SCALE}_candidates_v1.json
-  steering/samples/h1_stagea_sample_v1.json
+  data/v1/inference_items_v1_man_first.jsonl
+  data/v1/inference_items_v1_woman_first.jsonl
 )
 miss=0
 for f in "${need[@]}"; do
@@ -76,6 +77,8 @@ fi
 
 chmod +x steering/xy_control/scripts/vast_xy_control_stagea_and_pack.sh
 chmod +x steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh 2>/dev/null || true
+chmod +x steering/xy_control/scripts/vast_xy_control_per_soc_and_pack.sh 2>/dev/null || true
+chmod +x steering/xy_control/scripts/vast_xy_control_per_soc_full_instance.sh 2>/dev/null || true
 
 if [ "$SKIP_SMOKE" != "1" ]; then
   echo "=== [4] SMOKE (3 families, ±α on anchor) ==="

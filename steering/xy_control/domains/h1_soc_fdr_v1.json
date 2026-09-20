@@ -1,0 +1,992 @@
+{
+  "schema": "steering.xy_control_soc_fdr/v1",
+  "version": "v1",
+  "datetime": "2026-09-20T01:28:53",
+  "rule": {
+    "abstain_variant": "without_abstain",
+    "include": "union of FDR-rejected H1 SOC strata (choice family or prob family)",
+    "polarity": "sign of the significant effect; choice preferred if both reject",
+    "hypothesized_alpha_sign": "male → α<0 (add v); female → α>0 (subtract v). Both signs are still gridded; this is only the prior.",
+    "skip": "non-significant SOCs are not steered (identity)"
+  },
+  "scales": {
+    "2b": {
+      "csv": "results/v1_full_pos_shuffle/metrics_h1_v1/latest/tests_h1_v1_soc.csv",
+      "n_soc_tested": 19,
+      "n_steer": 10,
+      "n_skip": 9,
+      "n_male": 8,
+      "n_female": 2,
+      "steer": [
+        {
+          "soc_major_title": "Architecture and Engineering Occupations",
+          "slug": "architecture_and_engineering_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.26996197718631176,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.00028442563791450447,
+            "p_raw": 1.4174619036180706e-05,
+            "effect": 0.26996197718631176,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 66.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.00017572651652270494,
+            "p_raw": 1.8497528055021573e-05,
+            "effect": 0.07053093164592641,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 66.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Computer and Mathematical Occupations",
+          "slug": "computer_and_mathematical_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.3,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.0035778878311348065,
+            "p_raw": 0.0012993330972502681,
+            "effect": 0.3,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 30.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.009362052915039453,
+            "p_raw": 0.002956437762644038,
+            "effect": 0.05887060376505057,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 30.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Construction and Extraction Occupations",
+          "slug": "construction_and_extraction_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.22950819672131148,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.0035778878311348065,
+            "p_raw": 0.0004078109121963745,
+            "effect": 0.22950819672131148,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 61.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0078203378660829,
+            "p_raw": 0.0018091241937500432,
+            "effect": 0.05380048993669572,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 61.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Educational Instruction and Library Occupations",
+          "slug": "educational_instruction_and_library_occupations",
+          "polarity": "male",
+          "gate": "choice_fdr",
+          "effect": 0.13333333333333333,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.008663302357977395,
+            "p_raw": 0.045162417754493,
+            "effect": 0.13333333333333333,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.2976317039481522,
+            "p_raw": 0.1879779182830435,
+            "effect": 0.015609577608605226,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+          "slug": "healthcare_practitioners_and_technical_occupatio",
+          "polarity": "female",
+          "gate": "prob_fdr",
+          "effect": -0.031146831333983774,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.18156431401583809,
+            "p_raw": 0.3056356705821584,
+            "effect": -0.05813953488372093,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 86.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0078203378660829,
+            "p_raw": 0.002057983648969184,
+            "effect": -0.031146831333983774,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 86.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Installation, Maintenance, and Repair Occupations",
+          "slug": "installation_maintenance_and_repair_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.1388888888888889,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.01602682919319136,
+            "p_raw": 0.04822120950653141,
+            "effect": 0.1388888888888889,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 54.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.036044326171241536,
+            "p_raw": 0.015176558387891172,
+            "effect": 0.03017135226616153,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 54.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Life, Physical, and Social Science Occupations",
+          "slug": "life_physical_and_social_science_occupations",
+          "polarity": "male",
+          "gate": "choice_fdr",
+          "effect": 0.11666666666666667,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.03575841295501138,
+            "p_raw": 0.08114540916016125,
+            "effect": 0.11666666666666667,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.39406199516281215,
+            "p_raw": 0.33184168013710497,
+            "effect": 0.015124502095083396,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Personal Care and Service Occupations",
+          "slug": "personal_care_and_service_occupations",
+          "polarity": "female",
+          "gate": "prob_fdr",
+          "effect": -0.06927490048110485,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.21284820176803085,
+            "p_raw": 0.250439880619259,
+            "effect": -0.109375,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 32.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0072680200033135205,
+            "p_raw": 0.0011475821057863455,
+            "effect": -0.06927490048110485,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 32.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Production Occupations",
+          "slug": "production_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.14814814814814814,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.008663302357977395,
+            "p_raw": 0.0023980883549396246,
+            "effect": 0.14814814814814814,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 108.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.013693675142197253,
+            "p_raw": 0.005045038210283198,
+            "effect": 0.03095960344567343,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 108.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Transportation and Material Moving Occupations",
+          "slug": "transportation_and_material_moving_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.27358490566037735,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 7.774376969918329e-05,
+            "p_raw": 8.236337782292451e-05,
+            "effect": 0.27358490566037735,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 53.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 6.250469875557374e-06,
+            "p_raw": 3.28972098713546e-07,
+            "effect": 0.07843546681808976,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 53.0
+          },
+          "steer": true
+        }
+      ],
+      "skip": [
+        {
+          "soc_major_title": "Arts, Design, Entertainment, Sports, and Media Occupations",
+          "slug": "arts_design_entertainment_sports_and_media_occup",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.21284820176803085,
+            "p_raw": 0.32157393688809527,
+            "effect": 0.08139534883720931,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 43.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.5461363368824678,
+            "p_raw": 0.5227366816452154,
+            "effect": 0.010580527747786322,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 43.0
+          }
+        },
+        {
+          "soc_major_title": "Business and Financial Operations Occupations",
+          "slug": "business_and_financial_operations_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.2144416477955923,
+            "p_raw": 0.35314085510666426,
+            "effect": -0.07142857142857142,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 49.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.39406199516281215,
+            "p_raw": 0.2989270488243936,
+            "effect": -0.013784797215948299,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 49.0
+          }
+        },
+        {
+          "soc_major_title": "Farming, Fishing, and Forestry Occupations",
+          "slug": "farming_fishing_and_forestry_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.5585608897330189,
+            "p_raw": 0.5446122234192592,
+            "effect": 0.08823529411764706,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.27657536437779884,
+            "p_raw": 0.1601225793766204,
+            "effect": 0.058081485988462675,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          }
+        },
+        {
+          "soc_major_title": "Food Preparation and Serving Related Occupations",
+          "slug": "food_preparation_and_serving_related_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.21284820176803085,
+            "p_raw": 0.11425430684992327,
+            "effect": -0.20588235294117646,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.0581682683593954,
+            "p_raw": 0.02755339027550308,
+            "effect": -0.07461867152768023,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          }
+        },
+        {
+          "soc_major_title": "Healthcare Support Occupations",
+          "slug": "healthcare_support_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.7498058561479997,
+            "p_raw": 0.9035973456835127,
+            "effect": -0.029411764705882353,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.3798260468978331,
+            "p_raw": 0.25988097945641214,
+            "effect": -0.03127156921169337,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          }
+        },
+        {
+          "soc_major_title": "Management Occupations",
+          "slug": "management_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.21284820176803085,
+            "p_raw": 0.1451879942723577,
+            "effect": 0.10576923076923077,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 52.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.5461363368824678,
+            "p_raw": 0.5461363368824678,
+            "effect": 0.009050501725421501,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 52.0
+          }
+        },
+        {
+          "soc_major_title": "Office and Administrative Support Occupations",
+          "slug": "office_and_administrative_support_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.43405629890759917,
+            "p_raw": 0.5708375672009757,
+            "effect": 0.03968253968253968,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 63.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.5051787575905173,
+            "p_raw": 0.4520020462651997,
+            "effect": 0.006713788187693036,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 63.0
+          }
+        },
+        {
+          "soc_major_title": "Protective Service Occupations",
+          "slug": "protective_service_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.0640416856848621,
+            "p_raw": 0.07726226461070683,
+            "effect": 0.1724137931034483,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 29.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.17771087060227275,
+            "p_raw": 0.09353203715909092,
+            "effect": 0.04613437837567823,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 29.0
+          }
+        },
+        {
+          "soc_major_title": "Sales and Related Occupations",
+          "slug": "sales_and_related_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.10914464308495705,
+            "p_raw": 0.1253456971884926,
+            "effect": 0.16666666666666666,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 24.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.39406199516281215,
+            "p_raw": 0.3198908119702462,
+            "effect": 0.018278285550574463,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 24.0
+          }
+        }
+      ]
+    },
+    "4b": {
+      "csv": "experiments/qwen35-4b-base/results/qwen35_4b_h1h3_pack/run_2026-09-12_20-25-31_Qwen3.5-4B-Base_v1_full_pos_shuffle/metrics_h1_v1/latest/tests_h1_v1_soc.csv",
+      "n_soc_tested": 19,
+      "n_steer": 10,
+      "n_skip": 9,
+      "n_male": 4,
+      "n_female": 6,
+      "steer": [
+        {
+          "soc_major_title": "Construction and Extraction Occupations",
+          "slug": "construction_and_extraction_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.36065573770491804,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 2.2978674596412207e-06,
+            "p_raw": 1.8071716860564054e-08,
+            "effect": 0.36065573770491804,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 61.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 6.2669611241610535e-06,
+            "p_raw": 9.895201774991138e-07,
+            "effect": 0.1715137325685288,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 61.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Educational Instruction and Library Occupations",
+          "slug": "educational_instruction_and_library_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.15,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.014394120557922337,
+            "p_raw": 0.02366764025636651,
+            "effect": -0.15,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 7.575944898901368e-05,
+            "p_raw": 1.9936697102372023e-05,
+            "effect": -0.08414104956124599,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Food Preparation and Serving Related Occupations",
+          "slug": "food_preparation_and_serving_related_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.20588235294117646,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.03411121761522617,
+            "p_raw": 0.11425430684992327,
+            "effect": -0.20588235294117646,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.00022355637271693463,
+            "p_raw": 7.059674927903198e-05,
+            "effect": -0.17319773521055193,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+          "slug": "healthcare_practitioners_and_technical_occupatio",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.26744186046511625,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 3.795592428801417e-07,
+            "p_raw": 8.034251824491043e-07,
+            "effect": -0.26744186046511625,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 86.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 6.249480968775791e-07,
+            "p_raw": 6.57840101976399e-08,
+            "effect": -0.08595353170016477,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 86.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Healthcare Support Occupations",
+          "slug": "healthcare_support_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.4117647058823529,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.0032405740952063285,
+            "p_raw": 0.0009143907212875585,
+            "effect": -0.4117647058823529,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.00038019420864841505,
+            "p_raw": 0.00014007155055467923,
+            "effect": -0.21127959176459732,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Installation, Maintenance, and Repair Occupations",
+          "slug": "installation_maintenance_and_repair_occupations",
+          "polarity": "male",
+          "gate": "both",
+          "effect": 0.4444444444444444,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 2.126068848779282e-09,
+            "p_raw": 4.913652064094459e-11,
+            "effect": 0.4444444444444444,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 54.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 1.1381636981067921e-07,
+            "p_raw": 5.990335253193643e-09,
+            "effect": 0.17772327177226543,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 54.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Life, Physical, and Social Science Occupations",
+          "slug": "life_physical_and_social_science_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.15833333333333333,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.025046693271596098,
+            "p_raw": 0.01674443210915598,
+            "effect": -0.15833333333333333,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0014939080097478637,
+            "p_raw": 0.0006290138988412058,
+            "effect": -0.08013149247659991,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Office and Administrative Support Occupations",
+          "slug": "office_and_administrative_support_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.14285714285714285,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.0039058890642953716,
+            "p_raw": 0.027270416907228336,
+            "effect": -0.14285714285714285,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 63.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 2.715332591076636e-05,
+            "p_raw": 5.716489665424497e-06,
+            "effect": -0.07774909566496573,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 63.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Production Occupations",
+          "slug": "production_occupations",
+          "polarity": "male",
+          "gate": "prob_fdr",
+          "effect": 0.04057583734565587,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.3177917048609721,
+            "p_raw": 0.31231975615609575,
+            "effect": 0.05092592592592592,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 108.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.036613279089241994,
+            "p_raw": 0.019270146889074736,
+            "effect": 0.04057583734565587,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 108.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Transportation and Material Moving Occupations",
+          "slug": "transportation_and_material_moving_occupations",
+          "polarity": "male",
+          "gate": "prob_fdr",
+          "effect": 0.08593042932872502,
+          "hypothesized_alpha_sign": "negative",
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.11528500286226093,
+            "p_raw": 0.06343187528222888,
+            "effect": 0.1320754716981132,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 53.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.004517046900357581,
+            "p_raw": 0.002139653794906223,
+            "effect": 0.08593042932872502,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 53.0
+          },
+          "steer": true
+        }
+      ],
+      "skip": [
+        {
+          "soc_major_title": "Architecture and Engineering Occupations",
+          "slug": "architecture_and_engineering_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.7143321151536739,
+            "p_raw": 0.6218839979857618,
+            "effect": 0.034220532319391636,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 66.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.6175980080745299,
+            "p_raw": 0.5567254236486626,
+            "effect": 0.015248067167095359,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 66.0
+          }
+        },
+        {
+          "soc_major_title": "Arts, Design, Entertainment, Sports, and Media Occupations",
+          "slug": "arts_design_entertainment_sports_and_media_occup",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.29381950647215144,
+            "p_raw": 0.25266245330752685,
+            "effect": -0.09302325581395349,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 43.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.06820920682443926,
+            "p_raw": 0.03948954079309641,
+            "effect": -0.052318666996650914,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 43.0
+          }
+        },
+        {
+          "soc_major_title": "Business and Financial Operations Occupations",
+          "slug": "business_and_financial_operations_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.8141066297380367,
+            "p_raw": 0.8303925586538725,
+            "effect": -0.02040816326530612,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 49.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.6175980080745299,
+            "p_raw": 0.6099179417242321,
+            "effect": -0.01178630682810837,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 49.0
+          }
+        },
+        {
+          "soc_major_title": "Computer and Mathematical Occupations",
+          "slug": "computer_and_mathematical_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.477453578596919,
+            "p_raw": 0.5229909838899941,
+            "effect": -0.06666666666666667,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 30.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.1947429641581043,
+            "p_raw": 0.15374444538797707,
+            "effect": -0.03422889864693086,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 30.0
+          }
+        },
+        {
+          "soc_major_title": "Farming, Fishing, and Forestry Occupations",
+          "slug": "farming_fishing_and_forestry_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 1.0,
+            "p_raw": 1.0,
+            "effect": 0.0,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.6175980080745299,
+            "p_raw": 0.6175980080745299,
+            "effect": 0.02477010027231539,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          }
+        },
+        {
+          "soc_major_title": "Management Occupations",
+          "slug": "management_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.8141066297380367,
+            "p_raw": 0.8352818537973732,
+            "effect": -0.019230769230769232,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 52.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.6175980080745299,
+            "p_raw": 0.5634286138569575,
+            "effect": -0.014570949939437784,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 52.0
+          }
+        },
+        {
+          "soc_major_title": "Personal Care and Service Occupations",
+          "slug": "personal_care_and_service_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.16679298235933374,
+            "p_raw": 0.0416382838395025,
+            "effect": -0.1875,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 32.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.08417534203589598,
+            "p_raw": 0.05316337391740798,
+            "effect": -0.09615024403319694,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 32.0
+          }
+        },
+        {
+          "soc_major_title": "Protective Service Occupations",
+          "slug": "protective_service_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.11528500286226093,
+            "p_raw": 0.03227202073309309,
+            "effect": 0.20689655172413793,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 29.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.11383366618981242,
+            "p_raw": 0.07788619265618744,
+            "effect": 0.08356347449669807,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 29.0
+          }
+        },
+        {
+          "soc_major_title": "Sales and Related Occupations",
+          "slug": "sales_and_related_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.477453578596919,
+            "p_raw": 0.6100682661051776,
+            "effect": -0.0625,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 24.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.12778780453397898,
+            "p_raw": 0.09415943491977398,
+            "effect": -0.061975675635039806,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 24.0
+          }
+        }
+      ]
+    }
+  }
+}

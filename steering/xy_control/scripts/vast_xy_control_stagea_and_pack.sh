@@ -78,6 +78,9 @@ fi
 if [ "$MMLU" != "none" ]; then
   STAGE_FLAGS+=(--mmlu "$MMLU")
 fi
+if [ "$SMOKE" != "1" ]; then
+  STAGE_FLAGS+=(--eval-split "${EVAL_SPLIT:-val}")
+fi
 
 echo "=== xy_control dataset ==="
 "$PY" -m steering.xy_control.build_dataset
@@ -105,6 +108,15 @@ echo "=== xy_control Stage A [$TAG] ==="
 
 OUT_ROOT="$REPO/results/steering/xy_control"
 OUT="/workspace/xy_control_stage_a_${TAG}.tar.gz"
-tar -czf "$OUT" -C "$OUT_ROOT/stage_a" "$TAG"
+VEC_NPZ="$XY/vectors/xy_control_${SCALE}_vectors_${VEC_TAG:-v1}.npz"
+VEC_JSON="$XY/vectors/xy_control_${SCALE}_vectors_${VEC_TAG:-v1}.json"
+tar_args=( -czf "$OUT" -C "$REPO" "results/steering/xy_control/stage_a/$TAG" )
+if [ -f "$VEC_NPZ" ]; then
+  tar_args+=( "steering/xy_control/vectors/xy_control_${SCALE}_vectors_${VEC_TAG:-v1}.npz" )
+fi
+if [ -f "$VEC_JSON" ]; then
+  tar_args+=( "steering/xy_control/vectors/xy_control_${SCALE}_vectors_${VEC_TAG:-v1}.json" )
+fi
+tar "${tar_args[@]}"
 ls -lh "$OUT"
 echo "DONE. Download: $OUT"

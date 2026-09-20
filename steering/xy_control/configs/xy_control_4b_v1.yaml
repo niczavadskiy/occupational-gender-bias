@@ -13,8 +13,8 @@ source:
   n_hidden_states: 33
   hidden_state_index: "0 = embeddings, 1..32 = block output"
   mapping: {X: man, "Y": woman}
-  fit_sample: data/xy_pairs_stagea_v1.json
-  eval_sample: data/xy_pairs_stagea_v1.json
+  fit_sample: data/xy_pairs_full_v1.json
+  eval_sample: data/xy_pairs_full_v1.json
   label: paired_xy_control
   label_note: >-
     d_i = last-token HS(gendered prompt) − last-token HS(XY prompt) for the
@@ -24,8 +24,12 @@ source:
     val_frac: 0.15
     test_frac: 0.15
     seed: 0
+    stratify_by: soc_major_title
     note: >-
-      v_raw is fit only on train families of the fit sample.
+      70/15/15 inside each soc_major_title (not a global shuffle).
+      train (~667): fit v_raw, then h' = h − αv̂. val (~142): Stage A
+      GenderGap after steering. test (~142): locked until α/layer chosen.
+      XY prompts are not scored.
 
 hook:
   site: residual_stream_hidden_state
@@ -100,13 +104,14 @@ baseline:
 screening:
   stage: A
   sample:
-    source_split: val
-    n_base_items: 95
-    fraction_of_all_groups: 0.10
+    source_split: all
+    n_base_items: 951
+    n_eval_families: 142
+    fraction_of_all_groups: 1.0
     stratify_by: soc_major_title
     rows_per_item: 4
-    seed: 20260809
-  forwards_per_candidate: 380
+    seed: 0
+  forwards_per_candidate: 568
   primary_metric:
     id: gender_gap
     formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"

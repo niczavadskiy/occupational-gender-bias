@@ -45,13 +45,13 @@ PATHS = {
     "2b": {
         "candidates": HERE / "candidates" / "xy_control_2b_candidates_v1.json",
         "vectors": HERE / "vectors" / "xy_control_2b_vectors_v1.npz",
-        "sample": HERE / "data" / "xy_pairs_stagea_v1.json",
+        "sample": HERE / "data" / "xy_pairs_full_v1.json",
         "model": "Qwen/Qwen3.5-2B-Base",
     },
     "4b": {
         "candidates": HERE / "candidates" / "xy_control_4b_candidates_v1.json",
         "vectors": HERE / "vectors" / "xy_control_4b_vectors_v1.npz",
-        "sample": HERE / "data" / "xy_pairs_stagea_v1.json",
+        "sample": HERE / "data" / "xy_pairs_full_v1.json",
         "model": "Qwen/Qwen3.5-4B-Base",
     },
 }
@@ -233,7 +233,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--roles", default=None)
     ap.add_argument("--skip-baseline", action="store_true")
     ap.add_argument("--limit-items", type=int, default=None)
-    ap.add_argument("--eval-split", choices=["heldout", "val", "test", "train", "all"], default="heldout")
+    ap.add_argument(
+        "--eval-split",
+        choices=["heldout", "val", "test", "train", "all"],
+        default="val",
+        help="val: Stage A GenderGap after (default). test: after α is chosen. heldout=val+test.",
+    )
     ap.add_argument("--mmlu", default="none", help="none | smoke | domain | path to profile json")
     ap.add_argument("--mmlu-parquet", type=Path, default=None)
     ap.add_argument("--out-root", type=Path, default=REPO_ROOT / "results" / "steering" / "xy_control")

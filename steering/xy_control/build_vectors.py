@@ -28,7 +28,7 @@ from steering.xy_control.capture_io import save_pair_capture
 from steering.intervene import Scorer, capture_last_token, load_model
 from steering.run_hs_recovery_auc import pick_items
 from steering.run_inlp_stagea import load_json, row_margins
-from steering.xy_control.algebra import family_split3, fit_v_raw
+from steering.xy_control.algebra import family_split3_by_soc, fit_v_raw
 from steering.xy_control.mapping import MAPPING
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -51,14 +51,11 @@ def sha256_file(path: Path) -> str:
 def resolve_sample(cfg: dict, override: Path | None, key: str) -> Path:
     if override is not None:
         return override
-    rel = cfg["source"].get(key, "data/xy_pairs_stagea_v1.json")
+    rel = cfg["source"].get(key, "data/xy_pairs_full_v1.json")
     p = Path(rel)
     if p.is_file():
         return p
     return HERE / rel
-
-
-    return train, val, test
 
 
 def gender_prompt_of(row: dict) -> str:
@@ -209,6 +206,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--dtype", default="float32", choices=["float32", "float16", "bfloat16"])
     ap.add_argument("--sample", type=Path, default=None)
     ap.add_argument("--n-items", type=int, default=None)
+    ap.add_argument(
+        "--capture-split",
+        choices=["train", "all"],
+        default="train",
+        help="Which families to capture HS for v_raw. train (default) skips XY on eval families.",
+    )
     ap.add_argument("--train-frac", type=float, default=None)
     ap.add_argument("--val-frac", type=float, default=None)
     ap.add_argument("--seed", type=int, default=None)
@@ -242,6 +245,18 @@ def main(argv: list[str] | None = None) -> int:
 
     sample = load_json(sample_path)
     items = pick_items(sample["items"], args.n_items)
+    train_fams, val_fams, test_fams = family_split3_by_soc(
+        items, seed=seed, train_frac=train_frac, val_frac=val_frac
+    )
+    if args.capture_split == "train":
+        capture_items = [it for it in items if int(it["scenario_family_id"]) in train_fams]
+    else:
+        capture_items = items
+    print(
+        f"  sample {len(items)} families  capture={args.capture_split} "
+        f"({len(capture_items)})  stratify=soc  "
+        f"train={len(train_fams)} val={len(val_fams)} test={len(test_fams)}"
+    )
 
     print(f"\n[1] load {model_id}...")
     t0 = time.time()
@@ -251,18 +266,14 @@ def main(argv: list[str] | None = None) -> int:
     scorer = Scorer(model, tokenizer)
     print(f"  ready in {time.time() - t0:.1f}s")
 
-    print(f"\n[2] capture paired last-token HS on layers {layers} ({len(items)} items)...")
-    rows, hs_g_lists, hs_xy_lists = capture_pair(model, scorer, items, layers, log_every=args.log_every)
+    print(f"\n[2] capture paired last-token HS on layers {layers} ({len(capture_items)} items)...")
+    rows, hs_g_lists, hs_xy_lists = capture_pair(
+        model, scorer, capture_items, layers, log_every=args.log_every
+    )
     H_g = {L: np.stack(vs, axis=0) for L, vs in hs_g_lists.items()}
     H_xy = {L: np.stack(vs, axis=0) for L, vs in hs_xy_lists.items()}
     families = np.array([r["scenario_family_id"] for r in rows], dtype=np.int64)
-    train_fams, val_fams, test_fams = family_split3(
-        list(families), seed=seed, train_frac=train_frac, val_frac=val_frac
-    )
-    print(
-        f"  pairs={len(rows)}  train_fams={len(train_fams)}  val_fams={len(val_fams)}  "
-        f"test_fams={len(test_fams)}"
-    )
+    print(f"  pairs={len(rows)}  (v_raw uses train families only)")
 
     if not args.no_save_capture:
         cap_path = args.save_capture or (
@@ -332,6 +343,7 @@ def main(argv: list[str] | None = None) -> int:
         "n_items": len(items),
         "train_frac": train_frac,
         "val_frac": val_frac,
+        "split_stratify_by": "soc_major_title",
         "seed": seed,
         "train_family_ids": sorted(train_fams),
         "val_family_ids": sorted(val_fams),

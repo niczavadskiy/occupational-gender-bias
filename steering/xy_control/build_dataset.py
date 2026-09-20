@@ -1,5 +1,8 @@
 """
-Build paired gendered / XY-control datasets from frozen H1 samples.
+Build paired gendered / XY-control datasets.
+
+Primary: all H1 without_abstain families (951 × 4 = 3804) from v1 inference
+items. Legacy 95-family Stage A/B/C files are still written for reference.
 
 Mapping is fixed: X = man, Y = woman. Structure, A/B order, and the question
 wording stay identical; only gender designators are rewritten.
@@ -18,6 +21,12 @@ from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
+from steering.xy_control.h1_families import (
+    ROWS_PER_ITEM,
+    SLICE,
+    build_without_abstain_items,
+    per_soc_counts,
+)
 from steering.xy_control.mapping import (
     GENDER_TO_XY,
     MAPPING,
@@ -118,6 +127,33 @@ def pair_records(doc: dict[str, Any]) -> list[dict[str, Any]]:
     return pairs
 
 
+def build_full_source() -> dict[str, Any]:
+    items = build_without_abstain_items()
+    n_rows = sum(len(it["rows"]) for it in items)
+    if len(items) != 951 or n_rows != 3804:
+        raise ValueError(f"expected 951×4=3804, got {len(items)} families / {n_rows} rows")
+    return {
+        "schema": "steering.h1_without_abstain_full/v1",
+        "n_base_items": len(items),
+        "n_rows": n_rows,
+        "source_split": "all",
+        "items": items,
+        "per_soc": per_soc_counts(items),
+    }
+
+
+FULL_SPEC = {
+    "role": "all_without_abstain",
+    "note": (
+        "All H1 without_abstain families: 951 scenarios × p0/p1 × man_first/woman_first. "
+        "v_raw is fit on 70% of families inside each SOC; Stage A GenderGap "
+        "is scored on that SOC's val (15%). test (15%) stays locked until "
+        "α/layer are chosen. XY prompts are only used to fit v."
+    ),
+    "path": DATA_DIR / "xy_pairs_full_v1.json",
+}
+
+
 def build_document(split_name: str, spec: dict[str, Any], source: dict[str, Any]) -> dict[str, Any]:
     items = [convert_item(item) for item in source["items"]]
     n_rows = sum(len(it["rows"]) for it in items)
@@ -147,13 +183,24 @@ def build_document(split_name: str, spec: dict[str, Any], source: dict[str, Any]
                 "trailing Answer:",
             ],
         },
+        "slice": dict(SLICE),
+        "rows_per_item": ROWS_PER_ITEM,
         "source_sample": {
-            "file": spec["path"].name,
+            "file": (
+                spec["path"].name
+                if spec.get("path") is not None and Path(spec["path"]).is_file()
+                else "data/v1/inference_items_v1_{man,woman}_first.jsonl"
+            ),
             "schema": source.get("schema"),
             "source_split": source.get("source_split"),
             "n_base_items": source.get("n_base_items"),
             "n_rows": source.get("n_rows"),
-            "sha256": sha256_file(spec["path"]),
+            "sha256": (
+                sha256_file(spec["path"])
+                if spec.get("path") is not None and Path(spec["path"]).is_file()
+                else None
+            ),
+            "per_soc": source.get("per_soc"),
         },
         "n_base_items": len(items),
         "n_rows": n_rows,
@@ -206,21 +253,82 @@ def build_index(built: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+def write_split(
+    *,
+    name: str,
+    spec: dict[str, Any],
+    source: dict[str, Any],
+    out_dir: Path,
+    verify: bool,
+    mismatched: list[str],
+) -> dict[str, Any]:
+    doc = build_document(name, spec, source)
+    json_path, jsonl_path = out_paths(name, out_dir)
+    text = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
+    pairs = pair_records(doc)
+    if verify:
+        if not json_path.is_file() or json_path.read_text(encoding="utf-8") != text:
+            mismatched.append(json_path.name)
+        expected_jsonl = "".join(json.dumps(p, ensure_ascii=False) + "\n" for p in pairs)
+        if not jsonl_path.is_file() or jsonl_path.read_text(encoding="utf-8") != expected_jsonl:
+            mismatched.append(jsonl_path.name)
+    else:
+        dump(json_path, doc)
+        write_jsonl(jsonl_path, pairs)
+    print(
+        f"  {name:<16} {doc['n_base_items']:>3} families  {doc['n_pairs']:>4} pairs  "
+        f"role={spec['role']}  -> {json_path.name}"
+    )
+    src_name = spec["path"].name if spec.get("path") is not None else "v1 inference jsonl"
+    return {
+        "split_name": name,
+        "role": spec["role"],
+        "file": json_path.name,
+        "jsonl": jsonl_path.name,
+        "n_base_items": doc["n_base_items"],
+        "n_pairs": doc["n_pairs"],
+        "source_sample": src_name,
+        "sha256": sha256_bytes(text.encode("utf-8")),
+        "primary": name == "full",
+    }
+
+
+def full_summary_markdown(source: dict[str, Any]) -> str:
+    lines = [
+        "# XY-control full without_abstain — `v1`",
+        "",
+        f"- Families: **{source['n_base_items']}**",
+        f"- Rows: **{source['n_rows']}** (4 layouts: p0/p1 × man_first/woman_first)",
+        "- Slice: `without_abstain`, no evidence factor",
+        "- Fit `v_raw` on 70% families **inside each SOC**; GenderGap on val 15%; test 15% locked",
+        "",
+        "| soc_major_title | families | rows |",
+        "| :--- | ---: | ---: |",
+    ]
+    for row in source.get("per_soc") or []:
+        lines.append(f"| {row['soc_major_title']} | {row['n_families']} | {row['n_rows']} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out-dir", type=Path, default=DATA_DIR)
     ap.add_argument("--verify", action="store_true")
     ap.add_argument(
         "--splits",
-        default=",".join(SOURCE_SAMPLES),
-        help="Comma-separated split names (default: all)",
+        default="full",
+        help="Comma-separated: full (default) and/or legacy stagea,stageb,test,stagec",
     )
+    ap.add_argument("--legacy", action="store_true", help="Also write the old 95-family splits")
     args = ap.parse_args(argv)
 
     wanted = [s.strip() for s in args.splits.split(",") if s.strip()]
-    unknown = [s for s in wanted if s not in SOURCE_SAMPLES]
+    if args.legacy and "full" in wanted:
+        wanted = ["full", *SOURCE_SAMPLES]
+    unknown = [s for s in wanted if s not in SOURCE_SAMPLES and s != "full"]
     if unknown:
-        raise SystemExit(f"unknown splits: {unknown}; known {list(SOURCE_SAMPLES)}")
+        raise SystemExit(f"unknown splits: {unknown}; known {['full', *SOURCE_SAMPLES]}")
 
     out_dir = args.out_dir
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -232,44 +340,45 @@ def main(argv: list[str] | None = None) -> int:
     mismatched: list[str] = []
 
     for name in wanted:
+        if name == "full":
+            source = build_full_source()
+            spec = {"role": FULL_SPEC["role"], "note": FULL_SPEC["note"], "path": None}
+            index_rows.append(
+                write_split(
+                    name=name,
+                    spec=spec,
+                    source=source,
+                    out_dir=out_dir,
+                    verify=args.verify,
+                    mismatched=mismatched,
+                )
+            )
+            md_path = out_dir / "xy_pairs_full_v1.md"
+            md = full_summary_markdown(source)
+            if args.verify:
+                if not md_path.is_file() or md_path.read_text(encoding="utf-8") != md:
+                    mismatched.append(md_path.name)
+            else:
+                md_path.write_text(md, encoding="utf-8")
+            continue
         spec = SOURCE_SAMPLES[name]
         src_path = spec["path"]
         if not src_path.is_file():
             raise SystemExit(f"нет исходного sample {src_path}")
         source = json.loads(src_path.read_text(encoding="utf-8"))
-        doc = build_document(name, spec, source)
-        json_path, jsonl_path = out_paths(name, out_dir)
-        text = json.dumps(doc, ensure_ascii=False, indent=2) + "\n"
-        pairs = pair_records(doc)
-
-        if args.verify:
-            if not json_path.is_file() or json_path.read_text(encoding="utf-8") != text:
-                mismatched.append(json_path.name)
-            expected_jsonl = "".join(json.dumps(p, ensure_ascii=False) + "\n" for p in pairs)
-            if not jsonl_path.is_file() or jsonl_path.read_text(encoding="utf-8") != expected_jsonl:
-                mismatched.append(jsonl_path.name)
-        else:
-            dump(json_path, doc)
-            write_jsonl(jsonl_path, pairs)
-
         index_rows.append(
-            {
-                "split_name": name,
-                "role": spec["role"],
-                "file": json_path.name,
-                "jsonl": jsonl_path.name,
-                "n_base_items": doc["n_base_items"],
-                "n_pairs": doc["n_pairs"],
-                "source_sample": spec["path"].name,
-                "sha256": sha256_bytes(text.encode("utf-8")),
-            }
-        )
-        print(
-            f"  {name:<16} {doc['n_base_items']:>3} families  {doc['n_pairs']:>4} pairs  "
-            f"role={spec['role']}  -> {json_path.name}"
+            write_split(
+                name=name,
+                spec=spec,
+                source=source,
+                out_dir=out_dir,
+                verify=args.verify,
+                mismatched=mismatched,
+            )
         )
 
     index = build_index(index_rows)
+    index["primary"] = "full"
     index_path = out_dir / "xy_pairs_index_v1.json"
     index_text = json.dumps(index, ensure_ascii=False, indent=2) + "\n"
     if args.verify:

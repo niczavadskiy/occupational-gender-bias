@@ -88,6 +88,30 @@ def test_layout_b_woman_first() -> None:
     validate_pair(gendered, xy, {"A": "woman", "B": "man"})
 
 
+def test_full_without_abstain_pairs() -> None:
+    from steering.xy_control.h1_families import build_without_abstain_items
+
+    items = build_without_abstain_items()
+    assert len(items) == 951
+    n_rows = 0
+    layouts = set()
+    for item in items:
+        assert len(item["rows"]) == 4
+        for row in item["rows"]:
+            g = row["prompt"]
+            xy = gender_to_xy_text(g)
+            validate_pair(g, xy, row["labels"])
+            layouts.add((row["context_order"], row["position_variant"]))
+            n_rows += 1
+    assert n_rows == 3804
+    assert layouts == {
+        ("man_first", "p0"),
+        ("man_first", "p1"),
+        ("woman_first", "p0"),
+        ("woman_first", "p1"),
+    }
+
+
 def test_stagea_sample_pairs() -> None:
     if not SAMPLE.is_file():
         raise FileNotFoundError(SAMPLE)
@@ -145,6 +169,49 @@ def test_v_raw_is_mean_of_paired_diffs() -> None:
     assert not (train & val or train & test or val & test)
 
 
+def test_split_is_inside_each_soc() -> None:
+    from collections import defaultdict
+
+    from steering.xy_control.algebra import family_split3, family_split3_by_soc
+    from steering.xy_control.paired_sample import load_full_items
+    from steering.xy_control.per_soc import plan_domain_splits
+    from steering.xy_control.domains import load_catalog
+
+    toy = [{"scenario_family_id": i, "soc_major_title": "A"} for i in range(10)] + [
+        {"scenario_family_id": 100 + i, "soc_major_title": "B"} for i in range(10)
+    ]
+    train, val, test = family_split3_by_soc(toy, seed=0, train_frac=0.7, val_frac=0.15)
+    a_train, a_val, a_test = family_split3(list(range(10)), seed=0, train_frac=0.7, val_frac=0.15)
+    b_train, b_val, b_test = family_split3(list(range(100, 110)), seed=0, train_frac=0.7, val_frac=0.15)
+    assert train == a_train | b_train
+    assert val == a_val | b_val
+    assert test == a_test | b_test
+
+    items = load_full_items()
+    train, val, test = family_split3_by_soc(items, seed=0, train_frac=0.7, val_frac=0.15)
+    assert len(train) + len(val) + len(test) == 951
+    assert len(val) == 142 and len(test) == 142
+    by_soc: dict[str, list[int]] = defaultdict(list)
+    for it in items:
+        by_soc[str(it.get("soc_major_title") or "UNKNOWN")].append(int(it["scenario_family_id"]))
+    for title, fams in by_soc.items():
+        s = set(fams)
+        n_tr, n_va, n_te = len(s & train), len(s & val), len(s & test)
+        assert n_tr + n_va + n_te == len(s)
+        if len(s) >= 3:
+            assert n_tr and n_va and n_te, title
+
+    catalog = load_catalog()
+    planned, skipped = plan_domain_splits(
+        items, catalog["scales"]["2b"]["steer"], seed=0, train_frac=0.7, val_frac=0.15
+    )
+    assert not skipped
+    for meta in planned.values():
+        assert set(meta["train_family_ids"]) <= train
+        assert set(meta["val_family_ids"]) <= val
+        assert set(meta["test_family_ids"]) <= test
+
+
 def main() -> int:
     tests = [
         test_fixed_mapping,
@@ -155,8 +222,10 @@ def main() -> int:
         test_example_from_spec,
         test_layout_b_woman_first,
         test_xray_is_not_a_designator,
+        test_full_without_abstain_pairs,
         test_stagea_sample_pairs,
         test_v_raw_is_mean_of_paired_diffs,
+        test_split_is_inside_each_soc,
     ]
     failed = 0
     for fn in tests:
