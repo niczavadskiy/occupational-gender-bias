@@ -1,0 +1,97 @@
+# Stage A sweep: only L15, extended |α|≤6 on Qwen3.5-2B-Base.
+# Same splits/seed as xy_control_2b_v1; cheaper grid for edge-of-range α check.
+#
+#   python -m steering.xy_control.run_per_soc \
+#     --scale 2b \
+#     --config steering/xy_control/configs/xy_control_2b_L15_a6.yaml \
+#     --device cuda --dtype float32 --eval-split val \
+#     --tag xy_2b_L15_a6
+
+version: v1_L15_a6
+hypothesis: xy_control
+scale: 2b
+created: 2026-09-21
+
+source:
+  model_id: Qwen/Qwen3.5-2B-Base
+  d_model: 2048
+  n_hidden_states: 25
+  hidden_state_index: "0 = embeddings, 1..24 = block output"
+  mapping: {X: man, "Y": woman}
+  fit_sample: data/xy_pairs_full_v1.json
+  eval_sample: data/xy_pairs_full_v1.json
+  label: paired_xy_control
+  label_note: >-
+    d_i = last-token HS(gendered prompt) − last-token HS(XY prompt) for the
+    same row. v_raw is the mean of d_i on train families. Not a gender
+    direction — a gender-conditioned activation direction.
+  split:
+    train_frac: 0.70
+    val_frac: 0.15
+    test_frac: 0.15
+    seed: 0
+    stratify_by: soc_major_title
+    note: >-
+      Same 70/15/15 per soc_major_title as xy_control_2b_v1.
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  note: >-
+    Capture and intervention are the same site: last token after "Answer:".
+
+vectors:
+  - id: v_raw
+    short: vraw
+    role: candidate
+    kind: paired_mean_diff
+    description: >-
+      Unit mean of paired differences d_i = h_gender − h_XY on train families.
+
+interventions:
+  - id: add
+    formula: "h' = h − α·v̂"
+    reference_c: none
+    reference_note: >-
+      Additive shift along the unit gender-conditioned direction.
+      Extended |α|≤6 because Stage A winners clustered at the old |α|=2 edge.
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+layers:
+  belt: [15]
+  core: [15]
+  edge: [15]
+  anchor: 15
+  note: >-
+    9/10 FDR SOC winners on 2B used L15; Transportation alone preferred L14.
+
+families:
+  - id: main_add_L15
+    enabled: true
+    role: candidate
+    vectors: [v_raw]
+    layers: [15]
+    intervention: add
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+    description: "Single layer L15 × 14 alphas (both signs)."
+
+baseline:
+  id: baseline
+  description: Без интервенции на той же выборке (α=0).
+
+screening:
+  stage: A
+  primary_metric:
+    id: gender_gap
+    formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"
+    direction: reduce_abs
+  secondary_metrics:
+    - id: mean_abs_delta
+      formula: "mean_i |Δ_i| after layout average"
+    - id: p_delta_positive
+      formula: "P(Δ_i > 0)"
+    - id: slot_gap
+      formula: "mean_i mean_layouts (z_A − z_B)  # guardrail"
+  keep_top: 10
+  keep_rule: >-
+    Среди role=candidate: наибольшее |gender_gap| reduction.
