@@ -3,7 +3,7 @@
 #
 #   SCALE=2b bash steering/xy_control/scripts/vast_xy_control_per_soc_and_pack.sh
 #
-# Env: SCALE=2b|4b  SMOKE=1  TAG MODEL DEVICE DTYPE EVAL_SPLIT=val  ONLY_SOC
+# Env: SCALE=2b|4b  SMOKE=1  TAG MODEL DEVICE DTYPE EVAL_SPLIT=val  ONLY_SOC CONFIG
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
@@ -65,6 +65,9 @@ fi
 STAGE_FLAGS+=(--tag "$TAG")
 if [ -n "${ONLY_SOC:-}" ]; then
   STAGE_FLAGS+=(--only-soc "$ONLY_SOC")
+fi
+if [ -n "${CONFIG:-}" ]; then
+  STAGE_FLAGS+=(--config "$CONFIG")
 fi
 
 echo "=== xy_control full without_abstain dataset ==="

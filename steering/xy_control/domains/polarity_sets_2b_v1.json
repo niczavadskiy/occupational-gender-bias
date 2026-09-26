@@ -1,0 +1,42 @@
+{
+  "schema": "steering.xy_control_polarity_sets/v1",
+  "version": "v1",
+  "scale": "2b",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "config": "steering/xy_control/configs/xy_control_2b_L15_a6.yaml",
+  "note": "FDR-significant 2B SOCs split by H1 polarity. Run Stage A→B→C per set with --only-soc from only_soc CSV.",
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "tag_stage_a": "xy_2b_L15_a6_promale",
+      "tag_stage_b": "xy_2b_L15_a6_promale_b",
+      "tag_stage_c": "xy_2b_L15_a6_promale_c",
+      "n_soc": 8,
+      "slugs": [
+        "architecture_and_engineering_occupations",
+        "computer_and_mathematical_occupations",
+        "construction_and_extraction_occupations",
+        "educational_instruction_and_library_occupations",
+        "installation_maintenance_and_repair_occupations",
+        "life_physical_and_social_science_occupations",
+        "production_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "tag_stage_a": "xy_2b_L15_a6_profemale",
+      "tag_stage_b": "xy_2b_L15_a6_profemale_b",
+      "tag_stage_c": "xy_2b_L15_a6_profemale_c",
+      "n_soc": 2,
+      "slugs": [
+        "healthcare_practitioners_and_technical_occupatio",
+        "personal_care_and_service_occupations"
+      ]
+    }
+  ]
+}

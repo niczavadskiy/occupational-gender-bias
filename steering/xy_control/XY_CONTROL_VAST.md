@@ -99,6 +99,31 @@ Packs:
 - `/workspace/xy_control_per_soc_stage_bc_2b_v1.tar.gz`
 - `/workspace/xy_control_per_soc_stage_bc_4b_v1.tar.gz`
 
+### Polarity sets (pro-male → pro-female), Stage A→B→C
+
+Два FDR-набора из [`domains/polarity_sets_2b_v1.json`](domains/polarity_sets_2b_v1.json),
+сетка L15 `|α|≤6`. Последовательно: **promale** (8 SOC), затем **profemale** (2 SOC).
+
+```bash
+export HF_TOKEN=hf_xxx
+BRANCH=qwen_2b_experiments \
+  bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
+```
+
+Только один набор / smoke:
+
+```bash
+SETS=promale BRANCH=qwen_2b_experiments \
+  bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
+SMOKE=1 BRANCH=qwen_2b_experiments \
+  bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
+```
+
+Packs:
+
+- `/workspace/xy_control_polarity_promale_stage_abc_2b.tar.gz`
+- `/workspace/xy_control_polarity_profemale_stage_abc_2b.tar.gz`
+
 ## Глобальный Stage A (один \(v\) на все домены)
 
 ```bash
