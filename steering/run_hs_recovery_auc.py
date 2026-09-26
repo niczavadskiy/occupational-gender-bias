@@ -134,16 +134,6 @@ def slot_choice_y_from_live(choice: str) -> int:
     return 1 if choice == "A" else 0
 
 
-def gender_choice_y_from_live(labels: dict[str, str], choice: str) -> int:
-    if choice not in labels:
-        raise SystemExit(f"live choice={choice!r} нет в labels {labels}")
-    return 1 if labels[choice] == "man" else 0
-
-
-def slot_choice_y_from_live(choice: str) -> int:
-    return 1 if choice == "A" else 0
-
-
 def load_vector_bank(paths: list[Path]) -> tuple[dict[str, np.ndarray], dict[str, dict]]:
     bank: dict[str, np.ndarray] = {}
     calib: dict[str, dict] = {}
