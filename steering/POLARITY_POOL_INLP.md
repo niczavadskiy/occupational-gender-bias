@@ -178,3 +178,25 @@ splits.)
 Copy the pattern: set `probe_peak` from that scale’s gender_prob config,
 layers = `{peak, peak−1, peak−2}`, reuse FDR polarity membership for that
 scale’s catalog, keep split seed/rule fixed.
+
+### 4B frozen artifacts
+
+| | path |
+|---|---|
+| Config | [`configs/inlp_polarity_pool_4b_peak_prepeak.yaml`](configs/inlp_polarity_pool_4b_peak_prepeak.yaml) |
+| Sets | [`domains/inlp_polarity_sets_4b_v1.json`](domains/inlp_polarity_sets_4b_v1.json) |
+| XY twin | [`xy_control/domains/polarity_sets_4b_v1.json`](xy_control/domains/polarity_sets_4b_v1.json) |
+| Layers | **L24 / L23 / L22** (gender_prob peak L24) |
+| SOCs | promale **4**, profemale **6** (4B FDR) |
+
+Samples / subspaces use `*_4b_*` stems so 2B artifacts are not overwritten.
+
+Vast:
+
+```bash
+export HF_TOKEN=hf_xxx
+BRANCH=qwen_2b_experiments \
+  bash steering/scripts/vast_inlp_polarity_pool_4b_full_instance.sh
+```
+
+Packs: `/workspace/inlp_polarity_pool_{promale,profemale}_stage_abc_4b.tar.gz`

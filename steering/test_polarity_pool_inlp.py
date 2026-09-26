@@ -74,6 +74,26 @@ def test_sets_match_xy_slugs() -> None:
     assert 1 in doc["candidate_grid"]["ranks"]
 
 
+def test_sets_4b_peak_and_stems() -> None:
+    from steering.polarity_pool_inlp import STEERING_DIR, sample_paths_for, sample_stem_for
+
+    path = STEERING_DIR / "domains" / "inlp_polarity_sets_4b_v1.json"
+    doc = load_polarity_sets(path)
+    cfg = load_yaml(STEERING_DIR / "configs" / "inlp_polarity_pool_4b_peak_prepeak.yaml")
+    assert doc["scale"] == "4b"
+    assert resolve_peak_layers(cfg) == [24, 23, 22]
+    male = get_set(doc, "promale")
+    female = get_set(doc, "profemale")
+    assert male["n_soc"] == 4
+    assert female["n_soc"] == 6
+    assert sample_stem_for(male) == "inlp_polarity_pool_4b_promale_v1"
+    assert sample_paths_for(male)["val"].name == "inlp_polarity_pool_4b_promale_val_v1.json"
+    assert male["subspace_tag"] == "polarity_pool_4b_promale_v1"
+    xy_doc = load_polarity_sets(STEERING_DIR / "xy_control" / "domains" / "polarity_sets_4b_v1.json")
+    assert get_set(xy_doc, "promale")["slugs"] == male["slugs"]
+    assert get_set(xy_doc, "profemale")["slugs"] == female["slugs"]
+
+
 def test_split_matches_xy_helper() -> None:
     items = []
     for title, n in (("A", 20), ("B", 10)):
@@ -102,6 +122,7 @@ def main() -> int:
     test_clamp_ranks_k1()
     test_max_k_found()
     test_sets_match_xy_slugs()
+    test_sets_4b_peak_and_stems()
     test_split_matches_xy_helper()
     test_ranks_from_config()
     print("ok")

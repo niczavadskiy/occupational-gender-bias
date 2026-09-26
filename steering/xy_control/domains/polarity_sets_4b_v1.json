@@ -1,0 +1,52 @@
+{
+  "schema": "steering.xy_control_polarity_sets/v1",
+  "version": "v2_pooled",
+  "scale": "4b",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "config": "steering/xy_control/configs/xy_control_4b_peak_prepeak_a6.yaml",
+  "protocol": {
+    "id": "pooled_polarity_one_v",
+    "note": "One v_raw on all train families of the polarity set (stratified 70/15/15 inside each SOC, then pooled). One (layer, α) on pooled val. Stage B/C on pooled test + MMLU union of member SOCs."
+  },
+  "probe_peak": {
+    "source": "4B gender_prob probe (inlp_gender_prob_4b; peak L24)",
+    "peak": 24,
+    "layers": [24, 23, 22],
+    "note": "gender_prob probe peak L24; also peak−1=L23, peak−2=L22"
+  },
+  "note": "FDR-significant 4B SOCs split by H1 polarity. Pooled Stage A→B→C per set.",
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "tag_stage_a": "xy_4b_peak_prepeak_a6_pool_promale",
+      "tag_stage_b": "xy_4b_peak_prepeak_a6_pool_promale_b",
+      "tag_stage_c": "xy_4b_peak_prepeak_a6_pool_promale_c",
+      "n_soc": 4,
+      "slugs": [
+        "construction_and_extraction_occupations",
+        "installation_maintenance_and_repair_occupations",
+        "production_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "tag_stage_a": "xy_4b_peak_prepeak_a6_pool_profemale",
+      "tag_stage_b": "xy_4b_peak_prepeak_a6_pool_profemale_b",
+      "tag_stage_c": "xy_4b_peak_prepeak_a6_pool_profemale_c",
+      "n_soc": 6,
+      "slugs": [
+        "educational_instruction_and_library_occupations",
+        "food_preparation_and_serving_related_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "healthcare_support_occupations",
+        "life_physical_and_social_science_occupations",
+        "office_and_administrative_support_occupations"
+      ]
+    }
+  ]
+}

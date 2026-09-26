@@ -15,6 +15,7 @@ from steering.polarity_pool_inlp import (
     get_set,
     load_polarity_sets,
     load_yaml,
+    sample_paths_for,
 )
 from steering.run_inlp_stagec import main as stagec_main
 
@@ -49,9 +50,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.smoke and not str(tag).endswith("_smoke"):
         tag = f"{tag}_smoke"
 
-    sample = args.sample or (
-        STEERING_DIR / "samples" / f"inlp_polarity_pool_{args.set_id}_test_v1.json"
-    )
+    sample = args.sample or sample_paths_for(entry)["test"]
     pool_root = args.out_root / "inlp_polarity_pool"
     stage_b_tag = f"{tag_b}_smoke" if args.smoke else tag_b
     stage_b_dir = args.from_stage_b or (pool_root / "inlp_stage_b" / stage_b_tag)

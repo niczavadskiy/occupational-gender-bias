@@ -25,6 +25,8 @@ from steering.polarity_pool_inlp import (
     get_set,
     load_polarity_sets,
     load_yaml,
+    sample_paths_for,
+    sample_stem_for,
     write_split_sample,
 )
 
@@ -36,11 +38,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--sets", type=Path, default=SETS_JSON)
     ap.add_argument("--config", type=Path, default=DEFAULT_CONFIG)
     ap.add_argument("--out-dir", type=Path, default=STEERING_DIR / "samples")
-    ap.add_argument("--scale", default="2b")
+    ap.add_argument("--scale", default=None, help="default: scale field from sets JSON (else 2b)")
     args = ap.parse_args(argv)
 
     doc_sets = load_polarity_sets(args.sets)
     cfg = load_yaml(args.config)
+    scale = args.scale or str(doc_sets.get("scale") or cfg.get("scale") or "2b")
     set_ids = [s["id"] for s in doc_sets["sets"]] if args.all else [args.set_id]
     if not set_ids or set_ids == [None]:
         raise SystemExit("pass --set-id or --all")
@@ -48,19 +51,19 @@ def main(argv: list[str] | None = None) -> int:
     args.out_dir.mkdir(parents=True, exist_ok=True)
     for sid in set_ids:
         entry = get_set(doc_sets, sid)
-        full = build_pool_sample_doc(entry, cfg, scale=args.scale)
+        full = build_pool_sample_doc(entry, cfg, scale=scale)
         # Persist full without nested train/val/test item copies (keep ids only + all items)
         persist = {k: v for k, v in full.items() if not k.startswith("items_")}
         persist["items"] = full["items"]
-        stem = f"inlp_polarity_pool_{sid}_v1"
-        full_path = args.out_dir / f"{stem}.json"
+        paths = sample_paths_for(entry, args.out_dir)
+        full_path = paths["full"]
         full_path.write_text(json.dumps(persist, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         for split in ("train", "val", "test"):
-            write_split_sample(full, split, args.out_dir / f"inlp_polarity_pool_{sid}_{split}_v1.json")
+            write_split_sample(full, split, paths[split])
         print(
-            f"[{sid}] families={full['n_families']} "
+            f"[{sid}/{scale}] families={full['n_families']} "
             f"train/val/test={full['split']['n_train']}/{full['split']['n_val']}/{full['split']['n_test']} "
-            f"layers={full['probe_peak_layers']} → {full_path.name}"
+            f"layers={full['probe_peak_layers']} → {sample_stem_for(entry)}"
         )
     return 0
 

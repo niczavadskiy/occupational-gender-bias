@@ -38,6 +38,7 @@ from steering.polarity_pool_inlp import (
     resolve_alphas,
     resolve_peak_layers,
     resolve_ranks,
+    sample_paths_for,
 )
 from steering.run_hs_recovery_auc import capture_condition, stack_hs
 
@@ -106,10 +107,11 @@ def main(argv: list[str] | None = None) -> int:
     )
     tag = args.tag or entry.get("subspace_tag") or f"polarity_pool_{args.set_id}_v1"
 
-    sample_path = args.sample or (STEERING_DIR / "samples" / f"inlp_polarity_pool_{args.set_id}_v1.json")
+    sample_path = args.sample or sample_paths_for(entry)["full"]
     if not sample_path.is_file():
         raise SystemExit(
-            f"missing {sample_path}; run: python -m steering.build_polarity_pool_inlp_sample --set-id {args.set_id}"
+            f"missing {sample_path}; run: python -m steering.build_polarity_pool_inlp_sample "
+            f"--set-id {args.set_id} --sets {args.sets} --config {args.config}"
         )
     sample = load_json(sample_path)
     split = sample["split"]

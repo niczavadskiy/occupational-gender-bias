@@ -1,0 +1,65 @@
+{
+  "schema": "steering.inlp_polarity_sets/v1",
+  "version": "v1_pooled",
+  "scale": "4b",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "xy_sets": "steering/xy_control/domains/polarity_sets_4b_v1.json",
+  "config": "steering/configs/inlp_polarity_pool_4b_peak_prepeak.yaml",
+  "xy_dataset": "steering/xy_control/data/xy_pairs_full_v1.json",
+  "protocol": {
+    "id": "pooled_polarity_one_subspace",
+    "note": "One INLP subspace W per polarity set (fit on all train families). One (layer, rank, α=1) on pooled val. Stage B/C on pooled test + MMLU union of member SOCs. Same SOC lists and family split as XY polarity pool."
+  },
+  "probe_peak": {
+    "source": "4B gender_prob probe peak L24",
+    "peak": 24,
+    "layers": [24, 23, 22],
+    "note": "gender_prob probe peak L24; also peak−1=L23, peak−2=L22 (matched to XY peak_prepeak)"
+  },
+  "candidate_grid": {
+    "layers": [24, 23, 22],
+    "ranks": [1, 4, 8, 16],
+    "alphas": [1.0],
+    "n_candidates_preferred": 12,
+    "note": "3×4×1 preferred; Stage A clamps ranks to k_found (often {1} on polarity gender_prob)"
+  },
+  "note": "FDR-significant 4B SOCs split by H1 polarity. Matched intervention arm to XY polarity pool. sample_stem/subspace_tag include 4b so 2B artifacts are not overwritten.",
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "sample_stem": "inlp_polarity_pool_4b_promale_v1",
+      "tag_stage_a": "inlp_4b_peak_prepeak_pool_promale",
+      "tag_stage_b": "inlp_4b_peak_prepeak_pool_promale_b",
+      "tag_stage_c": "inlp_4b_peak_prepeak_pool_promale_c",
+      "subspace_tag": "polarity_pool_4b_promale_v1",
+      "n_soc": 4,
+      "slugs": [
+        "construction_and_extraction_occupations",
+        "installation_maintenance_and_repair_occupations",
+        "production_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "sample_stem": "inlp_polarity_pool_4b_profemale_v1",
+      "tag_stage_a": "inlp_4b_peak_prepeak_pool_profemale",
+      "tag_stage_b": "inlp_4b_peak_prepeak_pool_profemale_b",
+      "tag_stage_c": "inlp_4b_peak_prepeak_pool_profemale_c",
+      "subspace_tag": "polarity_pool_4b_profemale_v1",
+      "n_soc": 6,
+      "slugs": [
+        "educational_instruction_and_library_occupations",
+        "food_preparation_and_serving_related_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "healthcare_support_occupations",
+        "life_physical_and_social_science_occupations",
+        "office_and_administrative_support_occupations"
+      ]
+    }
+  ]
+}

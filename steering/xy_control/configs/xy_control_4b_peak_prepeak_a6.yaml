@@ -1,0 +1,104 @@
+# Stage A: gender_prob probe peak ± pre-peak on Qwen3.5-4B-Base.
+# Peak L24 (4B gender_prob probe); also L23=peak−1, L22=peak−2.
+# Extended |α|≤6 (matched to 2B peak_prepeak_a6 grid).
+#
+#   python -m steering.xy_control.run_polarity_pool \
+#     --scale 4b --set-id promale \
+#     --config steering/xy_control/configs/xy_control_4b_peak_prepeak_a6.yaml \
+#     --sets steering/xy_control/domains/polarity_sets_4b_v1.json \
+#     --device cuda --dtype float32 --eval-split val \
+#     --tag xy_4b_peak_prepeak_a6_pool_promale
+
+version: v1_peak_prepeak_a6
+hypothesis: xy_control
+scale: 4b
+created: 2026-09-26
+
+source:
+  model_id: Qwen/Qwen3.5-4B-Base
+  d_model: 2560
+  n_hidden_states: 33
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  mapping: {X: man, "Y": woman}
+  fit_sample: data/xy_pairs_full_v1.json
+  eval_sample: data/xy_pairs_full_v1.json
+  label: paired_xy_control
+  label_note: >-
+    d_i = last-token HS(gendered prompt) − last-token HS(XY prompt) for the
+    same row. v_raw is the mean of d_i on train families. Not a gender
+    direction — a gender-conditioned activation direction.
+  split:
+    train_frac: 0.70
+    val_frac: 0.15
+    test_frac: 0.15
+    seed: 0
+    stratify_by: soc_major_title
+    note: >-
+      Same 70/15/15 per soc_major_title as xy_control_4b_v1 / 2B polarity pool.
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  note: >-
+    Capture and intervention are the same site: last token after "Answer:".
+
+vectors:
+  - id: v_raw
+    short: vraw
+    role: candidate
+    kind: paired_mean_diff
+    description: >-
+      Unit mean of paired differences d_i = h_gender − h_XY on train families.
+
+interventions:
+  - id: add
+    formula: "h' = h − α·v̂"
+    reference_c: none
+    reference_note: >-
+      Additive shift along the unit gender-conditioned direction.
+      Extended |α|≤6 because Stage A winners on 2B clustered at the old |α|=2 edge.
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+layers:
+  belt: [22, 23, 24]
+  core: [22, 23, 24]
+  edge: [22, 24]
+  peak: 24
+  prepeak: [23, 22]
+  anchor: 24
+  note: >-
+    gender_prob probe peak = L24 on 4B. Sweep peak, peak−1 (L23),
+    peak−2 (L22). Same belt as classical 4B polarity-pool INLP candidates.
+    (Distinct from the older L20–26 gender_choice plateau / L23 anchor used
+    in per-SOC H1 belt.)
+
+families:
+  - id: main_add_peak_prepeak
+    enabled: true
+    role: candidate
+    vectors: [v_raw]
+    layers: [24, 23, 22]
+    intervention: add
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+    description: "L24 peak + L23/L22 pre-peak × 14 alphas (both signs). 3 × 14 = 42."
+
+baseline:
+  id: baseline
+  description: Без интервенции на той же выборке (α=0).
+
+screening:
+  stage: A
+  primary_metric:
+    id: gender_gap
+    formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"
+    direction: reduce_abs
+  secondary_metrics:
+    - id: mean_abs_delta
+      formula: "mean_i |Δ_i| after layout average"
+    - id: p_delta_positive
+      formula: "P(Δ_i > 0)"
+    - id: slot_gap
+      formula: "mean_i mean_layouts (z_A − z_B)  # guardrail"
+  keep_top: 10
+  keep_rule: >-
+    Среди role=candidate: наибольшее |gender_gap| reduction.

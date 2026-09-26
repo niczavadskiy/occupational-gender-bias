@@ -37,6 +37,27 @@ def test_sets_json_loads() -> None:
     assert pool_slug("male") == "polarity_male"
 
 
+def test_sets_4b_json_loads() -> None:
+    import yaml
+    from pathlib import Path
+
+    from steering.xy_control.polarity_pool import HERE
+
+    path = HERE / "domains" / "polarity_sets_4b_v1.json"
+    doc = load_polarity_sets(path)
+    assert doc["scale"] == "4b"
+    assert doc["probe_peak"]["layers"] == [24, 23, 22]
+    male = get_set(doc, "promale")
+    female = get_set(doc, "profemale")
+    assert male["n_soc"] == 4
+    assert female["n_soc"] == 6
+    assert len(male["slugs"]) == 4
+    cfg = yaml.safe_load((HERE / "configs" / "xy_control_4b_peak_prepeak_a6.yaml").read_text(encoding="utf-8"))
+    assert cfg["layers"]["peak"] == 24
+    assert cfg["families"][0]["layers"] == [24, 23, 22]
+    _ = Path
+
+
 def test_plan_pool_split_stratified() -> None:
     items = []
     for title, n in (("A", 20), ("B", 10)):
@@ -80,6 +101,7 @@ def test_expand_smoke() -> None:
 def main() -> int:
     test_pool_slug_and_candidate_id()
     test_sets_json_loads()
+    test_sets_4b_json_loads()
     test_plan_pool_split_stratified()
     test_expand_smoke()
     print("ok")

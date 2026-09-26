@@ -45,6 +45,25 @@ def get_set(doc: dict[str, Any], set_id: str) -> dict[str, Any]:
     raise KeyError(f"unknown polarity set id: {set_id}")
 
 
+def sample_stem_for(entry: dict[str, Any]) -> str:
+    """Basename without .json; 4B sets set sample_stem to avoid clobbering 2B."""
+    return str(entry.get("sample_stem") or f"inlp_polarity_pool_{entry['id']}_v1")
+
+
+def sample_paths_for(entry: dict[str, Any], samples_dir: Path | None = None) -> dict[str, Path]:
+    root = samples_dir or (STEERING_DIR / "samples")
+    stem = sample_stem_for(entry)
+    if not stem.endswith("_v1"):
+        raise ValueError(f"sample_stem must end with _v1, got {stem!r}")
+    base = stem[: -len("_v1")]
+    return {
+        "full": root / f"{stem}.json",
+        "train": root / f"{base}_train_v1.json",
+        "val": root / f"{base}_val_v1.json",
+        "test": root / f"{base}_test_v1.json",
+    }
+
+
 def resolve_peak_layers(cfg: dict[str, Any]) -> list[int]:
     """Primary grid: peak, then peak−1, peak−2 (order preserved)."""
     layers_block = cfg.get("layers") or {}

@@ -23,6 +23,7 @@ from steering.polarity_pool_inlp import (
     resolve_alphas,
     resolve_peak_layers,
     resolve_ranks,
+    sample_paths_for,
 )
 from steering.run_inlp_stagea import main as stagea_main
 
@@ -55,9 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.smoke and not tag.endswith("_smoke"):
         tag = f"{tag}_smoke"
 
-    sample = args.sample or (
-        STEERING_DIR / "samples" / f"inlp_polarity_pool_{args.set_id}_val_v1.json"
-    )
+    sample = args.sample or sample_paths_for(entry)["val"]
     sub_tag = entry.get("subspace_tag") or f"polarity_pool_{args.set_id}_v1"
     target = cfg.get("target", "gender_prob")
     subspaces = args.subspaces or (STEERING_DIR / "subspaces" / f"inlp_{target}_{sub_tag}.npz")

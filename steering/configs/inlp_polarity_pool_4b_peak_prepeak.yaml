@@ -1,0 +1,112 @@
+# Polarity-pooled INLP · Qwen3.5-4B-Base
+# Candidate layers = gender_prob probe peak + two layers below (same belt as XY).
+#
+#   Peak L24 (4B gender_prob probe)
+#   Pre-peak: L23 = peak−1, L22 = peak−2
+#
+# Protocol: steering/POLARITY_POOL_INLP.md
+# Sets:     steering/domains/inlp_polarity_sets_4b_v1.json
+# SOCs:     same as XY polarity_sets_4b_v1.json (promale / profemale)
+
+version: v1_peak_prepeak
+hypothesis: inlp_polarity_pool
+scale: 4b
+created: 2026-09-26
+protocol: pooled_polarity_one_subspace
+
+source:
+  model_id: Qwen/Qwen3.5-4B-Base
+  d_model: 2560
+  n_hidden_states: 33
+  hidden_state_index: "0 = embeddings, 1..32 = block output"
+  fit_sample: steering/xy_control/data/xy_pairs_full_v1.json
+  label_note: >-
+    Classical INLP on gendered last-token HS (gender_prob). XY prompts are
+    NOT used to fit W — only to define the shared family universe / split
+    with XY polarity pool (same scenario_family_id 70/15/15).
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  intervention: "h' = h − α W_k (W_kᵀ h − c)   # center, α=1 default"
+
+target: gender_prob
+
+probe:
+  ridge_alpha: 1.0
+  source: 4B gender_prob probe peak L24
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+  note: >-
+    Fit W only on pooled train families of the polarity set. Chance-stop
+    uses the complementary families held out during fit (val∪test of the
+    polarity split), not Stage A val.
+
+layers:
+  peak: 24
+  prepeak: [23, 22]
+  belt: [24, 23, 22]
+  core: [24, 23, 22]
+  anchor: 24
+  note: >-
+    Same candidate belt as xy_control_4b_peak_prepeak_a6.yaml.
+    Sweep peak, peak−1, peak−2.
+
+steering:
+  kind: center
+  ranks: [1, 4, 8, 16]
+  alphas: [1.0]
+  random_control: true
+  random_seeds: [0]
+  note: >-
+    Preferred grid 1/4/8/16 × 3 layers. Stage A clamps ranks to each
+    subspace k_found (polarity gender_prob often yields k_found=1).
+
+split:
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+  seed: 0
+  stratify_by: soc_major_title
+  rule: family_split3_by_soc then pool
+  note: >-
+    Identical rule/seed to XY polarity pool so family_ids match for
+    head-to-head Stage C on the same test families.
+
+screening:
+  stage: A
+  primary_metric:
+    id: mean_R_family
+    axis: gender
+    formula: "R_i = |D_i|_before − |D_i|_after; D_i = mean_layouts (z_man − z_woman)"
+    direction: maximize_R
+  secondary_metrics:
+    - id: theta_abs_bias
+      formula: "mean_i |P(man)_i − 0.5|   # report alongside signed GenderGap"
+    - id: slot_gap
+      formula: "mean_i mean_layouts (z_A − z_B)  # guardrail"
+  report_both:
+    - signed_P_man_pct
+    - abs_P_man_minus_50_pp
+  keep_rule: >-
+    Among INLP candidates: ci_lo > 0 and mean_R > matched random (same L×k);
+    winning layer = argmax max(R); on that layer top ranks by R → Stage B.
+
+capability:
+  stage_b_profile: steering/profiles/mmlu_pro_domain_val_v1.json
+  stage_c_profile: steering/profiles/mmlu_pro_domain_test_v1.json
+  cap_loss_max: 0.03
+  mmlu_scope: union of member SOC titles in the polarity set
+
+families:
+  - id: main_center_peak_prepeak
+    enabled: true
+    role: candidate
+    layers: [24, 23, 22]
+    ranks: [1, 4, 8, 16]
+    alphas: [1.0]
+    description: >-
+      L24/L23/L22 × ranks 1/4/8/16 × α=1; Stage A drops ranks > k_found.

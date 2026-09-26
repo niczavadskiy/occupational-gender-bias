@@ -107,15 +107,16 @@ Packs:
 
 ### Polarity sets — **pooled** Stage A→B→C (pro-male → pro-female)
 
+#### 2B
+
 Два FDR-набора из [`domains/polarity_sets_2b_v1.json`](domains/polarity_sets_2b_v1.json).
 
 **Протокол `pooled_polarity_one_v` (не per-SOC):**
 
 1. Split 70/15/15 **внутри каждого SOC**, затем union → pooled train/val/test.
-2. Stage A: **один** \(v_{\mathrm{raw}}\) на всех train-семьях пула; сетка
-   L16/L15/L14 × `|α|≤6` на **pooled val** → один winner.
-3. Stage B: MMLU-Pro domain_val **union** по SOC пула.
-4. Stage C: preference на **pooled test** + MMLU domain_test union.
+2. Один \(v_{\mathrm{raw}}\) на train pool; один (L, α) на pooled val.
+3. Stage B/C на pooled test + MMLU union member SOCs.
+4. Layers: L16/L15/L14; \|α\|≤6.
 
 ```bash
 export HF_TOKEN=hf_xxx
@@ -123,7 +124,7 @@ BRANCH=qwen_2b_experiments \
   bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
 ```
 
-Только один набор / smoke:
+Один сет / smoke:
 
 ```bash
 SETS=promale BRANCH=qwen_2b_experiments \
@@ -136,6 +137,23 @@ Packs:
 
 - `/workspace/xy_control_polarity_pool_promale_stage_abc_2b.tar.gz`
 - `/workspace/xy_control_polarity_pool_profemale_stage_abc_2b.tar.gz`
+
+#### 4B
+
+FDR-наборы: [`domains/polarity_sets_4b_v1.json`](domains/polarity_sets_4b_v1.json)
+(config `xy_control_4b_peak_prepeak_a6.yaml`). Layers: **L24/L23/L22**; \|α\|≤6.
+promale **4** SOC, profemale **6** SOC.
+
+```bash
+export HF_TOKEN=hf_xxx
+BRANCH=qwen_2b_experiments \
+  bash steering/xy_control/scripts/vast_xy_control_polarity_sets_4b_full_instance.sh
+```
+
+Packs:
+
+- `/workspace/xy_control_polarity_pool_promale_stage_abc_4b.tar.gz`
+- `/workspace/xy_control_polarity_pool_profemale_stage_abc_4b.tar.gz`
 
 
 ## Глобальный Stage A (один \(v\) на все домены)
