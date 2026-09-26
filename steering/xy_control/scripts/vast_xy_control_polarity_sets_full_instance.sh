@@ -2,7 +2,8 @@
 # 2B XY-control: Stage A → B → C for pro-male then pro-female polarity sets.
 #
 # Frozen sets: steering/xy_control/domains/polarity_sets_2b_v1.json
-# Config:      steering/xy_control/configs/xy_control_2b_L15_a6.yaml
+# Config:      steering/xy_control/configs/xy_control_2b_peak_prepeak_a6.yaml
+# Layers:      L16 (gender_prob probe peak), L15 (peak−1), L14 (peak−2); |α|≤6
 #
 #   export HF_TOKEN=hf_xxx
 #   BRANCH=qwen_2b_experiments bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
@@ -36,7 +37,7 @@ SMOKE="${SMOKE:-0}"
 SKIP_STAGE_A="${SKIP_STAGE_A:-0}"
 RUN_STAGE_B="${RUN_STAGE_B:-1}"
 SETS_JSON_REL="steering/xy_control/domains/polarity_sets_2b_v1.json"
-CONFIG_REL="steering/xy_control/configs/xy_control_2b_L15_a6.yaml"
+CONFIG_REL="steering/xy_control/configs/xy_control_2b_peak_prepeak_a6.yaml"
 
 echo "=== [0] cwd / cuda ==="
 nvidia-smi -L || echo "WARN: nvidia-smi failed"
@@ -140,6 +141,7 @@ for set_id in "${SET_LIST[@]}"; do
   B_DIR_TAG="$TAG_B"
   C_DIR_TAG="$TAG_C"
   if [ "$SMOKE" = "1" ]; then
+    # Stage A and_pack appends _smoke; stagebc_and_pack appends to B/C only.
     STAGE_A_DIR_TAG="${TAG_A}_smoke"
     B_DIR_TAG="${TAG_B}_smoke"
     C_DIR_TAG="${TAG_C}_smoke"
@@ -148,7 +150,7 @@ for set_id in "${SET_LIST[@]}"; do
   echo "=== Stage B/C for $LABEL ==="
   PY="$PY" SCALE="$SCALE" MODEL="$MODEL" DEVICE="$DEVICE" DTYPE="$DTYPE" \
     CAP_LOSS_MAX="$CAP_LOSS_MAX" SMOKE="$SMOKE" RUN_STAGE_B="$RUN_STAGE_B" \
-    STAGE_A_TAG="$STAGE_A_DIR_TAG" B_TAG="$B_DIR_TAG" C_TAG="$C_DIR_TAG" REPO="$REPO" \
+    STAGE_A_TAG="$STAGE_A_DIR_TAG" B_TAG="$TAG_B" C_TAG="$TAG_C" REPO="$REPO" \
     bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_and_pack.sh
 
   DST_PACK="/workspace/xy_control_polarity_${set_id}_stage_abc_${SCALE}.tar.gz"
@@ -173,5 +175,5 @@ done
 echo ""
 echo "=== ALL polarity sets DONE ==="
 ls -lh /workspace/xy_control_polarity_*_stage_abc_*.tar.gz 2>/dev/null || true
-ls -lh /workspace/xy_control_per_soc_xy_2b_L15_a6_pro*.tar.gz 2>/dev/null || true
+ls -lh /workspace/xy_control_per_soc_xy_2b_peak_prepeak_a6_pro*.tar.gz 2>/dev/null || true
 echo "Download polarity packs from /workspace/xy_control_polarity_*_stage_abc_2b.tar.gz"

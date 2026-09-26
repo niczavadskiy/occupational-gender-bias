@@ -101,8 +101,10 @@ Packs:
 
 ### Polarity sets (pro-male → pro-female), Stage A→B→C
 
-Два FDR-набора из [`domains/polarity_sets_2b_v1.json`](domains/polarity_sets_2b_v1.json),
-сетка L15 `|α|≤6`. Последовательно: **promale** (8 SOC), затем **profemale** (2 SOC).
+Два FDR-набора из [`domains/polarity_sets_2b_v1.json`](domains/polarity_sets_2b_v1.json).
+Слои: **L16** (gender_prob probe peak) + **L15** (peak−1) + **L14** (peak−2), `|α|≤6`
+([`xy_control_2b_peak_prepeak_a6.yaml`](configs/xy_control_2b_peak_prepeak_a6.yaml)).
+Последовательно: **promale** (8 SOC), затем **profemale** (2 SOC).
 
 ```bash
 export HF_TOKEN=hf_xxx
