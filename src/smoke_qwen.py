@@ -12,6 +12,7 @@ Smoke-test для causal LM occupational pipeline (Qwen3.5 + Gemma3).
     python3 -m src.smoke_qwen
     python3 -m src.smoke_qwen --model Qwen/Qwen3.5-4B-Base
     python3 -m src.smoke_qwen --model google/gemma-3-1b-pt
+    python3 -m src.smoke_qwen --model google/gemma-3-4b-pt
 """
 from __future__ import annotations
 
@@ -28,6 +29,8 @@ EXPECTED = {
     "Qwen/Qwen3.5-4B-Base": {"n_layers": 32, "d_model": 2560},
     # Gemma 3 1B PT: verify on first smoke; Hub card ≈ 26 × 1152
     "google/gemma-3-1b-pt": {"n_layers": 26, "d_model": 1152},
+    # Gemma 3 4B PT: 34 × 2560 (text_config; multimodal Hub wrapper)
+    "google/gemma-3-4b-pt": {"n_layers": 34, "d_model": 2560},
 }
 
 

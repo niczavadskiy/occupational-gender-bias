@@ -1,0 +1,69 @@
+# Polarity-pooled INLP · google/gemma-3-4b-pt
+# FILL AFTER: (1) HS-probe peak  (2) H1 FDR polarity sets
+#
+# Sets: ../domains/inlp_polarity_sets_gemma3_4b_v1.json (slugs TBD)
+# Twin: xy_control_gemma3_4b_peak_prepeak_a6.yaml
+
+version: v1_peak_prepeak_stub
+hypothesis: inlp_polarity_pool
+scale: gemma3_4b
+created: 2026-09-27
+status: STUB_FILL_PEAK
+protocol: pooled_polarity_one_subspace
+
+source:
+  model_id: google/gemma-3-4b-pt
+  d_model: 2560
+  n_hidden_states: 35
+  hidden_state_index: "0 = embeddings, 1..34 = block output"
+  fit_sample: steering/xy_control/data/xy_pairs_full_v1.json
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  intervention: "h' = h − α W_k (W_kᵀ h − c)"
+
+target: gender_prob
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+layers:
+  peak: PEAK
+  prepeak: [PEAK_M1, PEAK_M2]
+  belt: [PEAK, PEAK_M1, PEAK_M2]
+  core: [PEAK, PEAK_M1, PEAK_M2]
+  anchor: PEAK
+
+steering:
+  kind: center
+  ranks: [1, 4, 8, 16]
+  alphas: [1.0]
+  random_control: true
+  random_seeds: [0]
+
+split:
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+  seed: 0
+  stratify_by: soc_major_title
+  rule: family_split3_by_soc then pool
+
+capability:
+  stage_b_profile: steering/profiles/mmlu_pro_domain_val_v1.json
+  stage_c_profile: steering/profiles/mmlu_pro_domain_test_v1.json
+  cap_loss_max: 0.03
+
+families:
+  - id: main_center_peak_prepeak
+    enabled: true
+    role: candidate
+    layers: [PEAK, PEAK_M1, PEAK_M2]
+    ranks: [1, 4, 8, 16]
+    alphas: [1.0]

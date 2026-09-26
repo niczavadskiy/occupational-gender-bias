@@ -415,7 +415,7 @@ def run_one(args: argparse.Namespace) -> Path:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--set-id", required=True, help="promale | profemale | …")
-    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b"], default="2b")
+    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b", "gemma3_4b"], default="2b")
     ap.add_argument("--sets", type=Path, default=SETS_JSON)
     ap.add_argument("--catalog", type=Path, default=None)
     ap.add_argument(

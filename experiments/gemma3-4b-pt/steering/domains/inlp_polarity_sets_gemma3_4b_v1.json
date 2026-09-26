@@ -1,0 +1,49 @@
+{
+  "schema": "steering.inlp_polarity_sets/v1",
+  "version": "v1_pooled_stub",
+  "scale": "gemma3_4b",
+  "status": "STUB_FILL_AFTER_FDR",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "xy_sets": "experiments/gemma3-4b-pt/steering/domains/polarity_sets_gemma3_4b_v1.json",
+  "config": "experiments/gemma3-4b-pt/steering/configs/inlp_polarity_pool_gemma3_4b_peak_prepeak.yaml",
+  "xy_dataset": "steering/xy_control/data/xy_pairs_full_v1.json",
+  "protocol": {
+    "id": "pooled_polarity_one_subspace",
+    "note": "Same SOC lists and family split as XY polarity pool. Fill after FDR + peak."
+  },
+  "probe_peak": {
+    "peak": "PEAK",
+    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"]
+  },
+  "candidate_grid": {
+    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"],
+    "ranks": [1, 4, 8, 16],
+    "alphas": [1.0]
+  },
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "sample_stem": "inlp_polarity_pool_gemma3_4b_promale_v1",
+      "tag_stage_a": "inlp_gemma3_4b_peak_prepeak_pool_promale",
+      "tag_stage_b": "inlp_gemma3_4b_peak_prepeak_pool_promale_b",
+      "tag_stage_c": "inlp_gemma3_4b_peak_prepeak_pool_promale_c",
+      "subspace_tag": "polarity_pool_gemma3_4b_promale_v1",
+      "n_soc": 0,
+      "slugs": []
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "sample_stem": "inlp_polarity_pool_gemma3_4b_profemale_v1",
+      "tag_stage_a": "inlp_gemma3_4b_peak_prepeak_pool_profemale",
+      "tag_stage_b": "inlp_gemma3_4b_peak_prepeak_pool_profemale_b",
+      "tag_stage_c": "inlp_gemma3_4b_peak_prepeak_pool_profemale_c",
+      "subspace_tag": "polarity_pool_gemma3_4b_profemale_v1",
+      "n_soc": 0,
+      "slugs": []
+    }
+  ]
+}

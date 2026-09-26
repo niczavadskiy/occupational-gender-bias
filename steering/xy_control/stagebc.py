@@ -53,6 +53,7 @@ MODEL_BY_SCALE = {
     "2b": "Qwen/Qwen3.5-2B-Base",
     "4b": "Qwen/Qwen3.5-4B-Base",
     "gemma3_1b": "google/gemma-3-1b-pt",
+    "gemma3_4b": "google/gemma-3-4b-pt",
 }
 PROFILE_BY_STAGE = {
     "b": STEERING_DIR / "profiles" / "mmlu_pro_domain_val_v1.json",
@@ -589,7 +590,7 @@ def stage_c(args: argparse.Namespace) -> Path:
 def parser(stage: str) -> argparse.ArgumentParser:
     label = stage.upper()
     ap = argparse.ArgumentParser(description=f"Per-SOC XY-control Stage {label}")
-    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b"], required=True)
+    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b", "gemma3_4b"], required=True)
     ap.add_argument("--model", default=None)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--dtype", default="float32", choices=["float32", "float16", "bfloat16"])

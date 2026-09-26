@@ -40,6 +40,14 @@ SOC_CSV = {
     / "metrics_h1_v1"
     / "latest"
     / "tests_h1_v1_soc.csv",
+    "gemma3_4b": REPO_ROOT
+    / "experiments"
+    / "gemma3-4b-pt"
+    / "results"
+    / "v1_full_pos_shuffle"
+    / "metrics_h1_v1"
+    / "latest"
+    / "tests_h1_v1_soc.csv",
 }
 
 CATALOG_JSON = HERE / "domains" / "h1_soc_fdr_v1.json"

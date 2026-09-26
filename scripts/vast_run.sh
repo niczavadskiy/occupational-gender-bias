@@ -27,6 +27,11 @@
 #   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_gemma3_1b_h1h3_and_pack.sh' \
 #   bash scripts/vast_run.sh
 #
+#   # 5) Gemma 3 4B PT:
+#   HF_TOKEN=hf_xxx DISK=120 KEEP=1 \
+#   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_gemma3_4b_h1h3_and_pack.sh' \
+#   bash scripts/vast_run.sh
+#
 # Параметры (env):
 GPU="${GPU:-RTX_3090}"
 MIN_CUDA="${MIN_CUDA:-12.8}"
