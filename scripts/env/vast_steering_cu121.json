@@ -3,15 +3,18 @@
   "name": "vast_steering_cu121",
   "datetime": "2026-09-26",
   "notes": [
-    "Frozen stack that successfully ran XY-control L15_a6 on Vast (Qwen3.5-2B/4B).",
+    "Frozen stack that successfully ran XY-control on Vast (Qwen3.5-2B/4B).",
     "torchvision must match torch+CUDA tag — ABI mismatch breaks transformers.models.qwen3_5 import.",
     "torchaudio: uninstall for text-only (broken wheel pulls into transformers audio_utils).",
     "causal-conv1d: do not install from source on Vast (hangs); Qwen has slow PyTorch fallback.",
-    "numpy must stay <2 for this torch build."
+    "numpy must stay <2 for this torch build.",
+    "Vast /opt/conda images often ship a hybrid torch: pip version string looks like 2.5.1+cu121 but torch._C is stale → AttributeError: _dlpack_exchange_api. Always force-reinstall torch+torchvision from the cu121 index; verify with a cold subprocess import + CUDA tensor.",
+    "FORCE_TORCH_REINSTALL=0 skips force when versions+integrity already match."
   ],
   "python": {
     "version": "3.10",
-    "recommended_min": "3.10"
+    "recommended_min": "3.10",
+    "note": "Use one interpreter end-to-end (prefer /opt/conda/bin/python or /venv/main/bin/python). Do not mix."
   },
   "cuda": {
     "tag": "cu121",
@@ -22,7 +25,13 @@
     "torch": "2.5.1",
     "torchvision": "0.20.1",
     "torchaudio": null,
-    "uninstall": ["torchaudio"]
+    "uninstall": ["torchaudio"],
+    "force_reinstall": true,
+    "integrity": {
+      "cold_import": true,
+      "require_cuda_tensor": true,
+      "known_breakage": "AttributeError: module 'torch._C' has no attribute '_dlpack_exchange_api'"
+    }
   },
   "pip": {
     "numpy": "1.26.4",

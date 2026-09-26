@@ -11,6 +11,7 @@
 # Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  SKIP_FLA=1
 #      INSTALL_CAUSAL_CONV1D=1  REPO  PIN_VAST_ENV=0
 #      (PIN_VAST_ENV default 1 → scripts/install_vast_env.py from git lock)
+#      FORCE_TORCH_REINSTALL=0 to skip torch force-reinstall when integrity OK
 # ---------------------------------------------------------------------------
 
 STEERING_ENV_PY_FILE="${STEERING_ENV_PY_FILE:-/tmp/occupational_steering_py}"
@@ -166,7 +167,17 @@ if int(np.__version__.split(".")[0]) >= 2:
     )
     sys.exit(2)
 
-import torch
+try:
+    import torch
+    _ = torch.zeros(1)
+except Exception as e:
+    msg = f"{type(e).__name__}: {e}"
+    print(f"FAIL torch: {msg}", file=sys.stderr)
+    # Hybrid conda+pip: version OK, torch._C stale
+    if "_dlpack" in msg or "torch._C" in msg or "AttributeError" in type(e).__name__:
+        sys.exit(4)
+    sys.exit(4)
+
 import transformers
 from transformers import AutoModelForCausalLM  # noqa: F401
 
@@ -234,6 +245,13 @@ for mod in (
     except ModuleNotFoundError:
         continue
 PY
+    elif [ "$rc" = "4" ] && [ "${SKIP_PIP:-0}" != "1" ] && [ -n "${installer:-}" ]; then
+      echo "  retry: broken torch._C → $installer --force"
+      if ! "$PY" "$installer" --force; then
+        echo "  FAIL: install_vast_env --force could not repair torch"
+        return 4
+      fi
+      "$PY" -c "import torch; x=torch.zeros(1,device='cuda'); print('retry OK', torch.__version__, float(x.item()))" || return 4
     else
       return "$rc"
     fi

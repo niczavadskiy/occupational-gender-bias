@@ -29,6 +29,12 @@ python scripts/install_vast_env.py --check-only
 `PIN_VAST_ENV=1` и вызывают этот installer. Отключить: `PIN_VAST_ENV=0` или
 `SKIP_PIP=1` (если стек уже совпадает с lock).
 
+Installer по умолчанию **force-reinstall** `torch`/`torchvision` с
+`download.pytorch.org/whl/cu121` и проверяет cold-import + CUDA tensor
+(на conda-образах Vast иначе бывает `torch._C` без `_dlpack_exchange_api`
+при «правильной» версии в `pip show`). Пропуск force:
+`FORCE_TORCH_REINSTALL=0` (только если integrity уже OK).
+
 Полный пул: 951 семьи × 4 layout. Сплит **внутри каждого SOC** 70/15/15.
 Stage A по умолчанию — GenderGap на **val**. test не трогать, пока не выбран α.
 
