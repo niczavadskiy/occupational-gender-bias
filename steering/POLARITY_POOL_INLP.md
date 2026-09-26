@@ -114,7 +114,7 @@ Vast (both sets A→B→C):
 
 ```bash
 export HF_TOKEN=hf_xxx
-BRANCH=qwen_2b_experiments bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
+BRANCH=main bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 
 Copy-paste / env knobs: [`INLP_POLARITY_POOL_VAST.md`](INLP_POLARITY_POOL_VAST.md).
@@ -195,7 +195,7 @@ Vast:
 
 ```bash
 export HF_TOKEN=hf_xxx
-BRANCH=qwen_2b_experiments \
+BRANCH=main \
   bash steering/scripts/vast_inlp_polarity_pool_4b_full_instance.sh
 ```
 

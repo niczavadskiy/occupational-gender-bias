@@ -24,8 +24,18 @@ Steering configs under `steering/` use `PEAK` placeholders until then.
 
 ```bash
 export HF_TOKEN=hf_xxx   # + accept Gemma license on HF Hub
+# default BRANCH=main (after merge of polarity/Gemma work)
 bash scripts/setup_instance.sh
 bash scripts/vast_gemma3_1b_h1h3_and_pack.sh
+```
+
+If the checkout is stale:
+
+```bash
+cd /workspace/occupational-gender-bias
+git fetch --depth 1 origin main
+git checkout main
+git reset --hard origin/main
 ```
 
 Or Jupyter: [`notebooks/vast_gemma3_1b_h1h3.ipynb`](../../notebooks/vast_gemma3_1b_h1h3.ipynb)

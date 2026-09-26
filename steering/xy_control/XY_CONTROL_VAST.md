@@ -120,16 +120,16 @@ Packs:
 
 ```bash
 export HF_TOKEN=hf_xxx
-BRANCH=qwen_2b_experiments \
+BRANCH=main \
   bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
 ```
 
 Один сет / smoke:
 
 ```bash
-SETS=promale BRANCH=qwen_2b_experiments \
+SETS=promale BRANCH=main \
   bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
-SMOKE=1 BRANCH=qwen_2b_experiments \
+SMOKE=1 BRANCH=main \
   bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
 ```
 
@@ -146,7 +146,7 @@ promale **4** SOC, profemale **6** SOC.
 
 ```bash
 export HF_TOKEN=hf_xxx
-BRANCH=qwen_2b_experiments \
+BRANCH=main \
   bash steering/xy_control/scripts/vast_xy_control_polarity_sets_4b_full_instance.sh
 ```
 

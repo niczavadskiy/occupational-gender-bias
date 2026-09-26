@@ -5,7 +5,7 @@
 # Protocol: steering/POLARITY_POOL_INLP.md
 #
 #   export HF_TOKEN=hf_xxx
-#   BRANCH=qwen_2b_experiments bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
+#   BRANCH=main bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 #
 # Env: SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 SKIP_FIT=1 RUN_STAGE_B=0 SMOKE=1
 # SKIP_FIT=1 reuses existing subspaces/*.npz and jumps to Stage A (e.g. after k_found=1).
@@ -17,7 +17,7 @@ export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-$HF_TOKEN}"
 WORKDIR="${WORKDIR:-/workspace}"
 REPO_DIR="${REPO_DIR:-occupational-gender-bias}"
 REPO="${REPO:-$WORKDIR/$REPO_DIR}"
-BRANCH="${BRANCH:-qwen_2b_experiments}"
+BRANCH="${BRANCH:-main}"
 GH_REPO="${GH_REPO:-niczavadskiy/occupational-gender-bias}"
 SETS="${SETS:-promale,profemale}"
 MODEL="${MODEL:-Qwen/Qwen3.5-2B-Base}"

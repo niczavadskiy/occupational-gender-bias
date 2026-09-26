@@ -11,7 +11,7 @@ Sets: `promale` then `profemale`. Same family split as XY (seed 0).
 ```bash
 export HF_TOKEN=hf_xxx
 cd /workspace
-BRANCH=qwen_2b_experiments bash occupational-gender-bias/steering/scripts/vast_inlp_polarity_pool_full_instance.sh
+BRANCH=main bash occupational-gender-bias/steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 
 If the repo is already at `/workspace/occupational-gender-bias`:
@@ -19,17 +19,17 @@ If the repo is already at `/workspace/occupational-gender-bias`:
 ```bash
 export HF_TOKEN=hf_xxx
 cd /workspace/occupational-gender-bias
-git fetch --depth 1 origin qwen_2b_experiments
-git checkout qwen_2b_experiments
-git reset --hard origin/qwen_2b_experiments
-BRANCH=qwen_2b_experiments bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
+git fetch --depth 1 origin main
+git checkout main
+git reset --hard origin/main
+BRANCH=main bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 
 ## Smoke
 
 ```bash
 export HF_TOKEN=hf_xxx
-SMOKE=1 BRANCH=qwen_2b_experiments \
+SMOKE=1 BRANCH=main \
   bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 
@@ -44,20 +44,20 @@ SMOKE=1 BRANCH=qwen_2b_experiments \
 | `SKIP_STAGE_A` | `0` | skip fit + Stage A |
 | `RUN_STAGE_B` | `1` | MMLU gate |
 | `RUN_STAGE_C` | `1` | test preference + MMLU |
-| `BRANCH` | `qwen_2b_experiments` | git branch to sync |
+| `BRANCH` | `main` | git branch to sync |
 
 Resume after a finished fit (e.g. `k_found=1`):
 
 ```bash
 export HF_TOKEN=hf_xxx
-SKIP_PIP=1 SKIP_FIT=1 BRANCH=qwen_2b_experiments \
+SKIP_PIP=1 SKIP_FIT=1 BRANCH=main \
   bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 
 Single set:
 
 ```bash
-SETS=promale BRANCH=qwen_2b_experiments \
+SETS=promale BRANCH=main \
   bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 

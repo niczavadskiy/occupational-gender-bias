@@ -9,7 +9,7 @@
 # Layers:      L16 (probe peak), L15, L14; |α|≤6
 #
 #   export HF_TOKEN=hf_xxx
-#   BRANCH=qwen_2b_experiments bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
+#   BRANCH=main bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
 #
 # Env: BRANCH SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 RUN_STAGE_B=0
 #      CAP_LOSS_MAX=0.03 SMOKE=1
@@ -21,7 +21,7 @@ export HUGGING_FACE_HUB_TOKEN="${HUGGING_FACE_HUB_TOKEN:-$HF_TOKEN}"
 WORKDIR="${WORKDIR:-/workspace}"
 REPO_DIR="${REPO_DIR:-occupational-gender-bias}"
 REPO="${REPO:-$WORKDIR/$REPO_DIR}"
-BRANCH="${BRANCH:-qwen_2b_experiments}"
+BRANCH="${BRANCH:-main}"
 GH_REPO="${GH_REPO:-niczavadskiy/occupational-gender-bias}"
 SETS="${SETS:-promale,profemale}"
 SCALE=2b
