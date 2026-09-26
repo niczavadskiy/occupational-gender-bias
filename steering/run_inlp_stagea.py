@@ -235,7 +235,7 @@ def run_config(
                 "logit_A": out["logit_A"],
                 "logit_B": out["logit_B"],
                 **row_margins(out, labels),
-                "baseline_choice_recorded": src["baseline_choice"],
+                "baseline_choice_recorded": src.get("baseline_choice", out["choice"]),
             }
             if spec is not None and trace is not None:
                 s_b = trace.before.get(spec.layer)

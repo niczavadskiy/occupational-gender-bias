@@ -124,6 +124,26 @@ def slot_choice_y(row: dict) -> int:
     return 1 if choice == "A" else 0
 
 
+def gender_choice_y_from_live(labels: dict[str, str], choice: str) -> int:
+    if choice not in labels:
+        raise SystemExit(f"live choice={choice!r} нет в labels {labels}")
+    return 1 if labels[choice] == "man" else 0
+
+
+def slot_choice_y_from_live(choice: str) -> int:
+    return 1 if choice == "A" else 0
+
+
+def gender_choice_y_from_live(labels: dict[str, str], choice: str) -> int:
+    if choice not in labels:
+        raise SystemExit(f"live choice={choice!r} нет в labels {labels}")
+    return 1 if labels[choice] == "man" else 0
+
+
+def slot_choice_y_from_live(choice: str) -> int:
+    return 1 if choice == "A" else 0
+
+
 def load_vector_bank(paths: list[Path]) -> tuple[dict[str, np.ndarray], dict[str, dict]]:
     bank: dict[str, np.ndarray] = {}
     calib: dict[str, dict] = {}
@@ -291,8 +311,6 @@ def capture_condition(
 
     for item in items:
         for src in item["rows"]:
-            y_g = gender_choice_y(src)
-            y_s = slot_choice_y(src)
             ctx = steered(model, specs, trace) if specs else contextlib.nullcontext()
             with ctx:
                 with capture_last_token(model, read_layers) as store:
@@ -301,6 +319,14 @@ def capture_condition(
                         h = store[L][0, -1].float().detach().cpu().numpy().astype(np.float32)
                         hs[L].append(h)
             margins = row_margins(out, src["labels"])
+            # Frozen H1 samples carry baseline_choice; polarity-pool samples from
+            # xy_pairs do not — use this forward's choice (live baseline).
+            if src.get("baseline_choice") is not None:
+                y_g = gender_choice_y(src)
+                y_s = slot_choice_y(src)
+            else:
+                y_g = gender_choice_y_from_live(src["labels"], margins["choice"])
+                y_s = slot_choice_y_from_live(margins["choice"])
             row = {
                 "id": src["id"],
                 "scenario_family_id": item["scenario_family_id"],

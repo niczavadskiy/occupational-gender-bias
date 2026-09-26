@@ -138,6 +138,8 @@ def load_xy_pool_items(
                     "labels": dict(r["labels"]),
                     "valid_labels": list(r.get("valid_labels") or ["A", "B"]),
                     "prompt": r.get("gender_prompt") or r["prompt"],
+                    # No frozen H1 baseline_choice on xy_pairs; capture_condition
+                    # and Stage A fall back to live score choice.
                 }
             )
         out.append(
