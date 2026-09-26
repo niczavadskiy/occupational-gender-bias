@@ -1,24 +1,28 @@
 {
   "schema": "steering.xy_control_polarity_sets/v1",
-  "version": "v1",
+  "version": "v2_pooled",
   "scale": "2b",
   "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
   "config": "steering/xy_control/configs/xy_control_2b_peak_prepeak_a6.yaml",
+  "protocol": {
+    "id": "pooled_polarity_one_v",
+    "note": "One v_raw on all train families of the polarity set (stratified 70/15/15 inside each SOC, then pooled). One (layer, α) on pooled val. Stage B/C on pooled test + MMLU union of member SOCs."
+  },
   "probe_peak": {
     "source": "steering/configs/inlp_gender_prob_v1.yaml",
     "peak": 16,
     "layers": [16, 15, 14],
     "note": "gender_prob probe peak L16; also peak−1=L15, peak−2=L14"
   },
-  "note": "FDR-significant 2B SOCs split by H1 polarity. Stage A→B→C per set; layer grid = probe peak + pre-peak (−1/−2).",
+  "note": "FDR-significant 2B SOCs split by H1 polarity. Pooled Stage A→B→C per set.",
   "sets": [
     {
       "id": "promale",
       "label": "pro-male",
       "polarity": "male",
-      "tag_stage_a": "xy_2b_peak_prepeak_a6_promale",
-      "tag_stage_b": "xy_2b_peak_prepeak_a6_promale_b",
-      "tag_stage_c": "xy_2b_peak_prepeak_a6_promale_c",
+      "tag_stage_a": "xy_2b_peak_prepeak_a6_pool_promale",
+      "tag_stage_b": "xy_2b_peak_prepeak_a6_pool_promale_b",
+      "tag_stage_c": "xy_2b_peak_prepeak_a6_pool_promale_c",
       "n_soc": 8,
       "slugs": [
         "architecture_and_engineering_occupations",
@@ -35,9 +39,9 @@
       "id": "profemale",
       "label": "pro-female",
       "polarity": "female",
-      "tag_stage_a": "xy_2b_peak_prepeak_a6_profemale",
-      "tag_stage_b": "xy_2b_peak_prepeak_a6_profemale_b",
-      "tag_stage_c": "xy_2b_peak_prepeak_a6_profemale_c",
+      "tag_stage_a": "xy_2b_peak_prepeak_a6_pool_profemale",
+      "tag_stage_b": "xy_2b_peak_prepeak_a6_pool_profemale_b",
+      "tag_stage_c": "xy_2b_peak_prepeak_a6_pool_profemale_c",
       "n_soc": 2,
       "slugs": [
         "healthcare_practitioners_and_technical_occupatio",

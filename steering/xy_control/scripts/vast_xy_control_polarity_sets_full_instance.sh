@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
-# 2B XY-control: Stage A → B → C for pro-male then pro-female polarity sets.
+# 2B XY-control: POOLED polarity Stage A → B → C (pro-male then pro-female).
+#
+# Protocol: one v_raw per polarity set (all train families), one (L,α) on
+# pooled val, B/C on pooled test + MMLU union of member SOCs.
 #
 # Frozen sets: steering/xy_control/domains/polarity_sets_2b_v1.json
 # Config:      steering/xy_control/configs/xy_control_2b_peak_prepeak_a6.yaml
-# Layers:      L16 (gender_prob probe peak), L15 (peak−1), L14 (peak−2); |α|≤6
+# Layers:      L16 (probe peak), L15, L14; |α|≤6
 #
 #   export HF_TOKEN=hf_xxx
 #   BRANCH=qwen_2b_experiments bash steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
 #
-# Env:
-#   BRANCH          default qwen_2b_experiments
-#   SETS            default promale,profemale  (comma ids from polarity_sets JSON)
-#   SKIP_PIP=1      skip setup pip
-#   SKIP_STAGE_A=1  reuse existing Stage A dirs
-#   RUN_STAGE_B=0   reuse stagec_keep from Stage B
-#   CAP_LOSS_MAX    default 0.03
-#   SMOKE=1         tiny A/B/C smoke
+# Env: BRANCH SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 RUN_STAGE_B=0
+#      CAP_LOSS_MAX=0.03 SMOKE=1
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -38,6 +35,7 @@ SKIP_STAGE_A="${SKIP_STAGE_A:-0}"
 RUN_STAGE_B="${RUN_STAGE_B:-1}"
 SETS_JSON_REL="steering/xy_control/domains/polarity_sets_2b_v1.json"
 CONFIG_REL="steering/xy_control/configs/xy_control_2b_peak_prepeak_a6.yaml"
+MMLU_PARQUET="${MMLU_PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
 
 echo "=== [0] cwd / cuda ==="
 nvidia-smi -L || echo "WARN: nvidia-smi failed"
@@ -54,6 +52,7 @@ fi
 export REPO
 cd "$REPO"
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+MMLU_PARQUET="${MMLU_PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
 
 echo "=== [2] setup_instance + frozen Vast env ==="
 export SKIP_FLA="${SKIP_FLA:-1}"
@@ -71,9 +70,10 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 need=(
   "$SETS_JSON_REL"
   "$CONFIG_REL"
-  steering/xy_control/scripts/vast_xy_control_per_soc_and_pack.sh
-  steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_and_pack.sh
-  steering/xy_control/run_per_soc.py
+  steering/xy_control/run_polarity_pool.py
+  steering/xy_control/run_polarity_pool_stageb.py
+  steering/xy_control/run_polarity_pool_stagec.py
+  steering/xy_control/polarity_pool.py
 )
 miss=0
 for f in "${need[@]}"; do
@@ -86,11 +86,20 @@ for f in "${need[@]}"; do
 done
 [ "$miss" = "0" ] || exit 1
 
-chmod +x steering/xy_control/scripts/vast_xy_control_per_soc_and_pack.sh
-chmod +x steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_and_pack.sh
 chmod +x steering/xy_control/scripts/vast_xy_control_polarity_sets_full_instance.sh
+"$PY" -m steering.xy_control.test_polarity_pool
+"$PY" -m steering.xy_control.build_dataset
+"$PY" -m steering.xy_control.test_dataset
 
-"$PY" -m steering.xy_control.test_stagebc
+mkdir -p "$(dirname "$MMLU_PARQUET")"
+if [ ! -f "$MMLU_PARQUET" ]; then
+  echo "=== download frozen MMLU-Pro test parquet ==="
+  curl -L --fail --retry 3 -o "$MMLU_PARQUET" \
+    "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro/resolve/main/data/test-00000-of-00001.parquet"
+fi
+if ! "$PY" -c "import pyarrow" >/dev/null 2>&1; then
+  "$PY" -m pip install -U pyarrow
+fi
 
 lookup_set() {
   local set_id="$1"
@@ -103,8 +112,8 @@ for s in doc["sets"]:
         print(s["tag_stage_a"])
         print(s["tag_stage_b"])
         print(s["tag_stage_c"])
-        print(",".join(s["slugs"]))
         print(s["label"])
+        print(s["polarity"])
         raise SystemExit(0)
 raise SystemExit(f"unknown set id: $set_id")
 PY
@@ -119,61 +128,98 @@ for set_id in "${SET_LIST[@]}"; do
   TAG_A="${META[0]}"
   TAG_B="${META[1]}"
   TAG_C="${META[2]}"
-  ONLY_SOC="${META[3]}"
-  LABEL="${META[4]}"
+  LABEL="${META[3]}"
+  POLARITY="${META[4]}"
 
   echo ""
   echo "============================================================"
-  echo "=== polarity set: $LABEL ($set_id) ==="
-  echo "=== Stage A tag=$TAG_A  only_soc=$ONLY_SOC ==="
+  echo "=== POOLED polarity set: $LABEL ($set_id / $POLARITY) ==="
+  echo "=== one v on train pool → one (L,α) on val → B/C on test ==="
+  echo "=== Stage A tag=$TAG_A ==="
   echo "============================================================"
 
+  STAGE_A_DIR="$REPO/results/steering/xy_control/polarity_pool/$TAG_A"
+  if [ "$SMOKE" = "1" ]; then
+    STAGE_A_DIR="${STAGE_A_DIR}_smoke"
+  fi
+
   if [ "$SKIP_STAGE_A" != "1" ]; then
-    PY="$PY" SMOKE="$SMOKE" SCALE="$SCALE" TAG="$TAG_A" MODEL="$MODEL" \
-      DEVICE="$DEVICE" DTYPE="$DTYPE" EVAL_SPLIT="$EVAL_SPLIT" \
-      ONLY_SOC="$ONLY_SOC" CONFIG="$REPO/$CONFIG_REL" REPO="$REPO" \
-      bash steering/xy_control/scripts/vast_xy_control_per_soc_and_pack.sh
+    A_FLAGS=(
+      --set-id "$set_id" --scale "$SCALE" --model "$MODEL"
+      --device "$DEVICE" --dtype "$DTYPE"
+      --config "$REPO/$CONFIG_REL"
+      --sets "$REPO/$SETS_JSON_REL"
+      --eval-split "$EVAL_SPLIT"
+      --tag "$TAG_A"
+    )
+    if [ "$SMOKE" = "1" ]; then
+      A_FLAGS+=(--smoke --limit-items "${N_ITEMS:-3}")
+    fi
+    "$PY" -m steering.xy_control.run_polarity_pool "${A_FLAGS[@]}"
   else
-    echo "SKIP_STAGE_A=1 — expect $REPO/results/steering/xy_control/per_soc/$TAG_A"
+    echo "SKIP_STAGE_A=1 — expect $STAGE_A_DIR"
   fi
 
-  STAGE_A_DIR_TAG="$TAG_A"
-  B_DIR_TAG="$TAG_B"
-  C_DIR_TAG="$TAG_C"
-  if [ "$SMOKE" = "1" ]; then
-    # Stage A and_pack appends _smoke; stagebc_and_pack appends to B/C only.
-    STAGE_A_DIR_TAG="${TAG_A}_smoke"
-    B_DIR_TAG="${TAG_B}_smoke"
-    C_DIR_TAG="${TAG_C}_smoke"
+  if [ "$SMOKE" = "1" ] && [[ "$TAG_A" != *_smoke ]]; then
+    TAG_A_EFF="${TAG_A}_smoke"
+    TAG_B_EFF="${TAG_B}_smoke"
+    TAG_C_EFF="${TAG_C}_smoke"
+  else
+    TAG_A_EFF="$TAG_A"
+    TAG_B_EFF="$TAG_B"
+    TAG_C_EFF="$TAG_C"
+  fi
+  STAGE_A_DIR="$REPO/results/steering/xy_control/polarity_pool/$TAG_A_EFF"
+  STAGEC_KEEP="$REPO/results/steering/xy_control/stage_b/$TAG_B_EFF/stagec_keep.json"
+  XY_DATA="$STAGE_A_DIR/xy_pairs_full_v1.json"
+
+  if [ "$RUN_STAGE_B" = "1" ]; then
+    echo "=== Stage B pooled [$LABEL] ==="
+    B_FLAGS=(
+      --scale "$SCALE" --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE"
+      --stage-a-dir "$STAGE_A_DIR" --mmlu-parquet "$MMLU_PARQUET"
+      --cap-loss-max "$CAP_LOSS_MAX" --tag "$TAG_B_EFF"
+    )
+    if [ "$SMOKE" = "1" ]; then
+      B_FLAGS+=(--limit-mmlu 3)
+    fi
+    "$PY" -m steering.xy_control.run_polarity_pool_stageb "${B_FLAGS[@]}"
+  elif [ ! -f "$STAGEC_KEEP" ]; then
+    echo "Missing Stage B keep: $STAGEC_KEEP"
+    exit 1
+  else
+    echo "=== reuse Stage B keep: $STAGEC_KEEP ==="
   fi
 
-  echo "=== Stage B/C for $LABEL ==="
-  PY="$PY" SCALE="$SCALE" MODEL="$MODEL" DEVICE="$DEVICE" DTYPE="$DTYPE" \
-    CAP_LOSS_MAX="$CAP_LOSS_MAX" SMOKE="$SMOKE" RUN_STAGE_B="$RUN_STAGE_B" \
-    STAGE_A_TAG="$STAGE_A_DIR_TAG" B_TAG="$TAG_B" C_TAG="$TAG_C" REPO="$REPO" \
-    bash steering/xy_control/scripts/vast_xy_control_per_soc_stagebc_and_pack.sh
-
-  DST_PACK="/workspace/xy_control_polarity_${set_id}_stage_abc_${SCALE}.tar.gz"
+  echo "=== Stage C pooled [$LABEL] ==="
+  C_FLAGS=(
+    --scale "$SCALE" --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE"
+    --stage-a-dir "$STAGE_A_DIR" --mmlu-parquet "$MMLU_PARQUET"
+    --xy-data "$XY_DATA" --stagec-keep "$STAGEC_KEEP"
+    --tag "$TAG_C_EFF"
+  )
   if [ "$SMOKE" = "1" ]; then
-    DST_PACK="/workspace/xy_control_polarity_${set_id}_stage_abc_${SCALE}_smoke.tar.gz"
+    C_FLAGS+=(--limit-mmlu 3 --limit-items 2)
+  fi
+  "$PY" -m steering.xy_control.run_polarity_pool_stagec "${C_FLAGS[@]}"
+
+  DST_PACK="/workspace/xy_control_polarity_pool_${set_id}_stage_abc_${SCALE}.tar.gz"
+  if [ "$SMOKE" = "1" ]; then
+    DST_PACK="/workspace/xy_control_polarity_pool_${set_id}_stage_abc_${SCALE}_smoke.tar.gz"
   fi
   tar_args=( -czf "$DST_PACK" -C "$REPO" )
-  [ -d "$REPO/results/steering/xy_control/per_soc/$STAGE_A_DIR_TAG" ] && \
-    tar_args+=( "results/steering/xy_control/per_soc/$STAGE_A_DIR_TAG" )
-  [ -d "$REPO/results/steering/xy_control/stage_b/$B_DIR_TAG" ] && \
-    tar_args+=( "results/steering/xy_control/stage_b/$B_DIR_TAG" )
-  [ -d "$REPO/results/steering/xy_control/stage_c/$C_DIR_TAG" ] && \
-    tar_args+=( "results/steering/xy_control/stage_c/$C_DIR_TAG" )
+  [ -d "$STAGE_A_DIR" ] && tar_args+=( "results/steering/xy_control/polarity_pool/$TAG_A_EFF" )
+  [ -d "$REPO/results/steering/xy_control/stage_b/$TAG_B_EFF" ] && \
+    tar_args+=( "results/steering/xy_control/stage_b/$TAG_B_EFF" )
+  [ -d "$REPO/results/steering/xy_control/stage_c/$TAG_C_EFF" ] && \
+    tar_args+=( "results/steering/xy_control/stage_c/$TAG_C_EFF" )
   if [ "${#tar_args[@]}" -gt 3 ]; then
     tar "${tar_args[@]}"
     ls -lh "$DST_PACK"
-  else
-    echo "WARN: nothing to pack for $set_id"
   fi
 done
 
 echo ""
-echo "=== ALL polarity sets DONE ==="
-ls -lh /workspace/xy_control_polarity_*_stage_abc_*.tar.gz 2>/dev/null || true
-ls -lh /workspace/xy_control_per_soc_xy_2b_peak_prepeak_a6_pro*.tar.gz 2>/dev/null || true
-echo "Download polarity packs from /workspace/xy_control_polarity_*_stage_abc_2b.tar.gz"
+echo "=== ALL POOLED polarity sets DONE ==="
+ls -lh /workspace/xy_control_polarity_pool_*_stage_abc_*.tar.gz 2>/dev/null || true
+echo "Download: /workspace/xy_control_polarity_pool_*_stage_abc_2b.tar.gz"
