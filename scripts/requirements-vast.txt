@@ -1,8 +1,12 @@
-# Vast / GPU steering stack (pin for bias-subspaces-env + conda images).
-# Root requirements.txt may say numpy>=2 — do NOT use that on Vast.
+# Vast / GPU steering stack.
+# Prefer the frozen lock (torch/torchvision/CUDA + transformers):
+#   python scripts/install_vast_env.py
+#   # lock: scripts/env/vast_steering_cu121.json
 #
+# Loose fallback (PIN_VAST_ENV=0):
 #   python -m pip install -r scripts/requirements-vast.txt
 #
+# Root requirements.txt may say numpy>=2 — do NOT use that on Vast.
 numpy>=1.26,<2
 transformers>=4.50
 accelerate
@@ -17,7 +21,6 @@ pyarrow
 # ensure_steering_env installs FLA best-effort and skips causal-conv1d source builds;
 # missing causal-conv1d → slow PyTorch fallback.
 flash-linear-attention
-# torch/torchvision: leave image default unless broken; then:
-#   pip install -U 'torch>=2.5' torchvision
-# torchaudio: do NOT pin — broken ABI breaks Qwen3.5 import.
-# ensure_steering_env.sh uninstalls broken torchaudio by default (text-only).
+# torch/torchvision: use lock (2.5.1+cu121 / 0.20.1). Do not pip-install bare torchvision
+# from PyPI — ABI mismatch breaks Qwen3.5 import.
+# torchaudio: uninstall (text-only).

@@ -1,0 +1,13 @@
+# Pinned deps for Vast steering (torch stack is separate — see env lock).
+# Full install: python scripts/install_vast_env.py
+#
+# Critical pins (Qwen3.5 XY-control L15_a6 on Vast, 2026-09-24):
+numpy==1.26.4
+transformers==5.17.0
+accelerate>=0.33
+huggingface_hub>=0.23
+python-dotenv>=1.0
+PyYAML>=6.0
+scipy>=1.11
+pandas>=2.0
+pyarrow>=14.0

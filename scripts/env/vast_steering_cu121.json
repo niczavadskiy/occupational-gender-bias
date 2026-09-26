@@ -1,0 +1,48 @@
+{
+  "schema": "steering.vast_env_lock/v1",
+  "name": "vast_steering_cu121",
+  "datetime": "2026-09-26",
+  "notes": [
+    "Frozen stack that successfully ran XY-control L15_a6 on Vast (Qwen3.5-2B/4B).",
+    "torchvision must match torch+CUDA tag — ABI mismatch breaks transformers.models.qwen3_5 import.",
+    "torchaudio: uninstall for text-only (broken wheel pulls into transformers audio_utils).",
+    "causal-conv1d: do not install from source on Vast (hangs); Qwen has slow PyTorch fallback.",
+    "numpy must stay <2 for this torch build."
+  ],
+  "python": {
+    "version": "3.10",
+    "recommended_min": "3.10"
+  },
+  "cuda": {
+    "tag": "cu121",
+    "torch_index_url": "https://download.pytorch.org/whl/cu121",
+    "driver_note": "Works with CUDA 12.1-compatible images (torch reports 12.1)."
+  },
+  "pytorch": {
+    "torch": "2.5.1",
+    "torchvision": "0.20.1",
+    "torchaudio": null,
+    "uninstall": ["torchaudio"]
+  },
+  "pip": {
+    "numpy": "1.26.4",
+    "transformers": "5.17.0",
+    "requirements_lock": "scripts/requirements-vast-lock.txt"
+  },
+  "optional": {
+    "flash-linear-attention": {
+      "install": true,
+      "best_effort": true
+    },
+    "causal-conv1d": {
+      "install": false,
+      "reason": "CUDA source build hangs / ABI mismatch on Vast images"
+    }
+  },
+  "sanity": {
+    "import_modules": [
+      "transformers.models.qwen3_5.modeling_qwen3_5"
+    ],
+    "require_cuda": true
+  }
+}

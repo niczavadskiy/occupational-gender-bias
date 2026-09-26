@@ -9,7 +9,8 @@
 #   export PY="$(cat /tmp/occupational_steering_py)"
 #
 # Env: PY  SKIP_PIP=1  UPGRADE_TORCH=1  KEEP_TORCHAUDIO=1  SKIP_FLA=1
-#      INSTALL_CAUSAL_CONV1D=1  REPO
+#      INSTALL_CAUSAL_CONV1D=1  REPO  PIN_VAST_ENV=0
+#      (PIN_VAST_ENV default 1 → scripts/install_vast_env.py from git lock)
 # ---------------------------------------------------------------------------
 
 STEERING_ENV_PY_FILE="${STEERING_ENV_PY_FILE:-/tmp/occupational_steering_py}"
@@ -80,28 +81,47 @@ ensure_steering_env() {
   "$PY" -c "import sys; print(' ', sys.executable, sys.version.split()[0])" || return 1
 
   if [ "${SKIP_PIP:-0}" != "1" ]; then
-    local req=""
-    if [ -n "${REPO:-}" ] && [ -f "$REPO/scripts/requirements-vast.txt" ]; then
-      req="$REPO/scripts/requirements-vast.txt"
-    elif [ -f "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/requirements-vast.txt" ]; then
-      req="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/requirements-vast.txt"
+    local script_dir repo_scripts installer lock_json
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    repo_scripts="${REPO:-}/scripts"
+    installer=""
+    if [ -n "${REPO:-}" ] && [ -f "$REPO/scripts/install_vast_env.py" ]; then
+      installer="$REPO/scripts/install_vast_env.py"
+    elif [ -f "$script_dir/install_vast_env.py" ]; then
+      installer="$script_dir/install_vast_env.py"
     fi
 
-    echo "  pip: numpy<2 + transformers (без -q — прогресс виден)…"
-    if [ -n "$req" ]; then
-      # causal-conv1d must not be on this list: a failed source build would abort
-      # the whole env even though Qwen3.5 can run with the slow PyTorch fallback.
-      "$PY" -m pip install -U -r "$req" || return 1
-    else
-      "$PY" -m pip install -U \
-        'numpy>=1.26,<2' \
-        'transformers>=4.50' \
-        accelerate huggingface_hub python-dotenv PyYAML scipy pandas || return 1
+    # Default: frozen Vast lock from git (torch 2.5.1+cu121, torchvision 0.20.1, transformers 5.17).
+    if [ "${PIN_VAST_ENV:-1}" = "1" ] && [ -n "$installer" ]; then
+      echo "  pip: PIN_VAST_ENV=1 → $installer"
+      if ! "$PY" "$installer"; then
+        echo "  WARN: install_vast_env failed — falling back to requirements-vast.txt"
+        PIN_VAST_ENV=0
+      fi
     fi
 
-    if [ "${UPGRADE_TORCH:-0}" = "1" ]; then
-      echo "  pip: UPGRADE_TORCH=1 → torch>=2.5…"
-      "$PY" -m pip install -U 'torch>=2.5' torchvision || return 1
+    if [ "${PIN_VAST_ENV:-1}" != "1" ]; then
+      local req=""
+      if [ -n "${REPO:-}" ] && [ -f "$REPO/scripts/requirements-vast.txt" ]; then
+        req="$REPO/scripts/requirements-vast.txt"
+      elif [ -f "$script_dir/requirements-vast.txt" ]; then
+        req="$script_dir/requirements-vast.txt"
+      fi
+
+      echo "  pip: numpy<2 + transformers (без -q — прогресс виден)…"
+      if [ -n "$req" ]; then
+        "$PY" -m pip install -U -r "$req" || return 1
+      else
+        "$PY" -m pip install -U \
+          'numpy>=1.26,<2' \
+          'transformers>=4.50' \
+          accelerate huggingface_hub python-dotenv PyYAML scipy pandas || return 1
+      fi
+
+      if [ "${UPGRADE_TORCH:-0}" = "1" ]; then
+        echo "  pip: UPGRADE_TORCH=1 → torch>=2.5…"
+        "$PY" -m pip install -U 'torch>=2.5' torchvision || return 1
+      fi
     fi
   else
     echo "  SKIP_PIP=1"

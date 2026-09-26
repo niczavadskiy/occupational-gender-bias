@@ -1,8 +1,33 @@
 # Vast: XY-control
 
 Нужен `HF_TOKEN` (Hub). `causal-conv1d` по умолчанию **не ставится**
-(source build на Vast зависает). Уже стоящие torch/transformers достаточны:
-`SKIP_PIP=1`.
+(source build на Vast зависает).
+
+## Замороженное окружение (git)
+
+Источник правды: [`scripts/env/vast_steering_cu121.json`](../../scripts/env/vast_steering_cu121.json)
+
+| пакет | pin |
+|---|---|
+| Python | 3.10 |
+| CUDA wheel tag | **cu121** |
+| torch | **2.5.1** |
+| torchvision | **0.20.1** |
+| transformers | **5.17.0** |
+| numpy | **1.26.4** (`<2`) |
+| torchaudio | uninstall (text-only) |
+
+После `git pull` на инстансе:
+
+```bash
+cd /workspace/occupational-gender-bias
+python scripts/install_vast_env.py          # поставить/проверить lock
+python scripts/install_vast_env.py --check-only
+```
+
+`scripts/ensure_steering_env.sh` / `setup_instance.sh` по умолчанию
+`PIN_VAST_ENV=1` и вызывают этот installer. Отключить: `PIN_VAST_ENV=0` или
+`SKIP_PIP=1` (если стек уже совпадает с lock).
 
 Полный пул: 951 семьи × 4 layout. Сплит **внутри каждого SOC** 70/15/15.
 Stage A по умолчанию — GenderGap на **val**. test не трогать, пока не выбран α.
