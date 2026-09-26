@@ -1,0 +1,69 @@
+# Stage A XY-control polarity pool · google/gemma-3-1b-pt
+# FILL AFTER: (1) HS-probe peak  (2) H1 FDR polarity sets
+#
+# |α|≤6 grid matched to Qwen peak_prepeak_a6.
+
+version: v1_peak_prepeak_a6_stub
+hypothesis: xy_control
+scale: gemma3_1b
+created: 2026-09-26
+status: STUB_FILL_PEAK
+
+source:
+  model_id: google/gemma-3-1b-pt
+  d_model: 1152
+  n_hidden_states: 27
+  hidden_state_index: "0 = embeddings, 1..26 = block output"
+  mapping: {X: man, "Y": woman}
+  fit_sample: data/xy_pairs_full_v1.json
+  eval_sample: data/xy_pairs_full_v1.json
+  label: paired_xy_control
+  split:
+    train_frac: 0.70
+    val_frac: 0.15
+    test_frac: 0.15
+    seed: 0
+    stratify_by: soc_major_title
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+
+vectors:
+  - id: v_raw
+    short: vraw
+    role: candidate
+    kind: paired_mean_diff
+
+interventions:
+  - id: add
+    formula: "h' = h − α·v̂"
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+layers:
+  belt: [PEAK_M2, PEAK_M1, PEAK]
+  core: [PEAK_M2, PEAK_M1, PEAK]
+  peak: PEAK
+  prepeak: [PEAK_M1, PEAK_M2]
+  anchor: PEAK
+  note: Replace PEAK tokens after gender_prob probe on Gemma.
+
+families:
+  - id: main_add_peak_prepeak
+    enabled: true
+    role: candidate
+    vectors: [v_raw]
+    layers: [PEAK, PEAK_M1, PEAK_M2]
+    intervention: add
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+baseline:
+  id: baseline
+
+screening:
+  stage: A
+  primary_metric:
+    id: gender_gap
+    formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"
+    direction: reduce_abs
+  keep_top: 10

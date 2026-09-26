@@ -8,5 +8,6 @@
 |---|---|
 | *(корень)* | `Qwen/Qwen3.5-2B-Base` — отчёт [Pages](https://niczavadskiy.github.io/occupational-gender-bias/) |
 | [`qwen35-4b-base/`](qwen35-4b-base/) | `Qwen/Qwen3.5-4B-Base` — тот же H1·H3·H5·H11 (см. README внутри) |
+| [`gemma3-1b-pt/`](gemma3-1b-pt/) | `google/gemma-3-1b-pt` — beh → probe → INLP → pool XY |
 
-Код метрик и steering-runners общие (корень). В каталоге модели: configs, results, vectors. Датасет общий: `../../repo/data` (локальный junction `data/`).
+Код метрик и steering-runners общие (корень). В каталоге модели: configs, results, vectors. Датасет общий: junction `data/` → repo `data/`.

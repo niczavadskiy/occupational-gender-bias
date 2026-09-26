@@ -1,0 +1,40 @@
+{
+  "schema": "steering.xy_control_polarity_sets/v1",
+  "version": "v2_pooled_stub",
+  "scale": "gemma3_1b",
+  "status": "STUB_FILL_AFTER_FDR",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "catalog_note": "Add scales.gemma3_1b after H1 FDR, or point catalog to a sibling JSON.",
+  "config": "experiments/gemma3-1b-pt/steering/xy_control/configs/xy_control_gemma3_1b_peak_prepeak_a6.yaml",
+  "protocol": {
+    "id": "pooled_polarity_one_v",
+    "note": "One v_raw per polarity set. Fill slugs from Gemma H1 FDR; fill probe_peak after HS-probe."
+  },
+  "probe_peak": {
+    "peak": "PEAK",
+    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"],
+    "note": "Replace after gender_prob probe on gemma-3-1b-pt"
+  },
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "tag_stage_a": "xy_gemma3_1b_peak_prepeak_a6_pool_promale",
+      "tag_stage_b": "xy_gemma3_1b_peak_prepeak_a6_pool_promale_b",
+      "tag_stage_c": "xy_gemma3_1b_peak_prepeak_a6_pool_promale_c",
+      "n_soc": 0,
+      "slugs": []
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "tag_stage_a": "xy_gemma3_1b_peak_prepeak_a6_pool_profemale",
+      "tag_stage_b": "xy_gemma3_1b_peak_prepeak_a6_pool_profemale_b",
+      "tag_stage_c": "xy_gemma3_1b_peak_prepeak_a6_pool_profemale_c",
+      "n_soc": 0,
+      "slugs": []
+    }
+  ]
+}

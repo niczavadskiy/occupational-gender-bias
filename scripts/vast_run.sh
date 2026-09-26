@@ -20,6 +20,7 @@
 #   # 3) Qwen3.5-4B H1·H3 полный прогон + pack (рекомендуется KEEP=1):
 #   HF_TOKEN=hf_xxx DISK=120 KEEP=1 \
 #   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_qwen35_4b_h1h3_and_pack.sh' \
+#   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_gemma3_1b_h1h3_and_pack.sh' \
 #   bash scripts/vast_run.sh
 #
 # Параметры (env):

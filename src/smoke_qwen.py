@@ -1,5 +1,5 @@
 """
-Smoke-test для Qwen3.5-*-Base (2B / 4B).
+Smoke-test для causal LM occupational pipeline (Qwen3.5 + Gemma3).
 
 Что проверяем:
 - Модель грузится с trust_remote_code=True
@@ -11,6 +11,7 @@ Smoke-test для Qwen3.5-*-Base (2B / 4B).
 Запуск:
     python3 -m src.smoke_qwen
     python3 -m src.smoke_qwen --model Qwen/Qwen3.5-4B-Base
+    python3 -m src.smoke_qwen --model google/gemma-3-1b-pt
 """
 from __future__ import annotations
 
@@ -25,6 +26,8 @@ from src.inference import hidden_size, num_hidden_layers
 EXPECTED = {
     "Qwen/Qwen3.5-2B-Base": {"n_layers": 24, "d_model": 2048},
     "Qwen/Qwen3.5-4B-Base": {"n_layers": 32, "d_model": 2560},
+    # Gemma 3 1B PT: verify on first smoke; Hub card ≈ 26 × 1152
+    "google/gemma-3-1b-pt": {"n_layers": 26, "d_model": 1152},
 }
 
 
@@ -32,6 +35,11 @@ def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="Qwen/Qwen3.5-2B-Base")
     ap.add_argument("--device", default="cuda")
+    ap.add_argument(
+        "--allow-unexpected-shape",
+        action="store_true",
+        help="warn instead of exit if EXPECTED shape mismatches (Gemma card drift)",
+    )
     args = ap.parse_args()
     model_id = args.model
 
@@ -60,18 +68,27 @@ def main() -> None:
     exp = EXPECTED.get(model_id)
     if exp:
         if n_layers != exp["n_layers"] or d_model != exp["d_model"]:
-            raise SystemExit(
+            msg = (
                 f"unexpected shape: got layers={n_layers} d={d_model}, "
                 f"expected {exp}"
             )
-        print(f"  ✓ matches expected {exp}")
+            if args.allow_unexpected_shape:
+                print(f"  WARN: {msg}")
+            else:
+                raise SystemExit(msg)
+        else:
+            print(f"  ✓ matches expected {exp}")
 
     print("\n[2] Token IDs for constrained-answer tokens:")
     token_ids = {}
     for s in [" A", " B", " C", " Yes", " No"]:
         ids = tokenizer(s, add_special_tokens=False).input_ids
         if len(ids) != 1:
-            raise SystemExit(f"MULTI-TOKEN for {s!r}: {ids}")
+            raise SystemExit(
+                f"MULTI-TOKEN for {s!r}: {ids} — occupational constrained "
+                f"scoring requires single-token answers; fix tokenizer path "
+                f"before full beh on {model_id}"
+            )
         token_ids[s.strip()] = ids[0]
         print(f"  '{s}' → {ids}  (single)")
 

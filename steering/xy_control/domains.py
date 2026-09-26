@@ -31,6 +31,15 @@ SOC_CSV = {
     / "metrics_h1_v1"
     / "latest"
     / "tests_h1_v1_soc.csv",
+    # After H1 metrics on Gemma beh pack; path may be a dated run_* symlink.
+    "gemma3_1b": REPO_ROOT
+    / "experiments"
+    / "gemma3-1b-pt"
+    / "results"
+    / "v1_full_pos_shuffle"
+    / "metrics_h1_v1"
+    / "latest"
+    / "tests_h1_v1_soc.csv",
 }
 
 CATALOG_JSON = HERE / "domains" / "h1_soc_fdr_v1.json"
