@@ -40,10 +40,19 @@ SMOKE=1 BRANCH=qwen_2b_experiments \
 | `SETS` | `promale,profemale` | which pools to run |
 | `SMOKE` | `0` | anchor L16 × k4, few families |
 | `SKIP_PIP` | `0` | `1` if torch lock already installed |
+| `SKIP_FIT` | `0` | `1` = reuse subspaces, only Stage A+ |
 | `SKIP_STAGE_A` | `0` | skip fit + Stage A |
 | `RUN_STAGE_B` | `1` | MMLU gate |
 | `RUN_STAGE_C` | `1` | test preference + MMLU |
 | `BRANCH` | `qwen_2b_experiments` | git branch to sync |
+
+Resume after a finished fit (e.g. `k_found=1`):
+
+```bash
+export HF_TOKEN=hf_xxx
+SKIP_PIP=1 SKIP_FIT=1 BRANCH=qwen_2b_experiments \
+  bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
+```
 
 Single set:
 

@@ -60,18 +60,51 @@ def resolve_peak_layers(cfg: dict[str, Any]) -> list[int]:
 
 
 def resolve_ranks(cfg: dict[str, Any]) -> list[int]:
-    return [int(r) for r in (cfg.get("steering") or {}).get("ranks", [4, 8, 16])]
+    return [int(r) for r in (cfg.get("steering") or {}).get("ranks", [1, 4, 8, 16])]
 
 
 def resolve_alphas(cfg: dict[str, Any]) -> list[float]:
     return [float(a) for a in (cfg.get("steering") or {}).get("alphas", [1.0])]
 
 
+def max_k_found(sub_meta: dict[str, Any], layers: list[int] | None = None) -> int:
+    """Largest k_found among subspace layers (optionally restricted)."""
+    details = sub_meta.get("layers_detail") or []
+    want = set(int(x) for x in layers) if layers else None
+    ks: list[int] = []
+    for d in details:
+        if want is not None and int(d["layer"]) not in want:
+            continue
+        ks.append(int(d.get("k_found", 0)))
+    return max(ks) if ks else 0
+
+
+def clamp_ranks_to_k_found(
+    ranks: list[int],
+    k_found: int,
+    *,
+    always_include_unit: bool = True,
+) -> list[int]:
+    """Keep protocol ranks that fit in W; if none, fall back to {1..k_found}.
+
+    Polarity-pool gender_prob often stops at k_found=1 (chance corr). Stage A
+    must still run rank-1 center rather than empty the candidate grid.
+    """
+    k = max(0, int(k_found))
+    if k <= 0:
+        return [1] if always_include_unit else []
+    kept = sorted({int(r) for r in ranks if 1 <= int(r) <= k})
+    if kept:
+        return kept
+    return list(range(1, k + 1))
+
+
 def expand_inlp_pool_candidates(
     cfg: dict[str, Any],
     *,
     smoke: bool = False,
-    smoke_rank: int = 4,
+    smoke_rank: int = 1,
+    k_found: int | None = None,
 ) -> list[dict[str, Any]]:
     """Build Stage A candidate ids: inlp__L{ℓ}__k{r}__a{α}."""
     layers = resolve_peak_layers(cfg)
@@ -81,6 +114,8 @@ def expand_inlp_pool_candidates(
         layers = [int((cfg.get("layers") or {}).get("anchor", layers[0]))]
         ranks = [smoke_rank]
         alphas = [1.0]
+    if k_found is not None:
+        ranks = clamp_ranks_to_k_found(ranks, int(k_found))
     out: list[dict[str, Any]] = []
     seen: set[str] = set()
     for layer in layers:

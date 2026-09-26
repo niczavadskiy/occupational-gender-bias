@@ -34,15 +34,14 @@ From gender_prob probe peak (`inlp_gender_prob_v1.yaml` → **L16**):
 Do **not** add layers above the peak in the primary grid (same rule as XY
 `xy_control_2b_peak_prepeak_a6`).
 
-Stage A grid:
+Stage A grid (preferred):
 
 \[
-\{16,15,14\} \times \{k=4,8,16\} \times \{\alpha=1\}
-= 9 \text{ INLP candidates}
+\{16,15,14\} \times \{k=1,4,8,16\} \times \{\alpha=1\}
 \]
 
-plus matched `rand0` controls (same L×k). Rank is the strength knob; α stays
-at classical center scale.
+Stage A **clamps** ranks to subspace `k_found`. Polarity `gender_prob` often
+stops at `k_found=1` (chance corr) — then the grid is just L16/L15/L14 × k=1.
 
 ---
 

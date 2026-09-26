@@ -18,10 +18,10 @@
   },
   "candidate_grid": {
     "layers": [16, 15, 14],
-    "ranks": [4, 8, 16],
+    "ranks": [1, 4, 8, 16],
     "alphas": [1.0],
-    "n_candidates": 9,
-    "note": "3×3×1; + matched random_s0 controls in Stage A"
+    "n_candidates_preferred": 12,
+    "note": "3×4×1 preferred; Stage A clamps ranks to k_found (often {1} on polarity gender_prob)"
   },
   "note": "FDR-significant 2B SOCs split by H1 polarity. Matched intervention arm to XY polarity pool.",
   "sets": [

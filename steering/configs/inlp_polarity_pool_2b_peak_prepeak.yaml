@@ -57,13 +57,13 @@ layers:
 
 steering:
   kind: center
-  ranks: [4, 8, 16]
+  ranks: [1, 4, 8, 16]
   alphas: [1.0]
   random_control: true
   random_seeds: [0]
   note: >-
-    Grid = 3 layers × 3 ranks × α=1 → 9 INLP candidates (+ matched rand0).
-    Rank plays the role of strength; α fixed at classical center scale.
+    Preferred grid 1/4/8/16 × 3 layers. Stage A clamps ranks to each
+    subspace k_found (polarity gender_prob often yields k_found=1).
 
 split:
   train_frac: 0.70
@@ -106,6 +106,7 @@ families:
     enabled: true
     role: candidate
     layers: [16, 15, 14]
-    ranks: [4, 8, 16]
+    ranks: [1, 4, 8, 16]
     alphas: [1.0]
-    description: "L16 peak + L15/L14 pre-peak × ranks 4/8/16 × α=1. 3×3=9."
+    description: >-
+      L16/L15/L14 × ranks 1/4/8/16 × α=1; Stage A drops ranks > k_found.

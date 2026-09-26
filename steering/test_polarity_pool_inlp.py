@@ -4,10 +4,12 @@ from __future__ import annotations
 
 from steering.polarity_pool_inlp import (
     DEFAULT_CONFIG,
+    clamp_ranks_to_k_found,
     expand_inlp_pool_candidates,
     get_set,
     load_polarity_sets,
     load_yaml,
+    max_k_found,
     resolve_peak_layers,
     resolve_ranks,
 )
@@ -23,20 +25,42 @@ def test_peak_prepeak_layers() -> None:
     assert cfg["layers"]["prepeak"] == [15, 14]
 
 
-def test_candidate_grid_9() -> None:
+def test_candidate_grid_preferred() -> None:
     cfg = load_yaml(DEFAULT_CONFIG)
     cands = expand_inlp_pool_candidates(cfg, smoke=False)
-    assert len(cands) == 9, len(cands)
+    assert len(cands) == 12, len(cands)
     layers = {c["layer"] for c in cands}
     ranks = {c["rank"] for c in cands}
     assert layers == {16, 15, 14}
-    assert ranks == {4, 8, 16}
-    assert all(c["alpha"] == 1.0 for c in cands)
-    assert cands[0]["id"] == "inlp__L16__k4__a1"
+    assert ranks == {1, 4, 8, 16}
+    assert cands[0]["id"] == "inlp__L16__k1__a1"
     smoke = expand_inlp_pool_candidates(cfg, smoke=True)
     assert len(smoke) == 1
     assert smoke[0]["layer"] == 16
-    assert smoke[0]["rank"] == 4
+    assert smoke[0]["rank"] == 1
+
+
+def test_clamp_ranks_k1() -> None:
+    assert clamp_ranks_to_k_found([1, 4, 8, 16], 1) == [1]
+    assert clamp_ranks_to_k_found([4, 8, 16], 1) == [1]
+    assert clamp_ranks_to_k_found([1, 4, 8, 16], 8) == [1, 4, 8]
+    assert clamp_ranks_to_k_found([4, 8], 0) == [1]
+    cfg = load_yaml(DEFAULT_CONFIG)
+    cands = expand_inlp_pool_candidates(cfg, k_found=1)
+    assert {c["rank"] for c in cands} == {1}
+    assert len(cands) == 3
+
+
+def test_max_k_found() -> None:
+    meta = {
+        "layers_detail": [
+            {"layer": 16, "k_found": 1},
+            {"layer": 15, "k_found": 1},
+            {"layer": 14, "k_found": 1},
+        ]
+    }
+    assert max_k_found(meta) == 1
+    assert max_k_found(meta, [16, 15]) == 1
 
 
 def test_sets_match_xy_slugs() -> None:
@@ -47,7 +71,7 @@ def test_sets_match_xy_slugs() -> None:
     assert female["n_soc"] == 2
     assert len(male["slugs"]) == 8
     assert doc["probe_peak"]["layers"] == [16, 15, 14]
-    assert doc["candidate_grid"]["n_candidates"] == 9
+    assert 1 in doc["candidate_grid"]["ranks"]
 
 
 def test_split_matches_xy_helper() -> None:
@@ -69,12 +93,14 @@ def test_split_matches_xy_helper() -> None:
 
 def test_ranks_from_config() -> None:
     cfg = load_yaml(DEFAULT_CONFIG)
-    assert resolve_ranks(cfg) == [4, 8, 16]
+    assert resolve_ranks(cfg) == [1, 4, 8, 16]
 
 
 def main() -> int:
     test_peak_prepeak_layers()
-    test_candidate_grid_9()
+    test_candidate_grid_preferred()
+    test_clamp_ranks_k1()
+    test_max_k_found()
     test_sets_match_xy_slugs()
     test_split_matches_xy_helper()
     test_ranks_from_config()

@@ -1,5 +1,7 @@
 """Stage A for polarity-pooled INLP (val families, peak±prepeak grid).
 
+Ranks are clamped to subspace k_found so k_found=1 still runs (rank-1 center).
+
   python -m steering.run_polarity_pool_inlp_stagea --set-id promale --device cuda
 """
 
@@ -12,9 +14,12 @@ from steering.polarity_pool_inlp import (
     DEFAULT_CONFIG,
     SETS_JSON,
     STEERING_DIR,
+    clamp_ranks_to_k_found,
     get_set,
+    load_json,
     load_polarity_sets,
     load_yaml,
+    max_k_found,
     resolve_alphas,
     resolve_peak_layers,
     resolve_ranks,
@@ -56,14 +61,27 @@ def main(argv: list[str] | None = None) -> int:
     sub_tag = entry.get("subspace_tag") or f"polarity_pool_{args.set_id}_v1"
     target = cfg.get("target", "gender_prob")
     subspaces = args.subspaces or (STEERING_DIR / "subspaces" / f"inlp_{target}_{sub_tag}.npz")
+    if not subspaces.is_file():
+        raise SystemExit(f"missing subspaces {subspaces}")
 
     layers = resolve_peak_layers(cfg)
-    ranks = resolve_ranks(cfg)
+    ranks_pref = resolve_ranks(cfg)
     alphas = resolve_alphas(cfg)
     if args.smoke:
         layers = [int(cfg["layers"]["anchor"])]
-        ranks = [4]
+        ranks_pref = [1]
         alphas = [1.0]
+
+    sub_meta = load_json(subspaces.with_suffix(".json"))
+    k_cap = max_k_found(sub_meta, layers)
+    ranks = clamp_ranks_to_k_found(ranks_pref, k_cap)
+    print(
+        f"[polarity_pool Stage A] set={args.set_id} layers={layers} "
+        f"k_found_max={k_cap} ranks_pref={ranks_pref} → ranks={ranks}",
+        flush=True,
+    )
+    if not ranks:
+        raise SystemExit(f"no runnable ranks for k_found_max={k_cap}")
 
     out_root = args.out_root / "inlp_polarity_pool"
     forwarded = [

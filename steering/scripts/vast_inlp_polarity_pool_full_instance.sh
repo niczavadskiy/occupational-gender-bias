@@ -7,7 +7,8 @@
 #   export HF_TOKEN=hf_xxx
 #   BRANCH=qwen_2b_experiments bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 #
-# Env: SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 RUN_STAGE_B=0 SMOKE=1
+# Env: SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 SKIP_FIT=1 RUN_STAGE_B=0 SMOKE=1
+# SKIP_FIT=1 reuses existing subspaces/*.npz and jumps to Stage A (e.g. after k_found=1).
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -24,6 +25,7 @@ DEVICE="${DEVICE:-cuda}"
 DTYPE="${DTYPE:-float32}"
 SMOKE="${SMOKE:-0}"
 SKIP_STAGE_A="${SKIP_STAGE_A:-0}"
+SKIP_FIT="${SKIP_FIT:-0}"
 RUN_STAGE_B="${RUN_STAGE_B:-1}"
 RUN_STAGE_C="${RUN_STAGE_C:-1}"
 SETS_JSON_REL="steering/domains/inlp_polarity_sets_2b_v1.json"
@@ -112,16 +114,20 @@ for sid in "${SET_LIST[@]}"; do
   "$PY" -m steering.build_polarity_pool_inlp_sample --set-id "$sid"
 
   if [ "$SKIP_STAGE_A" != "1" ]; then
-    echo "=== [$sid] fit subspace (peak + prepeak) ==="
     smoke_flags=()
     if [ "$SMOKE" = "1" ]; then
       smoke_flags=(--smoke)
     fi
-    "$PY" -m steering.build_polarity_pool_inlp_subspace \
-      --set-id "$sid" --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE" \
-      "${smoke_flags[@]}"
+    if [ "$SKIP_FIT" != "1" ]; then
+      echo "=== [$sid] fit subspace (peak + prepeak) ==="
+      "$PY" -m steering.build_polarity_pool_inlp_subspace \
+        --set-id "$sid" --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE" \
+        "${smoke_flags[@]}"
+    else
+      echo "=== [$sid] SKIP_FIT=1 — reuse existing subspaces ==="
+    fi
 
-    echo "=== [$sid] Stage A ==="
+    echo "=== [$sid] Stage A (ranks clamped to k_found) ==="
     "$PY" -m steering.run_polarity_pool_inlp_stagea \
       --set-id "$sid" --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE" \
       "${smoke_flags[@]}"
