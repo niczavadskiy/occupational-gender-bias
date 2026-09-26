@@ -159,3 +159,6 @@ export HF_TOKEN=hf_xxx
 bash steering/xy_control/scripts/vast_xy_control_full_instance.sh
 bash steering/xy_control/scripts/vast_xy_control_4b_full_instance.sh
 ```
+
+Matched INLP arm (same polarity sets + peak/prepeak layers):
+[`../POLARITY_POOL_INLP.md`](../POLARITY_POOL_INLP.md).

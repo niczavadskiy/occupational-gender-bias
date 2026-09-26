@@ -21,7 +21,9 @@ steering/
 ├── configs/
 │   ├── soc_mmlu_pro_map_v1.yaml           # soc_major_title ↔ MMLU-Pro
 │   ├── h1_steering_candidates_v1.yaml     # сетка layer × α для H1 (gender)
-│   └── slot_steering_candidates_v1.yaml   # сетка layer × α для slot A/B
+│   ├── slot_steering_candidates_v1.yaml   # сетка layer × α для slot A/B
+│   ├── inlp_gender_prob_v1.yaml           # classical INLP (global)
+│   └── inlp_polarity_pool_2b_peak_prepeak.yaml  # polarity-pooled INLP (peak+2)
 ├── candidates/
 │   ├── h1_candidates_v1.json              # H1: замороженный список
 │   ├── h1_candidates_v1.md
@@ -138,6 +140,26 @@ python -m steering.xy_control.build_dataset
 python -m steering.xy_control.build_candidates
 python -m steering.xy_control.build_vectors --device cuda
 python -m steering.xy_control.run_stagea --device cuda --tag xy_2b_a_v1
+```
+
+---
+
+## Polarity-pooled INLP (matched to XY pool)
+
+Протокол: [`POLARITY_POOL_INLP.md`](POLARITY_POOL_INLP.md).
+
+Один INLP-subspace на pro-male / pro-female FDR set; кандидаты **L16 (peak) + L15 + L14**;
+тот же family split, что у XY polarity pool.
+
+```powershell
+python -m steering.build_polarity_pool_inlp_sample --all
+python -m steering.build_polarity_pool_inlp_subspace --set-id promale --device cuda
+python -m steering.run_polarity_pool_inlp_stagea --set-id promale --device cuda
+```
+
+```bash
+export HF_TOKEN=hf_xxx
+bash steering/scripts/vast_inlp_polarity_pool_full_instance.sh
 ```
 
 ---

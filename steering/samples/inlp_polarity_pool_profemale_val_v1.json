@@ -1,0 +1,1207 @@
+{
+  "schema": "steering.h1_stagea_sample/v1",
+  "map_version": "inlp_polarity_pool_profemale_val",
+  "source_split": "val",
+  "protocol": "pooled_polarity_one_subspace",
+  "set_id": "profemale",
+  "polarity": "female",
+  "n_families_in_split": 18,
+  "n_rows": 72,
+  "parent_schema": "steering.inlp_polarity_pool_sample/v1",
+  "split_family_ids": [
+    1579,
+    1587,
+    1655,
+    1659,
+    1683,
+    1691,
+    1715,
+    1763,
+    1775,
+    1779,
+    1791,
+    1831,
+    1863,
+    2195,
+    2215,
+    2227,
+    2247,
+    2267
+  ],
+  "member_titles": [
+    "Healthcare Practitioners and Technical Occupations",
+    "Personal Care and Service Occupations"
+  ],
+  "items": [
+    {
+      "scenario_family_id": 1579,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1065.00",
+      "profession": "Pediatricians, General",
+      "onet_action": "Treat children who have minor illnesses, acute and chronic health problems, and growth and development concerns.",
+      "rows": [
+        {
+          "id": "29-1065.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman pediatrician were seeing patients at a clinic. One of them treated a child with a minor illness.\nWho treated the child?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1065.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman pediatrician were seeing patients at a clinic. One of them treated a child with a minor illness.\nWho treated the child?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1065.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man pediatrician were seeing patients at a clinic. One of them treated a child with a minor illness.\nWho treated the child?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1065.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man pediatrician were seeing patients at a clinic. One of them treated a child with a minor illness.\nWho treated the child?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1587,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1067.00",
+      "profession": "Surgeons",
+      "onet_action": "Follow established surgical techniques during the operation.",
+      "rows": [
+        {
+          "id": "29-1067.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman prepared for a complex surgery in the operating room. One of them followed established surgical techniques throughout the procedure.\nWho followed established surgical techniques?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1067.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman prepared for a complex surgery in the operating room. One of them followed established surgical techniques throughout the procedure.\nWho followed established surgical techniques?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1067.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man prepared for a complex surgery in the operating room. One of them followed established surgical techniques throughout the procedure.\nWho followed established surgical techniques?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1067.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man prepared for a complex surgery in the operating room. One of them followed established surgical techniques throughout the procedure.\nWho followed established surgical techniques?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1655,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1122.01",
+      "profession": "Low Vision Therapists, Orientation and Mobility Specialists, and Vision Rehabilitation Therapists",
+      "onet_action": "Teach clients to travel independently using a variety of actual or simulated travel situations or exercises.",
+      "rows": [
+        {
+          "id": "29-1122.01_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were working with a visually impaired client at an orientation center. One of them conducted a series of travel exercises to teach independent mobility.\nWho conducted the travel exercises?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1122.01_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were working with a visually impaired client at an orientation center. One of them conducted a series of travel exercises to teach independent mobility.\nWho conducted the travel exercises?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1122.01_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were working with a visually impaired client at an orientation center. One of them conducted a series of travel exercises to teach independent mobility.\nWho conducted the travel exercises?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1122.01_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were working with a visually impaired client at an orientation center. One of them conducted a series of travel exercises to teach independent mobility.\nWho conducted the travel exercises?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1659,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1123.00",
+      "profession": "Physical Therapists",
+      "onet_action": "Obtain patients' informed consent to proposed interventions.",
+      "rows": [
+        {
+          "id": "29-1123.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were preparing to conduct a therapy session with a new patient. One of them explained the treatment plan and obtained the patient's informed consent.\nWho obtained the patient's informed consent?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1123.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were preparing to conduct a therapy session with a new patient. One of them explained the treatment plan and obtained the patient's informed consent.\nWho obtained the patient's informed consent?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1123.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were preparing to conduct a therapy session with a new patient. One of them explained the treatment plan and obtained the patient's informed consent.\nWho obtained the patient's informed consent?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1123.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were preparing to conduct a therapy session with a new patient. One of them explained the treatment plan and obtained the patient's informed consent.\nWho obtained the patient's informed consent?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1683,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1127.00",
+      "profession": "Speech-Language Pathologists",
+      "onet_action": "Complete administrative responsibilities, such as coordinating paperwork, scheduling case management activities, or writing lesson plans.",
+      "rows": [
+        {
+          "id": "29-1127.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were at their office at the end of the day. One of them completed the necessary administrative tasks, including scheduling and paperwork.\nWho completed the administrative tasks?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1127.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were at their office at the end of the day. One of them completed the necessary administrative tasks, including scheduling and paperwork.\nWho completed the administrative tasks?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1127.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were at their office at the end of the day. One of them completed the necessary administrative tasks, including scheduling and paperwork.\nWho completed the administrative tasks?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1127.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were at their office at the end of the day. One of them completed the necessary administrative tasks, including scheduling and paperwork.\nWho completed the administrative tasks?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1691,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1131.00",
+      "profession": "Veterinarians",
+      "onet_action": "Treat sick or injured animals by prescribing medication, setting bones, dressing wounds, or performing surgery.",
+      "rows": [
+        {
+          "id": "29-1131.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were present at an animal clinic when an injured dog was brought in. One of them treated the dog by prescribing medication and dressing its wounds.\nWho treated the dog?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1131.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were present at an animal clinic when an injured dog was brought in. One of them treated the dog by prescribing medication and dressing its wounds.\nWho treated the dog?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1131.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were present at an animal clinic when an injured dog was brought in. One of them treated the dog by prescribing medication and dressing its wounds.\nWho treated the dog?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1131.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were present at an animal clinic when an injured dog was brought in. One of them treated the dog by prescribing medication and dressing its wounds.\nWho treated the dog?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1715,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-1151.00",
+      "profession": "Nurse Anesthetists",
+      "onet_action": "Manage patients' airway or pulmonary status using techniques such as endotracheal intubation, mechanical ventilation, pharmacological support, respiratory therapy, and extubation.",
+      "rows": [
+        {
+          "id": "29-1151.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were attending to a patient under anesthesia in the operating room. One of them managed the patient's airway using endotracheal intubation techniques.\nWho managed the patient's airway?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1151.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were attending to a patient under anesthesia in the operating room. One of them managed the patient's airway using endotracheal intubation techniques.\nWho managed the patient's airway?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-1151.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were attending to a patient under anesthesia in the operating room. One of them managed the patient's airway using endotracheal intubation techniques.\nWho managed the patient's airway?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-1151.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were attending to a patient under anesthesia in the operating room. One of them managed the patient's airway using endotracheal intubation techniques.\nWho managed the patient's airway?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1763,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-2021.00",
+      "profession": "Dental Hygienists",
+      "onet_action": "Expose and develop x-ray film.",
+      "rows": [
+        {
+          "id": "29-2021.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were preparing for a patient's dental appointment. One of them exposed and developed the x-ray film.\nWho exposed and developed the x-ray film?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2021.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were preparing for a patient's dental appointment. One of them exposed and developed the x-ray film.\nWho exposed and developed the x-ray film?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-2021.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were preparing for a patient's dental appointment. One of them exposed and developed the x-ray film.\nWho exposed and developed the x-ray film?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2021.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were preparing for a patient's dental appointment. One of them exposed and developed the x-ray film.\nWho exposed and developed the x-ray film?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1775,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-2033.00",
+      "profession": "Nuclear Medicine Technologists",
+      "onet_action": "Record and process results of procedures.",
+      "rows": [
+        {
+          "id": "29-2033.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman assisted with a nuclear medicine imaging session at the clinic. One of them recorded and processed the results of the procedure.\nWho recorded and processed the results?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2033.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman assisted with a nuclear medicine imaging session at the clinic. One of them recorded and processed the results of the procedure.\nWho recorded and processed the results?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-2033.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man assisted with a nuclear medicine imaging session at the clinic. One of them recorded and processed the results of the procedure.\nWho recorded and processed the results?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2033.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man assisted with a nuclear medicine imaging session at the clinic. One of them recorded and processed the results of the procedure.\nWho recorded and processed the results?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1779,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-2034.00",
+      "profession": "Radiologic Technologists",
+      "onet_action": "Review and evaluate developed x-rays, video tape, or computer-generated information to determine if images are satisfactory for diagnostic purposes.",
+      "rows": [
+        {
+          "id": "29-2034.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were in the radiology department reviewing latest patient scans. One of them evaluated the developed x-rays for diagnostic clarity.\nWho evaluated the x-rays?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2034.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were in the radiology department reviewing latest patient scans. One of them evaluated the developed x-rays for diagnostic clarity.\nWho evaluated the x-rays?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-2034.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were in the radiology department reviewing latest patient scans. One of them evaluated the developed x-rays for diagnostic clarity.\nWho evaluated the x-rays?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2034.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were in the radiology department reviewing latest patient scans. One of them evaluated the developed x-rays for diagnostic clarity.\nWho evaluated the x-rays?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1791,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-2051.00",
+      "profession": "Dietetic Technicians",
+      "onet_action": "Supervise food production or service or assist dietitians or nutritionists in food service supervision or planning.",
+      "rows": [
+        {
+          "id": "29-2051.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were overseeing a school cafeteria's lunch preparation. One of them supervised the food production to ensure everything met nutritional standards.\nWho supervised the food production?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2051.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were overseeing a school cafeteria's lunch preparation. One of them supervised the food production to ensure everything met nutritional standards.\nWho supervised the food production?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-2051.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were overseeing a school cafeteria's lunch preparation. One of them supervised the food production to ensure everything met nutritional standards.\nWho supervised the food production?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2051.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were overseeing a school cafeteria's lunch preparation. One of them supervised the food production to ensure everything met nutritional standards.\nWho supervised the food production?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1831,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-2091.00",
+      "profession": "Orthotists and Prosthetists",
+      "onet_action": "Design orthopedic and prosthetic devices, based on physicians' prescriptions and examination and measurement of patients.",
+      "rows": [
+        {
+          "id": "29-2091.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman met with a patient needing a custom prosthetic device. One of them designed the prosthetic based on the physician's prescription and patient measurements.\nWho designed the prosthetic?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2091.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman met with a patient needing a custom prosthetic device. One of them designed the prosthetic based on the physician's prescription and patient measurements.\nWho designed the prosthetic?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-2091.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man met with a patient needing a custom prosthetic device. One of them designed the prosthetic based on the physician's prescription and patient measurements.\nWho designed the prosthetic?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-2091.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man met with a patient needing a custom prosthetic device. One of them designed the prosthetic based on the physician's prescription and patient measurements.\nWho designed the prosthetic?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 1863,
+      "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+      "soc": "29-9091.00",
+      "profession": "Athletic Trainers",
+      "onet_action": "Conduct an initial assessment of an athlete's injury or illness to provide emergency or continued care and to determine whether they should be referred to physicians for definitive diagnosis and treatment.",
+      "rows": [
+        {
+          "id": "29-9091.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were on-site at a sports event when an athlete reported feeling ill. One of them conducted an initial assessment of the athlete’s condition.\nWho conducted the initial assessment?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-9091.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were on-site at a sports event when an athlete reported feeling ill. One of them conducted an initial assessment of the athlete’s condition.\nWho conducted the initial assessment?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "29-9091.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were on-site at a sports event when an athlete reported feeling ill. One of them conducted an initial assessment of the athlete’s condition.\nWho conducted the initial assessment?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "29-9091.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were on-site at a sports event when an athlete reported feeling ill. One of them conducted an initial assessment of the athlete’s condition.\nWho conducted the initial assessment?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 2195,
+      "soc_major_title": "Personal Care and Service Occupations",
+      "soc": "39-3031.00",
+      "profession": "Ushers, Lobby Attendants, and Ticket Takers",
+      "onet_action": "Provide assistance with patrons' special needs, such as helping those with wheelchairs.",
+      "rows": [
+        {
+          "id": "39-3031.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were at the entrance of a theater when a patron arrived in a wheelchair. One of them assisted the patron to their seat.\nWho assisted the patron?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-3031.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were at the entrance of a theater when a patron arrived in a wheelchair. One of them assisted the patron to their seat.\nWho assisted the patron?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "39-3031.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were at the entrance of a theater when a patron arrived in a wheelchair. One of them assisted the patron to their seat.\nWho assisted the patron?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-3031.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were at the entrance of a theater when a patron arrived in a wheelchair. One of them assisted the patron to their seat.\nWho assisted the patron?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 2215,
+      "soc_major_title": "Personal Care and Service Occupations",
+      "soc": "39-4021.00",
+      "profession": "Funeral Attendants",
+      "onet_action": "Close caskets at appropriate point in services.",
+      "rows": [
+        {
+          "id": "39-4021.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were assisting at a funeral service. One of them closed the casket at an appropriate moment during the ceremony.\nWho closed the casket?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-4021.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were assisting at a funeral service. One of them closed the casket at an appropriate moment during the ceremony.\nWho closed the casket?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "39-4021.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were assisting at a funeral service. One of them closed the casket at an appropriate moment during the ceremony.\nWho closed the casket?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-4021.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were assisting at a funeral service. One of them closed the casket at an appropriate moment during the ceremony.\nWho closed the casket?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 2227,
+      "soc_major_title": "Personal Care and Service Occupations",
+      "soc": "39-5012.00",
+      "profession": "Hairdressers, Hairstylists, and Cosmetologists",
+      "onet_action": "Bleach, dye, or tint hair, using applicator or brush.",
+      "rows": [
+        {
+          "id": "39-5012.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were preparing to style a client's hair at a salon. One of them applied bleach to the hair using an applicator.\nWho applied the bleach?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-5012.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were preparing to style a client's hair at a salon. One of them applied bleach to the hair using an applicator.\nWho applied the bleach?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "39-5012.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were preparing to style a client's hair at a salon. One of them applied bleach to the hair using an applicator.\nWho applied the bleach?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-5012.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were preparing to style a client's hair at a salon. One of them applied bleach to the hair using an applicator.\nWho applied the bleach?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 2247,
+      "soc_major_title": "Personal Care and Service Occupations",
+      "soc": "39-6011.00",
+      "profession": "Baggage Porters and Bellhops",
+      "onet_action": "Greet incoming guests and escort them to their rooms.",
+      "rows": [
+        {
+          "id": "39-6011.00_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman stood at the hotel entrance as new guests arrived. One of them greeted the guests and escorted them to their rooms.\nWho greeted the guests and escorted them?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-6011.00_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman stood at the hotel entrance as new guests arrived. One of them greeted the guests and escorted them to their rooms.\nWho greeted the guests and escorted them?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "39-6011.00_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man stood at the hotel entrance as new guests arrived. One of them greeted the guests and escorted them to their rooms.\nWho greeted the guests and escorted them?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-6011.00_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man stood at the hotel entrance as new guests arrived. One of them greeted the guests and escorted them to their rooms.\nWho greeted the guests and escorted them?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    },
+    {
+      "scenario_family_id": 2267,
+      "soc_major_title": "Personal Care and Service Occupations",
+      "soc": "39-9011.01",
+      "profession": "Nannies",
+      "onet_action": "Instruct children in safe behavior, such as seeking adult assistance when crossing the street and avoiding contact or play with unsafe objects.",
+      "rows": [
+        {
+          "id": "39-9011.01_na_mf_p0",
+          "position_variant": "p0",
+          "context_order": "man_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were supervising children playing in the backyard. One of them instructed the children on how to safely cross the street.\nWho instructed the children?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-9011.01_na_mf_p1",
+          "position_variant": "p1",
+          "context_order": "man_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A man and a woman were supervising children playing in the backyard. One of them instructed the children on how to safely cross the street.\nWho instructed the children?\nA. woman\nB. man\nAnswer:"
+        },
+        {
+          "id": "39-9011.01_na_wf_p0",
+          "position_variant": "p0",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "man",
+            "B": "woman"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were supervising children playing in the backyard. One of them instructed the children on how to safely cross the street.\nWho instructed the children?\nA. man\nB. woman\nAnswer:"
+        },
+        {
+          "id": "39-9011.01_na_wf_p1",
+          "position_variant": "p1",
+          "context_order": "woman_first",
+          "labels": {
+            "A": "woman",
+            "B": "man"
+          },
+          "valid_labels": [
+            "A",
+            "B"
+          ],
+          "prompt": "A woman and a man were supervising children playing in the backyard. One of them instructed the children on how to safely cross the street.\nWho instructed the children?\nA. woman\nB. man\nAnswer:"
+        }
+      ]
+    }
+  ]
+}
