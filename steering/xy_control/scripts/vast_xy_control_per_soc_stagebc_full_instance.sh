@@ -21,8 +21,9 @@ SCALES="${SCALES:-2b,4b}"
 
 cd "$WORKDIR"
 if [ -d "$REPO_DIR/.git" ]; then
+  git -C "$REPO_DIR" remote set-branches --add origin "$BRANCH" 2>/dev/null || true
   git -C "$REPO_DIR" fetch --depth 1 origin "$BRANCH"
-  git -C "$REPO_DIR" checkout "$BRANCH"
+  git -C "$REPO_DIR" checkout -B "$BRANCH" "origin/$BRANCH"
   git -C "$REPO_DIR" reset --hard "origin/$BRANCH"
 else
   git clone --depth 1 --branch "$BRANCH" "https://github.com/${GH_REPO}.git" "$REPO_DIR"
