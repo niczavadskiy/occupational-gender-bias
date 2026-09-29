@@ -36,6 +36,9 @@ def _jsonable(obj):
 def build_catalog() -> dict:
     scales = {}
     for scale, path in SOC_CSV.items():
+        if not path.is_file():
+            print(f"  skip {scale}: missing {path}")
+            continue
         by_title = parse_soc_csv(path)
         steer, skip = domains_for_scale(by_title)
         scales[scale] = {
@@ -48,6 +51,8 @@ def build_catalog() -> dict:
             "steer": steer,
             "skip": skip,
         }
+    if "2b" not in scales or "4b" not in scales:
+        raise SystemExit("build requires 2b and 4b SOC CSVs on disk")
     return {
         "schema": "steering.xy_control_soc_fdr/v1",
         "version": "v1",
@@ -112,19 +117,26 @@ def catalog_markdown(doc: dict) -> str:
 
 
 def source_csvs_present() -> bool:
-    return all(path.is_file() for path in SOC_CSV.values())
+    """True when required Qwen scales exist (Gemma optional)."""
+    return all(SOC_CSV[s].is_file() for s in ("2b", "4b"))
 
 
 def validate_frozen(doc: dict) -> None:
     if doc.get("schema") != "steering.xy_control_soc_fdr/v1":
         raise ValueError(f"bad schema {doc.get('schema')}")
-    for scale in ("2b", "4b"):
+    required = ("2b", "4b")
+    optional = ("gemma3_1b", "gemma3_4b")
+    for scale in required + optional:
+        if scale not in doc.get("scales", {}):
+            if scale in required:
+                raise ValueError(f"missing required scale {scale}")
+            continue
         block = doc["scales"][scale]
         steer = block["steer"]
         skip = block["skip"]
         if int(block["n_steer"]) != len(steer) or int(block["n_skip"]) != len(skip):
             raise ValueError(f"{scale}: n_steer/n_skip mismatch")
-        if not steer:
+        if scale in required and not steer:
             raise ValueError(f"{scale}: empty steer list")
         slugs = [d["slug"] for d in steer]
         if len(slugs) != len(set(slugs)):
@@ -144,11 +156,14 @@ def verify_frozen() -> int:
     except (KeyError, TypeError, ValueError) as exc:
         print(f"INVALID frozen catalog: {exc}")
         return 1
-    print(
-        "OK — frozen SOC-FDR catalog "
-        f"(2B steer {on_disk['scales']['2b']['n_steer']}, "
-        f"4B steer {on_disk['scales']['4b']['n_steer']})"
-    )
+    bits = [
+        f"2B steer {on_disk['scales']['2b']['n_steer']}",
+        f"4B steer {on_disk['scales']['4b']['n_steer']}",
+    ]
+    for g in ("gemma3_1b", "gemma3_4b"):
+        if g in on_disk["scales"]:
+            bits.append(f"{g} steer {on_disk['scales'][g]['n_steer']}")
+    print("OK — frozen SOC-FDR catalog (" + ", ".join(bits) + ")")
     return 0
 
 

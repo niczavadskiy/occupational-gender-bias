@@ -4,11 +4,11 @@
 # Sets: ../domains/inlp_polarity_sets_gemma3_4b_v1.json (slugs TBD)
 # Twin: xy_control_gemma3_4b_peak_prepeak_a6.yaml
 
-version: v1_peak_prepeak_stub
+version: v1_peak_prepeak
 hypothesis: inlp_polarity_pool
 scale: gemma3_4b
 created: 2026-09-27
-status: STUB_FILL_PEAK
+status: READY
 protocol: pooled_polarity_one_subspace
 
 source:
@@ -34,11 +34,11 @@ inlp:
     corr_threshold: 0.15
 
 layers:
-  peak: PEAK
-  prepeak: [PEAK_M1, PEAK_M2]
-  belt: [PEAK, PEAK_M1, PEAK_M2]
-  core: [PEAK, PEAK_M1, PEAK_M2]
-  anchor: PEAK
+  peak: 24
+  prepeak: [23, 22]
+  belt: [24, 23, 22]
+  core: [24, 23, 22]
+  anchor: 24
 
 steering:
   kind: center
@@ -64,6 +64,6 @@ families:
   - id: main_center_peak_prepeak
     enabled: true
     role: candidate
-    layers: [PEAK, PEAK_M1, PEAK_M2]
+    layers: [24, 23, 22]
     ranks: [1, 4, 8, 16]
     alphas: [1.0]

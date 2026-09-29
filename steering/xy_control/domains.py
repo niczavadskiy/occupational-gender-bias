@@ -31,22 +31,23 @@ SOC_CSV = {
     / "metrics_h1_v1"
     / "latest"
     / "tests_h1_v1_soc.csv",
-    # After H1 metrics on Gemma beh pack; path may be a dated run_* symlink.
     "gemma3_1b": REPO_ROOT
     / "experiments"
     / "gemma3-1b-pt"
     / "results"
-    / "v1_full_pos_shuffle"
+    / "gemma3_1b_h1h3_pack"
+    / "run_2026-09-26_20-15-39_gemma-3-1b-pt_v1_full_pos_shuffle"
     / "metrics_h1_v1"
-    / "latest"
+    / "2026-09-27_00-57-01"
     / "tests_h1_v1_soc.csv",
     "gemma3_4b": REPO_ROOT
     / "experiments"
     / "gemma3-4b-pt"
     / "results"
-    / "v1_full_pos_shuffle"
+    / "gemma3_4b_h1h3_pack"
+    / "run_2026-09-26_21-17-18_gemma-3-4b-pt_v1_full_pos_shuffle"
     / "metrics_h1_v1"
-    / "latest"
+    / "2026-09-27_22-29-08"
     / "tests_h1_v1_soc.csv",
 }
 

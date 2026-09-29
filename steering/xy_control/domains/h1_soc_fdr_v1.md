@@ -43,3 +43,49 @@ Tested 19 SOCs → steer **10** (4 male, 6 female), skip 9.
 | male | prob_fdr | +0.086 | 0.115 | 0.00452 | Transportation and Material Moving Occupations |
 
 Skip: Architecture and Engineering Occupations, Arts, Design, Entertainment, Sports, and Media Occupations, Business and Financial Operations Occupations, Computer and Mathematical Occupations, Farming, Fishing, and Forestry Occupations, Management Occupations, Personal Care and Service Occupations, Protective Service Occupations, Sales and Related Occupations.
+
+## GEMMA3_1B
+
+Tested 19 SOCs → steer **15** (0 male, 15 female), skip 4.
+
+| polarity | gate | effect | q_choice | q_prob | SOC |
+|---|---|---:|---:|---:|---|
+| female | prob_fdr | -0.011 | 0.0581 | 0.0000518 | Architecture and Engineering Occupations |
+| female | prob_fdr | -0.009 | 0.0581 | 0.000535 | Arts, Design, Entertainment, Sports, and Media Occupations |
+| female | prob_fdr | -0.008 | 0.0684 | 0.000690 | Business and Financial Operations Occupations |
+| female | prob_fdr | -0.009 | 0.786 | 0.00883 | Computer and Mathematical Occupations |
+| female | prob_fdr | -0.011 | 0.0691 | 0.00000497 | Construction and Extraction Occupations |
+| female | prob_fdr | -0.004 | 0.421 | 0.0308 | Educational Instruction and Library Occupations |
+| female | prob_fdr | -0.009 | 0.648 | 0.0279 | Farming, Fishing, and Forestry Occupations |
+| female | prob_fdr | -0.005 | 0.421 | 0.00435 | Healthcare Practitioners and Technical Occupations |
+| female | prob_fdr | -0.011 | 0.421 | 0.0000118 | Installation, Maintenance, and Repair Occupations |
+| female | prob_fdr | -0.008 | 0.196 | 0.0000677 | Life, Physical, and Social Science Occupations |
+| female | prob_fdr | -0.009 | 0.0526 | 0.000713 | Management Occupations |
+| female | prob_fdr | -0.007 | 0.0691 | 0.000690 | Office and Administrative Support Occupations |
+| female | prob_fdr | -0.011 | 0.0691 | 0.000864 | Personal Care and Service Occupations |
+| female | choice_fdr | -0.083 | 0.00973 | 0.0000227 | Production Occupations |
+| female | prob_fdr | -0.009 | 0.0691 | 0.000109 | Transportation and Material Moving Occupations |
+
+Skip: Food Preparation and Serving Related Occupations, Healthcare Support Occupations, Protective Service Occupations, Sales and Related Occupations.
+
+## GEMMA3_4B
+
+Tested 19 SOCs → steer **12** (3 male, 9 female), skip 7.
+
+| polarity | gate | effect | q_choice | q_prob | SOC |
+|---|---|---:|---:|---:|---|
+| female | prob_fdr | -0.013 | — | 0.0287 | Arts, Design, Entertainment, Sports, and Media Occupations |
+| female | prob_fdr | -0.017 | — | 0.0247 | Business and Financial Operations Occupations |
+| male | prob_fdr | +0.020 | — | 0.00264 | Construction and Extraction Occupations |
+| female | prob_fdr | -0.027 | — | 0.00576 | Educational Instruction and Library Occupations |
+| female | prob_fdr | -0.033 | — | 0.0199 | Food Preparation and Serving Related Occupations |
+| female | prob_fdr | -0.015 | — | 0.0287 | Healthcare Practitioners and Technical Occupations |
+| female | prob_fdr | -0.034 | — | 0.0117 | Healthcare Support Occupations |
+| male | prob_fdr | +0.031 | — | 3.98e-8 | Installation, Maintenance, and Repair Occupations |
+| female | prob_fdr | -0.021 | — | 0.00151 | Office and Administrative Support Occupations |
+| female | prob_fdr | -0.026 | — | 0.00895 | Personal Care and Service Occupations |
+| female | prob_fdr | -0.022 | — | 0.0474 | Sales and Related Occupations |
+| male | prob_fdr | +0.014 | — | 0.0245 | Transportation and Material Moving Occupations |
+
+Skip: Architecture and Engineering Occupations, Computer and Mathematical Occupations, Farming, Fishing, and Forestry Occupations, Life, Physical, and Social Science Occupations, Management Occupations, Production Occupations, Protective Service Occupations.
+

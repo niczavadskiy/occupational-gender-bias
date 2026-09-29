@@ -1,29 +1,26 @@
-# Polarity-pooled INLP · google/gemma-3-1b-pt
-# FILL AFTER: (1) HS-probe peak  (2) H1 FDR polarity sets
-#
-# Sets: ../domains/inlp_polarity_sets_gemma3_1b_v1.json (slugs TBD)
-# Twin: xy_control_gemma3_1b_peak_prepeak_a6.yaml
+# Classical slot_prob INLP · google/gemma-3-1b-pt
+# Belt = slot_choice probe peak + two layers below.
 
 version: v1_peak_prepeak
-hypothesis: inlp_polarity_pool
+hypothesis: inlp_slot_prob
 scale: gemma3_1b
-created: 2026-09-26
+created: 2026-09-28
 status: READY
-protocol: pooled_polarity_one_subspace
+target: slot_prob
 
 source:
   model_id: google/gemma-3-1b-pt
   d_model: 1152
   n_hidden_states: 27
   hidden_state_index: "0 = embeddings, 1..26 = block output"
-  fit_sample: steering/xy_control/data/xy_pairs_full_v1.json
+  label_note: >-
+    Classical INLP on slot last-token HS (slot_prob / p_A). Peak from
+    slot_choice classification probe (slot_choice L20).
 
 hook:
   site: residual_stream_hidden_state
   positions: last_prompt_token
   intervention: "h' = h − α W_k (W_kᵀ h − c)"
-
-target: gender_prob
 
 probe:
   ridge_alpha: 1.0
@@ -34,11 +31,11 @@ inlp:
     corr_threshold: 0.15
 
 layers:
-  peak: 9
-  prepeak: [8, 7]
-  belt: [9, 8, 7]
-  core: [9, 8, 7]
-  anchor: 9
+  peak: 20
+  prepeak: [19, 18]
+  belt: [20, 19, 18]
+  core: [20, 19, 18]
+  anchor: 20
 
 steering:
   kind: center
@@ -53,17 +50,12 @@ split:
   test_frac: 0.15
   seed: 0
   stratify_by: soc_major_title
-  rule: family_split3_by_soc then pool
-
-capability:
-  stage_b_profile: steering/profiles/mmlu_pro_domain_val_v1.json
-  stage_c_profile: steering/profiles/mmlu_pro_domain_test_v1.json
-  cap_loss_max: 0.03
 
 families:
   - id: main_center_peak_prepeak
     enabled: true
     role: candidate
-    layers: [9, 8, 7]
+    layers: [20, 19, 18]
     ranks: [1, 4, 8, 16]
     alphas: [1.0]
+    description: slot peak + peak−1 + peak−2 × ranks; Stage A clamps to k_found.

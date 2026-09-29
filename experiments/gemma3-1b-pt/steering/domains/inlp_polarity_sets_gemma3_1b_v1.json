@@ -1,25 +1,30 @@
 {
   "schema": "steering.inlp_polarity_sets/v1",
-  "version": "v1_pooled_stub",
+  "version": "v1_pooled",
   "scale": "gemma3_1b",
-  "status": "STUB_FILL_AFTER_FDR",
+  "status": "READY",
   "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
   "xy_sets": "experiments/gemma3-1b-pt/steering/domains/polarity_sets_gemma3_1b_v1.json",
   "config": "experiments/gemma3-1b-pt/steering/configs/inlp_polarity_pool_gemma3_1b_peak_prepeak.yaml",
   "xy_dataset": "steering/xy_control/data/xy_pairs_full_v1.json",
   "protocol": {
     "id": "pooled_polarity_one_subspace",
-    "note": "Same SOC lists and family split as XY polarity pool. Fill after FDR + peak."
+    "note": "One INLP subspace W per polarity set. Empty sets skipped."
   },
   "probe_peak": {
-    "peak": "PEAK",
-    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"]
+    "source": "gender_choice L9",
+    "peak": 9,
+    "layers": [9, 8, 7],
+    "note": "matched to XY peak_prepeak gender belt"
   },
   "candidate_grid": {
-    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"],
+    "layers": [9, 8, 7],
     "ranks": [1, 4, 8, 16],
-    "alphas": [1.0]
+    "alphas": [1.0],
+    "n_candidates_preferred": 12,
+    "note": "3×4×1 preferred; Stage A clamps ranks to k_found"
   },
+  "note": "FDR-significant gemma3_1b SOCs. Matched arm to XY polarity pool. Gender only (no slot in pool protocols).",
   "sets": [
     {
       "id": "promale",
@@ -42,8 +47,24 @@
       "tag_stage_b": "inlp_gemma3_1b_peak_prepeak_pool_profemale_b",
       "tag_stage_c": "inlp_gemma3_1b_peak_prepeak_pool_profemale_c",
       "subspace_tag": "polarity_pool_gemma3_1b_profemale_v1",
-      "n_soc": 0,
-      "slugs": []
+      "n_soc": 15,
+      "slugs": [
+        "architecture_and_engineering_occupations",
+        "arts_design_entertainment_sports_and_media_occup",
+        "business_and_financial_operations_occupations",
+        "computer_and_mathematical_occupations",
+        "construction_and_extraction_occupations",
+        "educational_instruction_and_library_occupations",
+        "farming_fishing_and_forestry_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "installation_maintenance_and_repair_occupations",
+        "life_physical_and_social_science_occupations",
+        "management_occupations",
+        "office_and_administrative_support_occupations",
+        "personal_care_and_service_occupations",
+        "production_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
     }
   ]
 }

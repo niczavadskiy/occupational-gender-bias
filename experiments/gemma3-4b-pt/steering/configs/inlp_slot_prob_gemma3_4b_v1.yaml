@@ -1,13 +1,12 @@
-# Classical gender_prob INLP · google/gemma-3-4b-pt
-# FILL AFTER HS-PROBE: replace PEAK / PEAK_M1 / PEAK_M2 with integers.
-#
-# Belt = gender_prob probe peak + two layers below (same protocol as Qwen).
+# Classical slot_prob INLP · google/gemma-3-4b-pt
+# Belt = slot_choice probe peak + two layers below.
 
 version: v1_peak_prepeak
-hypothesis: inlp_gender_prob
+hypothesis: inlp_slot_prob
 scale: gemma3_4b
-created: 2026-09-27
+created: 2026-09-28
 status: READY
+target: slot_prob
 
 source:
   model_id: google/gemma-3-4b-pt
@@ -15,15 +14,13 @@ source:
   n_hidden_states: 35
   hidden_state_index: "0 = embeddings, 1..34 = block output"
   label_note: >-
-    Classical INLP on gendered last-token HS (gender_prob). Fill layers
-    after probes.v1_rep / gender_prob layer scan on Gemma beh pack.
+    Classical INLP on slot last-token HS (slot_prob / p_A). Peak from
+    slot_choice classification probe (slot_choice L31).
 
 hook:
   site: residual_stream_hidden_state
   positions: last_prompt_token
   intervention: "h' = h − α W_k (W_kᵀ h − c)"
-
-target: gender_prob
 
 probe:
   ridge_alpha: 1.0
@@ -33,14 +30,12 @@ inlp:
   chance:
     corr_threshold: 0.15
 
-# TODO after probe: e.g. peak=22 → prepeak [21, 20]
 layers:
-  peak: 24
-  prepeak: [23, 22]
-  belt: [24, 23, 22]
-  core: [24, 23, 22]
-  anchor: 24
-  note: Replace PEAK tokens with ints before any Vast run.
+  peak: 31
+  prepeak: [30, 29]
+  belt: [31, 30, 29]
+  core: [31, 30, 29]
+  anchor: 31
 
 steering:
   kind: center
@@ -60,7 +55,7 @@ families:
   - id: main_center_peak_prepeak
     enabled: true
     role: candidate
-    layers: [24, 23, 22]
+    layers: [31, 30, 29]
     ranks: [1, 4, 8, 16]
     alphas: [1.0]
-    description: peak + peak−1 + peak−2 × ranks; Stage A clamps to k_found.
+    description: slot peak + peak−1 + peak−2 × ranks; Stage A clamps to k_found.

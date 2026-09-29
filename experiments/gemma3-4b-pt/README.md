@@ -13,13 +13,14 @@
 
 ```
 smoke → beh (H1·H3 pack) → H1 metrics / FDR
-      → HS-probe (gender peak)
-      → classical INLP (peak + peak−1 + peak−2)
-      → pool INLP + pool XY-control
+      → HS-probe (gender_choice + slot_choice peaks)
+      → classical INLP A→B→C (gender + slot)
+      → pool INLP A→B→C (gender; skip empty polarity sets)
+      → pool XY-control A→B→C (gender; skip empty)
 ```
 
-**Peak layer and FDR SOC lists are unknown until beh + probe finish.**
-Steering configs under `steering/` use `PEAK` placeholders until then.
+**Peaks locked:** gender **L24** (belt 24/23/22), slot **L31** (belt 31/30/29).
+See [`steering/PIPELINE.md`](steering/PIPELINE.md).
 
 ## 1. Vast — behavioral pack (Phase 1)
 

@@ -3,11 +3,11 @@
 #
 # |α|≤6 grid matched to Qwen peak_prepeak_a6.
 
-version: v1_peak_prepeak_a6_stub
+version: v1_peak_prepeak_a6
 hypothesis: xy_control
 scale: gemma3_1b
 created: 2026-09-26
-status: STUB_FILL_PEAK
+status: READY
 
 source:
   model_id: google/gemma-3-1b-pt
@@ -41,11 +41,11 @@ interventions:
     alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
 
 layers:
-  belt: [PEAK_M2, PEAK_M1, PEAK]
-  core: [PEAK_M2, PEAK_M1, PEAK]
-  peak: PEAK
-  prepeak: [PEAK_M1, PEAK_M2]
-  anchor: PEAK
+  belt: [7, 8, 9]
+  core: [7, 8, 9]
+  peak: 9
+  prepeak: [8, 7]
+  anchor: 9
   note: Replace PEAK tokens after gender_prob probe on Gemma.
 
 families:
@@ -53,7 +53,7 @@ families:
     enabled: true
     role: candidate
     vectors: [v_raw]
-    layers: [PEAK, PEAK_M1, PEAK_M2]
+    layers: [9, 8, 7]
     intervention: add
     alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
 

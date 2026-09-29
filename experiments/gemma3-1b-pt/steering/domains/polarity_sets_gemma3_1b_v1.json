@@ -1,20 +1,21 @@
 {
   "schema": "steering.xy_control_polarity_sets/v1",
-  "version": "v2_pooled_stub",
+  "version": "v2_pooled",
   "scale": "gemma3_1b",
-  "status": "STUB_FILL_AFTER_FDR",
+  "status": "READY",
   "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
-  "catalog_note": "Add scales.gemma3_1b after H1 FDR, or point catalog to a sibling JSON.",
   "config": "experiments/gemma3-1b-pt/steering/xy_control/configs/xy_control_gemma3_1b_peak_prepeak_a6.yaml",
   "protocol": {
     "id": "pooled_polarity_one_v",
-    "note": "One v_raw per polarity set. Fill slugs from Gemma H1 FDR; fill probe_peak after HS-probe."
+    "note": "One v_raw per polarity set. Empty sets are skipped at runtime."
   },
   "probe_peak": {
-    "peak": "PEAK",
-    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"],
-    "note": "Replace after gender_prob probe on gemma-3-1b-pt"
+    "source": "gender_choice L9",
+    "peak": 9,
+    "layers": [9, 8, 7],
+    "note": "gender_choice probe peak; also peak−1, peak−2"
   },
+  "note": "FDR-significant gemma3_1b SOCs split by H1 polarity. male=0 female=15. Skip empty sets.",
   "sets": [
     {
       "id": "promale",
@@ -33,8 +34,24 @@
       "tag_stage_a": "xy_gemma3_1b_peak_prepeak_a6_pool_profemale",
       "tag_stage_b": "xy_gemma3_1b_peak_prepeak_a6_pool_profemale_b",
       "tag_stage_c": "xy_gemma3_1b_peak_prepeak_a6_pool_profemale_c",
-      "n_soc": 0,
-      "slugs": []
+      "n_soc": 15,
+      "slugs": [
+        "architecture_and_engineering_occupations",
+        "arts_design_entertainment_sports_and_media_occup",
+        "business_and_financial_operations_occupations",
+        "computer_and_mathematical_occupations",
+        "construction_and_extraction_occupations",
+        "educational_instruction_and_library_occupations",
+        "farming_fishing_and_forestry_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "installation_maintenance_and_repair_occupations",
+        "life_physical_and_social_science_occupations",
+        "management_occupations",
+        "office_and_administrative_support_occupations",
+        "personal_care_and_service_occupations",
+        "production_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
     }
   ]
 }

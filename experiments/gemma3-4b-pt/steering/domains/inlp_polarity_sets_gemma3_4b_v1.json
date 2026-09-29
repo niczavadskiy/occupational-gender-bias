@@ -1,25 +1,30 @@
 {
   "schema": "steering.inlp_polarity_sets/v1",
-  "version": "v1_pooled_stub",
+  "version": "v1_pooled",
   "scale": "gemma3_4b",
-  "status": "STUB_FILL_AFTER_FDR",
+  "status": "READY",
   "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
   "xy_sets": "experiments/gemma3-4b-pt/steering/domains/polarity_sets_gemma3_4b_v1.json",
   "config": "experiments/gemma3-4b-pt/steering/configs/inlp_polarity_pool_gemma3_4b_peak_prepeak.yaml",
   "xy_dataset": "steering/xy_control/data/xy_pairs_full_v1.json",
   "protocol": {
     "id": "pooled_polarity_one_subspace",
-    "note": "Same SOC lists and family split as XY polarity pool. Fill after FDR + peak."
+    "note": "One INLP subspace W per polarity set. Empty sets skipped."
   },
   "probe_peak": {
-    "peak": "PEAK",
-    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"]
+    "source": "gender_choice L24",
+    "peak": 24,
+    "layers": [24, 23, 22],
+    "note": "matched to XY peak_prepeak gender belt"
   },
   "candidate_grid": {
-    "layers": ["PEAK", "PEAK_M1", "PEAK_M2"],
+    "layers": [24, 23, 22],
     "ranks": [1, 4, 8, 16],
-    "alphas": [1.0]
+    "alphas": [1.0],
+    "n_candidates_preferred": 12,
+    "note": "3×4×1 preferred; Stage A clamps ranks to k_found"
   },
+  "note": "FDR-significant gemma3_4b SOCs. Matched arm to XY polarity pool. Gender only (no slot in pool protocols).",
   "sets": [
     {
       "id": "promale",
@@ -30,8 +35,12 @@
       "tag_stage_b": "inlp_gemma3_4b_peak_prepeak_pool_promale_b",
       "tag_stage_c": "inlp_gemma3_4b_peak_prepeak_pool_promale_c",
       "subspace_tag": "polarity_pool_gemma3_4b_promale_v1",
-      "n_soc": 0,
-      "slugs": []
+      "n_soc": 3,
+      "slugs": [
+        "construction_and_extraction_occupations",
+        "installation_maintenance_and_repair_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
     },
     {
       "id": "profemale",
@@ -42,8 +51,18 @@
       "tag_stage_b": "inlp_gemma3_4b_peak_prepeak_pool_profemale_b",
       "tag_stage_c": "inlp_gemma3_4b_peak_prepeak_pool_profemale_c",
       "subspace_tag": "polarity_pool_gemma3_4b_profemale_v1",
-      "n_soc": 0,
-      "slugs": []
+      "n_soc": 9,
+      "slugs": [
+        "arts_design_entertainment_sports_and_media_occup",
+        "business_and_financial_operations_occupations",
+        "educational_instruction_and_library_occupations",
+        "food_preparation_and_serving_related_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "healthcare_support_occupations",
+        "office_and_administrative_support_occupations",
+        "personal_care_and_service_occupations",
+        "sales_and_related_occupations"
+      ]
     }
   ]
 }
