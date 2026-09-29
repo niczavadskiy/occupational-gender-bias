@@ -52,6 +52,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 PATHS = {
     "2b": {"model": "Qwen/Qwen3.5-2B-Base"},
     "4b": {"model": "Qwen/Qwen3.5-4B-Base"},
+    "gemma3_1b": {"model": "google/gemma-3-1b-pt"},
+    "gemma3_4b": {"model": "google/gemma-3-4b-pt"},
 }
 
 
