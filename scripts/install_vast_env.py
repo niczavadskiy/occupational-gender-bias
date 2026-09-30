@@ -31,16 +31,164 @@ DEFAULT_LOCK = HERE / "env" / "vast_steering_cu121.json"
 REQ_LOCK = HERE / "requirements-vast-lock.txt"
 
 
-def run(cmd: list[str], *, check: bool = True) -> int:
+def run(cmd: list[str], *, check: bool = True, env: dict[str, str] | None = None) -> int:
     print("+", " ".join(cmd), flush=True)
-    return subprocess.run(cmd, check=check).returncode
+    return subprocess.run(cmd, check=check, env=env).returncode
+
+
+def _pip_env() -> dict[str, str]:
+    """Drop hash-enforcement env that breaks PyTorch CDN / truncated wheels."""
+    env = os.environ.copy()
+    for key in list(env):
+        if key.startswith("PIP_") and "HASH" in key.upper():
+            env.pop(key, None)
+    env.pop("PIP_REQUIRE_HASHES", None)
+    # Avoid writing huge wheels to a full user cache mid-download.
+    env.setdefault("PIP_NO_CACHE_DIR", "1")
+    return env
 
 
 def pip(*args: str, check: bool = True) -> int:
-    # Vast images sometimes set PIP_REQUIRE_HASHES; our lock has no hashes.
-    # Drop it for this process so installs are not blocked by stale/CDN wheels.
-    os.environ.pop("PIP_REQUIRE_HASHES", None)
-    return run([sys.executable, "-m", "pip", *args], check=check)
+    return run([sys.executable, "-m", "pip", *args], check=check, env=_pip_env())
+
+
+def _free_gb(path: str) -> float:
+    try:
+        st = os.statvfs(path)
+        return (st.f_bavail * st.f_frsize) / (1024**3)
+    except OSError:
+        return -1.0
+
+
+def _assert_disk_for_torch(min_gb: float = 6.0) -> None:
+    candidates = ["/workspace", "/tmp", "/opt/conda", "/"]
+    best = max((_free_gb(p), p) for p in candidates)
+    free, where = best
+    print(f"  disk free: {free:.1f} GiB on {where} (need ≥{min_gb})", flush=True)
+    if free >= 0 and free < min_gb:
+        raise SystemExit(
+            f"Not enough disk for torch≈0.8GiB wheel (free {free:.1f} GiB on {where}).\n"
+            f"  Free space (old wheels/tars/HF cache), then re-run:\n"
+            f"    df -h\n"
+            f"    rm -rf /tmp/pip-* /root/.cache/pip /workspace/*.tar.gz\n"
+            f"    {sys.executable} scripts/install_vast_env.py --force"
+        )
+
+
+def _curl_download(url: str, dest: Path, *, min_bytes: int) -> None:
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if dest.is_file():
+        dest.unlink()
+    cmd = [
+        "curl",
+        "-fL",
+        "--retry",
+        "5",
+        "--retry-all-errors",
+        "--retry-delay",
+        "2",
+        "--connect-timeout",
+        "30",
+        "-o",
+        str(dest),
+        url,
+    ]
+    run(cmd, check=True)
+    size = dest.stat().st_size
+    if size < min_bytes:
+        dest.unlink(missing_ok=True)
+        raise RuntimeError(f"download too small ({size} < {min_bytes}): {url}")
+
+
+def _install_torch_wheels_via_curl(lock: dict) -> None:
+    """Bypass pip's streaming download (URL #sha256 fails on truncated CDN reads)."""
+    import tempfile
+
+    tag = lock["cuda"]["tag"]
+    torch_v = lock["pytorch"]["torch"]
+    tv_v = lock["pytorch"]["torchvision"]
+    py_tag = f"cp{sys.version_info.major}{sys.version_info.minor}"
+    # Official cu121 manylinux wheels used by Vast (cp310).
+    torch_name = f"torch-{torch_v}%2B{tag}-{py_tag}-{py_tag}-linux_x86_64.whl"
+    tv_name = f"torchvision-{tv_v}%2B{tag}-{py_tag}-{py_tag}-linux_x86_64.whl"
+    base = f"https://download.pytorch.org/whl/{tag}"
+    torch_url = f"{base}/{torch_name}"
+    tv_url = f"{base}/{tv_name}"
+
+    with tempfile.TemporaryDirectory(prefix="vast_torch_") as td:
+        tdir = Path(td)
+        torch_whl = tdir / torch_name.replace("%2B", "+")
+        tv_whl = tdir / tv_name.replace("%2B", "+")
+        print(f"  curl torch wheel → {torch_whl.name}", flush=True)
+        _curl_download(torch_url, torch_whl, min_bytes=500_000_000)
+        print(f"  curl torchvision wheel → {tv_whl.name}", flush=True)
+        _curl_download(tv_url, tv_whl, min_bytes=1_000_000)
+        # Replace broken importable-but-cudnn-missing install in one shot.
+        pip("uninstall", "-y", "torch", "torchvision", check=False)
+        pip(
+            "install",
+            "--no-cache-dir",
+            "--force-reinstall",
+            str(torch_whl),
+            str(tv_whl),
+        )
+
+
+def install_torch_stack(lock: dict) -> None:
+    tag = lock["cuda"]["tag"]
+    idx = lock["cuda"]["torch_index_url"]
+    torch_v = lock["pytorch"]["torch"]
+    tv_v = lock["pytorch"]["torchvision"]
+    force = bool(lock.get("pytorch", {}).get("force_reinstall", True))
+
+    _assert_disk_for_torch(6.0)
+
+    # Strip audio first so a broken wheel cannot linger beside the new torch.
+    for pkg in lock["pytorch"].get("uninstall") or []:
+        pip("uninstall", "-y", pkg, check=False)
+
+    # Drop stale pip HTTP cache (partial torch wheels → hash mismatch).
+    pip("cache", "purge", check=False)
+
+    args = ["install", "--no-cache-dir"]
+    if force:
+        # Critical on Vast conda images: version strings can look right while
+        # torch._C is a leftover from a previous/hybrid install
+        # (AttributeError: _dlpack_exchange_api).
+        args.append("--force-reinstall")
+    args += [
+        f"torch=={torch_v}",
+        f"torchvision=={tv_v}",
+        "--index-url",
+        idx,
+    ]
+
+    last_err: BaseException | None = None
+    for attempt in range(1, 4):
+        try:
+            print(f"  pip torch install attempt {attempt}/3…", flush=True)
+            pip(*args)
+            print(f"  installed torch=={torch_v} torchvision=={tv_v} ({tag}) force={force}")
+            return
+        except subprocess.CalledProcessError as exc:
+            last_err = exc
+            print(
+                f"  WARN: pip torch install failed (attempt {attempt}/3) — "
+                f"often truncated CDN download / hash mismatch",
+                flush=True,
+            )
+            if attempt >= 2:
+                try:
+                    print("  fallback: curl full wheels then local pip install…", flush=True)
+                    _install_torch_wheels_via_curl(lock)
+                    print(f"  installed torch=={torch_v} torchvision=={tv_v} ({tag}) via curl")
+                    return
+                except Exception as curl_exc:  # noqa: BLE001
+                    last_err = curl_exc
+                    print(f"  WARN: curl fallback failed: {curl_exc}", flush=True)
+    assert last_err is not None
+    raise SystemExit(f"torch install failed after retries: {last_err}") from last_err
+
 
 
 def load_lock(path: Path) -> dict:
@@ -138,34 +286,6 @@ def matches(lock: dict, cur: dict[str, str | None]) -> bool:
     if lock["sanity"].get("require_cuda") and cur.get("cuda_available") != "True":
         return False
     return True
-
-
-def install_torch_stack(lock: dict) -> None:
-    tag = lock["cuda"]["tag"]
-    idx = lock["cuda"]["torch_index_url"]
-    torch_v = lock["pytorch"]["torch"]
-    tv_v = lock["pytorch"]["torchvision"]
-    force = bool(lock.get("pytorch", {}).get("force_reinstall", True))
-
-    # Strip audio first so a broken wheel cannot linger beside the new torch.
-    for pkg in lock["pytorch"].get("uninstall") or []:
-        pip("uninstall", "-y", pkg, check=False)
-    # Do NOT uninstall torch before install: a failed download would leave the
-    # env with ModuleNotFoundError: torch. force-reinstall replaces in place.
-    args = ["install", "--no-cache-dir"]
-    if force:
-        # Critical on Vast conda images: version strings can look right while
-        # torch._C is a leftover from a previous/hybrid install
-        # (AttributeError: _dlpack_exchange_api).
-        args.append("--force-reinstall")
-    args += [
-        f"torch=={torch_v}",
-        f"torchvision=={tv_v}",
-        "--index-url",
-        idx,
-    ]
-    pip(*args)
-    print(f"  installed torch=={torch_v} torchvision=={tv_v} ({tag}) force={force}")
 
 
 def _installed_pin(dist_name: str) -> str | None:
