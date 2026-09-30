@@ -16,11 +16,11 @@ PyYAML
 scipy
 pandas
 pyarrow
-# Qwen3.5 kernels: faster path. causal-conv1d is NOT a hard dep —
-# building it from source fails on CUDA 12.x images (wheel looks for cu13/torch 2.14).
-# ensure_steering_env installs FLA best-effort and skips causal-conv1d source builds;
-# missing causal-conv1d → slow PyTorch fallback.
-flash-linear-attention
+# Qwen3.5 kernels: do NOT list flash-linear-attention here.
+# Recent FLA (0.5.x) depends on torch 2.14 + CUDA 13 and will overwrite the
+# pinned cu121 stack / blow disk. ensure_steering_env / install_vast_env
+# install FLA best-effort with --no-deps when SKIP_FLA!=1.
+# causal-conv1d: source builds hang on Vast — skip (slow PyTorch fallback).
 # torch/torchvision: use lock (2.5.1+cu121 / 0.20.1). Do not pip-install bare torchvision
 # from PyPI — ABI mismatch breaks Qwen3.5 import.
 # torchaudio: uninstall (text-only).

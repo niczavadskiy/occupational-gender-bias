@@ -131,10 +131,11 @@ ensure_steering_env() {
   fix_torchaudio
 
   # Qwen3.5: flash-linear-attention + causal-conv1d (optional; slow fallback if missing)
+  # Always --no-deps: FLA 0.5.x pulls torch 2.14+cu13 and nukes the cu121 lock.
   if [ "${SKIP_PIP:-0}" != "1" ] && [ "${SKIP_FLA:-0}" != "1" ]; then
-    echo "  pip: flash-linear-attention + causal-conv1d (best-effort)…"
+    echo "  pip: flash-linear-attention + causal-conv1d (best-effort, --no-deps)…"
     if ! "$PY" -c "import flash_linear_attn" 2>/dev/null && ! "$PY" -c "import fla" 2>/dev/null; then
-      "$PY" -m pip install -U flash-linear-attention || \
+      "$PY" -m pip install -U --no-deps flash-linear-attention || \
         echo "  WARN: flash-linear-attention install failed — slow chunk_gated_delta_rule fallback"
     else
       echo "  flash-linear-attention: already importable"

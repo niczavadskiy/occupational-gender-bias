@@ -255,7 +255,8 @@ def main(argv: list[str] | None = None) -> int:
         if lock.get("optional", {}).get("flash-linear-attention", {}).get("install") and os.environ.get(
             "SKIP_FLA", "0"
         ) != "1":
-            pip("install", "-U", "flash-linear-attention", check=False)
+            # --no-deps: FLA 0.5.x depends on torch 2.14+cu13 and would overwrite cu121 lock.
+            pip("install", "-U", "--no-deps", "flash-linear-attention", check=False)
 
     # Always strip torchaudio for text-only path
     for pkg in lock["pytorch"].get("uninstall") or []:
