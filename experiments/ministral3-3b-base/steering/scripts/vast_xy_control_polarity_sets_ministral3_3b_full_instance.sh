@@ -73,8 +73,8 @@ export PY
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 echo "  using PY=$PY"
 if ! "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"; then
-  echo "torch missing/broken in $PY — install_vast_env --force"
-  SKIP_FLA=1 "$PY" "$REPO/scripts/install_vast_env.py" --force
+  echo "torch missing/broken in $PY — install_vast_env --force (PIN_VAST_ENV ignored)"
+  SKIP_FLA=1 PIN_VAST_ENV=1 "$PY" "$REPO/scripts/install_vast_env.py" --force
 fi
 "$PY" -c "import torch" || { echo "FATAL: no torch in $PY"; exit 1; }
 "$PY" -m pip install -U 'transformers>=4.57.0' mistral-common

@@ -12,7 +12,7 @@ Usage on Vast after git pull:
   python scripts/install_vast_env.py --force   # always reinstall torch stack
 
 Env:
-  PIN_VAST_ENV=0              skip (no-op exit 0)
+  PIN_VAST_ENV=0              skip automatic install (still runs when --force)
   SKIP_FLA=1                 do not try flash-linear-attention
   FORCE_TORCH_REINSTALL=1    force torch/torchvision even if versions match (default 1)
 """
@@ -37,6 +37,9 @@ def run(cmd: list[str], *, check: bool = True) -> int:
 
 
 def pip(*args: str, check: bool = True) -> int:
+    # Vast images sometimes set PIP_REQUIRE_HASHES; our lock has no hashes.
+    # Drop it for this process so installs are not blocked by stale/CDN wheels.
+    os.environ.pop("PIP_REQUIRE_HASHES", None)
     return run([sys.executable, "-m", "pip", *args], check=check)
 
 
@@ -165,10 +168,65 @@ def install_torch_stack(lock: dict) -> None:
     print(f"  installed torch=={torch_v} torchvision=={tv_v} ({tag}) force={force}")
 
 
+def _installed_pin(dist_name: str) -> str | None:
+    try:
+        from importlib.metadata import PackageNotFoundError, version
+    except ImportError:  # pragma: no cover
+        from importlib_metadata import PackageNotFoundError, version  # type: ignore
+    try:
+        return f"{dist_name}=={version(dist_name)}"
+    except PackageNotFoundError:
+        return None
+
+
 def install_pip_lock() -> None:
+    """Install non-torch pins. Must not upgrade PyPI torch (2.14+cu13).
+
+    ``pip install -U -r …`` lets accelerate≥0.33 pull the latest torch from
+    PyPI (CUDA 13 wheels, hash/cache failures, disk blow-up). Torch is installed
+    separately from the cu121 index in ``install_torch_stack``.
+    """
     if not REQ_LOCK.is_file():
         raise SystemExit(f"missing {REQ_LOCK}")
-    pip("install", "-U", "-r", str(REQ_LOCK))
+    import tempfile
+
+    # Pin currently installed torch stack so accelerate cannot resolve 2.14+cu13.
+    pins = [
+        p
+        for p in (
+            _installed_pin("torch"),
+            _installed_pin("torchvision"),
+            _installed_pin("torchaudio"),
+            _installed_pin("triton"),
+        )
+        if p
+    ]
+    # If torch is missing, install_torch_stack should have run first; still refuse
+    # open-ended torch from PyPI by requiring a high lower-bound never used as target.
+    if not any(p.startswith("torch==") for p in pins):
+        pins.append("torch==2.5.1")
+    with tempfile.NamedTemporaryFile(
+        "w", suffix="-torch-constraint.txt", delete=False, encoding="utf-8"
+    ) as fh:
+        fh.write("\n".join(pins) + "\n")
+        constraint_path = fh.name
+    try:
+        print(f"  pip lock constraints: {pins}", flush=True)
+        pip(
+            "install",
+            "--no-cache-dir",
+            "--upgrade-strategy",
+            "only-if-needed",
+            "-c",
+            constraint_path,
+            "-r",
+            str(REQ_LOCK),
+        )
+    finally:
+        try:
+            os.unlink(constraint_path)
+        except OSError:
+            pass
 
 
 def sanity(lock: dict) -> None:
@@ -218,8 +276,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = ap.parse_args(argv)
 
-    if os.environ.get("PIN_VAST_ENV", "1") == "0":
-        print("PIN_VAST_ENV=0 — skip")
+    # PIN_VAST_ENV=0 skips the *automatic* install path. Explicit --force must
+    # always repair (Ministral scripts hit this when libcudnn/torch is broken).
+    if os.environ.get("PIN_VAST_ENV", "1") == "0" and not args.force and not args.check_only:
+        print("PIN_VAST_ENV=0 — skip (pass --force to repair anyway)")
         return 0
 
     lock = load_lock(args.lock)
@@ -250,8 +310,10 @@ def main(argv: list[str] | None = None) -> int:
         if force:
             reason.append("force reinstall")
         print(f"installing pinned stack ({', '.join(reason) or 'requested'})…")
-        install_pip_lock()
+        # Torch first so accelerate/transformers see an existing CUDA build and
+        # do not resolve bare PyPI torch==2.14+cu13.
         install_torch_stack(lock)
+        install_pip_lock()
         if lock.get("optional", {}).get("flash-linear-attention", {}).get("install") and os.environ.get(
             "SKIP_FLA", "0"
         ) != "1":

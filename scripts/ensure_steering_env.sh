@@ -90,37 +90,32 @@ ensure_steering_env() {
     installer="$script_dir/install_vast_env.py"
   fi
 
+  # Image may set PIP_REQUIRE_HASHES; our req files have no hashes / CDN wheels flake.
+  unset PIP_REQUIRE_HASHES || true
+
   if [ "${SKIP_PIP:-0}" != "1" ]; then
     # Default: frozen Vast lock from git (torch 2.5.1+cu121, torchvision 0.20.1, transformers 5.17).
     if [ "${PIN_VAST_ENV:-1}" = "1" ] && [ -n "$installer" ]; then
       echo "  pip: PIN_VAST_ENV=1 → $installer"
       if ! "$PY" "$installer"; then
-        echo "  WARN: install_vast_env failed — falling back to requirements-vast.txt"
+        echo "  WARN: install_vast_env failed — falling back to packages without -r lock"
         PIN_VAST_ENV=0
       fi
     fi
 
     if [ "${PIN_VAST_ENV:-1}" != "1" ]; then
-      local req=""
-      if [ -n "${REPO:-}" ] && [ -f "$REPO/scripts/requirements-vast.txt" ]; then
-        req="$REPO/scripts/requirements-vast.txt"
-      elif [ -f "$script_dir/requirements-vast.txt" ]; then
-        req="$script_dir/requirements-vast.txt"
-      fi
-
-      echo "  pip: numpy<2 + transformers (без -q — прогресс виден)…"
-      if [ -n "$req" ]; then
-        "$PY" -m pip install -U -r "$req" || return 1
-      else
-        "$PY" -m pip install -U \
-          'numpy>=1.26,<2' \
-          'transformers>=4.50' \
-          accelerate huggingface_hub python-dotenv PyYAML scipy pandas || return 1
-      fi
+      # Do NOT use -r + -U: accelerate would pull PyPI torch 2.14+cu13 (hash errors, disk blow-up).
+      echo "  pip: numpy<2 + transformers (no torch upgrade)…"
+      "$PY" -m pip install --no-cache-dir --upgrade-strategy only-if-needed \
+        'numpy>=1.26,<2' \
+        'transformers>=4.50' \
+        accelerate huggingface_hub python-dotenv PyYAML scipy pandas pyarrow || return 1
 
       if [ "${UPGRADE_TORCH:-0}" = "1" ]; then
-        echo "  pip: UPGRADE_TORCH=1 → torch>=2.5…"
-        "$PY" -m pip install -U 'torch>=2.5' torchvision || return 1
+        echo "  pip: UPGRADE_TORCH=1 → torch 2.5.1+cu121 (not bare PyPI)…"
+        "$PY" -m pip install --force-reinstall --no-cache-dir \
+          torch==2.5.1 torchvision==0.20.1 \
+          --index-url https://download.pytorch.org/whl/cu121 || return 1
       fi
     fi
   else
@@ -249,7 +244,7 @@ PY
       # Missing/broken torch must be repaired even with SKIP_PIP=1 (skip routine deps only).
       echo "  retry: missing/broken torch → $installer --force"
       export SKIP_FLA="${SKIP_FLA:-1}"
-      if ! "$PY" "$installer" --force; then
+      if ! PIN_VAST_ENV=1 SKIP_FLA="${SKIP_FLA:-1}" "$PY" "$installer" --force; then
         echo "  FAIL: install_vast_env --force could not repair torch"
         return 4
       fi
