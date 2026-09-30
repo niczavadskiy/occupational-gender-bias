@@ -81,17 +81,15 @@ ensure_steering_env() {
   echo "=== ensure_steering_env: PY=$PY ==="
   "$PY" -c "import sys; print(' ', sys.executable, sys.version.split()[0])" || return 1
 
-  if [ "${SKIP_PIP:-0}" != "1" ]; then
-    local script_dir repo_scripts installer lock_json
-    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    repo_scripts="${REPO:-}/scripts"
-    installer=""
-    if [ -n "${REPO:-}" ] && [ -f "$REPO/scripts/install_vast_env.py" ]; then
-      installer="$REPO/scripts/install_vast_env.py"
-    elif [ -f "$script_dir/install_vast_env.py" ]; then
-      installer="$script_dir/install_vast_env.py"
-    fi
+  local script_dir installer=""
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  if [ -n "${REPO:-}" ] && [ -f "$REPO/scripts/install_vast_env.py" ]; then
+    installer="$REPO/scripts/install_vast_env.py"
+  elif [ -f "$script_dir/install_vast_env.py" ]; then
+    installer="$script_dir/install_vast_env.py"
+  fi
 
+  if [ "${SKIP_PIP:-0}" != "1" ]; then
     # Default: frozen Vast lock from git (torch 2.5.1+cu121, torchvision 0.20.1, transformers 5.17).
     if [ "${PIN_VAST_ENV:-1}" = "1" ] && [ -n "$installer" ]; then
       echo "  pip: PIN_VAST_ENV=1 → $installer"
@@ -246,8 +244,10 @@ for mod in (
     except ModuleNotFoundError:
         continue
 PY
-    elif [ "$rc" = "4" ] && [ "${SKIP_PIP:-0}" != "1" ] && [ -n "${installer:-}" ]; then
-      echo "  retry: broken torch._C → $installer --force"
+    elif [ "$rc" = "4" ] && [ -n "${installer:-}" ]; then
+      # Missing/broken torch must be repaired even with SKIP_PIP=1 (skip routine deps only).
+      echo "  retry: missing/broken torch → $installer --force"
+      export SKIP_FLA="${SKIP_FLA:-1}"
       if ! "$PY" "$installer" --force; then
         echo "  FAIL: install_vast_env --force could not repair torch"
         return 4
