@@ -1,0 +1,41 @@
+{
+  "schema": "steering.xy_control_polarity_sets/v1",
+  "version": "v1_stub",
+  "scale": "ministral3_3b",
+  "status": "STUB",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "config": "experiments/ministral3-3b-base/steering/xy_control/configs/xy_control_ministral3_3b_peak_prepeak_a6.yaml",
+  "protocol": {
+    "id": "pooled_polarity_one_v",
+    "note": "One v_raw per polarity set. Empty sets are skipped at runtime."
+  },
+  "probe_peak": {
+    "source": "FILL after gender_choice probe",
+    "peak": null,
+    "layers": [],
+    "note": "fill peak + peak−1 + peak−2 after HS-probe"
+  },
+  "note": "Stub until H1 FDR on ministral3_3b. Rebuild slugs from tests_h1_v1_soc.csv.",
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "tag_stage_a": "xy_ministral3_3b_peak_prepeak_a6_pool_promale",
+      "tag_stage_b": "xy_ministral3_3b_peak_prepeak_a6_pool_promale_b",
+      "tag_stage_c": "xy_ministral3_3b_peak_prepeak_a6_pool_promale_c",
+      "n_soc": 0,
+      "slugs": []
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "tag_stage_a": "xy_ministral3_3b_peak_prepeak_a6_pool_profemale",
+      "tag_stage_b": "xy_ministral3_3b_peak_prepeak_a6_pool_profemale_b",
+      "tag_stage_c": "xy_ministral3_3b_peak_prepeak_a6_pool_profemale_c",
+      "n_soc": 0,
+      "slugs": []
+    }
+  ]
+}

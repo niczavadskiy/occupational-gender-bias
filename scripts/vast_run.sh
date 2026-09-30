@@ -32,6 +32,16 @@
 #   REMOTE_CMD='bash scripts/setup_instance.sh && bash scripts/vast_gemma3_4b_h1h3_and_pack.sh' \
 #   bash scripts/vast_run.sh
 #
+#   # 6) Ministral 3 3B Base:
+#   HF_TOKEN=hf_xxx DISK=120 KEEP=1 GPU=RTX_4090 \
+#   REMOTE_CMD='bash scripts/setup_instance.sh && INSTALL_MINISTRAL=1 bash scripts/vast_ministral3_3b_h1h3_and_pack.sh' \
+#   bash scripts/vast_run.sh
+#
+#   # 7) Ministral 3 8B Base:
+#   HF_TOKEN=hf_xxx DISK=120 KEEP=1 GPU=RTX_4090 \
+#   REMOTE_CMD='bash scripts/setup_instance.sh && INSTALL_MINISTRAL=1 bash scripts/vast_ministral3_8b_h1h3_and_pack.sh' \
+#   bash scripts/vast_run.sh
+#
 # Параметры (env):
 GPU="${GPU:-RTX_3090}"
 MIN_CUDA="${MIN_CUDA:-12.8}"

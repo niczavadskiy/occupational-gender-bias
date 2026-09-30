@@ -1,0 +1,54 @@
+{
+  "schema": "steering.inlp_polarity_sets/v1",
+  "version": "v1_stub",
+  "scale": "ministral3_3b",
+  "status": "STUB",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "xy_sets": "experiments/ministral3-3b-base/steering/domains/polarity_sets_ministral3_3b_v1.json",
+  "config": "experiments/ministral3-3b-base/steering/configs/inlp_polarity_pool_ministral3_3b_peak_prepeak.yaml",
+  "xy_dataset": "steering/xy_control/data/xy_pairs_full_v1.json",
+  "protocol": {
+    "id": "pooled_polarity_one_subspace",
+    "note": "One INLP subspace W per polarity set. Empty sets skipped."
+  },
+  "probe_peak": {
+    "source": "FILL after gender_choice probe",
+    "peak": null,
+    "layers": [],
+    "note": "matched to XY peak_prepeak gender belt after probe"
+  },
+  "candidate_grid": {
+    "layers": [],
+    "ranks": [1, 4, 8, 16],
+    "alphas": [1.0],
+    "n_candidates_preferred": 12,
+    "note": "fill layers after probe; Stage A clamps ranks to k_found"
+  },
+  "note": "Stub until H1 FDR on ministral3_3b. Gender only (no slot in pool protocols).",
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "sample_stem": "inlp_polarity_pool_ministral3_3b_promale_v1",
+      "tag_stage_a": "inlp_ministral3_3b_peak_prepeak_pool_promale",
+      "tag_stage_b": "inlp_ministral3_3b_peak_prepeak_pool_promale_b",
+      "tag_stage_c": "inlp_ministral3_3b_peak_prepeak_pool_promale_c",
+      "subspace_tag": "polarity_pool_ministral3_3b_promale_v1",
+      "n_soc": 0,
+      "slugs": []
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "sample_stem": "inlp_polarity_pool_ministral3_3b_profemale_v1",
+      "tag_stage_a": "inlp_ministral3_3b_peak_prepeak_pool_profemale",
+      "tag_stage_b": "inlp_ministral3_3b_peak_prepeak_pool_profemale_b",
+      "tag_stage_c": "inlp_ministral3_3b_peak_prepeak_pool_profemale_c",
+      "subspace_tag": "polarity_pool_ministral3_3b_profemale_v1",
+      "n_soc": 0,
+      "slugs": []
+    }
+  ]
+}

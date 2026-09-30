@@ -125,7 +125,7 @@ def validate_frozen(doc: dict) -> None:
     if doc.get("schema") != "steering.xy_control_soc_fdr/v1":
         raise ValueError(f"bad schema {doc.get('schema')}")
     required = ("2b", "4b")
-    optional = ("gemma3_1b", "gemma3_4b")
+    optional = ("gemma3_1b", "gemma3_4b", "ministral3_3b", "ministral3_8b")
     for scale in required + optional:
         if scale not in doc.get("scales", {}):
             if scale in required:
@@ -160,7 +160,7 @@ def verify_frozen() -> int:
         f"2B steer {on_disk['scales']['2b']['n_steer']}",
         f"4B steer {on_disk['scales']['4b']['n_steer']}",
     ]
-    for g in ("gemma3_1b", "gemma3_4b"):
+    for g in ("gemma3_1b", "gemma3_4b", "ministral3_3b", "ministral3_8b"):
         if g in on_disk["scales"]:
             bits.append(f"{g} steer {on_disk['scales'][g]['n_steer']}")
     print("OK — frozen SOC-FDR catalog (" + ", ".join(bits) + ")")

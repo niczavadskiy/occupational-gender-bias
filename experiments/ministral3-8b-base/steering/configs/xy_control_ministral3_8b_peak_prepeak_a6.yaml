@@ -1,0 +1,70 @@
+# Stage A XY-control polarity pool · mistralai/Ministral-3-8B-Base-2512
+# FILL AFTER: (1) HS-probe peak  (2) H1 FDR polarity sets
+# |α|≤6 grid matched to Qwen/Gemma peak_prepeak_a6.
+
+version: v1_peak_prepeak_a6
+hypothesis: xy_control
+scale: ministral3_8b
+created: 2026-09-30
+status: STUB_PEAK
+dtype: bfloat16
+
+source:
+  model_id: mistralai/Ministral-3-8B-Base-2512
+  d_model: 4096
+  n_layers: 34
+  n_hidden_states: 35
+  hidden_state_index: "0 = embeddings, 1..34 = block output"
+  mapping: {X: man, "Y": woman}
+  fit_sample: data/xy_pairs_full_v1.json
+  eval_sample: data/xy_pairs_full_v1.json
+  label: paired_xy_control
+  split:
+    train_frac: 0.70
+    val_frac: 0.15
+    test_frac: 0.15
+    seed: 0
+    stratify_by: soc_major_title
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+
+vectors:
+  - id: v_raw
+    short: vraw
+    role: candidate
+    kind: paired_mean_diff
+
+interventions:
+  - id: add
+    formula: "h' = h − α·v̂"
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+layers:
+  belt: [22, 23, 24]
+  core: [22, 23, 24]
+  peak: 24
+  prepeak: [23, 22]
+  anchor: 24
+  note: STUB — replace after gender_choice probe.
+
+families:
+  - id: main_add_peak_prepeak
+    enabled: true
+    role: candidate
+    vectors: [v_raw]
+    layers: [24, 23, 22]
+    intervention: add
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+baseline:
+  id: baseline
+
+screening:
+  stage: A
+  primary_metric:
+    id: gender_gap
+    formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"
+    direction: reduce_abs
+  keep_top: 10

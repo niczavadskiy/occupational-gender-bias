@@ -54,6 +54,8 @@ PATHS = {
     "4b": {"model": "Qwen/Qwen3.5-4B-Base"},
     "gemma3_1b": {"model": "google/gemma-3-1b-pt"},
     "gemma3_4b": {"model": "google/gemma-3-4b-pt"},
+    "ministral3_3b": {"model": "mistralai/Ministral-3-3B-Base-2512"},
+    "ministral3_8b": {"model": "mistralai/Ministral-3-8B-Base-2512"},
 }
 
 
@@ -438,7 +440,11 @@ def run_one(args: argparse.Namespace) -> Path:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--set-id", required=True, help="promale | profemale | …")
-    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b", "gemma3_4b"], default="2b")
+    ap.add_argument(
+        "--scale",
+        choices=["2b", "4b", "gemma3_1b", "gemma3_4b", "ministral3_3b", "ministral3_8b"],
+        default="2b",
+    )
     ap.add_argument("--sets", type=Path, default=SETS_JSON)
     ap.add_argument("--catalog", type=Path, default=None)
     ap.add_argument(

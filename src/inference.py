@@ -72,6 +72,50 @@ def hidden_size(config) -> int:
     raise RuntimeError("не удалось определить hidden_size")
 
 
+def is_ministral_id(model_id: str) -> bool:
+    return "ministral" in model_id.lower()
+
+
+def load_tokenizer(model_id: str):
+    """AutoTokenizer; Ministral prefers MistralCommonBackend when available."""
+    if is_ministral_id(model_id):
+        try:
+            from transformers import MistralCommonBackend
+
+            return MistralCommonBackend.from_pretrained(model_id)
+        except Exception as exc:  # noqa: BLE001 — fall back to AutoTokenizer
+            print(f"  WARN: MistralCommonBackend failed ({exc}); trying AutoTokenizer")
+    return AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
+
+
+def load_causal_lm(
+    model_id: str,
+    *,
+    dtype=torch.bfloat16,
+    device_map: str | None = "cuda",
+    device: str | None = None,
+):
+    """Load text LM; Ministral falls back to Mistral3ForConditionalGeneration."""
+    kwargs: dict = {"dtype": dtype, "trust_remote_code": True}
+    if device_map is not None:
+        kwargs["device_map"] = device_map
+
+    try:
+        model = AutoModelForCausalLM.from_pretrained(model_id, **kwargs)
+    except Exception as exc:
+        if not is_ministral_id(model_id):
+            raise
+        print(f"  WARN: AutoModelForCausalLM failed ({exc}); trying Mistral3ForConditionalGeneration")
+        from transformers import Mistral3ForConditionalGeneration
+
+        model = Mistral3ForConditionalGeneration.from_pretrained(model_id, **kwargs)
+
+    if device is not None and device_map is None:
+        model.to(device)
+    model.eval()
+    return model
+
+
 # Дефолтные демо-items (для quick smoke; реальный прогон — через --items_file)
 BUILTIN_ITEMS = [
     {
@@ -205,14 +249,8 @@ def main():
     # === Загрузка модели ===
     print(f"\n[1] Loading {args.model_id}...")
     t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(args.model_id, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        args.model_id,
-        dtype=torch.bfloat16,
-        device_map="cuda",
-        trust_remote_code=True,
-    )
-    model.eval()
+    tokenizer = load_tokenizer(args.model_id)
+    model = load_causal_lm(args.model_id, dtype=torch.bfloat16, device_map="cuda")
     t_load = time.time() - t0
     print(f"  Load time: {t_load:.1f}s")
 

@@ -1,5 +1,5 @@
 """
-Smoke-test для causal LM occupational pipeline (Qwen3.5 + Gemma3).
+Smoke-test для causal LM occupational pipeline (Qwen3.5 + Gemma3 + Ministral 3).
 
 Что проверяем:
 - Модель грузится с trust_remote_code=True
@@ -13,6 +13,8 @@ Smoke-test для causal LM occupational pipeline (Qwen3.5 + Gemma3).
     python3 -m src.smoke_qwen --model Qwen/Qwen3.5-4B-Base
     python3 -m src.smoke_qwen --model google/gemma-3-1b-pt
     python3 -m src.smoke_qwen --model google/gemma-3-4b-pt
+    python3 -m src.smoke_qwen --model mistralai/Ministral-3-3B-Base-2512
+    python3 -m src.smoke_qwen --model mistralai/Ministral-3-8B-Base-2512
 """
 from __future__ import annotations
 
@@ -20,9 +22,13 @@ import argparse
 import time
 
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer
 
-from src.inference import hidden_size, num_hidden_layers
+from src.inference import (
+    hidden_size,
+    load_causal_lm,
+    load_tokenizer,
+    num_hidden_layers,
+)
 
 EXPECTED = {
     "Qwen/Qwen3.5-2B-Base": {"n_layers": 24, "d_model": 2048},
@@ -31,6 +37,10 @@ EXPECTED = {
     "google/gemma-3-1b-pt": {"n_layers": 26, "d_model": 1152},
     # Gemma 3 4B PT: 34 × 2560 (text_config; multimodal Hub wrapper)
     "google/gemma-3-4b-pt": {"n_layers": 34, "d_model": 2560},
+    # Ministral 3 3B Base: 26 × 3072
+    "mistralai/Ministral-3-3B-Base-2512": {"n_layers": 26, "d_model": 3072},
+    # Ministral 3 8B Base: 34 × 4096
+    "mistralai/Ministral-3-8B-Base-2512": {"n_layers": 34, "d_model": 4096},
 }
 
 
@@ -50,14 +60,8 @@ def main() -> None:
 
     print("[1] Loading model and tokenizer...")
     t0 = time.time()
-    tokenizer = AutoTokenizer.from_pretrained(model_id, trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        model_id,
-        dtype=torch.bfloat16,
-        device_map=args.device,
-        trust_remote_code=True,
-    )
-    model.eval()
+    tokenizer = load_tokenizer(model_id)
+    model = load_causal_lm(model_id, dtype=torch.bfloat16, device_map=args.device)
     t_load = time.time() - t0
     n_layers = num_hidden_layers(model.config)
     d_model = hidden_size(model.config)

@@ -54,8 +54,9 @@ HERE = Path(__file__).resolve().parent
 def _probe_paths(scale: str, override: list[Path] | None) -> list[Path]:
     """H1 probe directions for optional cos_with_* diagnostics (must match d_model).
 
-    Gemma scales have no checked-in h1_vectors bank yet — return [] so fit does
-    not load Qwen 2B (2048) vectors against Gemma HS (1152 / 2560).
+    Gemma / Ministral scales have no checked-in h1_vectors bank yet — return []
+    so fit does not load Qwen 2B (2048) vectors against mismatched HS dims
+    (Gemma 1152/2560; Ministral 3072/4096).
     """
     if override is not None:
         return list(override)
@@ -65,6 +66,16 @@ def _probe_paths(scale: str, override: list[Path] | None) -> list[Path]:
             REPO_ROOT
             / "experiments"
             / ("gemma3-1b-pt" if scale == "gemma3_1b" else "gemma3-4b-pt")
+            / "steering"
+            / "vectors"
+            / "h1_vectors_v1.npz"
+        )
+        return [local] if local.is_file() else []
+    if scale in ("ministral3_3b", "ministral3_8b"):
+        local = (
+            REPO_ROOT
+            / "experiments"
+            / ("ministral3-3b-base" if scale == "ministral3_3b" else "ministral3-8b-base")
             / "steering"
             / "vectors"
             / "h1_vectors_v1.npz"

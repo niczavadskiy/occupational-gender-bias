@@ -422,7 +422,11 @@ def stage_c(args: argparse.Namespace) -> Path:
 
 def parser(stage: str) -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description=f"Pooled polarity XY-control Stage {stage.upper()}")
-    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b", "gemma3_4b"], required=True)
+    ap.add_argument(
+        "--scale",
+        choices=["2b", "4b", "gemma3_1b", "gemma3_4b", "ministral3_3b", "ministral3_8b"],
+        required=True,
+    )
     ap.add_argument("--model", default=None)
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--dtype", default="float32", choices=["float32", "float16", "bfloat16"])

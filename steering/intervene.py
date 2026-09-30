@@ -367,17 +367,18 @@ class Scorer:
 
 
 def load_model(model_path: str | Path, *, dtype: str = "float32", device: str = "cpu"):
-    from transformers import AutoModelForCausalLM, AutoTokenizer
+    from src.inference import load_causal_lm, load_tokenizer
 
     torch_dtype = getattr(torch, dtype)
-    tokenizer = AutoTokenizer.from_pretrained(str(model_path), trust_remote_code=True)
-    model = AutoModelForCausalLM.from_pretrained(
-        str(model_path),
+    model_id = str(model_path)
+    tokenizer = load_tokenizer(model_id)
+    # Steering keeps an explicit .to(device); avoid device_map conflicts.
+    model = load_causal_lm(
+        model_id,
         dtype=torch_dtype,
-        trust_remote_code=True,
+        device_map=None,
+        device=device,
     )
-    model.to(device)
-    model.eval()
     return model, tokenizer
 
 

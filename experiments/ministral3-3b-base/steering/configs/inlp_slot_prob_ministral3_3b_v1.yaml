@@ -1,0 +1,65 @@
+# Classical slot_prob INLP · mistralai/Ministral-3-3B-Base-2512
+# Belt = slot_choice probe peak + two layers below.
+
+version: v1_peak_prepeak
+hypothesis: inlp_slot_prob
+scale: ministral3_3b
+created: 2026-09-30
+status: STUB_PEAK
+dtype: bfloat16
+target: slot_prob
+
+source:
+  model_id: mistralai/Ministral-3-3B-Base-2512
+  d_model: 3072
+  n_layers: 26
+  n_hidden_states: 27
+  hidden_state_index: "0 = embeddings, 1..26 = block output"
+  label_note: >-
+    Classical INLP on slot last-token HS (slot_prob / p_A). Peak from
+    slot_choice classification probe after beh pack.
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  intervention: "h' = h − α W_k (W_kᵀ h − c)"
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+# STUB late-depth placeholders (26 layers) — replace after probe
+layers:
+  peak: 20
+  prepeak: [19, 18]
+  belt: [20, 19, 18]
+  core: [20, 19, 18]
+  anchor: 20
+  note: STUB — replace with slot_choice peak before full Vast run.
+
+steering:
+  kind: center
+  ranks: [1, 4, 8, 16]
+  alphas: [1.0]
+  random_control: true
+  random_seeds: [0]
+
+split:
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+  seed: 0
+  stratify_by: soc_major_title
+
+families:
+  - id: main_center_peak_prepeak
+    enabled: true
+    role: candidate
+    layers: [20, 19, 18]
+    ranks: [1, 4, 8, 16]
+    alphas: [1.0]
+    description: STUB slot peak + peak−1 + peak−2 × ranks.

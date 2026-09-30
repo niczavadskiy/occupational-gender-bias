@@ -49,6 +49,20 @@ SOC_CSV = {
     / "metrics_h1_v1"
     / "2026-09-27_22-29-08"
     / "tests_h1_v1_soc.csv",
+    # Placeholder: CSV filled after H1 metrics under *_h1h3_pack.
+    "ministral3_3b": REPO_ROOT
+    / "experiments"
+    / "ministral3-3b-base"
+    / "results"
+    / "ministral3_3b_h1h3_pack"
+    / "tests_h1_v1_soc.csv",
+    # Placeholder: CSV filled after H1 metrics under *_h1h3_pack.
+    "ministral3_8b": REPO_ROOT
+    / "experiments"
+    / "ministral3-8b-base"
+    / "results"
+    / "ministral3_8b_h1h3_pack"
+    / "tests_h1_v1_soc.csv",
 }
 
 CATALOG_JSON = HERE / "domains" / "h1_soc_fdr_v1.json"

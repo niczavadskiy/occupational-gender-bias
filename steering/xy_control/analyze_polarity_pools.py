@@ -308,7 +308,11 @@ def write_set(path: Path, pool: dict[str, Any], meta: dict[str, Any]) -> None:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--stage-c", type=Path, required=True)
-    ap.add_argument("--scale", choices=["2b", "4b", "gemma3_1b", "gemma3_4b"], default="2b")
+    ap.add_argument(
+        "--scale",
+        choices=["2b", "4b", "gemma3_1b", "gemma3_4b", "ministral3_3b", "ministral3_8b"],
+        default="2b",
+    )
     ap.add_argument("--catalog", type=Path, default=CATALOG_JSON)
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--n-boot", type=int, default=5000)
