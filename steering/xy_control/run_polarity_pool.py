@@ -147,41 +147,53 @@ def run_one(args: argparse.Namespace) -> Path:
     )
 
     _load_dotenv()
-    print(f"\n[{scale}/{args.set_id}] load {model_id}...")
-    t_load = time.time()
-    model, tokenizer = load_model(model_id, dtype=args.dtype, device=args.device)
-    for p in model.parameters():
-        p.requires_grad_(False)
-    scorer = Scorer(model, tokenizer)
-    print(f"  ready in {time.time() - t_load:.1f}s, {num_hidden_layers(model.config)} blocks")
-    print(
-        f"\n[{scale}/{args.set_id}] capture {len(capture_items)} train families "
-        f"on layers {layers} (pooled {domain['label']})..."
-    )
-    rows, hs_g_lists, hs_xy_lists = capture_pair(
-        model, scorer, capture_items, layers, log_every=args.log_every
-    )
-    H_g = {L: np.stack(vs, axis=0) for L, vs in hs_g_lists.items()}
-    H_xy = {L: np.stack(vs, axis=0) for L, vs in hs_xy_lists.items()}
-    if not args.no_save_capture:
-        cap_path = HERE / "captures" / f"xy_control_{scale}_polarity_pool_capture_{tag}.npz"
-        save_pair_capture(
-            cap_path,
-            H_gender=H_g,
-            H_xy=H_xy,
-            rows=rows,
-            meta={
-                "schema": "steering.xy_control_polarity_pool_capture/v1",
-                "scale": scale,
-                "set_id": args.set_id,
-                "model_id": model_id,
-                "tag": tag,
-                "mapping": dict(MAPPING),
-            },
-        )
-        print(f"  capture → {cap_path}")
+    model = None
+    scorer = None
+    if getattr(args, "from_capture", None) is not None:
+        from steering.xy_control.capture_io import load_pair_capture
 
-    probe_bank = load_probe_bank(_probe_paths(scale, None))
+        print(f"\n[{scale}/{args.set_id}] load capture {args.from_capture}")
+        H_g, H_xy, rows, _cap_meta = load_pair_capture(Path(args.from_capture))
+        print(f"  rows={len(rows)} layers={sorted(H_g)}")
+    else:
+        print(f"\n[{scale}/{args.set_id}] load {model_id}...")
+        t_load = time.time()
+        model, tokenizer = load_model(model_id, dtype=args.dtype, device=args.device)
+        for p in model.parameters():
+            p.requires_grad_(False)
+        scorer = Scorer(model, tokenizer)
+        print(f"  ready in {time.time() - t_load:.1f}s, {num_hidden_layers(model.config)} blocks")
+        print(
+            f"\n[{scale}/{args.set_id}] capture {len(capture_items)} train families "
+            f"on layers {layers} (pooled {domain['label']})..."
+        )
+        rows, hs_g_lists, hs_xy_lists = capture_pair(
+            model, scorer, capture_items, layers, log_every=args.log_every
+        )
+        H_g = {L: np.stack(vs, axis=0) for L, vs in hs_g_lists.items()}
+        H_xy = {L: np.stack(vs, axis=0) for L, vs in hs_xy_lists.items()}
+        if not args.no_save_capture:
+            cap_path = HERE / "captures" / f"xy_control_{scale}_polarity_pool_capture_{tag}.npz"
+            save_pair_capture(
+                cap_path,
+                H_gender=H_g,
+                H_xy=H_xy,
+                rows=rows,
+                meta={
+                    "schema": "steering.xy_control_polarity_pool_capture/v1",
+                    "scale": scale,
+                    "set_id": args.set_id,
+                    "model_id": model_id,
+                    "tag": tag,
+                    "mapping": dict(MAPPING),
+                },
+            )
+            print(f"  capture → {cap_path}")
+
+    probe_paths = _probe_paths(scale, None)
+    probe_bank = load_probe_bank(probe_paths)
+    if not probe_bank:
+        print(f"  probe_bank empty for scale={scale} (cos_with_* skipped)")
     print(f"\n[{scale}/{args.set_id}] fit ONE pooled v_raw on train={len(train_fams)}")
     vectors, entries = fit_pool_vectors(
         cfg,
@@ -252,6 +264,15 @@ def run_one(args: argparse.Namespace) -> Path:
     ]
     if missing:
         raise SystemExit(f"missing vectors for {missing[:3]}")
+
+    if model is None or scorer is None:
+        print(f"\n[{scale}/{args.set_id}] load {model_id} for Stage A eval...")
+        t_load = time.time()
+        model, tokenizer = load_model(model_id, dtype=args.dtype, device=args.device)
+        for p in model.parameters():
+            p.requires_grad_(False)
+        scorer = Scorer(model, tokenizer)
+        print(f"  ready in {time.time() - t_load:.1f}s")
 
     configs: list[tuple[str, dict | None]] = [(BASELINE_ID, None)]
     configs += [(c["id"], c) for c in candidates]
@@ -434,6 +455,12 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--val-frac", type=float, default=None)
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--vectors", type=Path, default=None)
+    ap.add_argument(
+        "--from-capture",
+        type=Path,
+        default=None,
+        help="reuse saved polarity-pool capture npz (skip HS capture; still loads model for Stage A eval)",
+    )
     ap.add_argument("--no-save-capture", action="store_true")
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--out-root", type=Path, default=REPO_ROOT / "results" / "steering" / "xy_control")

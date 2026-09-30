@@ -153,11 +153,15 @@ def maybe_cos_with_probe(
     probe_bank: dict[str, np.ndarray],
 ) -> dict[str, float]:
     out: dict[str, float] = {}
+    w = np.asarray(w, dtype=np.float64).ravel()
     for name in ("w_gender", "w_gender_perp"):
         key = f"{name}__L{layer}"
         if key not in probe_bank:
             continue
-        u = np.asarray(probe_bank[key], dtype=np.float64)
+        u = np.asarray(probe_bank[key], dtype=np.float64).ravel()
+        if u.shape != w.shape:
+            # Wrong-scale bank (e.g. Qwen 2048 vs Gemma 2560) — skip, do not crash fit.
+            continue
         nu = float(np.linalg.norm(u))
         if nu < 1e-12:
             continue
