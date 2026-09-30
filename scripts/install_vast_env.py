@@ -147,8 +147,8 @@ def install_torch_stack(lock: dict) -> None:
     # Strip audio first so a broken wheel cannot linger beside the new torch.
     for pkg in lock["pytorch"].get("uninstall") or []:
         pip("uninstall", "-y", pkg, check=False)
-    pip("uninstall", "-y", "torch", "torchvision", check=False)
-
+    # Do NOT uninstall torch before install: a failed download would leave the
+    # env with ModuleNotFoundError: torch. force-reinstall replaces in place.
     args = ["install", "--no-cache-dir"]
     if force:
         # Critical on Vast conda images: version strings can look right while

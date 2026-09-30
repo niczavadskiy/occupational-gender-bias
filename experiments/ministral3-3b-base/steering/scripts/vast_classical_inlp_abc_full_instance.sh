@@ -75,6 +75,10 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 echo "=== [2] setup_instance + steering env ==="
 export SKIP_FLA="${SKIP_FLA:-1}"
+# Prefer the interpreter that actually runs -m steering.* on Vast images.
+if [ -z "${PY:-}" ] && [ -x /opt/conda/bin/python ]; then
+  export PY=/opt/conda/bin/python
+fi
 PULL_CACHE=0 bash scripts/setup_instance.sh
 # shellcheck disable=SC1091
 source "$REPO/scripts/ensure_steering_env.sh"
@@ -85,7 +89,15 @@ else
 fi
 export PY
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+echo "  using PY=$PY"
+if ! "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"; then
+  echo "torch missing/broken in $PY — install_vast_env --force"
+  SKIP_FLA=1 "$PY" "$REPO/scripts/install_vast_env.py" --force
+fi
+"$PY" -c "import torch" || { echo "FATAL: no torch in $PY"; exit 1; }
 "$PY" -m pip install -U 'transformers>=4.57.0' mistral-common
+# mistral-common must not leave us without torch
+"$PY" -c "import torch" || { echo "FATAL: torch disappeared after mistral-common install"; exit 1; }
 
 mkdir -p "$(dirname "$MMLU_PARQUET")" "$OUT_ROOT"
 if [ ! -f "$MMLU_PARQUET" ]; then

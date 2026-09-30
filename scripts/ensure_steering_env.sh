@@ -24,7 +24,8 @@ resolve_steering_py() {
     fi
   fi
   local c
-  for c in /venv/main/bin/python /opt/conda/bin/python python3 python; do
+  # Prefer /opt/conda on Vast — /venv/main often lacks the CUDA torch stack.
+  for c in /opt/conda/bin/python /venv/main/bin/python python3 python; do
     if [ -x "$c" ] || command -v "$c" >/dev/null 2>&1; then
       echo "$c"
       return 0
