@@ -314,7 +314,13 @@ def run_h1_v1(
             results.append(r_prob)
 
     if include_soc_strata and "soc_major_title" in df.columns:
-        for title in sorted(df["soc_major_title"].astype(str).unique()):
+        # StringDtype leaves missing as float nan; astype(str) does not stringify it.
+        soc_titles = [
+            str(t)
+            for t in df["soc_major_title"].dropna().unique().tolist()
+            if t is not None and str(t).strip() and str(t).lower() not in ("nan", "none")
+        ]
+        for title in sorted(soc_titles):
             if not title or title.lower() in ("nan", "none", ""):
                 continue
             s = filter_slice(

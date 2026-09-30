@@ -1,8 +1,8 @@
 {
   "schema": "steering.inlp_polarity_sets/v1",
-  "version": "v1_stub",
+  "version": "v1_pooled",
   "scale": "ministral3_3b",
-  "status": "STUB",
+  "status": "READY",
   "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
   "xy_sets": "experiments/ministral3-3b-base/steering/domains/polarity_sets_ministral3_3b_v1.json",
   "config": "experiments/ministral3-3b-base/steering/configs/inlp_polarity_pool_ministral3_3b_peak_prepeak.yaml",
@@ -12,19 +12,34 @@
     "note": "One INLP subspace W per polarity set. Empty sets skipped."
   },
   "probe_peak": {
-    "source": "FILL after gender_choice probe",
-    "peak": null,
-    "layers": [],
-    "note": "matched to XY peak_prepeak gender belt after probe"
+    "source": "gender_choice L23",
+    "peak": 23,
+    "layers": [
+      23,
+      22,
+      21
+    ],
+    "note": "matched to XY peak_prepeak gender belt"
   },
   "candidate_grid": {
-    "layers": [],
-    "ranks": [1, 4, 8, 16],
-    "alphas": [1.0],
+    "layers": [
+      23,
+      22,
+      21
+    ],
+    "ranks": [
+      1,
+      4,
+      8,
+      16
+    ],
+    "alphas": [
+      1.0
+    ],
     "n_candidates_preferred": 12,
-    "note": "fill layers after probe; Stage A clamps ranks to k_found"
+    "note": "3×4×1 preferred; Stage A clamps ranks to k_found"
   },
-  "note": "Stub until H1 FDR on ministral3_3b. Gender only (no slot in pool protocols).",
+  "note": "FDR-significant ministral3_3b SOCs. Matched arm to XY polarity pool. Gender only (no slot in pool protocols).",
   "sets": [
     {
       "id": "promale",
@@ -47,8 +62,23 @@
       "tag_stage_b": "inlp_ministral3_3b_peak_prepeak_pool_profemale_b",
       "tag_stage_c": "inlp_ministral3_3b_peak_prepeak_pool_profemale_c",
       "subspace_tag": "polarity_pool_ministral3_3b_profemale_v1",
-      "n_soc": 0,
-      "slugs": []
+      "n_soc": 14,
+      "slugs": [
+        "architecture_and_engineering_occupations",
+        "arts_design_entertainment_sports_and_media_occup",
+        "business_and_financial_operations_occupations",
+        "computer_and_mathematical_occupations",
+        "educational_instruction_and_library_occupations",
+        "farming_fishing_and_forestry_occupations",
+        "food_preparation_and_serving_related_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "life_physical_and_social_science_occupations",
+        "management_occupations",
+        "office_and_administrative_support_occupations",
+        "personal_care_and_service_occupations",
+        "production_occupations",
+        "protective_service_occupations"
+      ]
     }
   ]
 }

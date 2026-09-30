@@ -1,13 +1,11 @@
 # Classical gender_prob INLP · mistralai/Ministral-3-3B-Base-2512
-# FILL AFTER HS-PROBE: replace peak / prepeak / belt with probe ints.
-#
 # Belt = gender_choice probe peak + two layers below.
 
 version: v1_peak_prepeak
 hypothesis: inlp_gender_prob
 scale: ministral3_3b
 created: 2026-09-30
-status: STUB_PEAK
+status: READY
 dtype: bfloat16
 
 source:
@@ -17,8 +15,8 @@ source:
   n_hidden_states: 27
   hidden_state_index: "0 = embeddings, 1..26 = block output"
   label_note: >-
-    Classical INLP on gendered last-token HS (gender_prob). Fill layers
-    after probes.v1_rep / gender_choice layer scan on Ministral 3B beh pack.
+    Classical INLP on gendered last-token HS (gender_prob). Peak from
+    gender_choice L23 (steering PEAK = choice).
 
 hook:
   site: residual_stream_hidden_state
@@ -35,14 +33,13 @@ inlp:
   chance:
     corr_threshold: 0.15
 
-# STUB mid-depth placeholders (26 layers) — replace after probe
 layers:
-  peak: 9
-  prepeak: [8, 7]
-  belt: [9, 8, 7]
-  core: [9, 8, 7]
-  anchor: 9
-  note: STUB — replace with gender_choice peak before full Vast run.
+  peak: 23
+  prepeak: [22, 21]
+  belt: [23, 22, 21]
+  core: [23, 22, 21]
+  anchor: 23
+  note: gender_choice peak L23; soft gender_prob peak was L21 (not used).
 
 steering:
   kind: center
@@ -62,7 +59,7 @@ families:
   - id: main_center_peak_prepeak
     enabled: true
     role: candidate
-    layers: [9, 8, 7]
+    layers: [23, 22, 21]
     ranks: [1, 4, 8, 16]
     alphas: [1.0]
-    description: STUB peak + peak−1 + peak−2 × ranks; Stage A clamps to k_found.
+    description: peak + peak−1 + peak−2 × ranks; Stage A clamps to k_found.

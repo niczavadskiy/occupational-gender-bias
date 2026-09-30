@@ -43,7 +43,12 @@ def build_rates_summary(df: pd.DataFrame) -> pd.DataFrame:
             rows.append(_rate_row(sub, "by_abstain", {"abstain_variant": ab}))
 
     if "soc_major_title" in base.columns:
-        for title in sorted(base["soc_major_title"].astype(str).unique()):
+        titles = [
+            str(t)
+            for t in base["soc_major_title"].dropna().unique().tolist()
+            if t is not None and str(t).strip() and str(t).lower() not in ("nan", "none")
+        ]
+        for title in sorted(titles):
             sub = filter_slice(base, soc_major_title=title)
             rows.append(_rate_row(sub, "by_soc_major", {"soc_major_title": title}))
 

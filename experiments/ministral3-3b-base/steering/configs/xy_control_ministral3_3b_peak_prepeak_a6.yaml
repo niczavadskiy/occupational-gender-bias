@@ -1,12 +1,11 @@
 # Stage A XY-control polarity pool · mistralai/Ministral-3-3B-Base-2512
-# FILL AFTER: (1) HS-probe peak  (2) H1 FDR polarity sets
 # |α|≤6 grid matched to Qwen/Gemma peak_prepeak_a6.
 
 version: v1_peak_prepeak_a6
 hypothesis: xy_control
 scale: ministral3_3b
 created: 2026-09-30
-status: STUB_PEAK
+status: READY
 dtype: bfloat16
 
 source:
@@ -42,19 +41,19 @@ interventions:
     alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
 
 layers:
-  belt: [7, 8, 9]
-  core: [7, 8, 9]
-  peak: 9
-  prepeak: [8, 7]
-  anchor: 9
-  note: STUB — replace after gender_choice probe.
+  belt: [21, 22, 23]
+  core: [21, 22, 23]
+  peak: 23
+  prepeak: [22, 21]
+  anchor: 23
+  note: gender_choice probe peak L23.
 
 families:
   - id: main_add_peak_prepeak
     enabled: true
     role: candidate
     vectors: [v_raw]
-    layers: [9, 8, 7]
+    layers: [23, 22, 21]
     intervention: add
     alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
 

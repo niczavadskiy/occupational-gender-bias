@@ -45,6 +45,11 @@ def run_h1_v1_pipeline(
         position_variant=position_variant,
         context_order=context_order,
     )
+    # StringDtype keeps missing as float nan; stringify so sorted(unique) works.
+    if "soc_major_title" in df.columns:
+        df["soc_major_title"] = df["soc_major_title"].map(
+            lambda x: "" if x is None or (isinstance(x, float) and x != x) else str(x)
+        )
     df = add_derived_columns(df)
     df_main = main_task_frame(df)
 

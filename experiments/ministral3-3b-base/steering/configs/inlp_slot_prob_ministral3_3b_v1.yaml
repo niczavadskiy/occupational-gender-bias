@@ -5,7 +5,7 @@ version: v1_peak_prepeak
 hypothesis: inlp_slot_prob
 scale: ministral3_3b
 created: 2026-09-30
-status: STUB_PEAK
+status: READY
 dtype: bfloat16
 target: slot_prob
 
@@ -17,7 +17,7 @@ source:
   hidden_state_index: "0 = embeddings, 1..26 = block output"
   label_note: >-
     Classical INLP on slot last-token HS (slot_prob / p_A). Peak from
-    slot_choice classification probe after beh pack.
+    slot_choice L24.
 
 hook:
   site: residual_stream_hidden_state
@@ -32,14 +32,12 @@ inlp:
   chance:
     corr_threshold: 0.15
 
-# STUB late-depth placeholders (26 layers) — replace after probe
 layers:
-  peak: 20
-  prepeak: [19, 18]
-  belt: [20, 19, 18]
-  core: [20, 19, 18]
-  anchor: 20
-  note: STUB — replace with slot_choice peak before full Vast run.
+  peak: 24
+  prepeak: [23, 22]
+  belt: [24, 23, 22]
+  core: [24, 23, 22]
+  anchor: 24
 
 steering:
   kind: center
@@ -59,7 +57,7 @@ families:
   - id: main_center_peak_prepeak
     enabled: true
     role: candidate
-    layers: [20, 19, 18]
+    layers: [24, 23, 22]
     ranks: [1, 4, 8, 16]
     alphas: [1.0]
-    description: STUB slot peak + peak−1 + peak−2 × ranks.
+    description: slot peak + peak−1 + peak−2 × ranks; Stage A clamps to k_found.

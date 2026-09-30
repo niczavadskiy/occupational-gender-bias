@@ -1,11 +1,10 @@
 # Polarity-pooled INLP · mistralai/Ministral-3-3B-Base-2512
-# FILL AFTER: (1) HS-probe peak  (2) H1 FDR polarity sets
 
 version: v1_peak_prepeak
 hypothesis: inlp_polarity_pool
 scale: ministral3_3b
 created: 2026-09-30
-status: STUB_PEAK
+status: READY
 dtype: bfloat16
 protocol: pooled_polarity_one_subspace
 
@@ -33,12 +32,11 @@ inlp:
     corr_threshold: 0.15
 
 layers:
-  peak: 9
-  prepeak: [8, 7]
-  belt: [9, 8, 7]
-  core: [9, 8, 7]
-  anchor: 9
-  note: STUB — match gender_choice peak after probe.
+  peak: 23
+  prepeak: [22, 21]
+  belt: [23, 22, 21]
+  core: [23, 22, 21]
+  anchor: 23
 
 steering:
   kind: center
@@ -64,6 +62,6 @@ families:
   - id: main_center_peak_prepeak
     enabled: true
     role: candidate
-    layers: [9, 8, 7]
+    layers: [23, 22, 21]
     ranks: [1, 4, 8, 16]
     alphas: [1.0]

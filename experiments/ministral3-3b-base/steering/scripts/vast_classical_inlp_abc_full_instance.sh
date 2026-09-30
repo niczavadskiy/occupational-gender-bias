@@ -4,13 +4,12 @@
 #
 # Usage (Vast):
 #   export HF_TOKEN=hf_xxx
-#   LAYERS_GENDER=9,8,7 LAYERS_SLOT=20,19,18 \
-#     SCALE=ministral3_3b bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
-#   LAYERS_GENDER=24,23,22 LAYERS_SLOT=31,30,29 \
-#     SCALE=ministral3_8b bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+#   SCALE=ministral3_3b bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+#   SCALE=ministral3_8b bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 #
 # Env: SCALE MODEL AXES=gender,slot SMOKE=1 SKIP_BUILD=1 SKIP_STAGE_A=1
 #      RUN_STAGE_B=1 RUN_STAGE_C=1 LAYERS_GENDER LAYERS_SLOT DTYPE=bfloat16
+# Defaults (3b): LAYERS_GENDER=23,22,21 LAYERS_SLOT=24,23,22
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -37,8 +36,8 @@ SCALE="${SCALE:?set SCALE=ministral3_3b or ministral3_8b}"
 case "$SCALE" in
   ministral3_3b)
     MODEL="${MODEL:-mistralai/Ministral-3-3B-Base-2512}"
-    LAYERS_GENDER="${LAYERS_GENDER:-9,8,7}"
-    LAYERS_SLOT="${LAYERS_SLOT:-20,19,18}"
+    LAYERS_GENDER="${LAYERS_GENDER:-23,22,21}"
+    LAYERS_SLOT="${LAYERS_SLOT:-24,23,22}"
     EXP_REL="experiments/ministral3-3b-base"
     ;;
   ministral3_8b)

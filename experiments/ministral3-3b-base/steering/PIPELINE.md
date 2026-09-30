@@ -10,17 +10,17 @@ Dtype: **`bfloat16`** (default in Vast scripts).
 
 | Axis | Probe | Peak | Belt |
 |------|-------|-----:|------|
-| Gender | `gender_choice` | **TBD** | fill after probe |
-| Slot | `slot_choice` | **TBD** | fill after probe |
+| Gender | `gender_choice` | **23** | 23 / 22 / 21 |
+| Slot | `slot_choice` | **24** | 24 / 23 / 22 |
 
-After probe: set `layers.peak` / belt in `configs/*` and `LAYERS_GENDER` / `LAYERS_SLOT` for classical Vast.
+Narrative omitted. Soft `gender_prob` L21 not used (steering PEAK = choice L23).
 
 ## FDR polarity (gender pool protocols)
 
 | set | n SOC | action |
 |-----|------:|--------|
-| `promale` | **0** (stub) | fill after H1 FDR |
-| `profemale` | **0** (stub) | fill after H1 FDR |
+| `promale` | **0** | **skip** |
+| `profemale` | **14** | run |
 
 Empty sets are skipped by pool scripts.
 
@@ -36,9 +36,9 @@ Empty sets are skipped by pool scripts.
 
 ```bash
 export HF_TOKEN=hf_xxx
-# after peaks locked:
-LAYERS_GENDER=P,P-1,P-2 LAYERS_SLOT=S,S-1,S-2 \
-  SCALE=ministral3_3b DTYPE=bfloat16 \
+SCALE=ministral3_3b DTYPE=bfloat16 \
+  LAYERS_GENDER=23,22,21 \
+  LAYERS_SLOT=24,23,22 \
   bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 
 SCALE=ministral3_3b DTYPE=bfloat16 \
@@ -48,11 +48,11 @@ SCALE=ministral3_3b DTYPE=bfloat16 \
   bash experiments/ministral3-3b-base/steering/scripts/vast_xy_control_polarity_sets_ministral3_3b_full_instance.sh
 
 SMOKE=1 SCALE=ministral3_3b DTYPE=bfloat16 \
-  LAYERS_GENDER=13 LAYERS_SLOT=20 \
+  LAYERS_GENDER=23 LAYERS_SLOT=24 \
   bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 ```
 
-## Configs (STUB peaks — fill after probe)
+## Configs (READY)
 
 | File | Role |
 |------|------|
@@ -63,4 +63,4 @@ SMOKE=1 SCALE=ministral3_3b DTYPE=bfloat16 \
 | [`domains/polarity_sets_ministral3_3b_v1.json`](domains/polarity_sets_ministral3_3b_v1.json) | XY sets |
 | [`domains/inlp_polarity_sets_ministral3_3b_v1.json`](domains/inlp_polarity_sets_ministral3_3b_v1.json) | INLP sets |
 
-Catalog: `steering/xy_control/domains/h1_soc_fdr_v1.json` → `scales.ministral3_3b` (after FDR rebuild).
+Catalog: `steering/xy_control/domains/h1_soc_fdr_v1.json` → `scales.ministral3_3b`.

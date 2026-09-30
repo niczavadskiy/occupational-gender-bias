@@ -1,7 +1,7 @@
 {
   "schema": "steering.xy_control_soc_fdr/v1",
   "version": "v1",
-  "datetime": "2026-09-20T01:28:53",
+  "datetime": "2026-09-30T17:16:30",
   "rule": {
     "abstain_variant": "without_abstain",
     "include": "union of FDR-rejected H1 SOC strata (choice family or prob family)",
@@ -28,20 +28,20 @@
           "choice": {
             "rejected_fdr": true,
             "q_value": 0.00028442563791450447,
-            "p_raw": 0.000014174619036180706,
+            "p_raw": 1.4174619036180706e-05,
             "effect": 0.26996197718631176,
             "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 66
+            "n_clusters": 66.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.00017572651652270494,
-            "p_raw": 0.000018497528055021573,
+            "p_raw": 1.8497528055021573e-05,
             "effect": 0.07053093164592641,
             "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 66
+            "n_clusters": 66.0
           },
           "steer": true
         },
@@ -59,7 +59,7 @@
             "effect": 0.3,
             "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 30
+            "n_clusters": 30.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -68,7 +68,7 @@
             "effect": 0.05887060376505057,
             "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 30
+            "n_clusters": 30.0
           },
           "steer": true
         },
@@ -86,7 +86,7 @@
             "effect": 0.22950819672131148,
             "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 61
+            "n_clusters": 61.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -95,7 +95,7 @@
             "effect": 0.05380048993669572,
             "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 61
+            "n_clusters": 61.0
           },
           "steer": true
         },
@@ -113,7 +113,7 @@
             "effect": 0.13333333333333333,
             "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -122,7 +122,7 @@
             "effect": 0.015609577608605226,
             "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -140,7 +140,7 @@
             "effect": -0.05813953488372093,
             "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 86
+            "n_clusters": 86.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -149,7 +149,7 @@
             "effect": -0.031146831333983774,
             "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 86
+            "n_clusters": 86.0
           },
           "steer": true
         },
@@ -167,7 +167,7 @@
             "effect": 0.1388888888888889,
             "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 54
+            "n_clusters": 54.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -176,7 +176,7 @@
             "effect": 0.03017135226616153,
             "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 54
+            "n_clusters": 54.0
           },
           "steer": true
         },
@@ -194,7 +194,7 @@
             "effect": 0.11666666666666667,
             "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -203,7 +203,7 @@
             "effect": 0.015124502095083396,
             "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -221,7 +221,7 @@
             "effect": -0.109375,
             "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 32
+            "n_clusters": 32.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -230,7 +230,7 @@
             "effect": -0.06927490048110485,
             "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 32
+            "n_clusters": 32.0
           },
           "steer": true
         },
@@ -248,7 +248,7 @@
             "effect": 0.14814814814814814,
             "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 108
+            "n_clusters": 108.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -257,7 +257,7 @@
             "effect": 0.03095960344567343,
             "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 108
+            "n_clusters": 108.0
           },
           "steer": true
         },
@@ -270,21 +270,21 @@
           "hypothesized_alpha_sign": "negative",
           "choice": {
             "rejected_fdr": true,
-            "q_value": 0.00007774376969918329,
-            "p_raw": 0.00008236337782292451,
+            "q_value": 7.774376969918329e-05,
+            "p_raw": 8.236337782292451e-05,
             "effect": 0.27358490566037735,
             "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 53
+            "n_clusters": 53.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.000006250469875557374,
-            "p_raw": 3.28972098713546e-7,
+            "q_value": 6.250469875557374e-06,
+            "p_raw": 3.28972098713546e-07,
             "effect": 0.07843546681808976,
             "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 53
+            "n_clusters": 53.0
           },
           "steer": true
         }
@@ -301,7 +301,7 @@
             "effect": 0.08139534883720931,
             "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 43
+            "n_clusters": 43.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -310,7 +310,7 @@
             "effect": 0.010580527747786322,
             "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 43
+            "n_clusters": 43.0
           }
         },
         {
@@ -324,7 +324,7 @@
             "effect": -0.07142857142857142,
             "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 49
+            "n_clusters": 49.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -333,7 +333,7 @@
             "effect": -0.013784797215948299,
             "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 49
+            "n_clusters": 49.0
           }
         },
         {
@@ -347,7 +347,7 @@
             "effect": 0.08823529411764706,
             "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -356,7 +356,7 @@
             "effect": 0.058081485988462675,
             "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 17
+            "n_clusters": 17.0
           }
         },
         {
@@ -370,7 +370,7 @@
             "effect": -0.20588235294117646,
             "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -379,7 +379,7 @@
             "effect": -0.07461867152768023,
             "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 17
+            "n_clusters": 17.0
           }
         },
         {
@@ -393,7 +393,7 @@
             "effect": -0.029411764705882353,
             "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -402,7 +402,7 @@
             "effect": -0.03127156921169337,
             "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 17
+            "n_clusters": 17.0
           }
         },
         {
@@ -416,7 +416,7 @@
             "effect": 0.10576923076923077,
             "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 52
+            "n_clusters": 52.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -425,7 +425,7 @@
             "effect": 0.009050501725421501,
             "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 52
+            "n_clusters": 52.0
           }
         },
         {
@@ -439,7 +439,7 @@
             "effect": 0.03968253968253968,
             "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 63
+            "n_clusters": 63.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -448,7 +448,7 @@
             "effect": 0.006713788187693036,
             "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 63
+            "n_clusters": 63.0
           }
         },
         {
@@ -462,7 +462,7 @@
             "effect": 0.1724137931034483,
             "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 29
+            "n_clusters": 29.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -471,7 +471,7 @@
             "effect": 0.04613437837567823,
             "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 29
+            "n_clusters": 29.0
           }
         },
         {
@@ -485,7 +485,7 @@
             "effect": 0.16666666666666666,
             "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 24
+            "n_clusters": 24.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -494,7 +494,7 @@
             "effect": 0.018278285550574463,
             "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 24
+            "n_clusters": 24.0
           }
         }
       ]
@@ -516,21 +516,21 @@
           "hypothesized_alpha_sign": "negative",
           "choice": {
             "rejected_fdr": true,
-            "q_value": 0.0000022978674596412207,
-            "p_raw": 1.8071716860564054e-8,
+            "q_value": 2.2978674596412207e-06,
+            "p_raw": 1.8071716860564054e-08,
             "effect": 0.36065573770491804,
             "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 61
+            "n_clusters": 61.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.0000062669611241610535,
-            "p_raw": 9.895201774991138e-7,
+            "q_value": 6.2669611241610535e-06,
+            "p_raw": 9.895201774991138e-07,
             "effect": 0.1715137325685288,
             "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 61
+            "n_clusters": 61.0
           },
           "steer": true
         },
@@ -548,16 +548,16 @@
             "effect": -0.15,
             "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.00007575944898901368,
-            "p_raw": 0.000019936697102372023,
+            "q_value": 7.575944898901368e-05,
+            "p_raw": 1.9936697102372023e-05,
             "effect": -0.08414104956124599,
             "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -575,16 +575,16 @@
             "effect": -0.20588235294117646,
             "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.00022355637271693463,
-            "p_raw": 0.00007059674927903198,
+            "p_raw": 7.059674927903198e-05,
             "effect": -0.17319773521055193,
             "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "steer": true
         },
@@ -597,21 +597,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": true,
-            "q_value": 3.795592428801417e-7,
-            "p_raw": 8.034251824491043e-7,
+            "q_value": 3.795592428801417e-07,
+            "p_raw": 8.034251824491043e-07,
             "effect": -0.26744186046511625,
             "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 86
+            "n_clusters": 86.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 6.249480968775791e-7,
-            "p_raw": 6.57840101976399e-8,
+            "q_value": 6.249480968775791e-07,
+            "p_raw": 6.57840101976399e-08,
             "effect": -0.08595353170016477,
             "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 86
+            "n_clusters": 86.0
           },
           "steer": true
         },
@@ -629,7 +629,7 @@
             "effect": -0.4117647058823529,
             "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -638,7 +638,7 @@
             "effect": -0.21127959176459732,
             "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "steer": true
         },
@@ -651,21 +651,21 @@
           "hypothesized_alpha_sign": "negative",
           "choice": {
             "rejected_fdr": true,
-            "q_value": 2.126068848779282e-9,
+            "q_value": 2.126068848779282e-09,
             "p_raw": 4.913652064094459e-11,
             "effect": 0.4444444444444444,
             "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 54
+            "n_clusters": 54.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 1.1381636981067921e-7,
-            "p_raw": 5.990335253193643e-9,
+            "q_value": 1.1381636981067921e-07,
+            "p_raw": 5.990335253193643e-09,
             "effect": 0.17772327177226543,
             "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 54
+            "n_clusters": 54.0
           },
           "steer": true
         },
@@ -683,7 +683,7 @@
             "effect": -0.15833333333333333,
             "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -692,7 +692,7 @@
             "effect": -0.08013149247659991,
             "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 60
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -710,16 +710,16 @@
             "effect": -0.14285714285714285,
             "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 63
+            "n_clusters": 63.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.00002715332591076636,
-            "p_raw": 0.000005716489665424497,
+            "q_value": 2.715332591076636e-05,
+            "p_raw": 5.716489665424497e-06,
             "effect": -0.07774909566496573,
             "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 63
+            "n_clusters": 63.0
           },
           "steer": true
         },
@@ -737,7 +737,7 @@
             "effect": 0.05092592592592592,
             "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 108
+            "n_clusters": 108.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -746,7 +746,7 @@
             "effect": 0.04057583734565587,
             "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 108
+            "n_clusters": 108.0
           },
           "steer": true
         },
@@ -764,7 +764,7 @@
             "effect": 0.1320754716981132,
             "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 53
+            "n_clusters": 53.0
           },
           "prob": {
             "rejected_fdr": true,
@@ -773,7 +773,7 @@
             "effect": 0.08593042932872502,
             "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 53
+            "n_clusters": 53.0
           },
           "steer": true
         }
@@ -790,7 +790,7 @@
             "effect": 0.034220532319391636,
             "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 66
+            "n_clusters": 66.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -799,7 +799,7 @@
             "effect": 0.015248067167095359,
             "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 66
+            "n_clusters": 66.0
           }
         },
         {
@@ -813,7 +813,7 @@
             "effect": -0.09302325581395349,
             "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 43
+            "n_clusters": 43.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -822,7 +822,7 @@
             "effect": -0.052318666996650914,
             "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 43
+            "n_clusters": 43.0
           }
         },
         {
@@ -836,7 +836,7 @@
             "effect": -0.02040816326530612,
             "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 49
+            "n_clusters": 49.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -845,7 +845,7 @@
             "effect": -0.01178630682810837,
             "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 49
+            "n_clusters": 49.0
           }
         },
         {
@@ -859,7 +859,7 @@
             "effect": -0.06666666666666667,
             "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 30
+            "n_clusters": 30.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -868,7 +868,7 @@
             "effect": -0.03422889864693086,
             "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 30
+            "n_clusters": 30.0
           }
         },
         {
@@ -877,12 +877,12 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": 1,
-            "p_raw": 1,
-            "effect": 0,
+            "q_value": 1.0,
+            "p_raw": 1.0,
+            "effect": 0.0,
             "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 17
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -891,7 +891,7 @@
             "effect": 0.02477010027231539,
             "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 17
+            "n_clusters": 17.0
           }
         },
         {
@@ -905,7 +905,7 @@
             "effect": -0.019230769230769232,
             "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 52
+            "n_clusters": 52.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -914,7 +914,7 @@
             "effect": -0.014570949939437784,
             "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 52
+            "n_clusters": 52.0
           }
         },
         {
@@ -928,7 +928,7 @@
             "effect": -0.1875,
             "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 32
+            "n_clusters": 32.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -937,7 +937,7 @@
             "effect": -0.09615024403319694,
             "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 32
+            "n_clusters": 32.0
           }
         },
         {
@@ -951,7 +951,7 @@
             "effect": 0.20689655172413793,
             "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 29
+            "n_clusters": 29.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -960,7 +960,7 @@
             "effect": 0.08356347449669807,
             "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 29
+            "n_clusters": 29.0
           }
         },
         {
@@ -974,7 +974,7 @@
             "effect": -0.0625,
             "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
             "family_name": "h1v1_strata_soc_major",
-            "n_clusters": 24
+            "n_clusters": 24.0
           },
           "prob": {
             "rejected_fdr": false,
@@ -983,7 +983,7 @@
             "effect": -0.061975675635039806,
             "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
             "family_name": "h1v1_strata_soc_major_prob",
-            "n_clusters": 24
+            "n_clusters": 24.0
           }
         }
       ]
@@ -1006,20 +1006,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.0580564676766515,
-            "p_raw": null,
+            "p_raw": 0.21740606879237953,
             "effect": -0.07984790874524715,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 66.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.00005182254312072826,
-            "p_raw": null,
+            "q_value": 5.182254312072826e-05,
+            "p_raw": 1.0910009078048055e-05,
             "effect": -0.010824577323384158,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 66.0
           },
           "steer": true
         },
@@ -1033,20 +1033,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.0580564676766515,
-            "p_raw": null,
+            "p_raw": 0.10905618827674632,
             "effect": -0.12790697674418605,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 43.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0005345050440156514,
-            "p_raw": null,
+            "p_raw": 0.0001969229109531347,
             "effect": -0.00936764877202899,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 43.0
           },
           "steer": true
         },
@@ -1060,20 +1060,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.06842215280513127,
-            "p_raw": null,
+            "p_raw": 0.35314085510666426,
             "effect": -0.07142857142857142,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 49.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0006899796761782815,
-            "p_raw": null,
+            "p_raw": 0.00030360387443614014,
             "effect": -0.007843948900699615,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 49.0
           },
           "steer": true
         },
@@ -1087,20 +1087,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.7864039017454147,
-            "p_raw": null,
+            "p_raw": 0.927315021089884,
             "effect": -0.016666666666666666,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 30.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.008833696506487838,
-            "p_raw": null,
+            "p_raw": 0.006044108136017994,
             "effect": -0.009176620095968247,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 30.0
           },
           "steer": true
         },
@@ -1114,20 +1114,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.06908715826242542,
-            "p_raw": null,
+            "p_raw": 0.481382849545511,
             "effect": -0.04918032786885246,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 61.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.0000049717545583564815,
-            "p_raw": null,
+            "q_value": 4.9717545583564815e-06,
+            "p_raw": 2.61671292545078e-07,
             "effect": -0.011116617771445727,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 61.0
           },
           "steer": true
         },
@@ -1141,20 +1141,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.4207803138937761,
-            "p_raw": null,
+            "p_raw": 0.8465015892198471,
             "effect": -0.016666666666666666,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.03080819536604732,
-            "p_raw": null,
+            "p_raw": 0.024322259499511042,
             "effect": -0.004366248100996018,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -1168,20 +1168,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.6476263067765522,
-            "p_raw": null,
+            "p_raw": 0.716300760154337,
             "effect": -0.058823529411764705,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.027941481882493267,
-            "p_raw": null,
+            "p_raw": 0.020588460334468723,
             "effect": -0.009115321671261507,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
           },
           "steer": true
         },
@@ -1195,20 +1195,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.4207803138937761,
-            "p_raw": null,
+            "p_raw": 0.7059239842772639,
             "effect": -0.023255813953488372,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 86.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0043541426371393145,
-            "p_raw": null,
+            "p_raw": 0.0027499848234564094,
             "effect": -0.005096875391034193,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 86.0
           },
           "steer": true
         },
@@ -1222,20 +1222,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.4207803138937761,
-            "p_raw": null,
+            "p_raw": 0.8383158696331665,
             "effect": -0.018518518518518517,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 54.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.000011845369329175191,
-            "p_raw": null,
+            "q_value": 1.1845369329175191e-05,
+            "p_raw": 1.246880982018441e-06,
             "effect": -0.010840902863829225,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 54.0
           },
           "steer": true
         },
@@ -1249,20 +1249,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.19554432669062344,
-            "p_raw": null,
+            "p_raw": 0.651469090407115,
             "effect": -0.03333333333333333,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.0000676618085708145,
-            "p_raw": null,
+            "q_value": 6.76618085708145e-05,
+            "p_raw": 1.780573909758276e-05,
             "effect": -0.008388572558760642,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -1276,20 +1276,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.05261842521097133,
-            "p_raw": null,
+            "p_raw": 0.08277018974536471,
             "effect": -0.125,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 52.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0007126119185936365,
-            "p_raw": null,
+            "p_raw": 0.0003750589045229666,
             "effect": -0.009140540917332355,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 52.0
           },
           "steer": true
         },
@@ -1303,20 +1303,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.06908715826242542,
-            "p_raw": null,
+            "p_raw": 0.23128430773119601,
             "effect": -0.07936507936507936,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 63.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0006899796761782815,
-            "p_raw": null,
+            "p_raw": 0.00032683247818971226,
             "effect": -0.007166349107310886,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 63.0
           },
           "steer": true
         },
@@ -1330,20 +1330,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.06908715826242542,
-            "p_raw": null,
+            "p_raw": 0.1326248013249823,
             "effect": -0.140625,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 32.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0008635312494819706,
-            "p_raw": null,
+            "p_raw": 0.0004999391444369304,
             "effect": -0.01058426103554666,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 32.0
           },
           "steer": true
         },
@@ -1351,26 +1351,26 @@
           "soc_major_title": "Production Occupations",
           "slug": "production_occupations",
           "polarity": "female",
-          "gate": "choice_fdr",
+          "gate": "both",
           "effect": -0.08333333333333333,
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": true,
             "q_value": 0.009734639639985488,
-            "p_raw": null,
+            "p_raw": 0.0920782899368173,
             "effect": -0.08333333333333333,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 108.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 0.000022677382817946732,
-            "p_raw": null,
+            "q_value": 2.2677382817946732e-05,
+            "p_raw": 3.5806393923073788e-06,
             "effect": -0.007732051528162426,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 108.0
           },
           "steer": true
         },
@@ -1384,20 +1384,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.06908715826242542,
-            "p_raw": null,
+            "p_raw": 0.45003684019759427,
             "effect": -0.05660377358490566,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 53.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.00010852098743693971,
-            "p_raw": null,
+            "p_raw": 3.4269785506402016e-05,
             "effect": -0.008789560423707063,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 53.0
           },
           "steer": true
         }
@@ -1410,20 +1410,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.4207803138937761,
-            "p_raw": null,
+            "p_raw": 0.716300760154337,
             "effect": 0.058823529411764705,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
             "q_value": 0.22136979102715143,
-            "p_raw": null,
+            "p_raw": 0.20971874939414348,
             "effect": -0.005486161393277785,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
           }
         },
         {
@@ -1433,20 +1433,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.4207803138937761,
-            "p_raw": null,
+            "p_raw": 0.9035973456835127,
             "effect": 0.029411764705882353,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
             "q_value": 0.2719604051511876,
-            "p_raw": null,
+            "p_raw": 0.2719604051511876,
             "effect": -0.0035265653448946334,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
           }
         },
         {
@@ -1455,21 +1455,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": 1,
-            "p_raw": null,
-            "effect": 0,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 1.0,
+            "p_raw": 1.0,
+            "effect": 0.0,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 29.0
           },
           "prob": {
             "rejected_fdr": false,
             "q_value": 0.08454809902624727,
-            "p_raw": null,
+            "p_raw": 0.07564829912874756,
             "effect": -0.004222606276643687,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 29.0
           }
         },
         {
@@ -1479,20 +1479,20 @@
           "choice": {
             "rejected_fdr": false,
             "q_value": 0.6476263067765522,
-            "p_raw": null,
+            "p_raw": 0.7596492883236299,
             "effect": -0.041666666666666664,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 24.0
           },
           "prob": {
             "rejected_fdr": false,
             "q_value": 0.08454809902624727,
-            "p_raw": null,
+            "p_raw": 0.07202357048649052,
             "effect": -0.007630125929911931,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 24.0
           }
         }
       ]
@@ -1514,21 +1514,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.24635249141869942,
+            "p_raw": 0.593647461306141,
+            "effect": -0.046511627906976744,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 43.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.028708675806307427,
-            "p_raw": null,
+            "p_raw": 0.016620812308914826,
             "effect": -0.012682303266469823,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 43.0
           },
           "steer": true
         },
@@ -1541,21 +1541,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.22240864558535725,
+            "p_raw": 0.2839477609963806,
+            "effect": -0.08163265306122448,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 49.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.024678837796607286,
-            "p_raw": null,
+            "p_raw": 0.011689975798392925,
             "effect": -0.017166791977931042,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 49.0
           },
           "steer": true
         },
@@ -1568,21 +1568,21 @@
           "hypothesized_alpha_sign": "negative",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.673272159561878,
+            "p_raw": 0.8477486582929066,
+            "effect": 0.01639344262295082,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 61.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0026370303293083695,
-            "p_raw": null,
+            "p_raw": 0.0004163732098907952,
             "effect": 0.020157353616640217,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 61.0
           },
           "steer": true
         },
@@ -1595,21 +1595,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.22240864558535725,
+            "p_raw": 0.21995127170296608,
+            "effect": -0.08333333333333333,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.005758211816038452,
-            "p_raw": null,
+            "p_raw": 0.00121225511916599,
             "effect": -0.02670113816857338,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
           },
           "steer": true
         },
@@ -1622,21 +1622,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 1.0,
+            "p_raw": 1.0,
+            "effect": 0.0,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.019874054387756804,
-            "p_raw": null,
+            "p_raw": 0.007322020037594613,
             "effect": -0.0326131452970645,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
           },
           "steer": true
         },
@@ -1649,21 +1649,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.22240864558535725,
+            "p_raw": 0.2574996925074185,
+            "effect": -0.06395348837209303,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 86.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.028708675806307427,
-            "p_raw": null,
+            "p_raw": 0.01532180180122085,
             "effect": -0.014740155273398687,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 86.0
           },
           "steer": true
         },
@@ -1676,21 +1676,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.24635249141869942,
+            "p_raw": 0.39612484029702977,
+            "effect": -0.11764705882352941,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.01169018587668575,
-            "p_raw": null,
+            "p_raw": 0.0036916376452691842,
             "effect": -0.03366486355662346,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
           },
           "steer": true
         },
@@ -1703,21 +1703,21 @@
           "hypothesized_alpha_sign": "negative",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.3146300388723896,
+            "p_raw": 0.7337887753383905,
+            "effect": 0.027777777777777776,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 54.0
           },
           "prob": {
             "rejected_fdr": true,
-            "q_value": 3.9785635028081176e-8,
-            "p_raw": null,
+            "q_value": 3.9785635028081176e-08,
+            "p_raw": 2.093980790951641e-09,
             "effect": 0.03082895092666149,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 54.0
           },
           "steer": true
         },
@@ -1730,21 +1730,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 1.0,
+            "p_raw": 1.0,
+            "effect": 0.0,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 63.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.0015115246834992166,
-            "p_raw": null,
+            "p_raw": 0.00015910786142097017,
             "effect": -0.020881570993907868,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 63.0
           },
           "steer": true
         },
@@ -1757,21 +1757,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.24635249141869942,
+            "p_raw": 0.5362687140711067,
+            "effect": -0.0625,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 32.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.00895492420279973,
-            "p_raw": null,
+            "p_raw": 0.002356559000736771,
             "effect": -0.025690210051834583,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 32.0
           },
           "steer": true
         },
@@ -1784,21 +1784,21 @@
           "hypothesized_alpha_sign": "positive",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.48551574680050813,
+            "p_raw": 0.7596492883236299,
+            "effect": -0.041666666666666664,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 24.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.04738669260450418,
-            "p_raw": null,
+            "p_raw": 0.02992843743442369,
             "effect": -0.022075045232971508,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 24.0
           },
           "steer": true
         },
@@ -1811,21 +1811,21 @@
           "hypothesized_alpha_sign": "negative",
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.30260799824058876,
+            "p_raw": 0.6307898865914232,
+            "effect": 0.03773584905660377,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 53.0
           },
           "prob": {
             "rejected_fdr": true,
             "q_value": 0.02447216839820488,
-            "p_raw": null,
+            "p_raw": 0.010304070904507318,
             "effect": 0.014090987449547029,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 53.0
           },
           "steer": true
         }
@@ -1837,21 +1837,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.8289100024936806,
+            "p_raw": 0.805235806479569,
+            "effect": 0.019011406844106463,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 66.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.07511729712137317,
+            "p_raw": 0.05139604539883428,
+            "effect": 0.01320557381263704,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 66.0
           }
         },
         {
@@ -1860,21 +1860,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.28713807835377697,
+            "p_raw": 0.315303300832257,
+            "effect": -0.1,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 30.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.12261183107927665,
+            "p_raw": 0.1032520682772856,
+            "effect": -0.012288005898396175,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 30.0
           }
         },
         {
@@ -1883,21 +1883,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.48551574680050813,
+            "p_raw": 0.716300760154337,
+            "effect": -0.058823529411764705,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.9662131363770815,
+            "p_raw": 0.9662131363770815,
+            "effect": -0.0004177667638834785,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
           }
         },
         {
@@ -1906,21 +1906,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.22240864558535725,
+            "p_raw": 0.2724573176730075,
+            "effect": -0.075,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.6845910930861013,
+            "p_raw": 0.6245583473641865,
+            "effect": -0.003691223884622256,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
           }
         },
         {
@@ -1929,21 +1929,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.22240864558535725,
+            "p_raw": 0.23843026889610905,
+            "effect": -0.08653846153846154,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 52.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.07701419517643085,
+            "p_raw": 0.056747301708949045,
+            "effect": -0.014944162219762802,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 52.0
           }
         },
         {
@@ -1952,21 +1952,21 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.5535851226066871,
+            "p_raw": 0.8099281382860267,
+            "effect": -0.013888888888888888,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 108.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.08931927881516301,
+            "p_raw": 0.07051522011723395,
+            "effect": 0.006878216061051245,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 108.0
           }
         },
         {
@@ -1975,21 +1975,526 @@
           "steer": false,
           "choice": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 1.0,
+            "p_raw": 1.0,
+            "effect": 0.0,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 29.0
           },
           "prob": {
             "rejected_fdr": false,
-            "q_value": null,
-            "p_raw": null,
-            "effect": null,
-            "test_id": "",
-            "family_name": "",
-            "n_clusters": null
+            "q_value": 0.6845910930861013,
+            "p_raw": 0.648559982923675,
+            "effect": 0.0031587441676649555,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 29.0
+          }
+        }
+      ]
+    },
+    "ministral3_3b": {
+      "csv": "experiments/ministral3-3b-base/results/ministral3_3b_h1h3_pack/run_2026-09-30_10-56-17_Ministral-3-3B-Base-2512_v1_full_pos_shuffle/metrics_h1_v1/2026-09-30_17-15-10/tests_h1_v1_soc.csv",
+      "n_soc_tested": 19,
+      "n_steer": 14,
+      "n_skip": 5,
+      "n_male": 0,
+      "n_female": 14,
+      "steer": [
+        {
+          "soc_major_title": "Architecture and Engineering Occupations",
+          "slug": "architecture_and_engineering_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.2623574144486692,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.007992919065138318,
+            "p_raw": 2.490701445976282e-05,
+            "effect": -0.2623574144486692,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 66.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.00420310757371977,
+            "p_raw": 0.001327297128543085,
+            "effect": -0.0635830877851624,
+            "test_id": "h1v1_soc_architecture_and_engineering_occupations_e8922194_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 66.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Arts, Design, Entertainment, Sports, and Media Occupations",
+          "slug": "arts_design_entertainment_sports_and_media_occup",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.313953488372093,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.006071838534008604,
+            "p_raw": 4.65489376895322e-05,
+            "effect": -0.313953488372093,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 43.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.006596542414268335,
+            "p_raw": 0.0027774915428498254,
+            "effect": -0.08421931472108808,
+            "test_id": "h1v1_soc_arts_design_entertainment_sports_and_media_occup_9b05dff6_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 43.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Business and Financial Operations Occupations",
+          "slug": "business_and_financial_operations_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.19387755102040816,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.042435393976677435,
+            "p_raw": 0.008057137128552348,
+            "effect": -0.19387755102040816,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 49.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.015568413630135716,
+            "p_raw": 0.00737451171953797,
+            "effect": -0.05680870394013366,
+            "test_id": "h1v1_soc_business_and_financial_operations_occupations_69e18692_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 49.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Computer and Mathematical Occupations",
+          "slug": "computer_and_mathematical_occupations",
+          "polarity": "female",
+          "gate": "prob_fdr",
+          "effect": -0.06802657072742781,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.06751704535076827,
+            "p_raw": 0.035323682537769574,
+            "effect": -0.2,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 30.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.03711840134795027,
+            "p_raw": 0.02148960078039226,
+            "effect": -0.06802657072742781,
+            "test_id": "h1v1_soc_computer_and_mathematical_occupations_f8ab41c0_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 30.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Educational Instruction and Library Occupations",
+          "slug": "educational_instruction_and_library_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.2,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.014823702869520288,
+            "p_raw": 0.002345445228553513,
+            "effect": -0.2,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0035509377897618307,
+            "p_raw": 0.0009344573130952187,
+            "effect": -0.05727718863636255,
+            "test_id": "h1v1_soc_educational_instruction_and_library_occupations_33ba68c5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Farming, Fishing, and Forestry Occupations",
+          "slug": "farming_fishing_and_forestry_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.38235294117647056,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.006071838534008604,
+            "p_raw": 0.0021862431776861714,
+            "effect": -0.38235294117647056,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.006596542414268335,
+            "p_raw": 0.0026805161142716178,
+            "effect": -0.10778855137965258,
+            "test_id": "h1v1_soc_farming_fishing_and_forestry_occupations_2a7be214_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Food Preparation and Serving Related Occupations",
+          "slug": "food_preparation_and_serving_related_occupations",
+          "polarity": "female",
+          "gate": "choice_fdr",
+          "effect": -0.17647058823529413,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.045788874714669005,
+            "p_raw": 0.1818100545355934,
+            "effect": -0.17647058823529413,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.0687958938190191,
+            "p_raw": 0.04707087471827623,
+            "effect": -0.03150035747710396,
+            "test_id": "h1v1_soc_food_preparation_and_serving_related_occupations_e87c9cd9_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Healthcare Practitioners and Technical Occupations",
+          "slug": "healthcare_practitioners_and_technical_occupatio",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.2616279069767442,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.00036139928445267483,
+            "p_raw": 1.4014124579879053e-06,
+            "effect": -0.2616279069767442,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 86.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.00026587307235703645,
+            "p_raw": 2.7986639195477522e-05,
+            "effect": -0.0555486970602773,
+            "test_id": "h1v1_soc_healthcare_practitioners_and_technical_occupatio_09435211_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 86.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Life, Physical, and Social Science Occupations",
+          "slug": "life_physical_and_social_science_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.38333333333333336,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 1.4352298525984918e-05,
+            "p_raw": 2.744528668579561e-09,
+            "effect": -0.38333333333333336,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 60.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0003306708290299442,
+            "p_raw": 5.221118353104382e-05,
+            "effect": -0.10212562661617994,
+            "test_id": "h1v1_soc_life_physical_and_social_science_occupations_78accc24_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 60.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Management Occupations",
+          "slug": "management_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.25,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.016884999739556594,
+            "p_raw": 0.0003810436027483333,
+            "effect": -0.25,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 52.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.032832601131384864,
+            "p_raw": 0.017280316384939404,
+            "effect": -0.0579299613690147,
+            "test_id": "h1v1_soc_management_occupations_d41fe756_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 52.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Office and Administrative Support Occupations",
+          "slug": "office_and_administrative_support_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.38095238095238093,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 6.976808577390055e-07,
+            "p_raw": 1.3855630334917397e-09,
+            "effect": -0.38095238095238093,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 63.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 1.5907437419716205e-06,
+            "p_raw": 8.37233548406116e-08,
+            "effect": -0.0869000463613442,
+            "test_id": "h1v1_soc_office_and_administrative_support_occupations_8e9f9896_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 63.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Personal Care and Service Occupations",
+          "slug": "personal_care_and_service_occupations",
+          "polarity": "female",
+          "gate": "choice_fdr",
+          "effect": -0.265625,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.028013023327627957,
+            "p_raw": 0.003374185020092195,
+            "effect": -0.265625,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 32.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.0513606518158442,
+            "p_raw": 0.03243830641000686,
+            "effect": -0.04103385366033763,
+            "test_id": "h1v1_soc_personal_care_and_service_occupations_5e2509d5_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 32.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Production Occupations",
+          "slug": "production_occupations",
+          "polarity": "female",
+          "gate": "both",
+          "effect": -0.1712962962962963,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.006147134550408995,
+            "p_raw": 0.00043158898894832146,
+            "effect": -0.1712962962962963,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 108.0
+          },
+          "prob": {
+            "rejected_fdr": true,
+            "q_value": 0.0006629122217356694,
+            "p_raw": 0.00013956046773382514,
+            "effect": -0.03648007343764658,
+            "test_id": "h1v1_soc_production_occupations_05764ae2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 108.0
+          },
+          "steer": true
+        },
+        {
+          "soc_major_title": "Protective Service Occupations",
+          "slug": "protective_service_occupations",
+          "polarity": "female",
+          "gate": "choice_fdr",
+          "effect": -0.1896551724137931,
+          "hypothesized_alpha_sign": "positive",
+          "choice": {
+            "rejected_fdr": true,
+            "q_value": 0.04623271988787317,
+            "p_raw": 0.05072955668288323,
+            "effect": -0.1896551724137931,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 29.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.12426904028258502,
+            "p_raw": 0.10464761286954528,
+            "effect": -0.030977486151045765,
+            "test_id": "h1v1_soc_protective_service_occupations_ab90f1e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 29.0
+          },
+          "steer": true
+        }
+      ],
+      "skip": [
+        {
+          "soc_major_title": "Construction and Extraction Occupations",
+          "slug": "construction_and_extraction_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.8663061687961329,
+            "p_raw": 0.8477486582929066,
+            "effect": -0.01639344262295082,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 61.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.7118255934830561,
+            "p_raw": 0.7118255934830561,
+            "effect": -0.0060789768935227,
+            "test_id": "h1v1_soc_construction_and_extraction_occupations_378d35e7_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 61.0
+          }
+        },
+        {
+          "soc_major_title": "Healthcare Support Occupations",
+          "slug": "healthcare_support_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.5024115255375544,
+            "p_raw": 0.39612484029702977,
+            "effect": -0.11764705882352941,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 17.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.0976795945103821,
+            "p_raw": 0.07711546935030167,
+            "effect": -0.07470305548871264,
+            "test_id": "h1v1_soc_healthcare_support_occupations_e47fe9e2_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 17.0
+          }
+        },
+        {
+          "soc_major_title": "Installation, Maintenance, and Repair Occupations",
+          "slug": "installation_maintenance_and_repair_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.8978474678475034,
+            "p_raw": 0.9457736301231234,
+            "effect": 0.009259259259259259,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 54.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.38410902459543395,
+            "p_raw": 0.36389276014304267,
+            "effect": 0.013274426054623392,
+            "test_id": "h1v1_soc_installation_maintenance_and_repair_occupations_04d9087d_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 54.0
+          }
+        },
+        {
+          "soc_major_title": "Sales and Related Occupations",
+          "slug": "sales_and_related_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.31541246007845547,
+            "p_raw": 0.26146943628638764,
+            "effect": -0.125,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 24.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.18270958771209303,
+            "p_raw": 0.16347699953187272,
+            "effect": -0.033068462274968624,
+            "test_id": "h1v1_soc_sales_and_related_occupations_5a5cc955_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 24.0
+          }
+        },
+        {
+          "soc_major_title": "Transportation and Material Moving Occupations",
+          "slug": "transportation_and_material_moving_occupations",
+          "steer": false,
+          "choice": {
+            "rejected_fdr": false,
+            "q_value": 0.17882014521131237,
+            "p_raw": 0.11397511041908633,
+            "effect": -0.11320754716981132,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_man_vs_woman",
+            "family_name": "h1v1_strata_soc_major",
+            "n_clusters": 53.0
+          },
+          "prob": {
+            "rejected_fdr": false,
+            "q_value": 0.08850028753849701,
+            "p_raw": 0.06521073818626096,
+            "effect": -0.024171990395154594,
+            "test_id": "h1v1_soc_transportation_and_material_moving_occupations_641bce1e_margin_prob",
+            "family_name": "h1v1_strata_soc_major_prob",
+            "n_clusters": 53.0
           }
         }
       ]
