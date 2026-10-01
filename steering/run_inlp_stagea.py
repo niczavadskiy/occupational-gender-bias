@@ -295,8 +295,16 @@ def bootstrap_mean_ci(values: np.ndarray, *, n_boot: int, seed: int, ci: float =
     """Ресемпл единиц кластеризации (семей) с возвращением."""
     values = np.asarray(values, dtype=np.float64)
     values = values[np.isfinite(values)]
+    empty = {
+        "mean": float("nan"),
+        "median": float("nan"),
+        "ci_lo": float("nan"),
+        "ci_hi": float("nan"),
+        "fraction_positive": float("nan"),
+        "n": 0,
+    }
     if len(values) == 0:
-        return {"mean": float("nan"), "ci_lo": float("nan"), "ci_hi": float("nan")}
+        return empty
     rng = np.random.default_rng(seed)
     draws = rng.integers(0, len(values), size=(n_boot, len(values)))
     means = values[draws].mean(axis=1)
@@ -598,6 +606,11 @@ def main(argv: list[str] | None = None) -> int:
         )
 
         pr = metrics["primary"]
+        if not np.isfinite(pr.get("n", float("nan"))) or pr.get("n", 0) == 0:
+            print(
+                f"  WARN: primary reduction has n=0 finite families "
+                f"(n_families={metrics.get('n_families')}) — check NaN logits / empty sample"
+            )
         print(
             f"  R_gender {metrics['gender_axis']['reduction']['mean']:+.4f}  "
             f"R_slot {metrics['slot_axis']['reduction']['mean']:+.4f}  "
