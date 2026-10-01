@@ -6,8 +6,15 @@
 #   SCALE=gemma3_1b bash experiments/gemma3-1b-pt/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 #   SCALE=gemma3_4b bash experiments/gemma3-4b-pt/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 #
+# Alt hypothesis (Gemma1B gender test-peak belt L16/15/14 — does not overwrite val-peak L9/8/7):
+#   HYPOTHESIS=testpeak SCALE=gemma3_1b bash experiments/gemma3-1b-pt/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+#   # equivalent:
+#   SCALE=gemma3_1b AXES=gender LAYERS_GENDER=16,15,14 TAG_SUFFIX=_testpeak_v1 \
+#     bash experiments/gemma3-1b-pt/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+#
 # Env: SCALE MODEL AXES=gender,slot SMOKE=1 SKIP_BUILD=1 SKIP_STAGE_A=1
 #      RUN_STAGE_B=1 RUN_STAGE_C=1 LAYERS_GENDER LAYERS_SLOT
+#      HYPOTHESIS=valpeak|testpeak TAG_SUFFIX (appended to subspace + stage tags)
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -25,10 +32,15 @@ SKIP_BUILD="${SKIP_BUILD:-0}"
 SKIP_STAGE_A="${SKIP_STAGE_A:-0}"
 RUN_STAGE_B="${RUN_STAGE_B:-1}"
 RUN_STAGE_C="${RUN_STAGE_C:-1}"
-AXES="${AXES:-gender,slot}"
+# AXES default applied after HYPOTHESIS (testpeak → gender-only).
+AXES="${AXES:-}"
 RANKS="${RANKS:-1,4,8,16}"
 ALPHAS="${ALPHAS:-1.0}"
 K_MAX="${K_MAX:-32}"
+HYPOTHESIS="${HYPOTHESIS:-valpeak}"
+TAG_SUFFIX="${TAG_SUFFIX:-}"
+# Capture caller-set layers before SCALE defaults (so testpeak can override 9,8,7).
+_USER_LAYERS_GENDER="${LAYERS_GENDER-}"
 
 SCALE="${SCALE:?set SCALE=gemma3_1b or gemma3_4b}"
 case "$SCALE" in
@@ -49,12 +61,33 @@ case "$SCALE" in
     ;;
 esac
 
+# Alt: gender_choice test-peak belt (L16 val_bacc lower than L9, but test_bacc peak).
+if [ "$HYPOTHESIS" = "testpeak" ]; then
+  if [ "$SCALE" != "gemma3_1b" ]; then
+    echo "HYPOTHESIS=testpeak is only defined for SCALE=gemma3_1b (got $SCALE)"; exit 1
+  fi
+  if [ -n "$_USER_LAYERS_GENDER" ]; then
+    LAYERS_GENDER="$_USER_LAYERS_GENDER"
+  else
+    LAYERS_GENDER=16,15,14
+  fi
+  if [ -z "$TAG_SUFFIX" ]; then TAG_SUFFIX="_testpeak_v1"; fi
+  if [ -z "$AXES" ]; then AXES=gender; fi
+elif [ "$HYPOTHESIS" = "valpeak" ]; then
+  if [ -z "$AXES" ]; then AXES=gender,slot; fi
+else
+  echo "HYPOTHESIS must be valpeak or testpeak (got $HYPOTHESIS)"; exit 1
+fi
+if [ -z "$AXES" ]; then AXES=gender,slot; fi
+unset _USER_LAYERS_GENDER
+
 OUT_ROOT="${OUT_ROOT:-$REPO/$EXP_REL/results/steering}"
 SAMPLE="${SAMPLE:-$REPO/steering/samples/h1_stagea_sample_v1.json}"
 SAMPLE_C="${SAMPLE_C:-$REPO/steering/samples/inlp_stagec_sample_v1.json}"
 MMLU_PARQUET="${MMLU_PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
 
-echo "=== [0] classical INLP A→B→C scale=$SCALE model=$MODEL axes=$AXES ==="
+echo "=== [0] classical INLP A→B→C scale=$SCALE model=$MODEL axes=$AXES hypothesis=$HYPOTHESIS tag_suffix='${TAG_SUFFIX}' ==="
+echo "    LAYERS_GENDER=$LAYERS_GENDER LAYERS_SLOT=$LAYERS_SLOT"
 nvidia-smi -L || echo "WARN: nvidia-smi failed"
 cd "$WORKDIR"
 
@@ -102,18 +135,18 @@ run_axis() {
     target=gender_prob
     layers="$LAYERS_GENDER"
     primary=gender
-    sub_tag="${SCALE}_gender_v1"
-    tag_a="inlp_${SCALE}_gender_prob_a_v1"
-    tag_b="inlp_${SCALE}_gender_prob_b_v1"
-    tag_c="inlp_${SCALE}_gender_prob_c_v1"
+    sub_tag="${SCALE}_gender_v1${TAG_SUFFIX}"
+    tag_a="inlp_${SCALE}_gender_prob_a_v1${TAG_SUFFIX}"
+    tag_b="inlp_${SCALE}_gender_prob_b_v1${TAG_SUFFIX}"
+    tag_c="inlp_${SCALE}_gender_prob_c_v1${TAG_SUFFIX}"
   else
     target=slot_prob
     layers="$LAYERS_SLOT"
     primary=slot
-    sub_tag="${SCALE}_slot_v1"
-    tag_a="inlp_${SCALE}_slot_prob_a_v1"
-    tag_b="inlp_${SCALE}_slot_prob_b_v1"
-    tag_c="inlp_${SCALE}_slot_prob_c_v1"
+    sub_tag="${SCALE}_slot_v1${TAG_SUFFIX}"
+    tag_a="inlp_${SCALE}_slot_prob_a_v1${TAG_SUFFIX}"
+    tag_b="inlp_${SCALE}_slot_prob_b_v1${TAG_SUFFIX}"
+    tag_c="inlp_${SCALE}_slot_prob_c_v1${TAG_SUFFIX}"
   fi
 
   local sub="$REPO/steering/subspaces/inlp_${target}_${sub_tag}.npz"
@@ -186,9 +219,9 @@ run_axis() {
       "${smoke_c[@]}"
   fi
 
-  local pack="/workspace/inlp_classical_${SCALE}_${axis}_abc.tar.gz"
+  local pack="/workspace/inlp_classical_${SCALE}_${axis}${TAG_SUFFIX}_abc.tar.gz"
   if [ "$SMOKE" = "1" ]; then
-    pack="/workspace/inlp_classical_${SCALE}_${axis}_abc_smoke.tar.gz"
+    pack="/workspace/inlp_classical_${SCALE}_${axis}${TAG_SUFFIX}_abc_smoke.tar.gz"
   fi
   echo "=== pack → $pack ==="
   tar -czf "$pack" -C "$REPO" \

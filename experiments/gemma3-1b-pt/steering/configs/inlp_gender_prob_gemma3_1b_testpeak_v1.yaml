@@ -1,0 +1,77 @@
+# Classical gender_prob INLP · google/gemma-3-1b-pt
+# ALT HYPOTHESIS: gender_choice *test*-peak belt (not the locked val-peak).
+#
+# Probe evidence (without_abstain gender_choice layer_scan):
+#   val peak  L9  · val_bacc=0.670 · test_bacc=0.619  ← locked primary belt 9/8/7
+#   test peak L16 · val_bacc=0.625 · test_bacc=0.677  ← this config belt 16/15/14
+#
+# Run on Vast with non-colliding tags (do not overwrite primary L9 results):
+#   HYPOTHESIS=testpeak SCALE=gemma3_1b \
+#     bash experiments/gemma3-1b-pt/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+
+version: v1_testpeak_prepeak
+hypothesis: inlp_gender_prob_testpeak
+scale: gemma3_1b
+created: 2026-10-01
+status: READY
+role: alternative_to_valpeak
+
+source:
+  model_id: google/gemma-3-1b-pt
+  d_model: 1152
+  n_hidden_states: 27
+  hidden_state_index: "0 = embeddings, 1..26 = block output"
+  label_note: >-
+    Alt classical INLP on gendered last-token HS (gender_prob), layers locked
+    to gender_choice *test* argmax + two layers below. Primary remains val-peak
+    L9/8/7 (inlp_gender_prob_gemma3_1b_v1.yaml).
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  intervention: "h' = h − α W_k (W_kᵀ h − c)"
+
+target: gender_prob
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+layers:
+  peak: 16
+  prepeak: [15, 14]
+  belt: [16, 15, 14]
+  core: [16, 15, 14]
+  anchor: 16
+  note: >-
+    test_bacc peak L16; prepeak = peak−1, peak−2. Distinct from val-peak L9
+    belt. Tags: *_testpeak_v1.
+
+steering:
+  kind: center
+  ranks: [1, 4, 8, 16]
+  alphas: [1.0]
+  random_control: true
+  random_seeds: [0]
+
+split:
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+  seed: 0
+  stratify_by: soc_major_title
+
+families:
+  - id: alt_center_testpeak_prepeak
+    enabled: true
+    role: alternative_candidate
+    layers: [16, 15, 14]
+    ranks: [1, 4, 8, 16]
+    alphas: [1.0]
+    description: >-
+      gender_choice test-peak + peak−1 + peak−2 × ranks; Stage A clamps to
+      k_found. Compare Stage C R / |D| vs primary L9/8/7 keepers.
