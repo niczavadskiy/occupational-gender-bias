@@ -42,8 +42,8 @@ case "$SCALE" in
     ;;
   ministral3_8b)
     MODEL="${MODEL:-mistralai/Ministral-3-8B-Base-2512}"
-    LAYERS_GENDER="${LAYERS_GENDER:-24,23,22}"
-    LAYERS_SLOT="${LAYERS_SLOT:-31,30,29}"
+    LAYERS_GENDER="${LAYERS_GENDER:-29,28,27}"
+    LAYERS_SLOT="${LAYERS_SLOT:-28,27,26}"
     EXP_REL="experiments/ministral3-8b-base"
     ;;
   *)

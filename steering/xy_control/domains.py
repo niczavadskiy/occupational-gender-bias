@@ -59,12 +59,15 @@ SOC_CSV = {
     / "metrics_h1_v1"
     / "2026-09-30_17-15-10"
     / "tests_h1_v1_soc.csv",
-    # Placeholder: CSV filled after H1 metrics under *_h1h3_pack.
+    # H1 SOC FDR (choice/prob, without_abstain) after pack metrics.
     "ministral3_8b": REPO_ROOT
     / "experiments"
     / "ministral3-8b-base"
     / "results"
     / "ministral3_8b_h1h3_pack"
+    / "run_2026-10-01_v1_full_pos_shuffle"
+    / "metrics_h1_v1"
+    / "2026-10-01_16-21-52"
     / "tests_h1_v1_soc.csv",
 }
 

@@ -111,3 +111,29 @@ Tested 19 SOCs → steer **14** (0 male, 14 female), skip 5.
 | female | choice_fdr | -0.190 | 0.0462 | 0.124 | Protective Service Occupations |
 
 Skip: Construction and Extraction Occupations, Healthcare Support Occupations, Installation, Maintenance, and Repair Occupations, Sales and Related Occupations, Transportation and Material Moving Occupations.
+
+## MINISTRAL3_8B
+
+Tested 19 SOCs → steer **17** (0 male, 17 female), skip 2.
+
+| polarity | gate | effect | q_choice | q_prob | SOC |
+|---|---|---:|---:|---:|---|
+| female | both | -0.217 | 0.00255 | 0.00316 | Architecture and Engineering Occupations |
+| female | both | -0.279 | 0.00341 | 0.00528 | Arts, Design, Entertainment, Sports, and Media Occupations |
+| female | both | -0.316 | 0.000255 | 0.000406 | Business and Financial Operations Occupations |
+| female | prob_fdr | -0.073 | 0.107 | 0.043 | Computer and Mathematical Occupations |
+| female | both | -0.233 | 0.000974 | 1.55e-05 | Educational Instruction and Library Occupations |
+| female | both | -0.382 | 0.0333 | 0.0066 | Farming, Fishing, and Forestry Occupations |
+| female | both | -0.294 | 0.0209 | 0.000651 | Food Preparation and Serving Related Occupations |
+| female | both | -0.297 | 6.21e-09 | 1.69e-18 | Healthcare Practitioners and Technical Occupations |
+| female | both | -0.529 | 0.000951 | 7.29e-05 | Healthcare Support Occupations |
+| female | both | -0.275 | 0.000151 | 1.51e-06 | Life, Physical, and Social Science Occupations |
+| female | both | -0.269 | 0.000152 | 0.00027 | Management Occupations |
+| female | both | -0.262 | 8.48e-05 | 3.22e-13 | Office and Administrative Support Occupations |
+| female | both | -0.328 | 0.000837 | 1.42e-05 | Personal Care and Service Occupations |
+| female | prob_fdr | -0.036 | 0.32 | 0.00863 | Production Occupations |
+| female | prob_fdr | -0.057 | 0.0645 | 0.00316 | Protective Service Occupations |
+| female | both | -0.271 | 0.00711 | 0.00306 | Sales and Related Occupations |
+| female | prob_fdr | -0.039 | 0.139 | 0.0431 | Transportation and Material Moving Occupations |
+
+Skip: Construction and Extraction Occupations, Installation, Maintenance, and Repair Occupations.

@@ -10,17 +10,17 @@ Dtype: **`bfloat16`** (default in Vast scripts).
 
 | Axis | Probe | Peak | Belt |
 |------|-------|-----:|------|
-| Gender | `gender_choice` | **TBD** | fill after probe |
-| Slot | `slot_choice` | **TBD** | fill after probe |
+| Gender | `gender_choice` | **29** | 29 / 28 / 27 |
+| Slot | `slot_choice` | **28** | 28 / 27 / 26 |
 
-After probe: set `layers.peak` / belt in `configs/*` and `LAYERS_GENDER` / `LAYERS_SLOT` for classical Vast.
+Narrative omitted. Soft `gender_prob` L21 not used (steering PEAK = choice L29).
 
 ## FDR polarity (gender pool protocols)
 
 | set | n SOC | action |
 |-----|------:|--------|
-| `promale` | **0** (stub) | fill after H1 FDR |
-| `profemale` | **0** (stub) | fill after H1 FDR |
+| `promale` | **0** | **skip** |
+| `profemale` | **17** | run |
 
 Empty sets are skipped by pool scripts.
 
@@ -29,43 +29,38 @@ Empty sets are skipped by pool scripts.
 | # | Protocol | Axes | Vast |
 |---|----------|------|------|
 | 1 | Classical INLP | **gender + slot** | [`scripts/vast_classical_inlp_abc_full_instance.sh`](scripts/vast_classical_inlp_abc_full_instance.sh) |
-| 2 | Pool INLP | gender only | [`scripts/vast_inlp_polarity_pool_ministral3_8b_full_instance.sh`](scripts/vast_inlp_polarity_pool_ministral3_8b_full_instance.sh) |
-| 3 | Pool XY \|α\|≤6 | gender only | [`scripts/vast_xy_control_polarity_sets_ministral3_8b_full_instance.sh`](scripts/vast_xy_control_polarity_sets_ministral3_8b_full_instance.sh) |
+| 2 | Pool INLP | gender only | [`scripts/vast_inlp_polarity_pool_ministral3_3b_full_instance.sh`](scripts/vast_inlp_polarity_pool_ministral3_3b_full_instance.sh) |
+| 3 | Pool XY \|α\|≤6 | gender only | [`scripts/vast_xy_control_polarity_sets_ministral3_3b_full_instance.sh`](scripts/vast_xy_control_polarity_sets_ministral3_3b_full_instance.sh) |
 
 ## Vast commands
 
 ```bash
 export HF_TOKEN=hf_xxx
-cd /workspace/occupational-gender-bias && git pull origin main
-
-# Wrapper (after probe peaks + FDR freeze)
-SCALE=ministral3_8b PROTOCOLS=all SKIP_PIP=1 \
-  LAYERS_GENDER_8B=P,P-1,P-2 LAYERS_SLOT_8B=S,S-1,S-2 \
-  bash scripts/vast_ministral3_steering.sh
-
-# Or per-protocol:
-LAYERS_GENDER=P,P-1,P-2 LAYERS_SLOT=S,S-1,S-2 \
-  SCALE=ministral3_8b DTYPE=bfloat16 SKIP_PIP=1 PIN_VAST_ENV=1 \
+SCALE=ministral3_3b DTYPE=bfloat16 \
+  LAYERS_GENDER=29,28,27 \
+  LAYERS_SLOT=28,27,26 \
   bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 
-SCALE=ministral3_8b DTYPE=bfloat16 SKIP_PIP=1 \
-  bash experiments/ministral3-8b-base/steering/scripts/vast_inlp_polarity_pool_ministral3_8b_full_instance.sh
+SCALE=ministral3_3b DTYPE=bfloat16 \
+  bash experiments/ministral3-8b-base/steering/scripts/vast_inlp_polarity_pool_ministral3_3b_full_instance.sh
 
-SCALE=ministral3_8b DTYPE=bfloat16 SKIP_PIP=1 \
-  bash experiments/ministral3-8b-base/steering/scripts/vast_xy_control_polarity_sets_ministral3_8b_full_instance.sh
+SCALE=ministral3_3b DTYPE=bfloat16 \
+  bash experiments/ministral3-8b-base/steering/scripts/vast_xy_control_polarity_sets_ministral3_3b_full_instance.sh
+
+SMOKE=1 SCALE=ministral3_3b DTYPE=bfloat16 \
+  LAYERS_GENDER=29 LAYERS_SLOT=28 \
+  bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 ```
 
-**Note:** pool protocols no-op until FDR polarity sets are filled (`status: STUB` now).
-
-## Configs (STUB peaks — fill after probe)
+## Configs (READY)
 
 | File | Role |
 |------|------|
-| [`configs/inlp_gender_prob_ministral3_8b_v1.yaml`](configs/inlp_gender_prob_ministral3_8b_v1.yaml) | classical gender |
-| [`configs/inlp_slot_prob_ministral3_8b_v1.yaml`](configs/inlp_slot_prob_ministral3_8b_v1.yaml) | classical slot |
-| [`configs/inlp_polarity_pool_ministral3_8b_peak_prepeak.yaml`](configs/inlp_polarity_pool_ministral3_8b_peak_prepeak.yaml) | pool INLP |
-| [`configs/xy_control_ministral3_8b_peak_prepeak_a6.yaml`](configs/xy_control_ministral3_8b_peak_prepeak_a6.yaml) | pool XY |
-| [`domains/polarity_sets_ministral3_8b_v1.json`](domains/polarity_sets_ministral3_8b_v1.json) | XY sets |
-| [`domains/inlp_polarity_sets_ministral3_8b_v1.json`](domains/inlp_polarity_sets_ministral3_8b_v1.json) | INLP sets |
+| [`configs/inlp_gender_prob_ministral3_3b_v1.yaml`](configs/inlp_gender_prob_ministral3_3b_v1.yaml) | classical gender |
+| [`configs/inlp_slot_prob_ministral3_3b_v1.yaml`](configs/inlp_slot_prob_ministral3_3b_v1.yaml) | classical slot |
+| [`configs/inlp_polarity_pool_ministral3_3b_peak_prepeak.yaml`](configs/inlp_polarity_pool_ministral3_3b_peak_prepeak.yaml) | pool INLP |
+| [`configs/xy_control_ministral3_3b_peak_prepeak_a6.yaml`](configs/xy_control_ministral3_3b_peak_prepeak_a6.yaml) | pool XY |
+| [`domains/polarity_sets_ministral3_3b_v1.json`](domains/polarity_sets_ministral3_3b_v1.json) | XY sets |
+| [`domains/inlp_polarity_sets_ministral3_3b_v1.json`](domains/inlp_polarity_sets_ministral3_3b_v1.json) | INLP sets |
 
-Catalog: `steering/xy_control/domains/h1_soc_fdr_v1.json` → `scales.ministral3_8b` (after FDR rebuild).
+Catalog: `steering/xy_control/domains/h1_soc_fdr_v1.json` → `scales.ministral3_3b`.

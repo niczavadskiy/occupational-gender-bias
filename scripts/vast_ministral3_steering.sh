@@ -43,9 +43,22 @@ export PIN_VAST_ENV="${PIN_VAST_ENV:-1}"
 # 3B locked peaks (gender_choice L23, slot_choice L24)
 LAYERS_GENDER_3B="${LAYERS_GENDER:-${LAYERS_GENDER_3B:-23,22,21}}"
 LAYERS_SLOT_3B="${LAYERS_SLOT:-${LAYERS_SLOT_3B:-24,23,22}}"
-# 8B: fill after probe (placeholders match catalog stubs)
-LAYERS_GENDER_8B="${LAYERS_GENDER_8B:-24,23,22}"
-LAYERS_SLOT_8B="${LAYERS_SLOT_8B:-31,30,29}"
+# 8B locked peaks (gender_choice L29, slot_choice L28)
+LAYERS_GENDER_8B="${LAYERS_GENDER_8B:-29,28,27}"
+LAYERS_SLOT_8B="${LAYERS_SLOT_8B:-28,27,26}"
+
+require_int_layers() {
+  local name="$1" val="$2"
+  local part
+  IFS=',' read -ra parts <<<"$val"
+  for part in "${parts[@]}"; do
+    part="${part// /}"
+    if [[ ! "$part" =~ ^[0-9]+$ ]]; then
+      echo "FATAL: $name='$val' — need integers like 29,28,27 (not placeholders P,P-1,P-2)"
+      exit 1
+    fi
+  done
+}
 
 echo "=== Ministral 3 steering wrapper SCALE=$SCALE PROTOCOLS=$PROTOCOLS ==="
 nvidia-smi -L || true
@@ -161,6 +174,13 @@ run_one() {
 }
 
 for sc in "${scales[@]}"; do
+  if [ "$sc" = "ministral3_3b" ]; then
+    require_int_layers LAYERS_GENDER_3B "$LAYERS_GENDER_3B"
+    require_int_layers LAYERS_SLOT_3B "$LAYERS_SLOT_3B"
+  else
+    require_int_layers LAYERS_GENDER_8B "$LAYERS_GENDER_8B"
+    require_int_layers LAYERS_SLOT_8B "$LAYERS_SLOT_8B"
+  fi
   # shellcheck disable=SC2046
   for pr in $(expand_protocols "$PROTOCOLS"); do
     run_one "$sc" "$pr"
