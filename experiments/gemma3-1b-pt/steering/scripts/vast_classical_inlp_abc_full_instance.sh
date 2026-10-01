@@ -160,10 +160,13 @@ run_axis() {
     smoke_a=(--limit-items 2)
     smoke_b=(--limit-mmlu 3)
     smoke_c=(--limit-mmlu 3 --limit-items 2)
+    # Keep smoke artifacts off the full-run tags/subspaces.
+    sub_tag="${sub_tag}_smoke"
     tag_a="${tag_a}_smoke"
     tag_b="${tag_b}_smoke"
     tag_c="${tag_c}_smoke"
-    echo "SMOKE=1 → layers=$layers ranks=$ranks"
+    sub="$REPO/steering/subspaces/inlp_${target}_${sub_tag}.npz"
+    echo "SMOKE=1 → layers=$layers ranks=$ranks sub_tag=$sub_tag"
   fi
 
   echo ""
