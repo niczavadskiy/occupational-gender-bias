@@ -34,11 +34,23 @@ Empty sets are skipped by pool scripts.
 
 ## Vast commands
 
+Wrapper (env + all protocols):
+
 ```bash
 export HF_TOKEN=hf_xxx
+cd /workspace/occupational-gender-bias && git pull origin main
+
+# 3B · все 3 протокола (READY)
+SCALE=ministral3_3b PROTOCOLS=all SKIP_PIP=1 \
+  bash scripts/vast_ministral3_steering.sh
+```
+
+Per-protocol:
+
+```bash
+export HF_TOKEN=hf_xxx
+PY=/opt/conda/bin/python PIN_VAST_ENV=1 SKIP_PIP=1 SKIP_FLA=1
 SCALE=ministral3_3b DTYPE=bfloat16 \
-  LAYERS_GENDER=23,22,21 \
-  LAYERS_SLOT=24,23,22 \
   bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 
 SCALE=ministral3_3b DTYPE=bfloat16 \

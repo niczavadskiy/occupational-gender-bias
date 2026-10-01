@@ -36,20 +36,26 @@ Empty sets are skipped by pool scripts.
 
 ```bash
 export HF_TOKEN=hf_xxx
+cd /workspace/occupational-gender-bias && git pull origin main
+
+# Wrapper (after probe peaks + FDR freeze)
+SCALE=ministral3_8b PROTOCOLS=all SKIP_PIP=1 \
+  LAYERS_GENDER_8B=P,P-1,P-2 LAYERS_SLOT_8B=S,S-1,S-2 \
+  bash scripts/vast_ministral3_steering.sh
+
+# Or per-protocol:
 LAYERS_GENDER=P,P-1,P-2 LAYERS_SLOT=S,S-1,S-2 \
-  SCALE=ministral3_8b DTYPE=bfloat16 \
+  SCALE=ministral3_8b DTYPE=bfloat16 SKIP_PIP=1 PIN_VAST_ENV=1 \
   bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 
-SCALE=ministral3_8b DTYPE=bfloat16 \
+SCALE=ministral3_8b DTYPE=bfloat16 SKIP_PIP=1 \
   bash experiments/ministral3-8b-base/steering/scripts/vast_inlp_polarity_pool_ministral3_8b_full_instance.sh
 
-SCALE=ministral3_8b DTYPE=bfloat16 \
+SCALE=ministral3_8b DTYPE=bfloat16 SKIP_PIP=1 \
   bash experiments/ministral3-8b-base/steering/scripts/vast_xy_control_polarity_sets_ministral3_8b_full_instance.sh
-
-SMOKE=1 SCALE=ministral3_8b DTYPE=bfloat16 \
-  LAYERS_GENDER=17 LAYERS_SLOT=26 \
-  bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 ```
+
+**Note:** pool protocols no-op until FDR polarity sets are filled (`status: STUB` now).
 
 ## Configs (STUB peaks — fill after probe)
 

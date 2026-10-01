@@ -4,13 +4,12 @@
 #
 # Usage (Vast):
 #   export HF_TOKEN=hf_xxx
-#   LAYERS_GENDER=9,8,7 LAYERS_SLOT=20,19,18 \
-#     SCALE=ministral3_3b bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
-#   LAYERS_GENDER=24,23,22 LAYERS_SLOT=31,30,29 \
-#     SCALE=ministral3_8b bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+#   SCALE=ministral3_3b bash experiments/ministral3-3b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
+#   SCALE=ministral3_8b bash experiments/ministral3-8b-base/steering/scripts/vast_classical_inlp_abc_full_instance.sh
 #
 # Env: SCALE MODEL AXES=gender,slot SMOKE=1 SKIP_BUILD=1 SKIP_STAGE_A=1
 #      RUN_STAGE_B=1 RUN_STAGE_C=1 LAYERS_GENDER LAYERS_SLOT DTYPE=bfloat16
+# Defaults: 3b gender=23,22,21 slot=24,23,22 · 8b gender=24,23,22 slot=31,30,29 (8b fill after probe)
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -37,8 +36,8 @@ SCALE="${SCALE:?set SCALE=ministral3_3b or ministral3_8b}"
 case "$SCALE" in
   ministral3_3b)
     MODEL="${MODEL:-mistralai/Ministral-3-3B-Base-2512}"
-    LAYERS_GENDER="${LAYERS_GENDER:-9,8,7}"
-    LAYERS_SLOT="${LAYERS_SLOT:-20,19,18}"
+    LAYERS_GENDER="${LAYERS_GENDER:-23,22,21}"
+    LAYERS_SLOT="${LAYERS_SLOT:-24,23,22}"
     EXP_REL="experiments/ministral3-3b-base"
     ;;
   ministral3_8b)
@@ -76,6 +75,9 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 echo "=== [2] setup_instance + steering env ==="
 export SKIP_FLA="${SKIP_FLA:-1}"
+if [ -z "${PY:-}" ] && [ -x /opt/conda/bin/python ]; then
+  export PY=/opt/conda/bin/python
+fi
 PULL_CACHE=0 bash scripts/setup_instance.sh
 # shellcheck disable=SC1091
 source "$REPO/scripts/ensure_steering_env.sh"
@@ -86,7 +88,14 @@ else
 fi
 export PY
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+echo "  using PY=$PY"
+if ! "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"; then
+  echo "torch missing/broken in $PY — install_vast_env --force (PIN_VAST_ENV ignored)"
+  SKIP_FLA=1 PIN_VAST_ENV=1 "$PY" "$REPO/scripts/install_vast_env.py" --force
+fi
+"$PY" -c "import torch" || { echo "FATAL: no torch in $PY"; exit 1; }
 "$PY" -m pip install -U 'transformers>=4.57.0' mistral-common
+"$PY" -c "import torch" || { echo "FATAL: torch disappeared after mistral-common install"; exit 1; }
 
 mkdir -p "$(dirname "$MMLU_PARQUET")" "$OUT_ROOT"
 if [ ! -f "$MMLU_PARQUET" ]; then

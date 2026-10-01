@@ -62,13 +62,23 @@ export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
 
 echo "=== [2] env ==="
 export SKIP_FLA="${SKIP_FLA:-1}"
+if [ -z "${PY:-}" ] && [ -x /opt/conda/bin/python ]; then
+  export PY=/opt/conda/bin/python
+fi
 PULL_CACHE=0 bash scripts/setup_instance.sh
 # shellcheck disable=SC1091
 source "$REPO/scripts/ensure_steering_env.sh"
 if [ "${SKIP_PIP:-0}" = "1" ]; then SKIP_PIP=1 ensure_steering_env; else ensure_steering_env; fi
 export PY
 export PYTHONPATH="$REPO${PYTHONPATH:+:$PYTHONPATH}"
+echo "  using PY=$PY"
+if ! "$PY" -c "import torch; print('torch', torch.__version__, 'cuda', torch.cuda.is_available())"; then
+  echo "torch missing/broken in $PY — install_vast_env --force (PIN_VAST_ENV ignored)"
+  SKIP_FLA=1 PIN_VAST_ENV=1 "$PY" "$REPO/scripts/install_vast_env.py" --force
+fi
+"$PY" -c "import torch" || { echo "FATAL: no torch in $PY"; exit 1; }
 "$PY" -m pip install -U 'transformers>=4.57.0' mistral-common
+"$PY" -c "import torch" || { echo "FATAL: torch disappeared after mistral-common install"; exit 1; }
 
 need=("$SETS_JSON_REL" "$CONFIG_REL"
   steering/xy_control/run_polarity_pool.py
