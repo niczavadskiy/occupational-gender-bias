@@ -6,7 +6,12 @@
 #   SCALE=gemma3_1b bash experiments/gemma3-1b-pt/steering/scripts/vast_xy_control_polarity_sets_gemma3_1b_full_instance.sh
 #   SCALE=gemma3_4b bash experiments/gemma3-4b-pt/steering/scripts/vast_xy_control_polarity_sets_gemma3_4b_full_instance.sh
 #
+# Alt hypothesis (Gemma1B test-peak belt L16/15/14 — does not overwrite val-peak L9):
+#   HYPOTHESIS=testpeak SCALE=gemma3_1b \
+#     bash experiments/gemma3-1b-pt/steering/scripts/vast_xy_control_polarity_sets_gemma3_1b_full_instance.sh
+#
 # Env: SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 RUN_STAGE_B=0 SMOKE=1 CAP_LOSS_MAX=0.03
+#      HYPOTHESIS=valpeak|testpeak
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -25,6 +30,7 @@ CAP_LOSS_MAX="${CAP_LOSS_MAX:-0.03}"
 SMOKE="${SMOKE:-0}"
 SKIP_STAGE_A="${SKIP_STAGE_A:-0}"
 RUN_STAGE_B="${RUN_STAGE_B:-1}"
+HYPOTHESIS="${HYPOTHESIS:-valpeak}"
 
 SCALE="${SCALE:?set SCALE=gemma3_1b or gemma3_4b}"
 case "$SCALE" in
@@ -39,11 +45,29 @@ case "$SCALE" in
   *) echo "bad SCALE=$SCALE"; exit 1 ;;
 esac
 
-SETS_JSON_REL="$EXP_REL/steering/domains/polarity_sets_${SCALE}_v1.json"
-CONFIG_REL="$EXP_REL/steering/xy_control/configs/xy_control_${SCALE}_peak_prepeak_a6.yaml"
+case "$HYPOTHESIS" in
+  valpeak)
+    SETS_JSON_REL="$EXP_REL/steering/domains/polarity_sets_${SCALE}_v1.json"
+    CONFIG_REL="$EXP_REL/steering/xy_control/configs/xy_control_${SCALE}_peak_prepeak_a6.yaml"
+    PACK_SUFFIX=""
+    ;;
+  testpeak)
+    if [ "$SCALE" != "gemma3_1b" ]; then
+      echo "HYPOTHESIS=testpeak only defined for SCALE=gemma3_1b (got $SCALE)"; exit 1
+    fi
+    SETS_JSON_REL="$EXP_REL/steering/domains/polarity_sets_${SCALE}_testpeak_v1.json"
+    CONFIG_REL="$EXP_REL/steering/xy_control/configs/xy_control_${SCALE}_testpeak_prepeak_a6.yaml"
+    PACK_SUFFIX="_testpeak"
+    ;;
+  *)
+    echo "HYPOTHESIS must be valpeak or testpeak (got $HYPOTHESIS)"; exit 1
+    ;;
+esac
 MMLU_PARQUET="${MMLU_PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
 
-echo "=== [0] pool XY A→B→C scale=$SCALE ==="
+echo "=== [0] pool XY A→B→C scale=$SCALE hypothesis=$HYPOTHESIS ==="
+echo "    sets=$SETS_JSON_REL"
+echo "    config=$CONFIG_REL"
 nvidia-smi -L || true
 cd "$WORKDIR"
 
@@ -174,8 +198,8 @@ for set_id in "${SET_LIST[@]}"; do
   [ "$SMOKE" = "1" ] && C_FLAGS+=(--limit-mmlu 3 --limit-items 2)
   "$PY" -m steering.xy_control.run_polarity_pool_stagec "${C_FLAGS[@]}"
 
-  DST_PACK="/workspace/xy_control_polarity_pool_${set_id}_stage_abc_${SCALE}.tar.gz"
-  [ "$SMOKE" = "1" ] && DST_PACK="/workspace/xy_control_polarity_pool_${set_id}_stage_abc_${SCALE}_smoke.tar.gz"
+  DST_PACK="/workspace/xy_control_polarity_pool_${set_id}_stage_abc_${SCALE}${PACK_SUFFIX}.tar.gz"
+  [ "$SMOKE" = "1" ] && DST_PACK="/workspace/xy_control_polarity_pool_${set_id}_stage_abc_${SCALE}${PACK_SUFFIX}_smoke.tar.gz"
   tar_args=(-czf "$DST_PACK" -C "$REPO")
   [ -d "$STAGE_A_DIR" ] && tar_args+=("results/steering/xy_control/polarity_pool/$TAG_A_EFF")
   [ -d "$REPO/results/steering/xy_control/stage_b/$TAG_B_EFF" ] && tar_args+=("results/steering/xy_control/stage_b/$TAG_B_EFF")
@@ -183,5 +207,5 @@ for set_id in "${SET_LIST[@]}"; do
   if [ "${#tar_args[@]}" -gt 3 ]; then tar "${tar_args[@]}"; ls -lh "$DST_PACK"; fi
 done
 
-echo "=== pool XY DONE ($SCALE) ==="
-ls -lh /workspace/xy_control_polarity_pool_*_stage_abc_${SCALE}*.tar.gz 2>/dev/null || true
+echo "=== pool XY DONE ($SCALE hypothesis=$HYPOTHESIS) ==="
+ls -lh /workspace/xy_control_polarity_pool_*_stage_abc_${SCALE}${PACK_SUFFIX}*.tar.gz 2>/dev/null || true

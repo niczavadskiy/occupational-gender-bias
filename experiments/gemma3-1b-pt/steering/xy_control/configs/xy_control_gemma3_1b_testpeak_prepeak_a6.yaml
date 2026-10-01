@@ -1,0 +1,72 @@
+# Stage A XY-control polarity pool · google/gemma-3-1b-pt
+# ALT HYPOTHESIS: gender_choice *test*-peak belt L16/15/14 (primary remains L9/8/7).
+#
+# Vast:
+#   HYPOTHESIS=testpeak SCALE=gemma3_1b \
+#     bash experiments/gemma3-1b-pt/steering/scripts/vast_xy_control_polarity_sets_gemma3_1b_full_instance.sh
+
+version: v1_testpeak_prepeak_a6
+hypothesis: xy_control_testpeak
+scale: gemma3_1b
+created: 2026-10-01
+status: READY
+role: alternative_to_valpeak
+
+source:
+  model_id: google/gemma-3-1b-pt
+  d_model: 1152
+  n_hidden_states: 27
+  hidden_state_index: "0 = embeddings, 1..26 = block output"
+  mapping: {X: man, "Y": woman}
+  fit_sample: data/xy_pairs_full_v1.json
+  eval_sample: data/xy_pairs_full_v1.json
+  label: paired_xy_control
+  split:
+    train_frac: 0.70
+    val_frac: 0.15
+    test_frac: 0.15
+    seed: 0
+    stratify_by: soc_major_title
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+
+vectors:
+  - id: v_raw
+    short: vraw
+    role: candidate
+    kind: paired_mean_diff
+
+interventions:
+  - id: add
+    formula: "h' = h − α·v̂"
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+layers:
+  belt: [14, 15, 16]
+  core: [14, 15, 16]
+  peak: 16
+  prepeak: [15, 14]
+  anchor: 16
+  note: gender_choice test-peak; distinct tags *_testpeak_* vs val-peak L9.
+
+families:
+  - id: alt_add_testpeak_prepeak
+    enabled: true
+    role: alternative_candidate
+    vectors: [v_raw]
+    layers: [16, 15, 14]
+    intervention: add
+    alphas: [-6.0, -4.0, -3.0, -2.0, -1.0, -0.5, -0.25, 0.25, 0.5, 1.0, 2.0, 3.0, 4.0, 6.0]
+
+baseline:
+  id: baseline
+
+screening:
+  stage: A
+  primary_metric:
+    id: gender_gap
+    formula: "mean_i Δ_i, Δ_i = mean_layouts (log P(man) − log P(woman))"
+    direction: reduce_abs
+  keep_top: 10

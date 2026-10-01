@@ -6,7 +6,12 @@
 #   SCALE=gemma3_1b bash experiments/gemma3-1b-pt/steering/scripts/vast_inlp_polarity_pool_gemma3_1b_full_instance.sh
 #   SCALE=gemma3_4b bash experiments/gemma3-4b-pt/steering/scripts/vast_inlp_polarity_pool_gemma3_4b_full_instance.sh
 #
+# Alt hypothesis (Gemma1B test-peak belt L16/15/14 — does not overwrite val-peak L9):
+#   HYPOTHESIS=testpeak SCALE=gemma3_1b \
+#     bash experiments/gemma3-1b-pt/steering/scripts/vast_inlp_polarity_pool_gemma3_1b_full_instance.sh
+#
 # Env: SETS=promale,profemale SKIP_PIP=1 SKIP_STAGE_A=1 SKIP_FIT=1 RUN_STAGE_B=0 SMOKE=1
+#      HYPOTHESIS=valpeak|testpeak
 set -euo pipefail
 
 export HF_TOKEN="${HF_TOKEN:?export HF_TOKEN=hf_xxx}"
@@ -25,6 +30,7 @@ SKIP_STAGE_A="${SKIP_STAGE_A:-0}"
 SKIP_FIT="${SKIP_FIT:-0}"
 RUN_STAGE_B="${RUN_STAGE_B:-1}"
 RUN_STAGE_C="${RUN_STAGE_C:-1}"
+HYPOTHESIS="${HYPOTHESIS:-valpeak}"
 
 SCALE="${SCALE:?set SCALE=gemma3_1b or gemma3_4b}"
 case "$SCALE" in
@@ -39,11 +45,29 @@ case "$SCALE" in
   *) echo "bad SCALE=$SCALE"; exit 1 ;;
 esac
 
-SETS_JSON_REL="$EXP_REL/steering/domains/inlp_polarity_sets_${SCALE}_v1.json"
-CONFIG_REL="$EXP_REL/steering/configs/inlp_polarity_pool_${SCALE}_peak_prepeak.yaml"
+case "$HYPOTHESIS" in
+  valpeak)
+    SETS_JSON_REL="$EXP_REL/steering/domains/inlp_polarity_sets_${SCALE}_v1.json"
+    CONFIG_REL="$EXP_REL/steering/configs/inlp_polarity_pool_${SCALE}_peak_prepeak.yaml"
+    PACK_SUFFIX=""
+    ;;
+  testpeak)
+    if [ "$SCALE" != "gemma3_1b" ]; then
+      echo "HYPOTHESIS=testpeak only defined for SCALE=gemma3_1b (got $SCALE)"; exit 1
+    fi
+    SETS_JSON_REL="$EXP_REL/steering/domains/inlp_polarity_sets_${SCALE}_testpeak_v1.json"
+    CONFIG_REL="$EXP_REL/steering/configs/inlp_polarity_pool_${SCALE}_testpeak_prepeak.yaml"
+    PACK_SUFFIX="_testpeak"
+    ;;
+  *)
+    echo "HYPOTHESIS must be valpeak or testpeak (got $HYPOTHESIS)"; exit 1
+    ;;
+esac
 MMLU_PARQUET="${MMLU_PARQUET:-$REPO/steering/.cache/mmlu_pro_test.parquet}"
 
-echo "=== [0] pool INLP A→B→C scale=$SCALE ==="
+echo "=== [0] pool INLP A→B→C scale=$SCALE hypothesis=$HYPOTHESIS ==="
+echo "    sets=$SETS_JSON_REL"
+echo "    config=$CONFIG_REL"
 nvidia-smi -L || true
 cd "$WORKDIR"
 
@@ -166,7 +190,7 @@ for sid in "${SET_LIST[@]}"; do
       --model "$MODEL" --device "$DEVICE" --dtype "$DTYPE" "${smoke_flags[@]}"
   fi
 
-  pack="/workspace/inlp_polarity_pool_${sid}_stage_abc_${SCALE}.tar.gz"
+  pack="/workspace/inlp_polarity_pool_${sid}_stage_abc_${SCALE}${PACK_SUFFIX}.tar.gz"
   tar -czf "$pack" \
     "steering/samples/${SAMPLE_STEM}.json" \
     "steering/samples/${SAMPLE_BASE}_train_v1.json" \
@@ -179,5 +203,5 @@ for sid in "${SET_LIST[@]}"; do
   ls -lh "$pack" || true
 done
 
-echo "=== pool INLP DONE ($SCALE) ==="
-ls -lh /workspace/inlp_polarity_pool_*_stage_abc_${SCALE}.tar.gz 2>/dev/null || true
+echo "=== pool INLP DONE ($SCALE hypothesis=$HYPOTHESIS) ==="
+ls -lh /workspace/inlp_polarity_pool_*_stage_abc_${SCALE}${PACK_SUFFIX}.tar.gz 2>/dev/null || true

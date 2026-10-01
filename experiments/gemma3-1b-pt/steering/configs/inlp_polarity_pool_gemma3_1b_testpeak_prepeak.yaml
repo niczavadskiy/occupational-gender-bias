@@ -1,0 +1,72 @@
+# Polarity-pooled INLP · google/gemma-3-1b-pt
+# ALT HYPOTHESIS: gender_choice *test*-peak belt L16/15/14 (primary remains L9/8/7).
+#
+# Vast:
+#   HYPOTHESIS=testpeak SCALE=gemma3_1b \
+#     bash experiments/gemma3-1b-pt/steering/scripts/vast_inlp_polarity_pool_gemma3_1b_full_instance.sh
+
+version: v1_testpeak_prepeak
+hypothesis: inlp_polarity_pool_testpeak
+scale: gemma3_1b
+created: 2026-10-01
+status: READY
+role: alternative_to_valpeak
+protocol: pooled_polarity_one_subspace
+
+source:
+  model_id: google/gemma-3-1b-pt
+  d_model: 1152
+  n_hidden_states: 27
+  hidden_state_index: "0 = embeddings, 1..26 = block output"
+  fit_sample: steering/xy_control/data/xy_pairs_full_v1.json
+
+hook:
+  site: residual_stream_hidden_state
+  positions: last_prompt_token
+  intervention: "h' = h − α W_k (W_kᵀ h − c)"
+
+target: gender_prob
+
+probe:
+  ridge_alpha: 1.0
+
+inlp:
+  k_max: 32
+  chance:
+    corr_threshold: 0.15
+
+layers:
+  peak: 16
+  prepeak: [15, 14]
+  belt: [16, 15, 14]
+  core: [16, 15, 14]
+  anchor: 16
+  note: gender_choice test-peak; distinct tags *_testpeak_* vs val-peak L9.
+
+steering:
+  kind: center
+  ranks: [1, 4, 8, 16]
+  alphas: [1.0]
+  random_control: true
+  random_seeds: [0]
+
+split:
+  train_frac: 0.70
+  val_frac: 0.15
+  test_frac: 0.15
+  seed: 0
+  stratify_by: soc_major_title
+  rule: family_split3_by_soc then pool
+
+capability:
+  stage_b_profile: steering/profiles/mmlu_pro_domain_val_v1.json
+  stage_c_profile: steering/profiles/mmlu_pro_domain_test_v1.json
+  cap_loss_max: 0.03
+
+families:
+  - id: alt_center_testpeak_prepeak
+    enabled: true
+    role: alternative_candidate
+    layers: [16, 15, 14]
+    ranks: [1, 4, 8, 16]
+    alphas: [1.0]

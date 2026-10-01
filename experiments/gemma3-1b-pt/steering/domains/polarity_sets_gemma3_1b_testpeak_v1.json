@@ -1,0 +1,57 @@
+{
+  "schema": "steering.xy_control_polarity_sets/v1",
+  "version": "v2_pooled_testpeak",
+  "scale": "gemma3_1b",
+  "status": "READY",
+  "catalog": "steering/xy_control/domains/h1_soc_fdr_v1.json",
+  "config": "experiments/gemma3-1b-pt/steering/xy_control/configs/xy_control_gemma3_1b_testpeak_prepeak_a6.yaml",
+  "protocol": {
+    "id": "pooled_polarity_one_v",
+    "note": "Alt test-peak belt. One v_raw per polarity set. Empty sets skipped. Tags *_testpeak_* do not overwrite val-peak."
+  },
+  "probe_peak": {
+    "source": "gender_choice L16 (test_bacc peak)",
+    "peak": 16,
+    "layers": [16, 15, 14],
+    "note": "alt to val-peak L9 belt"
+  },
+  "note": "Same FDR SOCs as val-peak sets; layers/tags differ for alt hypothesis.",
+  "sets": [
+    {
+      "id": "promale",
+      "label": "pro-male",
+      "polarity": "male",
+      "tag_stage_a": "xy_gemma3_1b_testpeak_a6_pool_promale",
+      "tag_stage_b": "xy_gemma3_1b_testpeak_a6_pool_promale_b",
+      "tag_stage_c": "xy_gemma3_1b_testpeak_a6_pool_promale_c",
+      "n_soc": 0,
+      "slugs": []
+    },
+    {
+      "id": "profemale",
+      "label": "pro-female",
+      "polarity": "female",
+      "tag_stage_a": "xy_gemma3_1b_testpeak_a6_pool_profemale",
+      "tag_stage_b": "xy_gemma3_1b_testpeak_a6_pool_profemale_b",
+      "tag_stage_c": "xy_gemma3_1b_testpeak_a6_pool_profemale_c",
+      "n_soc": 15,
+      "slugs": [
+        "architecture_and_engineering_occupations",
+        "arts_design_entertainment_sports_and_media_occup",
+        "business_and_financial_operations_occupations",
+        "computer_and_mathematical_occupations",
+        "construction_and_extraction_occupations",
+        "educational_instruction_and_library_occupations",
+        "farming_fishing_and_forestry_occupations",
+        "healthcare_practitioners_and_technical_occupatio",
+        "installation_maintenance_and_repair_occupations",
+        "life_physical_and_social_science_occupations",
+        "management_occupations",
+        "office_and_administrative_support_occupations",
+        "personal_care_and_service_occupations",
+        "production_occupations",
+        "transportation_and_material_moving_occupations"
+      ]
+    }
+  ]
+}
